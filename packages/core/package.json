@@ -69,7 +69,7 @@
     "jotai-optics": "0.4.0",
     "jotai-x": "1.2.4",
     "lodash": "^4.17.21",
-    "nanoid": "^3.3.7",
+    "nanoid": "^3.3.8",
     "optics-ts": "2.4.1",
     "use-deep-compare": "^1.3.0",
     "zustand": "^4.5.5",
