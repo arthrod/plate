@@ -46,6 +46,13 @@ import { ToggleToolbarButton } from './toggle-toolbar-button';
 import { ToolbarGroup } from './toolbar';
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button';
 
+// Responsive breakpoint configurations
+const TOOLBAR_BREAKPOINTS = {
+  desktop: 'hidden lg:flex', // Desktop: lg+ (≥1024px)
+  tablet: 'hidden md:flex lg:hidden', // Tablet only (768–1023px)
+  mobile: 'md:hidden', // Mobile: <768px
+} as const;
+
 export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly();
 
@@ -54,29 +61,29 @@ export function FixedToolbarButtons() {
       {!readOnly && (
         <>
           {/* Desktop: lg+ (≥1024px) */}
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <UndoToolbarButton />
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <ExportToolbarButton />
             <ImportToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <InsertToolbarButton />
             <TurnIntoToolbarButton />
             <FontSizeToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
               <BoldIcon />
             </MarkToolbarButton>
@@ -109,7 +116,7 @@ export function FixedToolbarButtons() {
             </FontColorToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <AlignToolbarButton />
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
@@ -117,43 +124,43 @@ export function FixedToolbarButtons() {
             <ToggleToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <LinkToolbarButton />
             <TableToolbarButton />
             <EmojiToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <MediaToolbarButton nodeType={KEYS.img} />
             <MediaToolbarButton nodeType={KEYS.video} />
             <MediaToolbarButton nodeType={KEYS.audio} />
             <MediaToolbarButton nodeType={KEYS.file} />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden lg:flex">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.desktop}>
             <LineHeightToolbarButton />
             <OutdentToolbarButton />
             <IndentToolbarButton />
           </ToolbarGroup>
 
           {/* Tablet only (768–1023px) */}
-          <ToolbarGroup className="hidden md:flex lg:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.tablet}>
             <UndoToolbarButton />
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden md:flex lg:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.tablet}>
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden md:flex lg:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.tablet}>
             <TurnIntoToolbarButton />
             <FontSizeToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden md:flex lg:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.tablet}>
             <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
               <BoldIcon />
             </MarkToolbarButton>
@@ -168,7 +175,7 @@ export function FixedToolbarButtons() {
             </MarkToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden md:flex lg:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.tablet}>
             <FontColorToolbarButton nodeType={KEYS.color} tooltip="Text color">
               <BaselineIcon />
             </FontColorToolbarButton>
@@ -180,31 +187,31 @@ export function FixedToolbarButtons() {
             </FontColorToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden md:flex lg:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.tablet}>
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
             <TodoListToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="hidden md:flex lg:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.tablet}>
             <LinkToolbarButton />
             <InsertToolbarButton />
             <TableToolbarButton />
           </ToolbarGroup>
 
           {/* Mobile: <768px */}
-          <ToolbarGroup className="md:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.mobile}>
             <UndoToolbarButton />
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="md:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.mobile}>
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="md:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.mobile}>
             <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
               <BoldIcon />
             </MarkToolbarButton>
@@ -213,12 +220,12 @@ export function FixedToolbarButtons() {
             </MarkToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="md:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.mobile}>
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="md:hidden">
+          <ToolbarGroup className={TOOLBAR_BREAKPOINTS.mobile}>
             <LinkToolbarButton />
           </ToolbarGroup>
         </>

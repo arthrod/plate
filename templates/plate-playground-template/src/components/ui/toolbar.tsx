@@ -371,6 +371,7 @@ export function ToolbarMenuGroup({
 
       <DropdownMenuRadioGroup
         {...props}
+        aria-label={label}
         className={cn(
           'hidden',
           'peer/menu-group group/menu-group my-1.5 has-[[role=menuitem]]:block has-[[role=menuitemradio]]:block has-[[role=option]]:block',
