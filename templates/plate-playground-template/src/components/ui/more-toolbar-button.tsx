@@ -41,7 +41,6 @@ import { ToolbarButton, ToolbarGroup, ToolbarMenuGroup } from './toolbar';
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button';
 
 import {
-  ArrowUpToLineIcon,
   BaselineIcon,
   BoldIcon,
   Code2Icon,
@@ -87,9 +86,7 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
               <WandSparklesIcon />
             </AIToolbarButton>
             <ImportToolbarButton />
-            <ExportToolbarButton>
-              <ArrowUpToLineIcon />
-            </ExportToolbarButton>
+            <ExportToolbarButton />
           </ToolbarGroup>
         </ToolbarMenuGroup>
 

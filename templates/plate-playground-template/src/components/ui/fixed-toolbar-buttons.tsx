@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import {
-  ArrowUpToLineIcon,
   BaselineIcon,
   BoldIcon,
   Code2Icon,
@@ -54,32 +53,30 @@ export function FixedToolbarButtons() {
     <div className="flex w-full">
       {!readOnly && (
         <>
-          {/* Desktop: ALL groups visible (1024px+) */}
-          <ToolbarGroup className="max-lg:hidden">
+          {/* Desktop: lg+ (≥1024px) */}
+          <ToolbarGroup className="hidden lg:flex">
             <UndoToolbarButton />
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-lg:hidden">
+          <ToolbarGroup className="hidden lg:flex">
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-lg:hidden">
-            <ExportToolbarButton>
-              <ArrowUpToLineIcon />
-            </ExportToolbarButton>
+          <ToolbarGroup className="hidden lg:flex">
+            <ExportToolbarButton />
             <ImportToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-lg:hidden">
+          <ToolbarGroup className="hidden lg:flex">
             <InsertToolbarButton />
             <TurnIntoToolbarButton />
             <FontSizeToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-lg:hidden">
+          <ToolbarGroup className="hidden lg:flex">
             <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
               <BoldIcon />
             </MarkToolbarButton>
@@ -112,7 +109,7 @@ export function FixedToolbarButtons() {
             </FontColorToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-lg:hidden">
+          <ToolbarGroup className="hidden lg:flex">
             <AlignToolbarButton />
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
@@ -120,43 +117,43 @@ export function FixedToolbarButtons() {
             <ToggleToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-lg:hidden">
+          <ToolbarGroup className="hidden lg:flex">
             <LinkToolbarButton />
             <TableToolbarButton />
             <EmojiToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-lg:hidden">
+          <ToolbarGroup className="hidden lg:flex">
             <MediaToolbarButton nodeType={KEYS.img} />
             <MediaToolbarButton nodeType={KEYS.video} />
             <MediaToolbarButton nodeType={KEYS.audio} />
             <MediaToolbarButton nodeType={KEYS.file} />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-lg:hidden">
+          <ToolbarGroup className="hidden lg:flex">
             <LineHeightToolbarButton />
             <OutdentToolbarButton />
             <IndentToolbarButton />
           </ToolbarGroup>
 
-          {/* Tablet: Reduced groups (768px+) */}
-          <ToolbarGroup className="max-md:hidden lg:hidden">
+          {/* Tablet only (768–1023px) */}
+          <ToolbarGroup className="hidden md:flex lg:hidden">
             <UndoToolbarButton />
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-md:hidden lg:hidden">
+          <ToolbarGroup className="hidden md:flex lg:hidden">
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-md:hidden lg:hidden">
+          <ToolbarGroup className="hidden md:flex lg:hidden">
             <TurnIntoToolbarButton />
             <FontSizeToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-md:hidden lg:hidden">
+          <ToolbarGroup className="hidden md:flex lg:hidden">
             <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
               <BoldIcon />
             </MarkToolbarButton>
@@ -171,7 +168,7 @@ export function FixedToolbarButtons() {
             </MarkToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-md:hidden lg:hidden">
+          <ToolbarGroup className="hidden md:flex lg:hidden">
             <FontColorToolbarButton nodeType={KEYS.color} tooltip="Text color">
               <BaselineIcon />
             </FontColorToolbarButton>
@@ -183,19 +180,19 @@ export function FixedToolbarButtons() {
             </FontColorToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-md:hidden lg:hidden">
+          <ToolbarGroup className="hidden md:flex lg:hidden">
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
             <TodoListToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup className="max-md:hidden lg:hidden">
+          <ToolbarGroup className="hidden md:flex lg:hidden">
             <LinkToolbarButton />
             <InsertToolbarButton />
             <TableToolbarButton />
           </ToolbarGroup>
 
-          {/* Mobile: Minimal groups (640px+) */}
+          {/* Mobile: <768px */}
           <ToolbarGroup className="md:hidden">
             <UndoToolbarButton />
             <RedoToolbarButton />
