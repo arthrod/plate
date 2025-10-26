@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import {
-  ArrowUpToLineIcon,
   BaselineIcon,
   BoldIcon,
   Code2Icon,
@@ -21,11 +20,9 @@ import { AIToolbarButton } from './ai-toolbar-button';
 import { AlignToolbarButton } from './align-toolbar-button';
 import { CommentToolbarButton } from './comment-toolbar-button';
 import { EmojiToolbarButton } from './emoji-toolbar-button';
-import { ExportToolbarButton } from './export-toolbar-button';
 import { FontColorToolbarButton } from './font-color-toolbar-button';
 import { FontSizeToolbarButton } from './font-size-toolbar-button';
 import { RedoToolbarButton, UndoToolbarButton } from './history-toolbar-button';
-import { ImportToolbarButton } from './import-toolbar-button';
 import {
   IndentToolbarButton,
   OutdentToolbarButton,
@@ -54,32 +51,24 @@ export function FixedToolbarButtons() {
     <div className="flex w-full">
       {!readOnly && (
         <>
-          <ToolbarGroup>
+          {/* Group 1: Most Used - Visible on Desktop (1920px+) */}
+          <ToolbarGroup className="max-lg:hidden">
             <UndoToolbarButton />
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup>
-            <ExportToolbarButton>
-              <ArrowUpToLineIcon />
-            </ExportToolbarButton>
-
-            <ImportToolbarButton />
-          </ToolbarGroup>
-
-          <ToolbarGroup>
-            <InsertToolbarButton />
+          <ToolbarGroup className="max-lg:hidden">
             <TurnIntoToolbarButton />
             <FontSizeToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
               <BoldIcon />
             </MarkToolbarButton>
@@ -94,6 +83,41 @@ export function FixedToolbarButtons() {
             >
               <UnderlineIcon />
             </MarkToolbarButton>
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-lg:hidden">
+            <AlignToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-lg:hidden">
+            <NumberedListToolbarButton />
+            <BulletedListToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-lg:hidden">
+            <LinkToolbarButton />
+          </ToolbarGroup>
+
+          {/* Group 2: Average Used - Visible on Tablet (960px+) */}
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <UndoToolbarButton />
+            <RedoToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <AIToolbarButton tooltip="AI commands">
+              <WandSparklesIcon />
+            </AIToolbarButton>
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
+              <BoldIcon />
+            </MarkToolbarButton>
+
+            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
+              <ItalicIcon />
+            </MarkToolbarButton>
 
             <MarkToolbarButton
               nodeType={KEYS.strikethrough}
@@ -101,11 +125,9 @@ export function FixedToolbarButtons() {
             >
               <StrikethroughIcon />
             </MarkToolbarButton>
+          </ToolbarGroup>
 
-            <MarkToolbarButton nodeType={KEYS.code} tooltip="Code (⌘+E)">
-              <Code2Icon />
-            </MarkToolbarButton>
-
+          <ToolbarGroup className="max-md:hidden lg:hidden">
             <FontColorToolbarButton nodeType={KEYS.color} tooltip="Text color">
               <BaselineIcon />
             </FontColorToolbarButton>
@@ -118,52 +140,76 @@ export function FixedToolbarButtons() {
             </FontColorToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup>
-            <AlignToolbarButton />
-
-            <NumberedListToolbarButton />
-            <BulletedListToolbarButton />
+          <ToolbarGroup className="max-md:hidden lg:hidden">
             <TodoListToolbarButton />
             <ToggleToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
-            <LinkToolbarButton />
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <InsertToolbarButton />
             <TableToolbarButton />
-            <EmojiToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
-            <MediaToolbarButton nodeType={KEYS.img} />
-            <MediaToolbarButton nodeType={KEYS.video} />
-            <MediaToolbarButton nodeType={KEYS.audio} />
-            <MediaToolbarButton nodeType={KEYS.file} />
+          {/* Group 3: Least Used - Visible on Mobile (640px+) */}
+          <ToolbarGroup className="md:hidden">
+            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
+              <BoldIcon />
+            </MarkToolbarButton>
+
+            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
+              <ItalicIcon />
+            </MarkToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="md:hidden">
+            <MarkToolbarButton nodeType={KEYS.code} tooltip="Code (⌘+E)">
+              <Code2Icon />
+            </MarkToolbarButton>
+          </ToolbarGroup>
+
+          <ToolbarGroup className="md:hidden">
             <LineHeightToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="md:hidden">
             <OutdentToolbarButton />
             <IndentToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
-            <MoreToolbarButton />
+          <ToolbarGroup className="md:hidden">
+            <EmojiToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="md:hidden">
+            <MediaToolbarButton nodeType={KEYS.img} />
+            <MediaToolbarButton nodeType={KEYS.video} />
+            <MediaToolbarButton nodeType={KEYS.audio} />
+            <MediaToolbarButton nodeType={KEYS.file} />
           </ToolbarGroup>
         </>
       )}
 
       <div className="grow" />
 
-      <ToolbarGroup>
-        <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
-          <HighlighterIcon />
-        </MarkToolbarButton>
-        <CommentToolbarButton />
-      </ToolbarGroup>
+      {/* Always Visible - Right Side */}
+      {!readOnly && (
+        <ToolbarGroup>
+          <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
+            <HighlighterIcon />
+          </MarkToolbarButton>
+          <CommentToolbarButton />
+        </ToolbarGroup>
+      )}
 
       <ToolbarGroup>
         <ModeToolbarButton />
       </ToolbarGroup>
+
+      {!readOnly && (
+        <ToolbarGroup>
+          <MoreToolbarButton />
+        </ToolbarGroup>
+      )}
     </div>
   );
 }
