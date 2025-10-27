@@ -87,9 +87,7 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
               <WandSparklesIcon />
             </AIToolbarButton>
             <ImportToolbarButton />
-            <ExportToolbarButton>
-              <ArrowUpToLineIcon />
-            </ExportToolbarButton>
+            <ExportToolbarButton />
           </ToolbarGroup>
         </ToolbarMenuGroup>
 
