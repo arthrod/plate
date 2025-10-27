@@ -118,13 +118,12 @@ jest.mock('../toolbar', () => ({
   ),
 }));
 
-// Mock the useReadOnly hook
+// Mock the editor read-only hook used by the component
 jest.mock('platejs/react', () => ({
-  useReadOnly: jest.fn(),
+  useEditorReadOnly: jest.fn(),
 }));
 
-const { useReadOnly } = require('platejs/react');
-
+const { useEditorReadOnly } = require('platejs/react');
 describe('FixedToolbarButtons', () => {
   beforeEach(() => {
     jest.clearAllMocks();
