@@ -41,9 +41,6 @@ import { ToolbarButton, ToolbarGroup, ToolbarMenuGroup } from './toolbar';
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button';
 
 import {
-import {
-  BaselineIcon,
-  BoldIcon,
   BaselineIcon,
   BoldIcon,
   Code2Icon,
