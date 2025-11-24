@@ -54,62 +54,56 @@ export function FixedToolbarButtons() {
     <div className="flex w-full">
       {!readOnly && (
         <>
-          <ToolbarGroup>
+          {/* Desktop: ALL groups visible (1024px+) */}
+          <ToolbarGroup className="max-lg:hidden">
             <UndoToolbarButton />
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <ExportToolbarButton>
               <ArrowUpToLineIcon />
             </ExportToolbarButton>
-
             <ImportToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <InsertToolbarButton />
             <TurnIntoToolbarButton />
             <FontSizeToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
               <BoldIcon />
             </MarkToolbarButton>
-
             <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
               <ItalicIcon />
             </MarkToolbarButton>
-
             <MarkToolbarButton
               nodeType={KEYS.underline}
               tooltip="Underline (⌘+U)"
             >
               <UnderlineIcon />
             </MarkToolbarButton>
-
             <MarkToolbarButton
               nodeType={KEYS.strikethrough}
               tooltip="Strikethrough (⌘+⇧+M)"
             >
               <StrikethroughIcon />
             </MarkToolbarButton>
-
             <MarkToolbarButton nodeType={KEYS.code} tooltip="Code (⌘+E)">
               <Code2Icon />
             </MarkToolbarButton>
-
             <FontColorToolbarButton nodeType={KEYS.color} tooltip="Text color">
               <BaselineIcon />
             </FontColorToolbarButton>
-
             <FontColorToolbarButton
               nodeType={KEYS.backgroundColor}
               tooltip="Background color"
@@ -118,52 +112,142 @@ export function FixedToolbarButtons() {
             </FontColorToolbarButton>
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <AlignToolbarButton />
-
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
             <TodoListToolbarButton />
             <ToggleToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <LinkToolbarButton />
             <TableToolbarButton />
             <EmojiToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <MediaToolbarButton nodeType={KEYS.img} />
             <MediaToolbarButton nodeType={KEYS.video} />
             <MediaToolbarButton nodeType={KEYS.audio} />
             <MediaToolbarButton nodeType={KEYS.file} />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          <ToolbarGroup className="max-lg:hidden">
             <LineHeightToolbarButton />
             <OutdentToolbarButton />
             <IndentToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
-            <MoreToolbarButton />
+          {/* Tablet: Reduced groups (768px+) */}
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <UndoToolbarButton />
+            <RedoToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <AIToolbarButton tooltip="AI commands">
+              <WandSparklesIcon />
+            </AIToolbarButton>
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <TurnIntoToolbarButton />
+            <FontSizeToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
+              <BoldIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
+              <ItalicIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton
+              nodeType={KEYS.strikethrough}
+              tooltip="Strikethrough (⌘+⇧+M)"
+            >
+              <StrikethroughIcon />
+            </MarkToolbarButton>
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <FontColorToolbarButton nodeType={KEYS.color} tooltip="Text color">
+              <BaselineIcon />
+            </FontColorToolbarButton>
+            <FontColorToolbarButton
+              nodeType={KEYS.backgroundColor}
+              tooltip="Background color"
+            >
+              <PaintBucketIcon />
+            </FontColorToolbarButton>
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <NumberedListToolbarButton />
+            <BulletedListToolbarButton />
+            <TodoListToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="max-md:hidden lg:hidden">
+            <LinkToolbarButton />
+            <InsertToolbarButton />
+            <TableToolbarButton />
+          </ToolbarGroup>
+
+          {/* Mobile: Minimal groups (640px+) */}
+          <ToolbarGroup className="md:hidden">
+            <UndoToolbarButton />
+            <RedoToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="md:hidden">
+            <AIToolbarButton tooltip="AI commands">
+              <WandSparklesIcon />
+            </AIToolbarButton>
+          </ToolbarGroup>
+
+          <ToolbarGroup className="md:hidden">
+            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
+              <BoldIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
+              <ItalicIcon />
+            </MarkToolbarButton>
+          </ToolbarGroup>
+
+          <ToolbarGroup className="md:hidden">
+            <NumberedListToolbarButton />
+            <BulletedListToolbarButton />
+          </ToolbarGroup>
+
+          <ToolbarGroup className="md:hidden">
+            <LinkToolbarButton />
           </ToolbarGroup>
         </>
       )}
 
       <div className="grow" />
 
-      <ToolbarGroup>
-        <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
-          <HighlighterIcon />
-        </MarkToolbarButton>
-        <CommentToolbarButton />
-      </ToolbarGroup>
+      {/* Always Visible - Right Side */}
+      {!readOnly && (
+        <ToolbarGroup>
+          <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
+            <HighlighterIcon />
+          </MarkToolbarButton>
+          <CommentToolbarButton />
+        </ToolbarGroup>
+      )}
 
       <ToolbarGroup>
         <ModeToolbarButton />
       </ToolbarGroup>
+
+      {!readOnly && (
+        <ToolbarGroup>
+          <MoreToolbarButton />
+        </ToolbarGroup>
+      )}
     </div>
   );
 }
