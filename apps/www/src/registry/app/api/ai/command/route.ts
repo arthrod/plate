@@ -30,7 +30,12 @@ import {
 } from './prompts';
 
 export async function POST(req: NextRequest) {
-  const { apiKey: key, ctx, messages: messagesRaw, model } = await req.json();
+  const {
+    apiKey: key,
+    ctx,
+    messages: messagesRaw = [],
+    model,
+  } = await req.json();
 
   const { children, selection, toolName: toolNameParam } = ctx;
 
@@ -160,8 +165,8 @@ const getCommentTool = (
     model: LanguageModel;
     writer: UIMessageStreamWriter<ChatMessage>;
   }
-) => {
-  return tool({
+) =>
+  tool({
     description: 'Comment on the content',
     inputSchema: z.object({}),
     execute: async () => {
@@ -196,7 +201,7 @@ const getCommentTool = (
         writer.write({
           id: commentDataId,
           data: {
-            comment: comment,
+            comment,
             status: 'streaming',
           },
           type: 'data-comment',
@@ -213,4 +218,3 @@ const getCommentTool = (
       });
     },
   });
-};

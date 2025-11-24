@@ -54,7 +54,7 @@ export const useChat = () => {
     transport: new DefaultChatTransport({
       api: options.api || '/api/ai/command',
       // Mock the API response. Remove it when you implement the route /api/ai/command
-      fetch: async (input, init) => {
+      fetch: (async (input, init) => {
         const bodyOptions = editor.getOptions(aiChatPlugin).chatOptions?.body;
 
         const initBody = JSON.parse(init?.body as string);
@@ -109,7 +109,7 @@ export const useChat = () => {
         }
 
         return res;
-      },
+      }) as typeof fetch,
     }),
     onData(data) {
       if (data.type === 'data-toolName') {
@@ -221,24 +221,23 @@ const fakeStreamText = ({
 
         if (sample === 'comment') {
           const commentChunks = createCommentChunks(editor);
-          console.log('🚀 ~ fakeStreamText ~ commentChunks:', commentChunks);
           return commentChunks;
         }
 
         return [
           Array.from({ length: chunkCount }, () => ({
             delay: faker.number.int({ max: 100, min: 30 }),
-            texts: faker.lorem.words({ max: 3, min: 1 }) + ' ',
+            texts: `${faker.lorem.words({ max: 3, min: 1 })} `,
           })),
 
           Array.from({ length: chunkCount + 2 }, () => ({
             delay: faker.number.int({ max: 100, min: 30 }),
-            texts: faker.lorem.words({ max: 3, min: 1 }) + ' ',
+            texts: `${faker.lorem.words({ max: 3, min: 1 })} `,
           })),
 
           Array.from({ length: chunkCount + 4 }, () => ({
             delay: faker.number.int({ max: 100, min: 30 }),
-            texts: faker.lorem.words({ max: 3, min: 1 }) + ' ',
+            texts: `${faker.lorem.words({ max: 3, min: 1 })} `,
           })),
         ];
       })();

@@ -1,5 +1,23 @@
 # @platejs/code-block
 
+## 52.0.1
+
+### Patch Changes
+
+- [#4750](https://github.com/udecode/plate/pull/4750) by [@zbeyens](https://github.com/zbeyens) – Add React Compiler support.
+
+## 52.0.0
+
+### Major Changes
+
+- [#4747](https://github.com/udecode/plate/pull/4747) by [@zbeyens](https://github.com/zbeyens) – ESM-only
+
+## 51.1.2
+
+### Patch Changes
+
+- [#4732](https://github.com/udecode/plate/pull/4732) by [@zbeyens](https://github.com/zbeyens) – Format code with Biome
+
 ## 51.0.0
 
 ## 49.0.0
@@ -36,7 +54,7 @@
   - `CodeBlockPlugin`: remove `prism` option. Use `lowlight` option instead:
 
   ```tsx
-  import { all, createLowlight } from 'lowlight';
+  import { all, createLowlight } from "lowlight";
 
   const lowlight = createLowlight(all);
 
@@ -135,11 +153,11 @@
 
   ```ts
   // Import Prism with your supported languages
-  import Prism from 'prismjs';
+  import Prism from "prismjs";
 
-  import 'prismjs/components/prism-antlr4.js';
-  import 'prismjs/components/prism-bash.js';
-  import 'prismjs/components/prism-c.js';
+  import "prismjs/components/prism-antlr4.js";
+  import "prismjs/components/prism-bash.js";
+  import "prismjs/components/prism-c.js";
   // ...
 
   const plugins = createPlugins([

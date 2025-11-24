@@ -11,7 +11,7 @@ const getCoords = (e: any) => {
   return { x: e.clientX, y: e.clientY };
 };
 
-export interface ScrollAreaProps {
+export type ScrollAreaProps = {
   placement: 'bottom' | 'top';
   containerRef?: React.RefObject<any>;
   enabled?: boolean;
@@ -20,7 +20,7 @@ export interface ScrollAreaProps {
   scrollAreaProps?: React.HTMLAttributes<HTMLDivElement>;
   strengthMultiplier?: number;
   zIndex?: number;
-}
+};
 
 export function ScrollArea({
   containerRef,
@@ -65,7 +65,8 @@ export function ScrollArea({
     }
   };
 
-  const startScrolling = () => {
+  // ✅ Wrap in useCallback to stabilize the reference
+  const startScrolling = React.useCallback(() => {
     const tick = () => {
       const scaleY = scaleYRef.current;
 
@@ -88,35 +89,44 @@ export function ScrollArea({
     };
 
     tick();
-  };
+  }, [containerRef, direction, strengthMultiplier]);
 
   // Update scaleY every 100ms or so
   // and start scrolling if necessary
-  const updateScrolling = throttle(
-    (e) => {
-      const container = ref.current;
-
-      if (!container) return;
-
-      const { height: h, top: y } = container.getBoundingClientRect();
-      const coords = getCoords(e);
-
-      const strength = Math.max(Math.max(coords.y - y, 0) / h, minStrength);
-
-      // calculate strength
-      scaleYRef.current = direction === -1 ? 1 - strength : strength;
-
-      // start scrolling if we need to
-      if (!frameRef.current && scaleYRef.current) {
-        startScrolling();
-      }
-    },
-    100,
-    { trailing: false }
+  // ✅ Store throttled function in ref - initialized in useEffect, refs accessed in event handlers are OK
+  const updateScrollingRef = React.useRef<((e: any) => void) | undefined>(
+    undefined
   );
 
+  React.useEffect(() => {
+    // Recreate throttled function when dependencies change
+    updateScrollingRef.current = throttle(
+      (e: any) => {
+        const container = ref.current;
+
+        if (!container) return;
+
+        const { height: h, top: y } = container.getBoundingClientRect();
+        const coords = getCoords(e);
+
+        const strength = Math.max(Math.max(coords.y - y, 0) / h, minStrength);
+
+        // calculate strength
+        scaleYRef.current = direction === -1 ? 1 - strength : strength;
+
+        // start scrolling if we need to
+        if (!frameRef.current && scaleYRef.current) {
+          startScrolling();
+        }
+      },
+      100,
+      { trailing: false }
+    );
+  }, [direction, minStrength, startScrolling]);
+
   const handleEvent = (e: any) => {
-    updateScrolling(e);
+    // Safety check: only call if initialized
+    updateScrollingRef.current?.(e);
   };
 
   React.useEffect(() => {
@@ -129,6 +139,7 @@ export function ScrollArea({
 
   // Hide the element if not enabled, so it doesn't interfere with clicking things under it.
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: drag and drop functionality requires these event handlers
     <div
       ref={ref as any}
       // touchmove events don't seem to work across siblings, so we unfortunately

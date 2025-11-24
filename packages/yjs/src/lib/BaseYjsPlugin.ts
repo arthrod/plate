@@ -1,4 +1,4 @@
-import { YjsEditor } from '@slate-yjs/core';
+import { slateNodesToInsertDelta, YjsEditor } from '@slate-yjs/core';
 import {
   type InitOptions,
   type Value,
@@ -21,14 +21,11 @@ import { withPlateYjs } from './withPlateYjs';
 // Helper to check if an object is a provider config
 const isProviderConfig = (
   item: UnifiedProvider | YjsProviderConfig
-): item is YjsProviderConfig => {
-  return (
-    typeof item === 'object' &&
-    item !== null &&
-    'type' in item &&
-    'options' in item
-  );
-};
+): item is YjsProviderConfig =>
+  typeof item === 'object' &&
+  item !== null &&
+  'type' in item &&
+  'options' in item;
 
 export const BaseYjsPlugin = createTSlatePlugin<YjsConfig>({
   key: KEYS.yjs,
@@ -42,6 +39,7 @@ export const BaseYjsPlugin = createTSlatePlugin<YjsConfig>({
     localOrigin: null,
     positionStorageOrigin: null,
     providers: [],
+    sharedType: null,
     ydoc: null!,
     onConnect: () => {},
     onDisconnect: () => {},
@@ -128,7 +126,7 @@ export const BaseYjsPlugin = createTSlatePlugin<YjsConfig>({
 
       try {
         YjsEditor.disconnect(editor as any);
-      } catch (error) {}
+      } catch (_error) {}
     },
     /**
      * Disconnect from all providers or specific provider types. For WebRTC
@@ -140,7 +138,7 @@ export const BaseYjsPlugin = createTSlatePlugin<YjsConfig>({
      *   specified, disconnects from all providers.
      */
     disconnect: (type?: YjsProviderType | YjsProviderType[]) => {
-      const { editor, getOptions } = ctx;
+      const { editor: _editor, getOptions } = ctx;
       const { _providers } = getOptions();
 
       const typesToDisconnect = type
@@ -196,6 +194,7 @@ export const BaseYjsPlugin = createTSlatePlugin<YjsConfig>({
         _providers,
         awareness,
         providers: providerConfigsOrInstances = [],
+        sharedType: customSharedType,
         ydoc,
       } = options;
 
@@ -221,13 +220,23 @@ export const BaseYjsPlugin = createTSlatePlugin<YjsConfig>({
           initialNodes = editor.api.create.value();
         }
 
-        const initialDelta = await slateToDeterministicYjsState(
-          id ?? editor.id,
-          initialNodes
-        );
-        ydoc.transact(() => {
-          Y.applyUpdate(ydoc, initialDelta);
-        });
+        // Use custom sharedType if provided, otherwise use default 'content'
+        if (customSharedType) {
+          // Apply initial value directly to the custom shared type
+          const delta = slateNodesToInsertDelta(initialNodes);
+          ydoc.transact(() => {
+            customSharedType.applyDelta(delta);
+          });
+        } else {
+          // Use deterministic state for default 'content' key
+          const initialDelta = await slateToDeterministicYjsState(
+            id ?? editor.id,
+            initialNodes
+          );
+          ydoc.transact(() => {
+            Y.applyUpdate(ydoc, initialDelta);
+          });
+        }
       }
 
       // Final providers array that will contain both configured and custom providers

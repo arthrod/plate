@@ -3,28 +3,31 @@ import { jsx } from '@platejs/test-utils';
 import { renderHook } from '@testing-library/react';
 
 import { createSlatePlugin } from '../../lib/plugin/createSlatePlugin';
+import * as withStaticModule from '../../static/editor/withStatic';
 import { usePlateViewEditor } from './usePlateViewEditor';
 
 jsx;
 
 // Mock createStaticEditor
-let mockCreateStaticEditor: jest.Mock;
-jest.mock('../../static/editor/withStatic', () => ({
-  createStaticEditor: (options: any) => mockCreateStaticEditor(options),
-}));
+let mockCreateStaticEditor: ReturnType<typeof mock>;
+let createStaticEditorSpy: ReturnType<typeof spyOn>;
 
 describe('usePlateViewEditor', () => {
   beforeEach(() => {
-    mockCreateStaticEditor = jest.fn((options) => ({
+    mockCreateStaticEditor = mock((options) => ({
       id: options?.id || 'test-editor',
       children: options?.value || [],
       plugins: options?.plugins || [],
       ...options,
     }));
+    createStaticEditorSpy = spyOn(
+      withStaticModule,
+      'createStaticEditor'
+    ).mockImplementation(mockCreateStaticEditor);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    createStaticEditorSpy?.mockRestore();
   });
 
   describe('basic functionality', () => {
@@ -202,9 +205,7 @@ describe('usePlateViewEditor', () => {
     });
 
     it('should create editor on remount', () => {
-      const { rerender, result, unmount } = renderHook(() =>
-        usePlateViewEditor()
-      );
+      const { result, unmount } = renderHook(() => usePlateViewEditor());
 
       const firstEditor = result.current;
       expect(mockCreateStaticEditor).toHaveBeenCalledTimes(1);
@@ -228,7 +229,6 @@ describe('usePlateViewEditor', () => {
       );
       // Should not be null
       if (enabledTrue.current) {
-        // eslint-disable-next-line jest/no-conditional-expect
         expect(enabledTrue.current.id).toBeDefined();
       }
 
@@ -243,7 +243,6 @@ describe('usePlateViewEditor', () => {
       );
       // Should not be null
       if (enabledUndefined.current) {
-        // eslint-disable-next-line jest/no-conditional-expect
         expect(enabledUndefined.current.id).toBeDefined();
       }
     });

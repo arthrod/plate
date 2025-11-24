@@ -1,23 +1,24 @@
 import React from 'react';
 
-interface UseTocObserver {
+type UseTocObserver = {
   activeId: string;
   isObserve: boolean;
   tocRef: React.RefObject<HTMLElement | null>;
-}
+};
 
 export const useTocObserver = ({
   activeId,
   isObserve,
   tocRef,
 }: UseTocObserver) => {
-  const root = tocRef.current;
-
   const [visible, setVisible] = React.useState<boolean>(true);
   const [offset, setOffset] = React.useState<number>(0);
 
-  const updateOffset = React.useCallback(
-    (entries: IntersectionObserverEntry[]) => {
+  React.useEffect(() => {
+    // ✅ Access ref inside effect, not during render
+    const root = tocRef.current;
+
+    const updateOffset = (entries: IntersectionObserverEntry[]) => {
       if (!isObserve) return;
 
       const [entry] = entries;
@@ -41,13 +42,10 @@ export const useTocObserver = ({
 
         setOffset(offset);
       }
-    },
-    [isObserve, root]
-  );
+    };
 
-  React.useEffect(() => {
     const observer = new IntersectionObserver(updateOffset, {
-      root: root,
+      root,
     });
 
     const element = root?.querySelectorAll('#toc_item_active')[0];
@@ -57,7 +55,7 @@ export const useTocObserver = ({
     return () => {
       observer.disconnect();
     };
-  }, [root, activeId, updateOffset]);
+  }, [tocRef, activeId, isObserve]);
 
   return { offset, visible };
 };

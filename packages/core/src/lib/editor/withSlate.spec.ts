@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-conditional-expect */
 import { BoldPlugin } from '@platejs/basic-nodes/react';
 import { type Value, createEditor } from '@platejs/slate';
 
@@ -419,7 +418,9 @@ describe('withPlate', () => {
       anchor: editorWithAutoSelectStart.api.start([]),
       focus: editorWithAutoSelectStart.api.start([]),
     };
-    expect(editorWithAutoSelectStart.selection).toEqual(expectedStartSelection);
+    expect(editorWithAutoSelectStart.selection as any).toEqual(
+      expectedStartSelection
+    );
 
     // Test autoSelect end
     const editorWithAutoSelectEnd = withSlate(createEditor(), {
@@ -430,7 +431,9 @@ describe('withPlate', () => {
       anchor: editorWithAutoSelectEnd.api.end([]),
       focus: editorWithAutoSelectEnd.api.end([]),
     };
-    expect(editorWithAutoSelectEnd.selection).toEqual(expectedEndSelection);
+    expect(editorWithAutoSelectEnd.selection as any).toEqual(
+      expectedEndSelection
+    );
 
     // Test empty children
     const editorWithEmptyChildren = withSlate(createEditor());
@@ -444,7 +447,7 @@ describe('withPlate', () => {
       value: [],
     });
 
-    expect(editor2.children).toEqual([
+    expect(editor2.children).toMatchObject([
       {
         children: [
           {

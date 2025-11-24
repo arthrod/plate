@@ -11,19 +11,21 @@ import { moveSelection } from './moveSelection';
 
 jsxt;
 
-jest.mock('../../../lib', () => ({
-  ...jest.requireActual('../../../lib'),
-  querySelectorSelectable: (id: string) => ({
-    id,
-    dataset: { blockId: id },
-  }),
-}));
-
 describe('moveSelection', () => {
   let editor: PlateEditor;
+  let querySelectorSelectableSpy: ReturnType<typeof spyOn>;
+  let querySelectorSelectableMock: ReturnType<typeof mock>;
 
   beforeEach(() => {
-    jest.spyOn(domUtils, 'querySelectorSelectable');
+    // Mock querySelectorSelectable
+    querySelectorSelectableMock = mock((id: string) => ({
+      id,
+      dataset: { blockId: id },
+    }));
+    querySelectorSelectableSpy = spyOn(
+      domUtils,
+      'querySelectorSelectable'
+    ).mockImplementation(querySelectorSelectableMock);
 
     editor = createPlateEditor({
       plugins: [BlockSelectionPlugin],
@@ -48,7 +50,7 @@ describe('moveSelection', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    querySelectorSelectableSpy?.mockRestore();
   });
 
   describe('when pressing arrow down without shift', () => {
@@ -407,9 +409,11 @@ describe('moveSelection', () => {
       });
 
       // For testing, let's skip columns
-      editor.setOption(BlockSelectionPlugin, 'isSelectable', (node) => {
-        return node.type !== 'column';
-      });
+      editor.setOption(
+        BlockSelectionPlugin,
+        'isSelectable',
+        (node) => node.type !== 'column'
+      );
     });
 
     it('should move to previous sibling when not first child', () => {
@@ -452,9 +456,11 @@ describe('moveSelection', () => {
 
     it('should handle deeper nesting with non-selectable parents', () => {
       // Make column_group1 not selectable as well
-      editor.setOption(BlockSelectionPlugin, 'isSelectable', (node) => {
-        return node.type !== 'column' && node.type !== 'column_group';
-      });
+      editor.setOption(
+        BlockSelectionPlugin,
+        'isSelectable',
+        (node) => node.type !== 'column' && node.type !== 'column_group'
+      );
 
       // Select grandchild1
       editor.setOption(

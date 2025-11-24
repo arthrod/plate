@@ -1,4 +1,4 @@
-name: Lint and typecheck
+name: CI
 
 on:
   push:
@@ -11,9 +11,9 @@ on:
       - '.github/workflows/lint-typecheck.yml'
       - '.yarnrc.yml'
       - 'yarn.lock'
-      - '.prettier*'
-      - '.eslint*'
-      - 'jest.config.js'
+      - 'biome.jsonc'
+      - 'eslint*'
+      - 'bunfig.toml'
       - 'tsconfig.json'
       - 'turbo.json'
       - 'config'
@@ -30,14 +30,16 @@ on:
       - '.github/workflows/**'
       - '.yarnrc.yml'
       - 'yarn.lock'
-      - '.prettier*'
-      - '.eslint*'
-      - 'jest.config.js'
+      - 'biome.jsonc'
+      - 'eslint*'
+      - 'bunfig.toml'
       - 'tsconfig.json'
       - 'turbo.json'
       - 'config'
       - 'scripts'
       - 'patches'
+
+  workflow_dispatch:
 
 # Add concurrency to cancel redundant runs
 concurrency:
@@ -45,8 +47,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-typecheck:
-    name: Lint and Typecheck
+  ci:
+    name: CI
     runs-on: ubuntu-latest
 
     steps:
@@ -57,8 +59,16 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: 📥 Monorepo install
         uses: ./.github/actions/yarn-nm-install
+
+      - name: 🔬 Lint
+        run: yarn check
 
       - name: ♻️ Restore packages cache
         uses: actions/cache@v4
@@ -71,22 +81,30 @@ jobs:
       - name: 🏗 Build
         run: yarn build
 
-      - name: 🔬 Lint
-        run: yarn lint
-
       - name: 🕵️ Typecheck
-        run: yarn typecheck:all
+        run: yarn typecheck
 
-  notify-failure:
-    name: Discord Notification
-    runs-on: ubuntu-latest
-    needs: [lint-typecheck]
-    if: ${{ github.event_name == 'push' && failure() }}
+      - name: 🧪 Test
+        run: yarn test
 
-    steps:
-      - name: Send Discord Notification
-        uses: nobrayner/discord-webhook@v1
-        with:
-          github-token: ${{ secrets.X_GITHUB_READ_ACTIONS_TOKEN }}
-          discord-webhook: ${{ secrets.DISCORD_CI_WEBHOOK }}
-          description: ${{ github.event.number && format('https://github.com/udecode/plate/pull/{0}', github.event.number) || 'Push' }}
+      # - name: 📥 Install Playwright dependencies
+      #   run: |
+      #     yarn playwright install-deps
+      #     yarn playwright install
+
+      # - name: 🎭 Run Playwright tests
+      #   run: yarn e2e
+
+  # notify-failure:
+  #   name: Discord Notification
+  #   runs-on: ubuntu-latest
+  #   needs: [ci]
+  #   if: ${{ github.event_name == 'push' && failure() }}
+
+  #   steps:
+  #     - name: Send Discord Notification
+  #       uses: nobrayner/discord-webhook@v1
+  #       with:
+  #         github-token: ${{ secrets.X_GITHUB_READ_ACTIONS_TOKEN }}
+  #         discord-webhook: ${{ secrets.DISCORD_CI_WEBHOOK }}
+  #         description: ${{ github.event.number && format('https://github.com/udecode/plate/pull/{0}', github.event.number) || 'Push' }}

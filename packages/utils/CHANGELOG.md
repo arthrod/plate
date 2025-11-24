@@ -1,5 +1,25 @@
 # @platejs/utils
 
+## 52.0.1
+
+### Patch Changes
+
+- [#4750](https://github.com/udecode/plate/pull/4750) by [@zbeyens](https://github.com/zbeyens) – Add React Compiler support.
+
+## 52.0.0
+
+### Major Changes
+
+- [#4747](https://github.com/udecode/plate/pull/4747) by [@zbeyens](https://github.com/zbeyens) – ESM-only
+
+## 51.1.3
+
+## 51.1.2
+
+### Patch Changes
+
+- [#4732](https://github.com/udecode/plate/pull/4732) by [@zbeyens](https://github.com/zbeyens) – Format code with Biome
+
 ## 51.0.0
 
 ## 50.3.9
@@ -87,7 +107,7 @@
       // import { TImageElement } from '@udecode/plate-media';
 
       // After
-      import { TImageElement } from 'platejs';
+      import { TImageElement } from "platejs";
       ```
 
   - Removed `structuralTypes` option from `useSelectionFragment` and `useSelectionFragmentProp`. These hooks now automatically use `plugin.node.isContainer` from enabled plugins.
@@ -102,9 +122,9 @@
       BlockPlaceholderPlugin.configure({
         options: {
           className:
-            'before:absolute before:cursor-text before:opacity-30 before:content-[attr(placeholder)]',
+            "before:absolute before:cursor-text before:opacity-30 before:content-[attr(placeholder)]",
           placeholders: {
-            [ParagraphPlugin.key]: 'Type something...',
+            [ParagraphPlugin.key]: "Type something...",
             // ...other placeholders
           },
           query: ({ editor, path }) => {
@@ -128,7 +148,7 @@
     - Example Usage:
 
       ```ts
-      import { KEYS } from 'platejs';
+      import { KEYS } from "platejs";
 
       // Instead of: ParagraphPlugin.key
       // Use: KEYS.p

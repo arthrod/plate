@@ -9,7 +9,7 @@ This document will provide guidance to help streamline the process and make effi
 This repository is a monorepo.
 
 - We use [yarn](https://yarnpkg.com/en/docs/install) and [`workspaces`](https://yarnpkg.com/features/workspaces) for development.
-- We use [tsup](https://tsup.egoist.dev/) as our build system.
+- We use [tsdown](https://tsdown.dev/) as our build system.
 - We use [changesets](https://github.com/changesets/changesets) for managing releases.
 
 ## Structure
@@ -108,7 +108,7 @@ When adding or modifying components, please ensure that you update the documenta
 
 ### Run Linter
 
-We use [ESLint](https://eslint.org/) as our code linter. To run the linter, use the following command:
+We use [Biome](https://biomejs.dev/) as our code linter. To run the linter, use the following command:
 
 ```bash
 yarn lint
@@ -264,27 +264,9 @@ The main bundle is client-side and is not tested in server environments. In gene
 - Create a new entry file in `/src/server.ts`, export with the following:
 
 ```ts
-export * from './shared/index';
-export * from './server/index'; // If needed
+export * from "./shared/index";
+export * from "./server/index"; // If needed
 ```
 
 - (Optional) If needed, create server-side versions in `/src/server/`. For example, `withReact` in `/src/server/withReact` is a server-side version of `/src/client/withReact`
 - Run `yarn brl` to synchronize the exports
-- Update `package.json > exports`
-
-```json
-"exports": {
-  ".": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.mjs",
-    "module": "./dist/index.mjs",
-    "require": "./dist/index.js"
-  },
-  "./server": {
-    "types": "./dist/server.d.ts",
-    "import": "./dist/server.mjs",
-    "module": "./dist/server.mjs",
-    "require": "./dist/server.js"
-  }
-},
-```

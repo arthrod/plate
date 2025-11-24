@@ -1,5 +1,29 @@
 # @platejs/markdown
 
+## 52.0.1
+
+### Patch Changes
+
+- [#4750](https://github.com/udecode/plate/pull/4750) by [@zbeyens](https://github.com/zbeyens) – Add React Compiler support.
+
+## 52.0.0
+
+### Major Changes
+
+- [#4747](https://github.com/udecode/plate/pull/4747) by [@zbeyens](https://github.com/zbeyens) – ESM-only
+
+## 51.1.2
+
+### Patch Changes
+
+- [#4732](https://github.com/udecode/plate/pull/4732) by [@zbeyens](https://github.com/zbeyens) – Format code with Biome
+
+## 51.1.1
+
+### Patch Changes
+
+- [#4729](https://github.com/udecode/plate/pull/4729) by [@tomdyqin](https://github.com/tomdyqin) – should deserialize table with math formula in cell
+
 ## 51.0.0
 
 ## 50.2.0
@@ -348,13 +372,13 @@
           mark: true,
           deserialize: (mdastNode) => ({
             bold: true,
-            text: node.value || '',
+            text: node.value || "",
           }),
         },
         // For elementRules
         [EquationPlugin.key]: {
           deserialize: (mdastNode, options) => ({
-            children: [{ text: '' }],
+            children: [{ text: "" }],
             texExpression: node.value,
             type: EquationPlugin.key,
           }),
@@ -399,15 +423,15 @@
               .getApi(SuggestionPlugin)
               .suggestion.suggestionData(node);
 
-            return suggestionData?.type === 'insert'
-              ? { type: 'text', value: '' }
-              : { type: 'text', value: node.text };
+            return suggestionData?.type === "insert"
+              ? { type: "text", value: "" }
+              : { type: "text", value: node.text };
           },
         },
         // For elementRules
         [EquationPlugin.key]: {
           serialize: (slateNode) => ({
-            type: 'math',
+            type: "math",
             value: node.texExpression,
           }),
         },

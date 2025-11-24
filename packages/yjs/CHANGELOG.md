@@ -1,5 +1,29 @@
 # @platejs/yjs
 
+## 52.0.1
+
+### Patch Changes
+
+- [#4750](https://github.com/udecode/plate/pull/4750) by [@zbeyens](https://github.com/zbeyens) – Add React Compiler support.
+
+## 52.0.0
+
+### Major Changes
+
+- [#4747](https://github.com/udecode/plate/pull/4747) by [@zbeyens](https://github.com/zbeyens) – ESM-only
+
+## 51.1.2
+
+### Patch Changes
+
+- [#4732](https://github.com/udecode/plate/pull/4732) by [@zbeyens](https://github.com/zbeyens) – Format code with Biome
+
+## 51.1.0
+
+### Minor Changes
+
+- [#4714](https://github.com/udecode/plate/pull/4714) by [@baptisteArno](https://github.com/baptisteArno) – Add sharedType option
+
 ## 51.0.0
 
 ## 50.3.6
@@ -47,8 +71,8 @@
         /* ... */
       },
       hocuspocusProviderOptions: {
-        url: 'wss://hocuspocus.example.com',
-        name: 'document-1',
+        url: "wss://hocuspocus.example.com",
+        name: "document-1",
         // ... other Hocuspocus options
       },
     },
@@ -65,10 +89,10 @@
       },
       providers: [
         {
-          type: 'hocuspocus',
+          type: "hocuspocus",
           options: {
-            url: 'wss://hocuspocus.example.com',
-            name: 'document-1',
+            url: "wss://hocuspocus.example.com",
+            name: "document-1",
             // ... other Hocuspocus options
           },
         },
@@ -87,16 +111,16 @@
       },
       providers: [
         {
-          type: 'hocuspocus',
+          type: "hocuspocus",
           options: {
-            url: 'wss://hocuspocus.example.com',
-            name: 'document-1',
+            url: "wss://hocuspocus.example.com",
+            name: "document-1",
           },
         },
         {
-          type: 'webrtc',
+          type: "webrtc",
           options: {
-            roomName: 'document-1',
+            roomName: "document-1",
             // signaling: ['wss://signaling.example.com'], // Optional
           },
         },
