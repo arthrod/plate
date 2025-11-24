@@ -58,7 +58,7 @@
     "jotai-optics": "0.4.0",
     "jotai-x": "2.3.3",
     "lodash": "^4.17.21",
-    "nanoid": "^5.1.5",
+    "nanoid": "^5.1.6",
     "optics-ts": "2.4.1",
     "slate": "0.118.1",
     "slate-dom": "0.118.1",
