@@ -11,13 +11,53 @@ Plate
   <a target="_blank" href="https://github.com/udecode/plate/blob/main/LICENSE"><img src="https://badgen.now.sh/badge/license/MIT" /></a>
 </div>
 
-[//]: # '  <a target="_blank" href="https://platejs.org/docs/playground" alt="Live Demo"><img src="https://img.shields.io/badge/Live%20Demo-blue" /></a>'
-[//]: # 'Welcome to Plate, a rich-text editor framework designed for simplicity and efficiency. Plate consists of four main parts:'
-[//]: #
-[//]: # "1. **Core**: This is the heart of Plate. It's a special plugin system just for `slate-react`. We've made sure everything is neat and tidy, so it's easier for you to develop your project."
-[//]: # '2. **Plugins**: We give you a big selection of plugin packages. They help make editor behaviors, hooks, serialization, and normalization better, among other things.'
-[//]: # '3. **Primitives**: Besides the headless plugins, we also provide primitive hooks and components built on top of [Radix UI](https://www.radix-ui.com/). These are **unstyled** and accessible parts for making great design systems.'
-[//]: # '4. **Components**: We know a good-looking start is important. So, we give you components created with Plate CLI and [shadcn/ui](https://ui.shadcn.com/). Use these as a starting point to create your own component library.'
+  <a target="_blank" href="https://platejs.org/docs/playground" alt="Live Demo"><img src="https://img.shields.io/badge/Live%20Demo-blue" /></a>
+Welcome to Plate, a rich-text editor framework designed for simplicity and efficiency. Plate consists of four main parts:
+
+1. **Core**: This is the heart of Plate. It's a special plugin system just for `slate-react`. We've made sure everything is neat and tidy, so it's easier for you to develop your project.
+2. **Plugins**: We give you a big selection of plugin packages. They help make editor behaviors, hooks, serialization, and normalization better, among other things.
+3. **Primitives**: Besides the headless plugins, we also provide primitive hooks and components built on top of [Radix UI](https://www.radix-ui.com/). These are **unstyled** and accessible parts for making great design systems.
+4. **Components**: We know a good-looking start is important. So, we give you components created with Plate CLI and [shadcn/ui](https://ui.shadcn.com/). Use these as a starting point to create your own component library.
+
+## Installation
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) >= 18.12.0
+- [Yarn](https://yarnpkg.com/) >= 1.22.0
+
+### From source
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/udecode/plate.git
+   ```
+2. Install dependencies:
+   ```bash
+   yarn install
+   ```
+3. Run locally:
+   ```bash
+   yarn dev
+   ```
+
+## Usage
+
+- Run dev server: `yarn dev`
+- Build: `yarn build`
+- Run tests: `yarn test`
+
+## Development
+
+This repository is a monorepo managed with `yarn` and `turbo`. The main source files are located in the `packages` directory.
+
+### Contributing
+
+To get started, check out our [contributing guide](tooling/CONTRIBUTING.md).
+
+### License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Templates
 
