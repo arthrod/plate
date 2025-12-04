@@ -1,0 +1,63 @@
+{
+  "name": "@platejs/docx-export",
+  "version": "52.0.1",
+  "description": "DOCX export plugin for Plate - convert editor content to Word documents",
+  "keywords": [
+    "docx",
+    "export",
+    "plate",
+    "plugin",
+    "serializer",
+    "slate",
+    "word"
+  ],
+  "homepage": "https://platejs.org",
+  "bugs": {
+    "url": "https://github.com/udecode/plate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/udecode/plate.git",
+    "directory": "packages/docx-export"
+  },
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "brl": "yarn p:brl",
+    "build": "yarn p:build",
+    "build:watch": "yarn p:build:watch",
+    "clean": "yarn p:clean",
+    "lint": "yarn p:lint",
+    "lint:fix": "yarn p:lint:fix",
+    "test": "yarn p:test",
+    "test:watch": "yarn p:test:watch",
+    "typecheck": "yarn p:typecheck"
+  },
+  "dependencies": {
+    "@turbodocx/html-to-docx": "^1.18.1",
+    "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "@types/validator": "^13.15.0",
+    "platejs": "workspace:^"
+  },
+  "peerDependencies": {
+    "platejs": ">=52.0.1",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "module": "./dist/index.js"
+}
