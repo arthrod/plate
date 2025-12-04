@@ -85,6 +85,7 @@ export const KEYS = {
   delete: 'delete',
   dnd: 'dnd',
   docx: 'docx',
+  exportDocx: 'exportDocx',
   emoji: 'emoji',
   exitBreak: 'exitBreak',
   heading: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as string[],
