@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import type { DocxExportPlugin } from '@platejs/docx-export';
+import { DocxExportPlugin } from '@platejs/docx-export';
 import { FileTextIcon } from 'lucide-react';
 import { useEditorRef } from 'platejs/react';
 
