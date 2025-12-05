@@ -1,6 +1,11 @@
 import { generateText } from 'ai';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const completionSchema = z.object({
+  text: z.string().describe('The completion text suggestion'),
+});
 
 export async function POST(req: NextRequest) {
   const {
@@ -20,15 +25,18 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await generateText({
+    const result = await generateObject({
       abortSignal: req.signal,
-      maxOutputTokens: 50,
       model: `openai/${model}`,
       prompt,
+      schema: completionSchema,
+      schemaDescription: 'A text completion suggestion for the editor',
+      schemaName: 'completion',
       system,
       temperature: 0.7,
     });
 
+    // Return the full generateObject result to preserve the original response contract
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
