@@ -33,7 +33,7 @@ export function ExportDocxToolbarButton({
   ...props
 }: ExportDocxToolbarButtonProps) {
   const editor = useEditorRef<{
-    api: { docxExport: { export: typeof DocxExportPlugin.api.export } };
+    api: { docxExport: { export: (options?: import('@platejs/docx-export').DocxExportOptions) => Promise<import('@platejs/docx-export').DocxExportResult> } };
   }>();
   const [open, setOpen] = React.useState(false);
   const [isExporting, setIsExporting] = React.useState(false);
