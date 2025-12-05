@@ -70,7 +70,7 @@ export const exportEditorToDocx = async (
   return HtmlToDocx(
     fullHtml,
     headerHtml ?? null,
-    documentOptions,
+    documentOptions ?? {},
     footerHtml ?? null
   );
 };
