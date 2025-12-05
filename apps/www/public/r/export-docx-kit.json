@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "export-docx-kit",
+  "type": "registry:component",
+  "dependencies": [
+    "@platejs/docx-export"
+  ],
+  "registryDependencies": [
+    "https://platejs.org/r/export-docx-toolbar-button"
+  ],
+  "files": [
+    {
+      "path": "src/registry/components/editor/plugins/export-docx-kit.tsx",
+      "content": "'use client';\n\nimport { DocxExportPlugin } from '@platejs/docx-export';\n\n/**\n * Kit for DOCX export functionality.\n *\n * This kit provides the ability to export Plate editor content to DOCX format\n * using the @turbodocx/html-to-docx library.\n *\n * @example\n * ```tsx\n * import { ExportDocxKit } from '@/registry/components/editor/plugins/export-docx-kit';\n *\n * const plugins = [\n *   ...ExportDocxKit,\n *   // other plugins\n * ];\n * ```\n *\n * @example\n * ```tsx\n * // Using the export API directly\n * const docx = await editor.api.docxExport.export({\n *   documentOptions: { title: 'My Document' },\n * });\n * ```\n */\nexport const ExportDocxKit = [DocxExportPlugin];\n",
+      "type": "registry:component"
+    }
+  ]
+}

@@ -145,6 +145,23 @@ export const Index: Record<string, any> = {
     }),
     meta: {"docs":[{"route":"/docs/export","title":"Export"}],"examples":["basic-nodes-demo"],"label":"New"},
   },
+  "export-docx-toolbar-button": {
+    name: "export-docx-toolbar-button",
+    description: "A toolbar button for exporting editor content to DOCX (Word) format.",
+    type: "registry:ui",
+    registryDependencies: ["dropdown-menu","https://platejs.org/r/toolbar"],
+    files: [{
+      path: "src/registry/ui/export-docx-toolbar-button.tsx",
+      type: "registry:ui",
+      target: ""
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/ui/export-docx-toolbar-button.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || item.name
+      return { default: mod.default || mod[exportName] }
+    }),
+    meta: {"docs":[{"route":"/docs/docx","title":"DOCX Export"}],"label":"New"},
+  },
   "caption": {
     name: "caption",
     description: "A text field for adding captions to media elements.",
@@ -2262,6 +2279,23 @@ export const Index: Record<string, any> = {
     }],
     component: React.lazy(async () => {
       const mod = await import("@/registry/components/editor/plugins/docx-kit.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || item.name
+      return { default: mod.default || mod[exportName] }
+    }),
+    meta: undefined,
+  },
+  "export-docx-kit": {
+    name: "export-docx-kit",
+    description: "",
+    type: "registry:component",
+    registryDependencies: ["https://platejs.org/r/export-docx-toolbar-button"],
+    files: [{
+      path: "src/registry/components/editor/plugins/export-docx-kit.tsx",
+      type: "registry:component",
+      target: ""
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/components/editor/plugins/export-docx-kit.tsx")
       const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || item.name
       return { default: mod.default || mod[exportName] }
     }),

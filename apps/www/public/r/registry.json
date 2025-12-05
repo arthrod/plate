@@ -274,6 +274,35 @@
       }
     },
     {
+      "name": "export-docx-toolbar-button",
+      "type": "registry:ui",
+      "title": "Export DOCX Toolbar Button",
+      "description": "A toolbar button for exporting editor content to DOCX (Word) format.",
+      "dependencies": [
+        "@platejs/docx-export",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "dropdown-menu",
+        "https://platejs.org/r/toolbar"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/export-docx-toolbar-button.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "docs": [
+          {
+            "route": "/docs/docx",
+            "title": "DOCX Export"
+          }
+        ],
+        "label": "New"
+      }
+    },
+    {
       "name": "caption",
       "type": "registry:ui",
       "title": "Caption",
@@ -3406,6 +3435,22 @@
       "files": [
         {
           "path": "src/registry/components/editor/plugins/docx-kit.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "export-docx-kit",
+      "type": "registry:component",
+      "dependencies": [
+        "@platejs/docx-export"
+      ],
+      "registryDependencies": [
+        "https://platejs.org/r/export-docx-toolbar-button"
+      ],
+      "files": [
+        {
+          "path": "src/registry/components/editor/plugins/export-docx-kit.tsx",
           "type": "registry:component"
         }
       ]

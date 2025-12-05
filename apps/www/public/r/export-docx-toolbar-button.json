@@ -1,0 +1,31 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "export-docx-toolbar-button",
+  "type": "registry:ui",
+  "title": "Export DOCX Toolbar Button",
+  "description": "A toolbar button for exporting editor content to DOCX (Word) format.",
+  "dependencies": [
+    "@platejs/docx-export",
+    "lucide-react"
+  ],
+  "registryDependencies": [
+    "dropdown-menu",
+    "https://platejs.org/r/toolbar"
+  ],
+  "files": [
+    {
+      "path": "src/registry/ui/export-docx-toolbar-button.tsx",
+      "content": "'use client';\n\nimport * as React from 'react';\n\nimport type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';\n\nimport { DocxExportPlugin } from '@platejs/docx-export';\nimport { FileTextIcon } from 'lucide-react';\nimport { useEditorRef } from 'platejs/react';\n\nimport {\n  DropdownMenu,\n  DropdownMenuContent,\n  DropdownMenuGroup,\n  DropdownMenuItem,\n  DropdownMenuTrigger,\n} from '@/components/ui/dropdown-menu';\n\nimport { ToolbarButton } from './toolbar';\n\nexport interface ExportDocxToolbarButtonProps extends DropdownMenuProps {\n  /** Custom filename for the downloaded file (without extension) */\n  filename?: string;\n}\n\n/**\n * Toolbar button for exporting editor content to DOCX format.\n *\n * Uses the DocxExportPlugin to convert Plate content to a Word document.\n */\nexport function ExportDocxToolbarButton({\n  filename = 'document',\n  ...props\n}: ExportDocxToolbarButtonProps) {\n  const editor = useEditorRef<{\n    api: { docxExport: { export: (options?: import('@platejs/docx-export').DocxExportOptions) => Promise<import('@platejs/docx-export').DocxExportResult> } };\n  }>();\n  const [open, setOpen] = React.useState(false);\n  const [isExporting, setIsExporting] = React.useState(false);\n\n  const downloadDocx = async (blob: Blob, name: string) => {\n    const url = URL.createObjectURL(blob);\n    const link = document.createElement('a');\n    link.href = url;\n    link.download = `${name}.docx`;\n    document.body.append(link);\n    link.click();\n    link.remove();\n    URL.revokeObjectURL(url);\n  };\n\n  const exportToDocx = async () => {\n    if (isExporting) return;\n\n    setIsExporting(true);\n\n    try {\n      const docx = await editor.api.docxExport.export({\n        documentOptions: {\n          title: filename,\n        },\n      });\n\n      // In browser, docx is a Blob\n      const blob = docx as Blob;\n      await downloadDocx(blob, filename);\n    } catch (error) {\n      console.error('Failed to export DOCX:', error);\n    } finally {\n      setIsExporting(false);\n      setOpen(false);\n    }\n  };\n\n  const exportToDocxWithOptions = async (options: 'portrait' | 'landscape') => {\n    if (isExporting) return;\n\n    setIsExporting(true);\n\n    try {\n      const docx = await editor.api.docxExport.export({\n        documentOptions: {\n          orientation: options,\n          title: filename,\n        },\n      });\n\n      const blob = docx as Blob;\n      await downloadDocx(blob, filename);\n    } catch (error) {\n      console.error('Failed to export DOCX:', error);\n    } finally {\n      setIsExporting(false);\n      setOpen(false);\n    }\n  };\n\n  return (\n    <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>\n      <DropdownMenuTrigger asChild>\n        <ToolbarButton pressed={open} tooltip=\"Export to DOCX\" isDropdown>\n          <FileTextIcon className=\"size-4\" />\n        </ToolbarButton>\n      </DropdownMenuTrigger>\n\n      <DropdownMenuContent align=\"start\">\n        <DropdownMenuGroup>\n          <DropdownMenuItem\n            disabled={isExporting}\n            onSelect={(e) => {\n              e.preventDefault();\n              void exportToDocx();\n            }}\n          >\n            {isExporting ? 'Exporting...' : 'Export as DOCX'}\n          </DropdownMenuItem>\n          <DropdownMenuItem\n            disabled={isExporting}\n            onSelect={(e) => {\n              e.preventDefault();\n              void exportToDocxWithOptions('portrait');\n            }}\n          >\n            Export as DOCX (Portrait)\n          </DropdownMenuItem>\n          <DropdownMenuItem\n            disabled={isExporting}\n            onSelect={(e) => {\n              e.preventDefault();\n              void exportToDocxWithOptions('landscape');\n            }}\n          >\n            Export as DOCX (Landscape)\n          </DropdownMenuItem>\n        </DropdownMenuGroup>\n      </DropdownMenuContent>\n    </DropdownMenu>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "meta": {
+    "docs": [
+      {
+        "route": "/docs/docx",
+        "title": "DOCX Export"
+      }
+    ],
+    "label": "New"
+  }
+}
