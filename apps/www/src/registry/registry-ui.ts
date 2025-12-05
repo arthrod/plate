@@ -140,6 +140,20 @@ export const uiComponents: Registry['items'] = [
     title: 'Export Toolbar Button',
     type: 'registry:ui',
   },
+  {
+    dependencies: ['@platejs/docx-export', 'lucide-react'],
+    description:
+      'A toolbar button for exporting editor content to DOCX (Word) format.',
+    files: [{ path: 'ui/export-docx-toolbar-button.tsx', type: 'registry:ui' }],
+    meta: {
+      docs: [{ route: '/docs/docx', title: 'DOCX Export' }],
+      label: 'New',
+    },
+    name: 'export-docx-toolbar-button',
+    registryDependencies: ['shadcn/dropdown-menu', 'toolbar'],
+    title: 'Export DOCX Toolbar Button',
+    type: 'registry:ui',
+  },
 
   {
     dependencies: ['@udecode/cn', '@platejs/caption'],
