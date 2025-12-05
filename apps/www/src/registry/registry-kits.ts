@@ -575,6 +575,18 @@ export const registryKits: Registry['items'] = [
     type: 'registry:component',
   },
   {
+    dependencies: ['@platejs/docx-export'],
+    files: [
+      {
+        path: 'components/editor/plugins/export-docx-kit.tsx',
+        type: 'registry:component',
+      },
+    ],
+    name: 'export-docx-kit',
+    registryDependencies: ['export-docx-toolbar-button'],
+    type: 'registry:component',
+  },
+  {
     files: [
       {
         path: 'components/editor/editor-kit.tsx',

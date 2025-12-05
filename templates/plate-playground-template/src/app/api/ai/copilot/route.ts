@@ -1,6 +1,5 @@
+import { generateText } from 'ai';
 import type { NextRequest } from 'next/server';
-
-import { generateObject } from 'ai';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
