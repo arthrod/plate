@@ -1,5 +1,23 @@
 # @platejs/yjs
 
+## 52.0.7
+
+### Patch Changes
+
+- [#4765](https://github.com/udecode/plate/pull/4765) by [@felixfeng33](https://github.com/felixfeng33) – Revert previous fixes
+
+## 52.0.5
+
+### Patch Changes
+
+- [#4759](https://github.com/udecode/plate/pull/4759) by [@felixfeng33](https://github.com/felixfeng33) – Revert https://github.com/udecode/plate/pull/4755 and fixes content duplicated.
+
+## 52.0.3
+
+### Patch Changes
+
+- [`0b9de29`](https://github.com/udecode/plate/commit/0b9de29874b77f130169765cb2f07ecdab826734) by [@felixfeng33](https://github.com/felixfeng33) – Upgrade @hocuspocus/provider to v3 add delayed sync.
+
 ## 52.0.1
 
 ### Patch Changes
