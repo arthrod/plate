@@ -1,5 +1,5 @@
 import { BlockSelectionPlugin } from '@platejs/selection/react';
-import { createSlateEditor, KEYS, nanoid } from 'platejs';
+import { createSlateEditor, KEYS } from 'platejs';
 import { mock } from 'bun:test';
 
 import { AIChatPlugin } from '../../AIChatPlugin';
@@ -198,10 +198,9 @@ describe('applyAISuggestions', () => {
       
       const originalGetApi = editor.getApi.bind(editor);
       editor.getApi = mock((options: any) => {
-        if (options?.key === KEYS.cursorOverlay) {
-          return undefined;
+        if (options?.key !== KEYS.cursorOverlay) {
+          return originalGetApi(options);
         }
-        return originalGetApi(options);
       });
 
       editor.setOption(AIChatPlugin, 'chatNodes', editor.children);
