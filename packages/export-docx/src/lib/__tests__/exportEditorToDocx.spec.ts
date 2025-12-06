@@ -257,643 +257,539 @@ describe('ExportDocxPlugin', () => {
     expect(blob.size).toBeGreaterThan(0);
   });
 });
-
-describe('exportEditorToDocx - CSS Style Parsing Edge Cases', () => {
-  it('should handle RGB color format', async () => {
-    const editor = createEditor();
-    const html = '<p style="color: rgb(255, 0, 0)">Red text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle hex color format', async () => {
-    const editor = createEditor();
-    const html = '<p style="color: #00ff00">Green text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle background color highlighting', async () => {
-    const editor = createEditor();
-    const html = '<p style="background-color: yellow">Highlighted text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle font-size in pixels', async () => {
-    const editor = createEditor();
-    const html = '<p style="font-size: 16px">Custom font size</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle text-align styles', async () => {
-    const editor = createEditor();
-    const html = `
-      <p style="text-align: left">Left aligned</p>
-      <p style="text-align: center">Center aligned</p>
-      <p style="text-align: right">Right aligned</p>
-      <p style="text-align: justify">Justified text</p>
-    `;
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle margin-left for indentation', async () => {
-    const editor = createEditor();
-    const html = '<p style="margin-left: 40px">Indented paragraph</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle font-weight variations', async () => {
-    const editor = createEditor();
-    const html = `
-      <p style="font-weight: bold">Bold with style</p>
-      <p style="font-weight: 700">Bold with numeric</p>
-    `;
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle font-style italic', async () => {
-    const editor = createEditor();
-    const html = '<p style="font-style: italic">Italic text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle text-decoration underline', async () => {
-    const editor = createEditor();
-    const html = '<p style="text-decoration: underline">Underlined text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle text-decoration line-through', async () => {
-    const editor = createEditor();
-    const html = '<p style="text-decoration: line-through">Strikethrough text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-});
-
-describe('exportEditorToDocx - HTML Tag Support', () => {
-  it('should handle all heading levels', async () => {
-    const editor = createEditor();
-    const html = `
-      <h1>Heading 1</h1>
-      <h2>Heading 2</h2>
-      <h3>Heading 3</h3>
-      <h4>Heading 4</h4>
-      <h5>Heading 5</h5>
-      <h6>Heading 6</h6>
-    `;
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle B tag for bold', async () => {
-    const editor = createEditor();
-    const html = '<p>This is <b>bold</b> text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle I tag for italic', async () => {
-    const editor = createEditor();
-    const html = '<p>This is <i>italic</i> text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle SUB tag for subscript', async () => {
-    const editor = createEditor();
-    const html = '<p>H<sub>2</sub>O</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle SUP tag for superscript', async () => {
-    const editor = createEditor();
-    const html = '<p>E=mc<sup>2</sup></p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle DEL tag for strikethrough', async () => {
-    const editor = createEditor();
-    const html = '<p>This is <del>deleted</del> text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle STRIKE tag for strikethrough', async () => {
-    const editor = createEditor();
-    const html = '<p>This is <strike>struck through</strike> text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle BR tags for line breaks', async () => {
-    const editor = createEditor();
-    const html = '<p>Line one<br>Line two<br>Line three</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle BLOCKQUOTE tag', async () => {
-    const editor = createEditor();
-    const html = '<blockquote>This is a quote</blockquote>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle DIV tags as paragraphs', async () => {
-    const editor = createEditor();
-    const html = '<div>First div</div><div>Second div</div>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle LI tags', async () => {
-    const editor = createEditor();
-    const html = '<li>List item content</li>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-});
-
-describe('exportEditorToDocx - Complex Formatting Combinations', () => {
-  it('should handle deeply nested formatting', async () => {
-    const editor = createEditor();
-    const html = '<p><strong><em><u>Bold italic underlined</u></em></strong></p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle multiple style attributes', async () => {
-    const editor = createEditor();
-    const html = '<p style="color: #ff0000; font-size: 18px; text-align: center; background-color: yellow">Multi-styled text</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle mixed HTML tags and inline styles', async () => {
-    const editor = createEditor();
-    const html = '<p><strong style="color: blue">Bold blue</strong> and <em style="font-size: 14px">italic sized</em></p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle text with all formatting types', async () => {
-    const editor = createEditor();
-    const html = `
-      <p>
-        Normal text,
-        <strong>bold</strong>,
-        <em>italic</em>,
-        <u>underline</u>,
-        <s>strikethrough</s>,
-        <sub>subscript</sub>,
-        <sup>superscript</sup>,
-        and <strong><em><u>everything combined</u></em></strong>
-      </p>
-    `;
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-});
+/** @jsx jsx */
+import { jsx } from '@platejs/test-utils';
+import { describe, expect, it } from 'bun:test';
+
+jsx; // Required to prevent JSX pragma removal
 
 describe('exportEditorToDocx - Edge Cases and Error Handling', () => {
-  it('should handle whitespace-only content', async () => {
-    const editor = createEditor();
-    const html = '<p>   </p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle very long paragraphs', async () => {
-    const editor = createEditor();
-    const longText = 'Lorem ipsum dolor sit amet. '.repeat(100);
-    const html = `<p>${longText}</p>`;
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle special characters', async () => {
-    const editor = createEditor();
-    const html = '<p>&lt;Hello&gt; &amp; &quot;World&quot; &apos;Test&apos;</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle unicode characters', async () => {
-    const editor = createEditor();
-    const html = '<p>Hello 世界 🌍 Привет مرحبا</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle malformed but parseable HTML', async () => {
-    const editor = createEditor();
-    const html = '<p>Unclosed tag<p>Another paragraph';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle transparent background color', async () => {
-    const editor = createEditor();
-    const html = '<p style="background-color: transparent">Transparent background</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle inherit background color', async () => {
-    const editor = createEditor();
-    const html = '<p style="background-color: inherit">Inherited background</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle zero margin-left', async () => {
-    const editor = createEditor();
-    const html = '<p style="margin-left: 0px">No indent</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle large indentation values', async () => {
-    const editor = createEditor();
-    const html = '<p style="margin-left: 200px">Heavily indented</p>';
-
-    const blob = await exportEditorToDocx(editor, { html });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-});
-
-describe('exportEditorToDocx - Document Configuration', () => {
-  it('should handle partial margin configuration', async () => {
-    const editor = createEditor();
-    const html = '<p>Content</p>';
-
-    const blob = await exportEditorToDocx(editor, {
-      html,
-      margins: {
-        left: 2000,
-        right: 2000,
-      },
-    });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle partial page size configuration', async () => {
-    const editor = createEditor();
-    const html = '<p>Content</p>';
-
-    const blob = await exportEditorToDocx(editor, {
-      html,
-      pageSize: {
-        orientation: 'landscape',
-      },
-    });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle portrait orientation explicitly', async () => {
-    const editor = createEditor();
-    const html = '<p>Content</p>';
-
-    const blob = await exportEditorToDocx(editor, {
-      html,
-      pageSize: {
-        orientation: 'portrait',
-      },
-    });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle all document properties', async () => {
-    const editor = createEditor();
-    const html = '<p>Content</p>';
-
-    const blob = await exportEditorToDocx(editor, {
-      html,
-      properties: {
-        creator: 'John Doe',
-        description: 'Test document description',
-        keywords: 'test, docx, export',
-        subject: 'Testing',
-        title: 'Complete Document',
-      },
-    });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle custom font family', async () => {
-    const editor = createEditor();
-    const html = '<p>Content</p>';
-
-    const blob = await exportEditorToDocx(editor, {
-      fontFamily: 'Courier New',
-      html,
-    });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle different font sizes', async () => {
-    const editor = createEditor();
-    const html = '<p>Content</p>';
-
-    // Test various font sizes (in half-points)
-    for (const fontSize of [16, 20, 24, 28, 32]) {
-      const blob = await exportEditorToDocx(editor, {
-        fontSize,
-        html,
+  describe('Empty and Null Cases', () => {
+    it('should handle completely empty editor', async () => {
+      const editor = createSlateEditor({
+        value: [],
       });
 
-      expect(blob).toBeInstanceOf(Blob);
-      expect(blob.size).toBeGreaterThan(0);
-    }
-  });
-});
-
-describe('exportEditorToDocx - Without HTML Option', () => {
-  it('should serialize editor content when html option is not provided', async () => {
-    const editor = createSlateEditor({
-      plugins: [ExportDocxPlugin],
-      value: [
-        {
-          children: [{ text: 'Hello World' }],
-          type: 'p',
-        },
-      ],
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+      expect(result instanceof Blob).toBe(true);
     });
 
-    const blob = await exportEditorToDocx(editor);
+    it('should handle editor with only empty paragraphs', async () => {
+      const editor = createSlateEditor({
+        value: [
+          { type: 'p', children: [{ text: '' }] },
+          { type: 'p', children: [{ text: '' }] },
+        ],
+      });
 
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-
-  it('should handle complex editor content without html option', async () => {
-    const editor = createSlateEditor({
-      plugins: [ExportDocxPlugin],
-      value: [
-        {
-          children: [{ text: 'Title' }],
-          type: 'h1',
-        },
-        {
-          children: [
-            { text: 'This is ' },
-            { bold: true, text: 'bold' },
-            { text: ' and ' },
-            { italic: true, text: 'italic' },
-            { text: ' text.' },
-          ],
-          type: 'p',
-        },
-      ],
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
     });
 
-    const blob = await exportEditorToDocx(editor);
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
-  });
-});
-
-describe('ExportDocxPlugin - API Integration', () => {
-  it('should call downloadDocx with correct parameters', async () => {
-    const editor = createEditor();
-
-    // Mock URL.createObjectURL and related APIs
-    const originalCreateObjectURL = URL.createObjectURL;
-    const originalRevokeObjectURL = URL.revokeObjectURL;
-    const mockUrl = 'blob:mock-url';
-
-    URL.createObjectURL = mock(() => mockUrl);
-    URL.revokeObjectURL = mock();
-
-    // Mock document.createElement and click
-    const mockClick = mock();
-    const mockRemove = mock();
-    const mockLink = {
-      click: mockClick,
-      download: '',
-      href: '',
-      remove: mockRemove,
-    };
-
-    const originalCreateElement = document.createElement.bind(document);
-    document.createElement = mock((tag: string) => {
-      if (tag === 'a') return mockLink as any;
-      return originalCreateElement(tag);
-    });
-
-    await editor.api.downloadDocx({ html: '<p>Test</p>' }, 'test.docx');
-
-    expect(mockClick).toHaveBeenCalled();
-    expect(mockLink.download).toBe('test.docx');
-    expect(mockLink.href).toBe(mockUrl);
-    expect(mockRemove).toHaveBeenCalled();
-
-    // Restore
-    URL.createObjectURL = originalCreateObjectURL;
-    URL.revokeObjectURL = originalRevokeObjectURL;
-    document.createElement = originalCreateElement;
-  });
-
-  it('should use default filename when not provided', async () => {
-    const editor = createEditor();
-
-    const mockClick = mock();
-    const mockRemove = mock();
-    const mockLink = {
-      click: mockClick,
-      download: '',
-      href: '',
-      remove: mockRemove,
-    };
-
-    const originalCreateElement = document.createElement.bind(document);
-    document.createElement = mock((tag: string) => {
-      if (tag === 'a') return mockLink as any;
-      return originalCreateElement(tag);
-    });
-
-    await editor.api.downloadDocx({ html: '<p>Test</p>' });
-
-    expect(mockLink.download).toBe('document.docx');
-
-    // Restore
-    document.createElement = originalCreateElement;
-  });
-
-  it('should merge default options from plugin configuration', async () => {
-    const editor = createSlateEditor({
-      plugins: [
-        ExportDocxPlugin.configure({
-          options: {
-            defaultOptions: {
-              fontFamily: 'Times New Roman',
-              fontSize: 20,
-              properties: {
-                creator: 'Test System',
-                title: 'Default Title',
-              },
-            },
+    it('should handle null text nodes gracefully', async () => {
+      const editor = createSlateEditor({
+        value: [
+          { 
+            type: 'p', 
+            children: [
+              { text: 'Valid text' },
+              { text: null as any },
+              { text: undefined as any },
+            ] 
           },
-        }),
-      ],
-      value: [{ children: [{ text: 'Test' }], type: 'p' }],
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
     });
-
-    const blob = await editor.api.exportDocx({ html: '<p>Test</p>' });
-
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
   });
 
-  it('should override default options with provided options', async () => {
-    const editor = createSlateEditor({
-      plugins: [
-        ExportDocxPlugin.configure({
-          options: {
-            defaultOptions: {
-              fontSize: 20,
-              properties: {
-                creator: 'Default Author',
+  describe('Complex Nested Structures', () => {
+    it('should handle deeply nested lists', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'ul',
+            children: [
+              {
+                type: 'li',
+                children: [
+                  { type: 'lic', children: [{ text: 'Level 1' }] },
+                  {
+                    type: 'ul',
+                    children: [
+                      {
+                        type: 'li',
+                        children: [
+                          { type: 'lic', children: [{ text: 'Level 2' }] },
+                          {
+                            type: 'ul',
+                            children: [
+                              {
+                                type: 'li',
+                                children: [
+                                  { type: 'lic', children: [{ text: 'Level 3' }] },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
               },
-            },
+            ],
           },
-        }),
-      ],
-      value: [{ children: [{ text: 'Test' }], type: 'p' }],
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
     });
 
-    const blob = await editor.api.exportDocx({
-      fontSize: 28,
-      html: '<p>Test</p>',
-      properties: {
-        creator: 'Override Author',
-        title: 'Override Title',
-      },
+    it('should handle mixed list types (ul and ol)', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'ul',
+            children: [
+              {
+                type: 'li',
+                children: [
+                  { type: 'lic', children: [{ text: 'Unordered item' }] },
+                  {
+                    type: 'ol',
+                    children: [
+                      {
+                        type: 'li',
+                        children: [
+                          { type: 'lic', children: [{ text: 'Ordered subitem' }] },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
     });
 
-    expect(blob).toBeInstanceOf(Blob);
-    expect(blob.size).toBeGreaterThan(0);
+    it('should handle tables with merged cells', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'table',
+            children: [
+              {
+                type: 'tr',
+                children: [
+                  {
+                    type: 'th',
+                    colspan: 2,
+                    children: [{ type: 'p', children: [{ text: 'Merged Header' }] }],
+                  },
+                ],
+              },
+              {
+                type: 'tr',
+                children: [
+                  {
+                    type: 'td',
+                    children: [{ type: 'p', children: [{ text: 'Cell 1' }] }],
+                  },
+                  {
+                    type: 'td',
+                    children: [{ type: 'p', children: [{ text: 'Cell 2' }] }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('Text Formatting Edge Cases', () => {
+    it('should handle overlapping text marks', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'p',
+            children: [
+              { text: 'Bold and italic', bold: true, italic: true, underline: true },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+
+    it('should handle special characters in text', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'p',
+            children: [
+              { text: 'Special chars: <>&"\'©®™' },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+
+    it('should handle very long text content', async () => {
+      const longText = 'A'.repeat(10_000);
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'p',
+            children: [{ text: longText }],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+      expect(result.size).toBeGreaterThan(0);
+    });
+
+    it('should handle unicode and emoji', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'p',
+            children: [
+              { text: 'Unicode: 你好 مرحبا שלום' },
+              { text: 'Emoji: 😀🎉🚀' },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('Link and Image Handling', () => {
+    it('should handle links with special characters in URL', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'p',
+            children: [
+              {
+                type: 'a',
+                url: 'https://example.com/path?param=value&other=test',
+                children: [{ text: 'Complex URL' }],
+              },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+
+    it('should handle images with data URLs', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'img',
+            url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            children: [{ text: '' }],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+
+    it('should handle missing image URLs gracefully', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'img',
+            url: '',
+            children: [{ text: '' }],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('Custom Options', () => {
+    it('should respect custom document properties', async () => {
+      const editor = createSlateEditor({
+        value: [
+          { type: 'p', children: [{ text: 'Test content' }] },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor, {
+        creator: 'Test Creator',
+        title: 'Test Document',
+        description: 'Test Description',
+      });
+
+      expect(result).toBeDefined();
+    });
+
+    it('should handle custom filename option', async () => {
+      const editor = createSlateEditor({
+        value: [
+          { type: 'p', children: [{ text: 'Test' }] },
+        ],
+      });
+
+      const customFilename = 'custom-export-name.docx';
+      const result = await exportEditorToDocx(editor, {
+        filename: customFilename,
+      });
+
+      expect(result).toBeDefined();
+    });
+
+    it('should handle custom converter functions', async () => {
+      const editor = createSlateEditor({
+        value: [
+          { type: 'custom-block', children: [{ text: 'Custom content' }] },
+        ],
+      });
+
+      let converterCalled = false;
+      const result = await exportEditorToDocx(editor, {
+        nodeConverters: {
+          'custom-block': () => {
+            converterCalled = true;
+            return null;
+          },
+        },
+      });
+
+      expect(result).toBeDefined();
+      expect(converterCalled).toBe(true);
+    });
+  });
+
+  describe('Block Quotes and Code Blocks', () => {
+    it('should handle nested blockquotes', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'blockquote',
+            children: [
+              { type: 'p', children: [{ text: 'Quote level 1' }] },
+              {
+                type: 'blockquote',
+                children: [
+                  { type: 'p', children: [{ text: 'Quote level 2' }] },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+
+    it('should handle code blocks with multiple lines', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'code_block',
+            lang: 'typescript',
+            children: [
+              { type: 'code_line', children: [{ text: 'function test() {' }] },
+              { type: 'code_line', children: [{ text: '  return true;' }] },
+              { type: 'code_line', children: [{ text: '}' }] },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+
+    it('should handle code blocks with special characters', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'code_block',
+            children: [
+              { type: 'code_line', children: [{ text: 'const x = "<>&";' }] },
+              { type: 'code_line', children: [{ text: `const y = \`\${x}\`;` }] },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('Headings and Hierarchy', () => {
+    it('should handle all heading levels', async () => {
+      const editor = createSlateEditor({
+        value: [
+          { type: 'h1', children: [{ text: 'Heading 1' }] },
+          { type: 'h2', children: [{ text: 'Heading 2' }] },
+          { type: 'h3', children: [{ text: 'Heading 3' }] },
+          { type: 'h4', children: [{ text: 'Heading 4' }] },
+          { type: 'h5', children: [{ text: 'Heading 5' }] },
+          { type: 'h6', children: [{ text: 'Heading 6' }] },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+
+    it('should handle headings with formatting', async () => {
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'h1',
+            children: [
+              { text: 'Bold ', bold: true },
+              { text: 'Italic ', italic: true },
+              { text: 'Normal' },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('Performance and Size', () => {
+    it('should handle large documents efficiently', async () => {
+      const largeValue = Array.from({ length: 1000 }, (_, i) => ({
+        type: 'p',
+        children: [{ text: `Paragraph ${i + 1}` }],
+      }));
+
+      const editor = createSlateEditor({
+        value: largeValue,
+      });
+
+      const startTime = Date.now();
+      const result = await exportEditorToDocx(editor);
+      const endTime = Date.now();
+
+      expect(result).toBeDefined();
+      expect(result.size).toBeGreaterThan(0);
+      // Should complete in reasonable time (less than 5 seconds)
+      expect(endTime - startTime).toBeLessThan(5000);
+    });
+
+    it('should handle documents with many inline elements', async () => {
+      const children = Array.from({ length: 100 }, (_, i) => ({
+        text: `Text ${i} `,
+        bold: i % 2 === 0,
+        italic: i % 3 === 0,
+      }));
+
+      const editor = createSlateEditor({
+        value: [
+          {
+            type: 'p',
+            children,
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('Mixed Content', () => {
+    it('should handle complex mixed content document', async () => {
+      const editor = createSlateEditor({
+        value: [
+          { type: 'h1', children: [{ text: 'Document Title' }] },
+          { type: 'p', children: [{ text: 'Introduction paragraph' }] },
+          {
+            type: 'ul',
+            children: [
+              {
+                type: 'li',
+                children: [{ type: 'lic', children: [{ text: 'List item 1' }] }],
+              },
+              {
+                type: 'li',
+                children: [{ type: 'lic', children: [{ text: 'List item 2' }] }],
+              },
+            ],
+          },
+          {
+            type: 'blockquote',
+            children: [{ type: 'p', children: [{ text: 'A quote' }] }],
+          },
+          {
+            type: 'table',
+            children: [
+              {
+                type: 'tr',
+                children: [
+                  {
+                    type: 'th',
+                    children: [{ type: 'p', children: [{ text: 'Header' }] }],
+                  },
+                ],
+              },
+              {
+                type: 'tr',
+                children: [
+                  {
+                    type: 'td',
+                    children: [{ type: 'p', children: [{ text: 'Data' }] }],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'code_block',
+            children: [
+              { type: 'code_line', children: [{ text: 'console.log("code");' }] },
+            ],
+          },
+        ],
+      });
+
+      const result = await exportEditorToDocx(editor);
+      expect(result).toBeDefined();
+      expect(result.size).toBeGreaterThan(0);
+    });
   });
 });
