@@ -227,7 +227,7 @@ describe('applyAISuggestions', () => {
 
   describe('edge cases', () => {
     it('should handle very long suggestions', () => {
-      const suggestion = 'A'.repeat(10000);
+      const suggestion = 'A'.repeat(10_000);
       const range = {
         anchor: { path: [0, 0], offset: 0 },
         focus: { path: [0, 0], offset: 13 },
@@ -447,7 +447,7 @@ describe('applyAISuggestions', () => {
     });
 
     it('should handle large suggestion efficiently', () => {
-      const largeSuggestion = 'X'.repeat(50000);
+      const largeSuggestion = 'X'.repeat(50_000);
       const range = {
         anchor: { path: [0, 0], offset: 0 },
         focus: { path: [0, 0], offset: 13 },
