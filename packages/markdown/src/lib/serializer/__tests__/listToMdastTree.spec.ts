@@ -513,7 +513,9 @@ describe('listToMdastTree', () => {
         editor,
       };
 
-      expect(() => listToMdastTree(nodes, options)).toThrow('Cannot create a list from empty nodes');
+      expect(() => listToMdastTree(nodes, options)).toThrow(
+        'Cannot create a list from empty nodes',
+      );
     });
 
     it('should handle single item list', () => {

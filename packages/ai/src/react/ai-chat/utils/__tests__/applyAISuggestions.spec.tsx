@@ -249,7 +249,8 @@ describe('applyAISuggestions', () => {
 
       editor.setOption(AIChatPlugin, 'chatNodes', editor.children);
 
-      const markdownContent = '# Heading\n\n**Bold text** and *italic text*';
+      const markdownContent =
+        '# Heading\n\n**Bold text** and *italic text*';
 
       expect(() => applyAISuggestions(editor, markdownContent)).not.toThrow();
     });
@@ -346,7 +347,9 @@ describe('applyAISuggestions', () => {
 
       editor.setOption(AIChatPlugin, 'chatNodes', editor.children);
 
-      expect(() => applyAISuggestions(editor, '   \n\n   ')).not.toThrow();
+      expect(() =>
+        applyAISuggestions(editor, '   \n\n   ')
+      ).not.toThrow();
     });
 
     it('should handle empty chatNodes array', () => {
@@ -354,7 +357,9 @@ describe('applyAISuggestions', () => {
 
       editor.setOption(AIChatPlugin, 'chatNodes', []);
 
-      expect(() => applyAISuggestions(editor, 'New content')).not.toThrow();
+      expect(() =>
+        applyAISuggestions(editor, 'New content')
+      ).not.toThrow();
     });
 
     it('should handle nodes without IDs', () => {
