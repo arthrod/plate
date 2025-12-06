@@ -57,8 +57,12 @@ describe('applyAISuggestions', () => {
         ],
       });
 
-      expect(() => applyAISuggestions(editor, null as any)).not.toThrow();
-      expect(() => applyAISuggestions(editor, undefined as any)).not.toThrow();
+      expect(() =>
+        applyAISuggestions(editor, null as any)
+      ).not.toThrow();
+      expect(() =>
+        applyAISuggestions(editor, undefined as any)
+      ).not.toThrow();
     });
   });
 
@@ -179,7 +183,9 @@ describe('applyAISuggestions', () => {
         },
       ];
 
-      expect(() => applyAISuggestions(editor, suggestions)).not.toThrow();
+      expect(() =>
+        applyAISuggestions(editor, suggestions)
+      ).not.toThrow();
       expect(editor.children[0].children[0].text).toBe('Valid text');
     });
 
@@ -201,7 +207,9 @@ describe('applyAISuggestions', () => {
         },
       ];
 
-      expect(() => applyAISuggestions(editor, suggestions)).not.toThrow();
+      expect(() =>
+        applyAISuggestions(editor, suggestions)
+      ).not.toThrow();
     });
   });
 
@@ -491,7 +499,9 @@ describe('applyAISuggestions', () => {
         { type: 'replace' } as any, // Missing required fields
       ];
 
-      expect(() => applyAISuggestions(editor, suggestions)).not.toThrow();
+      expect(() =>
+        applyAISuggestions(editor, suggestions)
+      ).not.toThrow();
     });
 
     it('should handle concurrent path conflicts', () => {
@@ -516,7 +526,9 @@ describe('applyAISuggestions', () => {
         },
       ];
 
-      expect(() => applyAISuggestions(editor, suggestions)).not.toThrow();
+      expect(() =>
+        applyAISuggestions(editor, suggestions)
+      ).not.toThrow();
     });
   });
 
