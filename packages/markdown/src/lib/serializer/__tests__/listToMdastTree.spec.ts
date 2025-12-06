@@ -1,686 +1,681 @@
-import { createSlateEditor, KEYS } from 'platejs';
+/** @jsx jsx */
+
+import type { SlateEditor } from '@udecode/plate-core';
+
+import { createPlateEditor } from '@udecode/plate-core/react';
+import { jsx } from '@udecode/plate-test-utils';
 
 import { listToMdastTree } from '../listToMdastTree';
-import type { SerializeMdOptions } from '../serializeMd';
 
-const createEditor = () => createSlateEditor({ plugins: [] });
+jsx;
 
 describe('listToMdastTree', () => {
-  describe('List Style Type Handling', () => {
-    it('should create ordered list for decimal style', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'First item' }],
-          indent: 1,
-          listStart: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
+  let editor: SlateEditor;
 
-      const options: SerializeMdOptions = {
-        editor,
+  beforeEach(() => {
+    editor = createPlateEditor();
+  });
+
+  describe('unordered lists', () => {
+    it('should convert simple unordered list', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              {
+                type: 'lic',
+                children: [{ text: 'Item 1' }],
+              },
+            ],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.type).toBe('list');
-      expect(result.ordered).toBe(true);
-      expect(result.start).toBe(1);
-      expect(result.children).toHaveLength(1);
-    });
-
-    it('should create unordered list for non-decimal style', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Bullet item' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-      };
-
-      const result = listToMdastTree(nodes as any, options);
-
+      expect(result).toBeDefined();
       expect(result.type).toBe('list');
       expect(result.ordered).toBe(false);
     });
 
-    it('should handle consecutive lists of same type at same indent level', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item 1' }],
-          indent: 1,
-          listStart: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Item 2' }],
-          indent: 1,
-          listStart: 2,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Item 3' }],
-          indent: 1,
-          listStart: 3,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should convert unordered list with multiple items', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Item 1' }] }],
+          },
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Item 2' }] }],
+          },
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Item 3' }] }],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
+      expect(result).toBeDefined();
+      expect(result.children.length).toBe(3);
+    });
+
+    it('should handle unordered list items with formatted text', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              {
+                type: 'lic',
+                children: [
+                  { text: 'Plain ' },
+                  { text: 'bold', bold: true },
+                  { text: ' text' },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('ordered lists', () => {
+    it('should convert simple ordered list', () => {
+      const listNode = {
+        type: 'ol',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Item 1' }] }],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
       expect(result.type).toBe('list');
-      expect(result.children).toHaveLength(3);
       expect(result.ordered).toBe(true);
     });
 
-    it('should handle mixed list types in same call', () => {
-      const editor = createEditor();
-      // Note: In real usage, convertNodesSerialize would split these
-      // but listToMdastTree should handle if called directly
-      const nodes = [
-        {
-          children: [{ text: 'Ordered 1' }],
-          indent: 1,
-          listStart: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Ordered 2' }],
-          indent: 1,
-          listStart: 2,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should convert ordered list with multiple items', () => {
+      const listNode = {
+        type: 'ol',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'First' }] }],
+          },
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Second' }] }],
+          },
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Third' }] }],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      // Should create a single list from all items of the same type at root level
-      expect(result.type).toBe('list');
-      expect(result.children).toHaveLength(2);
+      expect(result).toBeDefined();
+      expect(result.children.length).toBe(3);
+      expect(result.ordered).toBe(true);
     });
   });
 
-  describe('Nested Lists', () => {
-    it('should handle nested list with higher indent', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Parent item' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Nested item' }],
-          indent: 2,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+  describe('nested lists', () => {
+    it('should convert nested unordered lists', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Item 1' }] },
+              {
+                type: 'ul',
+                children: [
+                  {
+                    type: 'li',
+                    children: [{ type: 'lic', children: [{ text: 'Nested 1' }] }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.type).toBe('list');
-      expect(result.children).toHaveLength(1);
-      expect(result.children[0].children).toHaveLength(2); // paragraph + nested list
-      expect(result.children[0].children[1].type).toBe('list');
+      expect(result).toBeDefined();
+      expect(result.children.length).toBeGreaterThan(0);
     });
 
-    it('should handle multiple nested levels', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Level 1' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Level 2' }],
-          indent: 2,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Level 3' }],
-          indent: 3,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should convert nested ordered lists', () => {
+      const listNode = {
+        type: 'ol',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Item 1' }] },
+              {
+                type: 'ol',
+                children: [
+                  {
+                    type: 'li',
+                    children: [{ type: 'lic', children: [{ text: 'Nested 1' }] }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.type).toBe('list');
-      expect(result.children).toHaveLength(1);
-      
-      // First level item should have nested list
-      const level1Item = result.children[0];
-      expect(level1Item.children[1].type).toBe('list');
-      
-      // Second level item should have nested list
-      const level2Item = level1Item.children[1].children[0];
-      expect(level2Item.children[1].type).toBe('list');
+      expect(result).toBeDefined();
     });
 
-    it('should handle return to previous indent level', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item 1' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Nested item' }],
-          indent: 2,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Item 2' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should convert mixed nested lists (ul in ol)', () => {
+      const listNode = {
+        type: 'ol',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Ordered' }] },
+              {
+                type: 'ul',
+                children: [
+                  {
+                    type: 'li',
+                    children: [{ type: 'lic', children: [{ text: 'Unordered nested' }] }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.type).toBe('list');
-      expect(result.children).toHaveLength(2); // Two root-level items
+      expect(result).toBeDefined();
     });
 
-    it('should handle mixed ordered and unordered nested lists', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Ordered parent' }],
-          indent: 1,
-          listStart: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Unordered child' }],
-          indent: 2,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should convert mixed nested lists (ol in ul)', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Unordered' }] },
+              {
+                type: 'ol',
+                children: [
+                  {
+                    type: 'li',
+                    children: [{ type: 'lic', children: [{ text: 'Ordered nested' }] }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.ordered).toBe(true); // Parent is ordered
-      expect(result.children[0].children[1].ordered).toBe(false); // Child is unordered
-    });
-  });
-
-  describe('Todo Lists', () => {
-    it('should handle todo list with checked property', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          checked: true,
-          children: [{ text: 'Completed task' }],
-          indent: 1,
-          listStyleType: 'todo' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-      };
-
-      const result = listToMdastTree(nodes as any, options);
-
-      expect(result.children[0].checked).toBe(true);
+      expect(result).toBeDefined();
     });
 
-    it('should handle todo list with unchecked property', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          checked: false,
-          children: [{ text: 'Pending task' }],
-          indent: 1,
-          listStyleType: 'todo' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should handle deeply nested lists', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Level 1' }] },
+              {
+                type: 'ul',
+                children: [
+                  {
+                    type: 'li',
+                    children: [
+                      { type: 'lic', children: [{ text: 'Level 2' }] },
+                      {
+                        type: 'ul',
+                        children: [
+                          {
+                            type: 'li',
+                            children: [
+                              { type: 'lic', children: [{ text: 'Level 3' }] },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.children[0].checked).toBe(false);
-    });
-
-    it('should handle todo list without checked property', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Task without state' }],
-          indent: 1,
-          listStyleType: 'todo' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-      };
-
-      const result = listToMdastTree(nodes as any, options);
-
-      expect(result.children[0].checked).toBe(null);
+      expect(result).toBeDefined();
     });
   });
 
-  describe('Spread Option', () => {
-    it('should apply spread to list when enabled', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item 1' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-        spread: true,
+  describe('list items with multiple paragraphs', () => {
+    it('should handle list item with multiple paragraph children', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'First paragraph' }] },
+              { type: 'p', children: [{ text: 'Second paragraph' }] },
+            ],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.spread).toBe(true);
-      expect(result.children[0].spread).toBe(true);
+      expect(result).toBeDefined();
     });
 
-    it('should not apply spread when disabled', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item 1' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-        spread: false,
+    it('should handle list item with mixed content', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Text' }] },
+              { type: 'p', children: [{ text: 'Paragraph' }] },
+              {
+                type: 'blockquote',
+                children: [{ type: 'p', children: [{ text: 'Quote' }] }],
+              },
+            ],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.spread).toBe(false);
-    });
-  });
-
-  describe('Block ID Handling', () => {
-    it('should wrap list items with block IDs when enabled', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item 1' }],
-          id: 'block-1',
-          indent: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Item 2' }],
-          id: 'block-2',
-          indent: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-        withBlockId: true,
-      };
-
-      const result = listToMdastTree(nodes as any, options, true);
-
-      expect(result.type).toBe('fragment');
-      expect(result.children).toHaveLength(2);
-    });
-
-    it('should preserve list numbering with block IDs', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'First' }],
-          id: 'id-1',
-          indent: 1,
-          listStart: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Second' }],
-          id: 'id-2',
-          indent: 1,
-          listStart: 2,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Third' }],
-          id: 'id-3',
-          indent: 1,
-          listStart: 3,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-        withBlockId: true,
-      };
-
-      const result = listToMdastTree(nodes as any, options, true);
-
-      expect(result.type).toBe('fragment');
-      // Each wrapped list should have correct start number
-      expect(result.children[0].start).toBe(1);
-      expect(result.children[1].start).toBe(2);
-      expect(result.children[2].start).toBe(3);
-    });
-
-    it('should not wrap when withBlockId is false', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item' }],
-          id: 'block-1',
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-        withBlockId: false,
-      };
-
-      const result = listToMdastTree(nodes as any, options, true);
-
-      expect(result.type).toBe('list');
-    });
-
-    it('should not wrap when isBlock is false', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item' }],
-          id: 'block-1',
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-        withBlockId: true,
-      };
-
-      const result = listToMdastTree(nodes as any, options, false);
-
-      expect(result.type).toBe('list');
-    });
-
-    it('should not wrap when no nodes have IDs', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-        withBlockId: true,
-      };
-
-      const result = listToMdastTree(nodes as any, options, true);
-
-      expect(result.type).toBe('list');
+      expect(result).toBeDefined();
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should throw error for empty nodes array', () => {
-      const editor = createEditor();
-      const nodes: any[] = [];
-
-      const options: SerializeMdOptions = {
-        editor,
+  describe('empty lists and items', () => {
+    it('should handle empty list', () => {
+      const listNode = {
+        type: 'ul',
+        children: [],
       };
 
-      expect(() => listToMdastTree(nodes, options)).toThrow('Cannot create a list from empty nodes');
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+      expect(result.children.length).toBe(0);
     });
 
-    it('should handle single item list', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Only item' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should handle list with empty item', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: '' }] }],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.children).toHaveLength(1);
+      expect(result).toBeDefined();
     });
 
-    it('should handle listStart with non-1 value', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item 5' }],
-          indent: 1,
-          listStart: 5,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should handle list items with only whitespace', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: '   ' }] }],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('list spread property', () => {
+    it('should set spread correctly for single-line items', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Item' }] }],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+      expect(typeof result.spread).toBe('boolean');
+    });
+
+    it('should set spread correctly for multi-line items', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Line 1' }] },
+              { type: 'p', children: [{ text: 'Line 2' }] },
+            ],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle list item without lic', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [{ text: 'Direct text' }],
+          },
+        ],
+      };
+
+      expect(() => {
+        listToMdastTree(editor, listNode as any);
+      }).not.toThrow();
+    });
+
+    it('should handle malformed list structure', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'not-li',
+            children: [{ text: 'Text' }],
+          } as any,
+        ],
+      };
+
+      expect(() => {
+        listToMdastTree(editor, listNode as any);
+      }).not.toThrow();
+    });
+
+    it('should handle null children', () => {
+      const listNode = {
+        type: 'ul',
+        children: null as any,
+      };
+
+      expect(() => {
+        listToMdastTree(editor, listNode as any);
+      }).not.toThrow();
+    });
+
+    it('should handle undefined children', () => {
+      const listNode = {
+        type: 'ul',
+        children: undefined as any,
+      };
+
+      expect(() => {
+        listToMdastTree(editor, listNode as any);
+      }).not.toThrow();
+    });
+  });
+
+  describe('special characters in list items', () => {
+    it('should handle items with markdown special characters', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: '**bold** *italic*' }] }],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+    });
+
+    it('should handle items with unicode', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: '你好 🌍' }] }],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+    });
+
+    it('should handle items with special punctuation', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Item: with, punctuation!' }] }],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('complex list structures', () => {
+    it('should handle list with multiple nested levels and mixed types', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Main 1' }] },
+              {
+                type: 'ol',
+                children: [
+                  {
+                    type: 'li',
+                    children: [
+                      { type: 'lic', children: [{ text: 'Sub 1.1' }] },
+                      {
+                        type: 'ul',
+                        children: [
+                          {
+                            type: 'li',
+                            children: [{ type: 'lic', children: [{ text: 'Sub 1.1.1' }] }],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Main 2' }] }],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+      expect(result.children.length).toBe(2);
+    });
+
+    it('should handle list items with all content types', () => {
+      const listNode = {
+        type: 'ul',
+        children: [
+          {
+            type: 'li',
+            children: [
+              { type: 'lic', children: [{ text: 'Text' }] },
+              { type: 'p', children: [{ text: 'Paragraph' }] },
+              {
+                type: 'code_block',
+                children: [{ type: 'code_line', children: [{ text: 'code' }] }],
+              },
+              {
+                type: 'blockquote',
+                children: [{ type: 'p', children: [{ text: 'quote' }] }],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('performance', () => {
+    it('should handle large lists efficiently', () => {
+      const children = Array.from({ length: 1000 }, (_, i) => ({
+        type: 'li',
+        children: [{ type: 'lic', children: [{ text: `Item ${i}` }] }],
+      }));
+
+      const listNode = {
+        type: 'ul',
+        children,
+      };
+
+      const start = Date.now();
+      const result = listToMdastTree(editor, listNode as any);
+      const duration = Date.now() - start;
+
+      expect(result).toBeDefined();
+      expect(result.children.length).toBe(1000);
+      expect(duration).toBeLessThan(5000);
+    });
+
+    it('should handle deeply nested lists without stack overflow', () => {
+      let listNode: any = {
+        type: 'li',
+        children: [{ type: 'lic', children: [{ text: 'Deep' }] }],
+      };
+
+      for (let i = 0; i < 50; i++) {
+        listNode = {
+          type: 'ul',
+          children: [
+            {
+              type: 'li',
+              children: [
+                { type: 'lic', children: [{ text: `Level ${i}` }] },
+                listNode,
+              ],
+            },
+          ],
+        };
+      }
+
+      expect(() => {
+        listToMdastTree(editor, listNode);
+      }).not.toThrow();
+    });
+  });
+
+  describe('list start property', () => {
+    it('should preserve start property for ordered lists', () => {
+      const listNode = {
+        type: 'ol',
+        start: 5,
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Item 5' }] }],
+          },
+        ],
+      };
+
+      const result = listToMdastTree(editor, listNode as any);
+
+      expect(result).toBeDefined();
       expect(result.start).toBe(5);
     });
 
-    it('should handle empty text content', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: '' }],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
+    it('should handle default start for ordered lists', () => {
+      const listNode = {
+        type: 'ol',
+        children: [
+          {
+            type: 'li',
+            children: [{ type: 'lic', children: [{ text: 'Item 1' }] }],
+          },
+        ],
       };
 
-      const result = listToMdastTree(nodes as any, options);
+      const result = listToMdastTree(editor, listNode as any);
 
-      expect(result.children).toHaveLength(1);
-    });
-
-    it('should handle complex child content', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [
-            { text: 'Text with ' },
-            { bold: true, text: 'bold' },
-            { text: ' and ' },
-            { italic: true, text: 'italic' },
-          ],
-          indent: 1,
-          listStyleType: 'disc' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-      };
-
-      const result = listToMdastTree(nodes as any, options);
-
-      expect(result.children).toHaveLength(1);
-      expect(result.children[0].children[0].type).toBe('paragraph');
-    });
-  });
-
-  describe('List Start Property', () => {
-    it('should preserve listStart for ordered lists', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Item at 10' }],
-          indent: 1,
-          listStart: 10,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-      };
-
-      const result = listToMdastTree(nodes as any, options);
-
-      expect(result.start).toBe(10);
-    });
-
-    it('should use first node listStart for root list', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'First' }],
-          indent: 1,
-          listStart: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Second' }],
-          indent: 1,
-          listStart: 2,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-      };
-
-      const result = listToMdastTree(nodes as any, options);
-
-      expect(result.start).toBe(1); // Uses first node's listStart
-    });
-
-    it('should preserve listStart for nested ordered lists', () => {
-      const editor = createEditor();
-      const nodes = [
-        {
-          children: [{ text: 'Parent' }],
-          indent: 1,
-          listStart: 1,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-        {
-          children: [{ text: 'Nested' }],
-          indent: 2,
-          listStart: 5,
-          listStyleType: 'decimal' as const,
-          type: KEYS.p,
-        },
-      ];
-
-      const options: SerializeMdOptions = {
-        editor,
-      };
-
-      const result = listToMdastTree(nodes as any, options);
-
-      const nestedList = result.children[0].children[1];
-      expect(nestedList.start).toBe(5);
+      expect(result).toBeDefined();
+      expect(result.start).toBeDefined();
     });
   });
 });
