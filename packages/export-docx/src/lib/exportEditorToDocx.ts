@@ -3,6 +3,8 @@ import type { SlateEditor } from 'platejs';
 import {
   AlignmentType,
   Document,
+  Footer,
+  Header,
   HeadingLevel,
   Packer,
   Paragraph,
@@ -419,8 +421,8 @@ export const exportEditorToDocx = async (
       ].join('\n'),
     fontFamily = 'Arial',
     fontSize = 24, // 12pt in half-points
-    footerHtml: _footerHtml,
-    headerHtml: _headerHtml,
+    footerHtml,
+    headerHtml,
     margins = DEFAULT_MARGINS,
     pageSize = DEFAULT_PAGE_SIZE,
     properties = {},
@@ -442,6 +444,24 @@ export const exportEditorToDocx = async (
   // Parse HTML to docx paragraphs
   const paragraphs = htmlToDocxParagraphs(fullHtml, fontSize);
 
+  // Create header if headerHtml is provided
+  const headers = headerHtml
+    ? {
+        default: new Header({
+          children: htmlToDocxParagraphs(headerHtml, fontSize),
+        }),
+      }
+    : undefined;
+
+  // Create footer if footerHtml is provided
+  const footers = footerHtml
+    ? {
+        default: new Footer({
+          children: htmlToDocxParagraphs(footerHtml, fontSize),
+        }),
+      }
+    : undefined;
+
   // Create the document
   const doc = new Document({
     creator: properties.creator,
@@ -450,6 +470,8 @@ export const exportEditorToDocx = async (
     sections: [
       {
         children: paragraphs,
+        footers,
+        headers,
         properties: {
           page: {
             margin: margins,

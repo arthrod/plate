@@ -146,6 +146,60 @@ describe('exportEditorToDocx', () => {
     expect(blob.size).toBeGreaterThan(0);
   });
 
+  it('should handle header HTML', async () => {
+    const editor = createEditor();
+    const html = '<p>Main content</p>';
+    const headerHtml = '<p>Document Header</p>';
+
+    const blob = await exportEditorToDocx(editor, { headerHtml, html });
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.size).toBeGreaterThan(0);
+  });
+
+  it('should handle footer HTML', async () => {
+    const editor = createEditor();
+    const html = '<p>Main content</p>';
+    const footerHtml = '<p>Page Footer - Confidential</p>';
+
+    const blob = await exportEditorToDocx(editor, { footerHtml, html });
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.size).toBeGreaterThan(0);
+  });
+
+  it('should handle both header and footer HTML', async () => {
+    const editor = createEditor();
+    const html = '<p>Main content</p>';
+    const headerHtml = '<p><strong>Company Name</strong></p>';
+    const footerHtml = '<p>Page 1 of 1</p>';
+
+    const blob = await exportEditorToDocx(editor, {
+      footerHtml,
+      headerHtml,
+      html,
+    });
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.size).toBeGreaterThan(0);
+  });
+
+  it('should handle formatted header and footer', async () => {
+    const editor = createEditor();
+    const html = '<p>Document body</p>';
+    const headerHtml = '<p style="text-align: center"><strong>CONFIDENTIAL</strong></p>';
+    const footerHtml = '<p style="text-align: right"><em>Draft Version</em></p>';
+
+    const blob = await exportEditorToDocx(editor, {
+      footerHtml,
+      headerHtml,
+      html,
+    });
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.size).toBeGreaterThan(0);
+  });
+
   it('should handle custom HTML document wrapper', async () => {
     const editor = createEditor();
     const html = '<p>Content</p>';
