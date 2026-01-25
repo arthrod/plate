@@ -150,11 +150,22 @@ const BlockCommentContent = ({
     try {
       const domNode = editor.api.toDOMNode(element);
       if (!(domNode instanceof HTMLElement)) return;
-      const marginTop = Number.parseFloat(
-        getComputedStyle(domNode).marginTop || '0'
-      );
-      const offset =
-        Number.isFinite(marginTop) && marginTop > 0 ? marginTop + 4 : 4;
+      const textNode = domNode.querySelector(
+        '[data-slate-node="text"]'
+      ) as HTMLElement | null;
+      if (textNode) {
+        const blockRect = domNode.getBoundingClientRect();
+        const textRect = textNode.getBoundingClientRect();
+        const offset = Math.max(0, textRect.top - blockRect.top);
+        setIconOffsetTop(offset);
+        return;
+      }
+      const styles = getComputedStyle(domNode);
+      const marginTop = Number.parseFloat(styles.marginTop || '0');
+      const paddingTop = Number.parseFloat(styles.paddingTop || '0');
+      const borderTop = Number.parseFloat(styles.borderTopWidth || '0');
+      const offset = marginTop + paddingTop + borderTop;
+      if (!Number.isFinite(offset)) return;
       setIconOffsetTop(offset);
     } catch {}
   }, [editor, element]);

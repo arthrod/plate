@@ -9,7 +9,7 @@ import {
   PaginationRegistryProvider,
 } from '@platejs/pagination';
 import { PlaywrightPlugin } from '@platejs/playwright';
-import { KEYS, NormalizeTypesPlugin } from 'platejs';
+import { KEYS, NormalizeTypesPlugin, TrailingBlockPlugin } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
 
 import { useLocale } from '@/hooks/useLocale';
@@ -32,6 +32,19 @@ export default function PlaygroundDemo({
     'paginated'
   );
   const isPaginated = viewMode === 'paginated';
+  const paginationEditorKit = React.useMemo(
+    () =>
+      EditorKit.map((plugin) =>
+        plugin.key === TrailingBlockPlugin.key
+          ? TrailingBlockPlugin.configure({
+              options: {
+                level: 1,
+              },
+            })
+          : plugin
+      ),
+    []
+  );
 
   const editor = usePlateEditor(
     {
@@ -46,7 +59,7 @@ export default function PlaygroundDemo({
       },
       plugins: [
         ...CopilotKit,
-        ...EditorKit,
+        ...paginationEditorKit,
         ...ExcalidrawKit,
 
         NormalizeTypesPlugin.configure({

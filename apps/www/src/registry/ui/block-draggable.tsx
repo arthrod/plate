@@ -6,7 +6,7 @@ import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { expandListItemsWithChildren } from '@platejs/list';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
 import { GripVertical } from 'lucide-react';
-import { type TElement, getPluginByType, isType, KEYS } from 'platejs';
+import { type TElement, getPluginByType, KEYS } from 'platejs';
 import {
   type PlateEditor,
   type PlateElementProps,
@@ -43,21 +43,21 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
   const pageType = editor.getType?.('pagination');
   const depthOffset = getPageDepthOffset(editor);
   const normalizedDepth = path.length - depthOffset;
+  const undraggableTypes = React.useMemo(
+    () => new Set(UNDRAGGABLE_KEYS.map((key) => editor.getType(key) ?? key)),
+    [editor]
+  );
+  const isUndraggable = undraggableTypes.has(element.type);
 
   const enabled = React.useMemo(() => {
     if (pageType && element.type === pageType) return false;
     if (editor.dom.readOnly) return false;
+    if (isUndraggable) return false;
 
-    if (
-      normalizedDepth === 1 &&
-      !isType(editor, element, UNDRAGGABLE_KEYS)
-    ) {
+    if (normalizedDepth === 1) {
       return true;
     }
-    if (
-      normalizedDepth === 3 &&
-      !isType(editor, element, UNDRAGGABLE_KEYS)
-    ) {
+    if (normalizedDepth === 3) {
       const block = editor.api.some({
         at: path,
         match: {
@@ -69,10 +69,7 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
         return true;
       }
     }
-    if (
-      normalizedDepth === 4 &&
-      !isType(editor, element, UNDRAGGABLE_KEYS)
-    ) {
+    if (normalizedDepth === 4) {
       const block = editor.api.some({
         at: path,
         match: {
@@ -86,7 +83,7 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
     }
 
     return false;
-  }, [editor, element, normalizedDepth, pageType, path]);
+  }, [editor, element, normalizedDepth, pageType, path, isUndraggable]);
 
   if (!enabled) return;
 
@@ -408,7 +405,8 @@ const createDragPreviewElements = (
   };
 
   const resolveElement = (node: TElement, index: number) => {
-    const domNode = editor.api.toDOMNode(node)!;
+    const domNode = editor.api.toDOMNode(node);
+    if (!(domNode instanceof HTMLElement)) return;
     const newDomNode = domNode.cloneNode(true) as HTMLElement;
 
     // Apply visual compensation for horizontal scroll
@@ -454,11 +452,21 @@ const createDragPreviewElements = (
     const lastDomNode = blocks[index - 1];
 
     if (lastDomNode) {
-      const lastDomNodeRect = editor.api
-        .toDOMNode(lastDomNode)!
-        .parentElement!.getBoundingClientRect();
-
-      const domNodeRect = domNode.parentElement!.getBoundingClientRect();
+      const lastDomNodeEl = editor.api.toDOMNode(lastDomNode);
+      if (!(lastDomNodeEl instanceof HTMLElement)) {
+        removeDataAttributes(newDomNode);
+        elements.push(wrapper);
+        return;
+      }
+      const lastParent = lastDomNodeEl.parentElement;
+      const domParent = domNode.parentElement;
+      if (!lastParent || !domParent) {
+        removeDataAttributes(newDomNode);
+        elements.push(wrapper);
+        return;
+      }
+      const lastDomNodeRect = lastParent.getBoundingClientRect();
+      const domNodeRect = domParent.getBoundingClientRect();
 
       const distance = domNodeRect.top - lastDomNodeRect.bottom;
 
@@ -530,7 +538,8 @@ const calculatePreviewTop = (
 };
 
 const calcDragButtonTop = (editor: PlateEditor, element: TElement): number => {
-  const child = editor.api.toDOMNode(element)!;
+  const child = editor.api.toDOMNode(element);
+  if (!(child instanceof HTMLElement)) return 0;
 
   const currentMarginTopString = window.getComputedStyle(child).marginTop;
   const currentMarginTop = Number(currentMarginTopString.replace('px', ''));

@@ -1,7 +1,7 @@
 // ============================================================
 // pagination/BasePaginationPlugin.ts
 // ============================================================
-import { createTSlatePlugin, type PluginConfig } from 'platejs';
+import { createTSlatePlugin, type OverrideEditor, type PluginConfig } from 'platejs';
 import type { Operation } from 'slate';
 import { createPaginationRuntime, getPageIndexFromOp } from './runtime';
 import type {
@@ -46,45 +46,46 @@ const DEFAULT_COLLABORATION_OPTIONS: CollaborationOptions = {
   mode: 'all',
 };
 
-function withPagination({ editor, type }: any) {
+const withPagination: OverrideEditor<PaginationConfig> = ({
+  editor,
+  type,
+  tf: { apply, normalizeNode },
+}) => {
   // Attach runtime to editor
   const runtime = createPaginationRuntime();
   (editor as any).__paginationRuntime = runtime;
 
-  // Intercept all operations to mark pages dirty
-  const { apply } = editor;
-  editor.apply = (op: Operation) => {
-    apply(op);
+  return {
+    transforms: {
+      apply(op: Operation) {
+        apply(op);
 
-    if ((editor as any).__paginationMutating) return;
+        if ((editor as any).__paginationMutating) return;
 
-    const pageIndex = getPageIndexFromOp(op);
-    if (pageIndex !== null && runtime) {
-      runtime.markDirty(pageIndex);
-    }
+        const pageIndex = getPageIndexFromOp(op);
+        if (pageIndex !== null && runtime) {
+          runtime.markDirty(pageIndex);
+        }
+      },
+      normalizeNode(entry: [any, any]) {
+        const [node, path] = entry;
+
+        // Unwrap nested pages
+        if ((node as any)?.type === type && path.length !== 1) {
+          editor.tf.unwrapNodes({ at: path });
+          return;
+        }
+
+        // Wrap non-page root children
+        if (path.length === 0) {
+          if (normalizeRootChildren(editor, type)) return;
+        }
+
+        normalizeNode(entry);
+      },
+    },
   };
-
-  // Override normalizeNode
-  const { normalizeNode } = editor;
-  editor.normalizeNode = (entry: [any, any]) => {
-    const [node, path] = entry;
-
-    // Unwrap nested pages
-    if ((node as any)?.type === type && path.length !== 1) {
-      editor.tf.unwrapNodes({ at: path });
-      return;
-    }
-
-    // Wrap non-page root children
-    if (path.length === 0) {
-      if (normalizeRootChildren(editor, type)) return;
-    }
-
-    normalizeNode(entry);
-  };
-
-  return editor;
-}
+};
 
 export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
   key: PAGINATION_KEY,
@@ -96,6 +97,7 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
   handlers: {
     onNodeChange: ({ editor }) => {
       if ((editor as any).__paginationMutating) return;
+      if ((editor as any).meta?.isNormalizing) return;
       const pageType = editor.getType?.(PAGINATION_KEY) ?? 'page';
       const children = editor.children as any[];
       if (!Array.isArray(children) || children.length === 0) return;
@@ -133,15 +135,16 @@ export function withPaginationMutations(editor: any, fn: () => void) {
 function wrapRootRange(editor: any, type: string, start: number, end: number) {
   withPaginationMutations(editor, () => {
     editor.tf.withoutNormalizing(() => {
-      editor.tf.wrapNodes(
-        { type, children: [] },
-        {
-          at: [],
-          match: (_n: any, p: any) =>
-            p.length === 1 && p[0] >= start && p[0] <= end,
-          mode: 'highest',
-        }
-      );
+      const pagePath = [start];
+      editor.tf.insertNodes({ type, children: [] }, { at: pagePath });
+
+      const count = end - start + 1;
+      for (let i = 0; i < count; i++) {
+        editor.tf.moveNodes({
+          at: [start + 1],
+          to: pagePath.concat([i]),
+        });
+      }
     });
   });
 }
