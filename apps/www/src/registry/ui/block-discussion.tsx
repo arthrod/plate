@@ -95,6 +95,7 @@ const BlockCommentContent = ({
   children,
   commentNodes,
   draftCommentNode,
+  element,
   suggestionNodes,
 }: PlateElementProps & {
   blockPath: Path;
@@ -103,6 +104,7 @@ const BlockCommentContent = ({
   suggestionNodes: NodeEntry<TElement | TSuggestionText>[];
 }) => {
   const editor = useEditorRef();
+  const [iconOffsetTop, setIconOffsetTop] = React.useState(4);
   const resolvedSuggestions = useResolveSuggestion(suggestionNodes, blockPath);
   const resolvedDiscussions = useResolvedDiscussion(commentNodes, blockPath);
 
@@ -143,6 +145,19 @@ const BlockCommentContent = ({
     _open ||
     selected ||
     (isCommenting && !!draftCommentNode && commentingCurrent);
+
+  React.useLayoutEffect(() => {
+    try {
+      const domNode = editor.api.toDOMNode(element);
+      if (!(domNode instanceof HTMLElement)) return;
+      const marginTop = Number.parseFloat(
+        getComputedStyle(domNode).marginTop || '0'
+      );
+      const offset =
+        Number.isFinite(marginTop) && marginTop > 0 ? marginTop + 4 : 4;
+      setIconOffsetTop(offset);
+    } catch {}
+  }, [editor, element]);
 
   const anchorElement = React.useMemo(() => {
     let activeNode: NodeEntry | undefined;
@@ -258,7 +273,8 @@ const BlockCommentContent = ({
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
-                className="!px-1.5 mt-1 ml-1 flex h-6 gap-1 py-0 text-muted-foreground/80 hover:text-muted-foreground/80 data-[active=true]:bg-muted"
+                className="!px-1.5 ml-1 flex h-6 gap-1 py-0 text-muted-foreground/80 hover:text-muted-foreground/80 data-[active=true]:bg-muted"
+                style={{ marginTop: iconOffsetTop }}
                 data-active={open}
                 contentEditable={false}
               >

@@ -24,6 +24,8 @@ export type PaginationConfig = PluginConfig<
   {}
 >;
 
+const PAGINATION_KEY = 'pagination';
+
 const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = {
   sizes: { width: 816, height: 1056 }, // US Letter at 96 DPI
   margins: { top: 96, right: 96, bottom: 96, left: 96 }, // 1 inch margins
@@ -85,11 +87,26 @@ function withPagination({ editor, type }: any) {
 }
 
 export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
-  key: 'pagination',
+  key: PAGINATION_KEY,
   node: {
     isElement: true,
     isContainer: true,
     type: 'page',
+  },
+  handlers: {
+    onNodeChange: ({ editor }) => {
+      if ((editor as any).__paginationMutating) return;
+      const pageType = editor.getType?.(PAGINATION_KEY) ?? 'page';
+      const children = editor.children as any[];
+      if (!Array.isArray(children) || children.length === 0) return;
+
+      const hasNonPage = children.some((child) => child?.type !== pageType);
+      if (!hasNonPage) return;
+
+      if (normalizeRootChildren(editor, pageType)) {
+        getPaginationRuntime(editor)?.markDirty(0);
+      }
+    },
   },
   normalizeInitialValue: ({ editor, type }) => {
     normalizeRootChildren(editor, type);
