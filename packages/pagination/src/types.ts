@@ -40,3 +40,5 @@ export type LeaderElection = {
   subscribe: (callback: () => void) => () => void;
   destroy: () => void;
 };
+
+export type ViewMode = 'paginated' | 'continuous';

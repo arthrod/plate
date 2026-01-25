@@ -9,6 +9,7 @@ import type {
   DocumentSettings,
   PaginationRuntime,
   ReflowOptions,
+  ViewMode,
 } from './types';
 
 export type PaginationConfig = PluginConfig<
@@ -18,7 +19,9 @@ export type PaginationConfig = PluginConfig<
     reflow: ReflowOptions;
     collaboration: CollaborationOptions;
     defaultBlockType: string;
-  }
+    viewMode: ViewMode;
+  },
+  {}
 >;
 
 const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = {
@@ -41,20 +44,7 @@ const DEFAULT_COLLABORATION_OPTIONS: CollaborationOptions = {
   mode: 'all',
 };
 
-export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
-  key: 'pagination',
-  node: {
-    isElement: true,
-    isContainer: true,
-    type: 'page',
-  },
-  options: {
-    documentSettings: DEFAULT_DOCUMENT_SETTINGS,
-    reflow: DEFAULT_REFLOW_OPTIONS,
-    collaboration: DEFAULT_COLLABORATION_OPTIONS,
-    defaultBlockType: 'p',
-  },
-}).extendEditor(({ editor, type }) => {
+function withPagination({ editor, type }: any) {
   // Attach runtime to editor
   const runtime = createPaginationRuntime();
   (editor as any).__paginationRuntime = runtime;
@@ -67,32 +57,39 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
     if ((editor as any).__paginationMutating) return;
 
     const pageIndex = getPageIndexFromOp(op);
-    if (pageIndex !== null) {
+    if (pageIndex !== null && runtime) {
       runtime.markDirty(pageIndex);
     }
   };
 
-  // Normalize: pages must be at root level
+  // Override normalizeNode
   const { normalizeNode } = editor;
-  editor.normalizeNode = (entry) => {
+  editor.normalizeNode = (entry: [any, any]) => {
     const [node, path] = entry;
 
-    // If this is a page node not at root, unwrap it
-    if ((node as any).type === type && path.length !== 1) {
+    // Unwrap nested pages
+    if ((node as any)?.type === type && path.length !== 1) {
       editor.tf.unwrapNodes({ at: path });
       return;
     }
 
-    // If root has non-page children, wrap them
+    // Wrap non-page root children
     if (path.length === 0) {
-      for (const [child, childPath] of editor.api.nodes({
-        at: path,
-        mode: 'highest',
-      })) {
-        if ((child as any).type !== type && childPath.length === 1) {
-          editor.tf.wrapNodes({ type, children: [] }, { at: childPath });
-          return; // Let Slate re-run normalization
+      const children = editor.children as any[];
+      let segStart: number | null = null;
+
+      for (let i = 0; i < children.length; i++) {
+        const isPage = children[i]?.type === type;
+        if (!isPage && segStart === null) segStart = i;
+        if (isPage && segStart !== null) {
+          wrapRootRange(editor, type, segStart, i - 1);
+          return;
         }
+      }
+
+      if (segStart !== null) {
+        wrapRootRange(editor, type, segStart, children.length - 1);
+        return;
       }
     }
 
@@ -100,7 +97,23 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
   };
 
   return editor;
-});
+}
+
+export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
+  key: 'pagination',
+  node: {
+    isElement: true,
+    isContainer: true,
+    type: 'page',
+  },
+  options: {
+    documentSettings: DEFAULT_DOCUMENT_SETTINGS,
+    reflow: DEFAULT_REFLOW_OPTIONS,
+    collaboration: DEFAULT_COLLABORATION_OPTIONS,
+    defaultBlockType: 'p',
+    viewMode: 'paginated',
+  },
+}).overrideEditor(withPagination);
 
 export function withPaginationMutations(editor: any, fn: () => void) {
   const prev = editor.__paginationMutating;
@@ -110,6 +123,22 @@ export function withPaginationMutations(editor: any, fn: () => void) {
   } finally {
     editor.__paginationMutating = prev;
   }
+}
+
+function wrapRootRange(editor: any, type: string, start: number, end: number) {
+  withPaginationMutations(editor, () => {
+    editor.tf.withoutNormalizing(() => {
+      editor.tf.wrapNodes(
+        { type, children: [] },
+        {
+          at: [],
+          match: (_n: any, p: any) =>
+            p.length === 1 && p[0] >= start && p[0] <= end,
+          mode: 'highest',
+        }
+      );
+    });
+  });
 }
 
 // Helper to get runtime from editor

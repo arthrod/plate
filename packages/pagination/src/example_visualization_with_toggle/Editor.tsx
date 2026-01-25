@@ -1,28 +1,26 @@
 /** biome-ignore-all lint/style/useConsistentTypeDefinitions: example file uses interfaces */
 /** biome-ignore-all lint/a11y/useButtonType: example file */
 /** biome-ignore-all lint/a11y/noSvgWithoutTitle: example file */
-import React, { useState } from 'react';
 import {
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Code,
-  AlignLeft,
   AlignCenter,
+  AlignLeft,
   AlignRight,
-  List,
+  Bold,
   CheckSquare,
-  MoreHorizontal,
-  MessageSquare,
-  Share2,
-  Clock,
   ChevronDown,
+  Clock,
+  Code,
   File,
+  Italic,
+  List,
+  MessageSquare,
+  MoreHorizontal,
+  Share2,
   Smartphone,
-  Maximize,
+  Strikethrough,
+  Underline,
 } from 'lucide-react';
-import type { ViewMode } from '../types';
+import React, { useState } from 'react';
 
 interface EditorProps {
   isSidebarOpen: boolean;
@@ -30,7 +28,9 @@ interface EditorProps {
 }
 
 const Editor: React.FC<EditorProps> = ({ isSidebarOpen, toggleSidebar }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('paginated');
+  const [viewMode, setViewMode] = useState<'continuous' | 'paginated'>(
+    'paginated'
+  );
 
   return (
     <div className="flex h-screen flex-1 flex-col overflow-hidden bg-white">
@@ -118,39 +118,27 @@ const Editor: React.FC<EditorProps> = ({ isSidebarOpen, toggleSidebar }) => {
             icon={<File size={14} />}
             label="Page"
           />
-          <ViewToggle
-            active={viewMode === 'focus'}
-            onClick={() => setViewMode('focus')}
-            icon={<Maximize size={14} />}
-            label="Focus"
-          />
         </div>
       </div>
 
       {/* Editor Surface / Canvas */}
       <div
         className={`relative flex-1 overflow-y-auto transition-colors duration-300 ${
-          viewMode === 'paginated'
-            ? 'bg-stone-200/60'
-            : viewMode === 'focus'
-              ? 'bg-white'
-              : 'bg-white'
+          viewMode === 'paginated' ? 'bg-stone-200/60' : 'bg-white'
         }`}
       >
         <div
           className={`mx-auto pb-32 transition-all duration-500 ease-in-out ${
             viewMode === 'paginated'
               ? 'flex flex-col items-center gap-8 py-8'
-              : viewMode === 'focus'
-                ? 'max-w-4xl px-12 py-24'
-                : 'max-w-3xl px-12 py-12'
+              : 'max-w-3xl px-12 py-12'
           }`}
         >
           {/* Render content based on view mode */}
           {viewMode === 'paginated' ? (
             <PaginatedContent />
           ) : (
-            <ContinuousContent isFocus={viewMode === 'focus'} />
+            <ContinuousContent />
           )}
         </div>
       </div>
@@ -221,11 +209,9 @@ const PaginatedContent = () => (
   </>
 );
 
-const ContinuousContent = ({ isFocus }: { isFocus: boolean }) => (
-  <div className={`flex flex-col ${isFocus ? 'animate-fade-in' : ''}`}>
-    <h1
-      className={`${isFocus ? 'mb-12 text-center text-5xl' : 'mb-8 text-4xl'} font-bold text-stone-900 tracking-tight`}
-    >
+const ContinuousContent = () => (
+  <div className="flex flex-col">
+    <h1 className="mb-8 font-bold text-4xl text-stone-900 tracking-tight">
       Project Phoenix Proposal
     </h1>
     <ContentBlocks />

@@ -17,6 +17,7 @@ export function PageElement({
   const contentRef = useRef<HTMLDivElement>(null);
 
   const settings = usePluginOption(BasePaginationPlugin, 'documentSettings');
+  const viewMode = usePluginOption(BasePaginationPlugin, 'viewMode');
   const { sizes, margins } = settings;
 
   // Find page index from path
@@ -37,14 +38,21 @@ export function PageElement({
   const contentHeight = sizes.height - margins.top - margins.bottom;
   const contentWidth = sizes.width - margins.left - margins.right;
 
+  const isPaginated = viewMode === 'paginated';
+
   return (
     <div
       {...attributes}
       ref={outerRef}
-      className="relative mx-auto my-6 bg-white shadow-lg"
+      className={
+        isPaginated
+          ? 'relative mx-auto my-6 bg-white shadow-lg'
+          : 'relative mx-auto my-6 bg-white'
+      }
       style={{
-        width: sizes.width,
-        height: sizes.height,
+        width: isPaginated ? sizes.width : '100%',
+        maxWidth: isPaginated ? undefined : sizes.width,
+        height: isPaginated ? sizes.height : 'auto',
         padding: `${margins.top}px ${margins.right}px ${margins.bottom}px ${margins.left}px`,
         boxSizing: 'border-box',
       }}
@@ -53,11 +61,11 @@ export function PageElement({
         ref={contentRef}
         className="plate-page-content"
         style={{
-          width: contentWidth,
-          height: contentHeight,
+          width: isPaginated ? contentWidth : '100%',
+          height: isPaginated ? contentHeight : 'auto',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden',
+          overflow: isPaginated ? 'hidden' : 'visible',
         }}
       >
         {children}
