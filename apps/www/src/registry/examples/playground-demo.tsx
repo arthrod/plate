@@ -3,7 +3,11 @@
 import * as React from 'react';
 import { File, Smartphone } from 'lucide-react';
 
-import { PaginationPlugin } from '@platejs/pagination';
+import {
+  PaginationCoordinator,
+  PaginationPlugin,
+  PaginationRegistryProvider,
+} from '@platejs/pagination';
 import { PlaywrightPlugin } from '@platejs/playwright';
 import { KEYS, NormalizeTypesPlugin } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
@@ -66,39 +70,46 @@ export default function PlaygroundDemo({
     []
   );
 
+  React.useEffect(() => {
+    editor.setOption(PaginationPlugin, 'viewMode', viewMode);
+  }, [editor, viewMode]);
+
   return (
-    <Plate editor={editor}>
-      <div className="flex h-full flex-col">
-        {/* Toolbar with view mode toggle */}
-        <div className="flex items-center justify-between border-border border-b bg-background px-4 py-2">
-          <div className="font-medium text-muted-foreground text-sm">
-            Editor Playground
+    <PaginationRegistryProvider>
+      <Plate editor={editor}>
+        <PaginationCoordinator />
+        <div className="flex h-full flex-col">
+          {/* Toolbar with view mode toggle */}
+          <div className="flex items-center justify-between border-border border-b bg-background px-4 py-2">
+            <div className="font-medium text-muted-foreground text-sm">
+              Editor Playground
+            </div>
+            <div className="flex shrink-0 items-center rounded-lg bg-muted p-0.5">
+              <ViewToggle
+                active={viewMode === 'continuous'}
+                onClick={() => setViewMode('continuous')}
+                icon={<Smartphone size={14} />}
+                label="Continuous"
+              />
+              <ViewToggle
+                active={viewMode === 'paginated'}
+                onClick={() => setViewMode('paginated')}
+                icon={<File size={14} />}
+                label="Paginated"
+              />
+            </div>
           </div>
-          <div className="flex shrink-0 items-center rounded-lg bg-muted p-0.5">
-            <ViewToggle
-              active={viewMode === 'continuous'}
-              onClick={() => setViewMode('continuous')}
-              icon={<Smartphone size={14} />}
-              label="Continuous"
+          <EditorContainer className={className}>
+            <Editor
+              variant="demo"
+              className="pb-[20vh]"
+              placeholder="Type something..."
+              spellCheck={false}
             />
-            <ViewToggle
-              active={viewMode === 'paginated'}
-              onClick={() => setViewMode('paginated')}
-              icon={<File size={14} />}
-              label="Paginated"
-            />
-          </div>
+          </EditorContainer>
         </div>
-        <EditorContainer className={className}>
-          <Editor
-            variant="demo"
-            className="pb-[20vh]"
-            placeholder="Type something..."
-            spellCheck={false}
-          />
-        </EditorContainer>
-      </div>
-    </Plate>
+      </Plate>
+    </PaginationRegistryProvider>
   );
 }
 

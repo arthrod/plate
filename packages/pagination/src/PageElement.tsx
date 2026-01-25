@@ -2,7 +2,7 @@
 // pagination/PageElement.tsx
 // ============================================================
 import type { PlateElementProps } from 'platejs/react';
-import { usePluginOption } from 'platejs/react';
+import { usePath, usePluginOption } from 'platejs/react';
 import React, { useEffect, useRef } from 'react';
 import { BasePaginationPlugin } from './BasePaginationPlugin';
 import { usePaginationRegistry } from './registry';
@@ -10,7 +10,6 @@ import { usePaginationRegistry } from './registry';
 export function PageElement({
   children,
   attributes,
-  element,
 }: PlateElementProps) {
   const registry = usePaginationRegistry();
   const outerRef = useRef<HTMLDivElement>(null);
@@ -20,14 +19,22 @@ export function PageElement({
   const viewMode = usePluginOption(BasePaginationPlugin, 'viewMode');
   const { sizes, margins } = settings;
 
-  // Find page index from path
-  // Note: In Plate, you'd use useEditorRef + findNodePath
-  // This is simplified — adapt to your setup
-  const pageIndex = (element as any).__pageIndex ?? 0;
+  // Find page index from path.
+  const path = usePath(BasePaginationPlugin.key);
+  const pageIndex =
+    typeof path?.[0] === 'number' && Number.isFinite(path[0])
+      ? path[0]
+      : null;
 
   // Register DOM references
   useEffect(() => {
-    if (!registry || !outerRef.current || !contentRef.current) return;
+    if (
+      !registry ||
+      pageIndex === null ||
+      !outerRef.current ||
+      !contentRef.current
+    )
+      return;
 
     return registry.registerPage(pageIndex, {
       outer: outerRef.current,

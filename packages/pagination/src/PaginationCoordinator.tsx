@@ -36,6 +36,7 @@ export function PaginationCoordinator({
     BasePaginationPlugin,
     'collaboration'
   ) as CollaborationOptions;
+  const viewMode = usePluginOption(BasePaginationPlugin, 'viewMode');
 
   const runtime = getPaginationRuntime(editor);
 
@@ -170,6 +171,12 @@ export function PaginationCoordinator({
   useEffect(() => {
     scheduleReflowFrom(0);
   }, [scheduleReflowFrom]);
+
+  // Reflow when view mode changes (e.g., continuous <-> paginated)
+  useEffect(() => {
+    if (!reflowOpts.enabled) return;
+    scheduleReflowFrom(0);
+  }, [reflowOpts.enabled, scheduleReflowFrom, viewMode]);
 
   return null;
 }

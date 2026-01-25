@@ -75,22 +75,7 @@ function withPagination({ editor, type }: any) {
 
     // Wrap non-page root children
     if (path.length === 0) {
-      const children = editor.children as any[];
-      let segStart: number | null = null;
-
-      for (let i = 0; i < children.length; i++) {
-        const isPage = children[i]?.type === type;
-        if (!isPage && segStart === null) segStart = i;
-        if (isPage && segStart !== null) {
-          wrapRootRange(editor, type, segStart, i - 1);
-          return;
-        }
-      }
-
-      if (segStart !== null) {
-        wrapRootRange(editor, type, segStart, children.length - 1);
-        return;
-      }
+      if (normalizeRootChildren(editor, type)) return;
     }
 
     normalizeNode(entry);
@@ -105,6 +90,9 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
     isElement: true,
     isContainer: true,
     type: 'page',
+  },
+  normalizeInitialValue: ({ editor, type }) => {
+    normalizeRootChildren(editor, type);
   },
   options: {
     documentSettings: DEFAULT_DOCUMENT_SETTINGS,
@@ -139,6 +127,29 @@ function wrapRootRange(editor: any, type: string, start: number, end: number) {
       );
     });
   });
+}
+
+function normalizeRootChildren(editor: any, type: string): boolean {
+  const children = editor.children as any[];
+  if (!Array.isArray(children) || children.length === 0) return false;
+
+  let segStart: number | null = null;
+
+  for (let i = 0; i < children.length; i++) {
+    const isPage = children[i]?.type === type;
+    if (!isPage && segStart === null) segStart = i;
+    if (isPage && segStart !== null) {
+      wrapRootRange(editor, type, segStart, i - 1);
+      return true;
+    }
+  }
+
+  if (segStart !== null) {
+    wrapRootRange(editor, type, segStart, children.length - 1);
+    return true;
+  }
+
+  return false;
 }
 
 // Helper to get runtime from editor
