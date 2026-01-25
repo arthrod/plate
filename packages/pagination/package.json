@@ -1,0 +1,79 @@
+{
+  "name": "@platejs/pagination",
+  "version": "52.2.0",
+  "description": "Pagination plugin for Plate - page-based document layout",
+  "keywords": [
+    "pagination",
+    "pages",
+    "layout",
+    "plate",
+    "plugin",
+    "slate",
+    "editor"
+  ],
+  "homepage": "https://platejs.org",
+  "bugs": {
+    "url": "https://github.com/udecode/plate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/udecode/plate.git",
+    "directory": "packages/pagination"
+  },
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "brl": "yarn p:brl",
+    "build": "yarn p:build",
+    "build:watch": "yarn p:build:watch",
+    "clean": "yarn p:clean",
+    "lint": "yarn p:lint",
+    "lint:fix": "yarn p:lint:fix",
+    "test": "yarn p:test",
+    "test:watch": "yarn p:test:watch",
+    "typecheck": "yarn p:typecheck"
+  },
+  "dependencies": {
+    "react-compiler-runtime": "^1.0.0"
+  },
+  "devDependencies": {
+    "platejs": "workspace:^",
+    "slate": ">=0.112.0",
+    "slate-history": ">=0.112.0",
+    "slate-react": ">=0.112.0",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.0"
+  },
+  "peerDependencies": {
+    "platejs": ">=52.0.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "slate": ">=0.112.0",
+    "slate-history": ">=0.112.0",
+    "slate-react": ">=0.112.0",
+    "y-protocols": ">=1.0.0",
+    "yjs": ">=13.6.0"
+  },
+  "peerDependenciesMeta": {
+    "y-protocols": {
+      "optional": true
+    },
+    "yjs": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "module": "./dist/index.js"
+}
