@@ -2378,7 +2378,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lifeomic/attempt@npm:^3.0.2":
+"@lifeomic/attempt@npm:^3.0.2, @lifeomic/attempt@npm:^3.1.0":
   version: 3.1.0
   resolution: "@lifeomic/attempt@npm:3.1.0"
   checksum: 10c0/c9963737cb4697e62f9de9504ce235d209c7588568cc1dcd1a26c24f2cbcee0184af82a9f5efa7eec5831c020fb962d722f19819b88ff94d020b83df31f3ad20
@@ -3665,6 +3665,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@platejs/pagination@workspace:packages/pagination"
   dependencies:
+    "@lifeomic/attempt": "npm:^3.1.0"
     platejs: "workspace:^"
     react-compiler-runtime: "npm:^1.0.0"
     slate: "npm:>=0.112.0"

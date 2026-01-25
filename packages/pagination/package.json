@@ -43,6 +43,7 @@
     "typecheck": "yarn p:typecheck"
   },
   "dependencies": {
+    "@lifeomic/attempt": "^3.1.0",
     "react-compiler-runtime": "^1.0.0"
   },
   "devDependencies": {
