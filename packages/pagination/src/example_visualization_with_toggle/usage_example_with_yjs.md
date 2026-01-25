@@ -9,7 +9,7 @@ import {
   PaginationPlugin,
   PaginationRegistryProvider,
   YjsPaginationBridge,
-} from './pagination';
+} from '../index';
 
 const ydoc = new Y.Doc();
 const provider = new WebsocketProvider(

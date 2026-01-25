@@ -6,7 +6,7 @@ import {
   PaginationCoordinator,
   PaginationPlugin,
   PaginationRegistryProvider,
-} from './pagination';
+} from '../index';
 
 export function Editor() {
   return (

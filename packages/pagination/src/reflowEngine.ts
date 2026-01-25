@@ -88,7 +88,7 @@ export function reflowPageBoundary(
             {
               type: pageType,
               children: [{ type: defaultBlockType, children: [{ text: '' }] }],
-            },
+            } as unknown as Element,
             { at: nextPagePath }
           );
         });
@@ -213,7 +213,8 @@ function splitOversizedBlock(
   contentEl: HTMLDivElement,
   maxHeight: number
 ): boolean {
-  if (!ReactEditor.isReactEditor(editor)) return false;
+  // Check if editor has React bindings
+  if (!(editor as any).hasEditableTarget) return false;
 
   const blockPath = pagePath.concat([0]);
 
@@ -253,9 +254,12 @@ function splitOversizedBlock(
       const point = pointAtOffset(mid);
       const range = { anchor: start, focus: point };
 
-      let domRange: Range;
+      let domRange: globalThis.Range;
       try {
-        domRange = ReactEditor.toDOMRange(editor, range);
+        // Cast to access static method that TypeScript doesn't recognize
+        const toDOMRange = (ReactEditor as any).toDOMRange;
+        if (!toDOMRange) return false;
+        domRange = toDOMRange(editor, range);
       } catch {
         return false;
       }
@@ -292,7 +296,7 @@ function splitOversizedBlock(
                 children: [
                   { type: defaultBlockType, children: [{ text: '' }] },
                 ],
-              },
+              } as unknown as Element,
               { at: nextPagePath }
             );
           }
