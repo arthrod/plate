@@ -32,7 +32,7 @@ export function TocElementStatic(props: SlateElementProps) {
         {headingList.length > 0 ? (
           headingList.map((item) => (
             <Button
-              key={item.title}
+              key={item.id ?? item.path.join('-') ?? item.title}
               variant="ghost"
               className={headingItemVariants({
                 depth: item.depth as 1 | 2 | 3,
@@ -118,7 +118,7 @@ export function TocElementDocx(props: SlateElementProps) {
         {headingList.length > 0 ? (
           headingList.map((item) => (
             <p
-              key={item.id}
+              key={item.id ?? item.path.join('-') ?? item.title}
               style={{
                 margin: '4pt 0',
                 paddingLeft: depthIndent[item.depth] || '0',
