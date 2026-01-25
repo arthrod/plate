@@ -5,10 +5,9 @@ import { YjsPlugin } from '@platejs/yjs/react';
 import { useEditorRef, usePluginOption } from 'platejs/react';
 import React, { useEffect, useMemo } from 'react';
 import { getPaginationRuntime } from './BasePaginationPlugin';
-import {
-  createAwarenessLeaderElection,
-  type LeaderElection,
-} from './leaderElection';
+import { PaginationCoordinator } from './PaginationCoordinator';
+import { createAwarenessLeaderElection } from './leaderElection';
+import type { LeaderElection } from './types';
 
 export function YjsPaginationBridge() {
   const editor = useEditorRef();
