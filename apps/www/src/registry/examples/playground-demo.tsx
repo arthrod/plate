@@ -5,7 +5,7 @@ import { File, Smartphone } from 'lucide-react';
 
 import { PaginationPlugin } from '@platejs/pagination';
 import { PlaywrightPlugin } from '@platejs/playwright';
-import { KEYS, NormalizeTypesPlugin, PlatePlugin, usePluginOption } from 'platejs';
+import { KEYS, NormalizeTypesPlugin } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
 
 import { useLocale } from '@/hooks/useLocale';
@@ -24,7 +24,9 @@ export default function PlaygroundDemo({
 }) {
   const locale = useLocale();
   const value = getI18nValues(locale).playground;
-  const [viewMode, setViewMode] = React.useState<'paginated' | 'continuous'>('paginated');
+  const [viewMode, setViewMode] = React.useState<'paginated' | 'continuous'>(
+    'paginated'
+  );
 
   const editor = usePlateEditor(
     {
@@ -68,8 +70,8 @@ export default function PlaygroundDemo({
     <Plate editor={editor}>
       <div className="flex h-full flex-col">
         {/* Toolbar with view mode toggle */}
-        <div className="flex items-center justify-between border-b border-border bg-background px-4 py-2">
-          <div className="text-sm font-medium text-muted-foreground">
+        <div className="flex items-center justify-between border-border border-b bg-background px-4 py-2">
+          <div className="font-medium text-muted-foreground text-sm">
             Editor Playground
           </div>
           <div className="flex shrink-0 items-center rounded-lg bg-muted p-0.5">
@@ -114,6 +116,7 @@ function ViewToggle({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-medium text-xs transition-all ${
         active
