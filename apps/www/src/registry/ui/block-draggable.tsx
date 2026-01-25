@@ -26,18 +26,38 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
+const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td, KEYS.th];
+
+const getPageDepthOffset = (editor: PlateEditor) => {
+  const pageType = editor.getType?.('pagination');
+  if (!pageType) return 0;
+
+  const children = editor.children as TElement[] | undefined;
+  if (!Array.isArray(children)) return 0;
+
+  return children.some((node) => node?.type === pageType) ? 1 : 0;
+};
 
 export const BlockDraggable: RenderNodeWrapper = (props) => {
   const { editor, element, path } = props;
+  const pageType = editor.getType?.('pagination');
+  const depthOffset = getPageDepthOffset(editor);
+  const normalizedDepth = path.length - depthOffset;
 
   const enabled = React.useMemo(() => {
+    if (pageType && element.type === pageType) return false;
     if (editor.dom.readOnly) return false;
 
-    if (path.length === 1 && !isType(editor, element, UNDRAGGABLE_KEYS)) {
+    if (
+      normalizedDepth === 1 &&
+      !isType(editor, element, UNDRAGGABLE_KEYS)
+    ) {
       return true;
     }
-    if (path.length === 3 && !isType(editor, element, UNDRAGGABLE_KEYS)) {
+    if (
+      normalizedDepth === 3 &&
+      !isType(editor, element, UNDRAGGABLE_KEYS)
+    ) {
       const block = editor.api.some({
         at: path,
         match: {
@@ -49,7 +69,10 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
         return true;
       }
     }
-    if (path.length === 4 && !isType(editor, element, UNDRAGGABLE_KEYS)) {
+    if (
+      normalizedDepth === 4 &&
+      !isType(editor, element, UNDRAGGABLE_KEYS)
+    ) {
       const block = editor.api.some({
         at: path,
         match: {
@@ -63,7 +86,7 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
     }
 
     return false;
-  }, [editor, element, path]);
+  }, [editor, element, normalizedDepth, pageType, path]);
 
   if (!enabled) return;
 
@@ -73,6 +96,8 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
 function Draggable(props: PlateElementProps) {
   const { children, editor, element, path } = props;
   const blockSelectionApi = editor.getApi(BlockSelectionPlugin).blockSelection;
+  const depthOffset = getPageDepthOffset(editor);
+  const normalizedDepth = path.length - depthOffset;
 
   const { isAboutToDrag, isDragging, nodeRef, previewRef, handleRef } =
     useDraggable({
@@ -87,8 +112,8 @@ function Draggable(props: PlateElementProps) {
       },
     });
 
-  const isInColumn = path.length === 3;
-  const isInTable = path.length === 4;
+  const isInColumn = normalizedDepth === 3;
+  const isInTable = normalizedDepth === 4;
 
   const [previewTop, setPreviewTop] = React.useState(0);
 

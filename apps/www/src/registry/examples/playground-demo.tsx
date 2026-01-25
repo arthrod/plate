@@ -31,6 +31,7 @@ export default function PlaygroundDemo({
   const [viewMode, setViewMode] = React.useState<'paginated' | 'continuous'>(
     'paginated'
   );
+  const isPaginated = viewMode === 'paginated';
 
   const editor = usePlateEditor(
     {
@@ -102,7 +103,11 @@ export default function PlaygroundDemo({
           <EditorContainer className={className}>
             <Editor
               variant="demo"
-              className="pb-[20vh]"
+              className={
+                isPaginated
+                  ? 'px-0 pt-0 pb-0 sm:px-0'
+                  : 'pb-[20vh]'
+              }
               placeholder="Type something..."
               spellCheck={false}
             />

@@ -11,7 +11,16 @@ export const BlockPlaceholderKit = [
       placeholders: {
         [KEYS.p]: 'Type something...',
       },
-      query: ({ path }) => path.length === 1,
+      query: ({ editor, path }) => {
+        const pageType = editor.getType?.('pagination');
+        const hasPages = Boolean(
+          pageType &&
+            Array.isArray(editor.children) &&
+            editor.children.some((node) => node?.type === pageType)
+        );
+        const depthOffset = hasPages ? 1 : 0;
+        return path.length === 1 + depthOffset;
+      },
     },
   }),
 ];
