@@ -5,21 +5,21 @@ import { createTSlatePlugin, type PluginConfig } from 'platejs';
 import type { Operation } from 'slate';
 import { createPaginationRuntime, getPageIndexFromOp } from './runtime';
 import type {
-  DocumentSettings,
-  ReflowOptions,
   CollaborationOptions,
+  DocumentSettings,
   PaginationRuntime,
+  ReflowOptions,
 } from './types';
 
-export type PaginationConfig = PluginConfig;
-'pagination',
+export type PaginationConfig = PluginConfig<
+  'pagination',
   {
-    documentSettings: DocumentSettings
-    reflow: ReflowOptions
-    collaboration: CollaborationOptions
-    defaultBlockType: string
+    documentSettings: DocumentSettings;
+    reflow: ReflowOptions;
+    collaboration: CollaborationOptions;
+    defaultBlockType: string;
   }
->
+>;
 
 const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = {
   sizes: { width: 816, height: 1056 }, // US Letter at 96 DPI

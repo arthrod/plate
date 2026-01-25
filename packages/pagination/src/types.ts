@@ -20,6 +20,12 @@ export type ReflowOptions = {
   underflowThresholdPx: number; // Hysteresis buffer
 };
 
+export type ReflowContext = {
+  pageDom: PageDom;
+  nextPageDom: PageDom | undefined;
+  opts: ReflowOptions;
+};
+
 export type CollaborationOptions = {
   mode: 'all' | 'leader';
   isLeader?: () => boolean;
@@ -28,4 +34,9 @@ export type CollaborationOptions = {
 export type DocumentSettings = {
   sizes: { width: number; height: number };
   margins: { top: number; right: number; bottom: number; left: number };
+};
+export type LeaderElection = {
+  amILeader: () => boolean;
+  subscribe: (callback: () => void) => () => void;
+  destroy: () => void;
 };

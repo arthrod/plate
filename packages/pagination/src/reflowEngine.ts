@@ -8,7 +8,7 @@ import {
   BasePaginationPlugin,
   withPaginationMutations,
 } from './BasePaginationPlugin';
-import type { PageDom, ReflowOptions } from './types';
+import type { ReflowContext } from './types';
 
 // Wrap transforms to avoid polluting undo history
 function withoutSaving(editor: any, fn: () => void) {
@@ -32,10 +32,9 @@ export type ReflowResult = {
 export function reflowPageBoundary(
   editor: Editor,
   pageIndex: number,
-  pageDom: PageDom,
-  nextPageDom: PageDom | undefined,
-  opts: ReflowOptions
+  context: ReflowContext
 ): ReflowResult {
+  const { pageDom, nextPageDom, opts } = context;
   const pagePath: Path = [pageIndex];
   const nextPagePath: Path = [pageIndex + 1];
 
@@ -285,6 +284,7 @@ function splitOversizedBlock(
       withPaginationMutations(editor as any, () => {
         Editor.withoutNormalizing(editor, () => {
           // Ensure next page exists
+          if (!Node.has(editor, nextPagePath)) {
             Transforms.insertNodes(
               editor,
               {

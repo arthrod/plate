@@ -9,7 +9,6 @@ import {
   createAwarenessLeaderElection,
   type LeaderElection,
 } from './leaderElection';
-import { PaginationCoordinator } from './PaginationCoordinator';
 
 export function YjsPaginationBridge() {
   const editor = useEditorRef();

@@ -64,6 +64,58 @@ export function PaginationCoordinator({
     return true;
   }, [canProcess, reflowOpts.enabled, collabOpts.mode]);
 
+  // Ref to store scheduleReflowFrom for use in runReflow (breaks circular dependency)
+  const scheduleReflowFromRef = useRef<(startPage: number) => void>(() => {});
+
+  const runReflow = useCallback(
+    async (startPage: number) => {
+      if (!shouldProcess() || !registry) return;
+
+      if (runningRef.current) {
+        scheduleReflowFromRef.current(startPage);
+        return;
+      }
+
+      runningRef.current = true;
+
+      try {
+        // Wait for React to flush DOM updates
+        await new Promise((r) => requestAnimationFrame(r));
+
+        let page = Math.max(0, startPage);
+        let pagesProcessed = 0;
+
+        while (pagesProcessed < reflowOpts.maxPagesPerIdle) {
+          const pageDom = registry.getPageDom(page);
+          if (!pageDom) break; // Page not mounted
+
+          const nextPageDom = registry.getPageDom(page + 1);
+
+          const result = reflowPageBoundary(editor, page, {
+            pageDom,
+            nextPageDom,
+            opts: reflowOpts,
+          });
+
+          pagesProcessed++;
+
+          if (result.changed) {
+            // Re-schedule to continue cascading
+            if (result.nextPageToContinue !== null) {
+              scheduleReflowFromRef.current(result.nextPageToContinue);
+            }
+            break;
+          }
+          // No change — move to next page
+          page++;
+        }
+      } finally {
+        runningRef.current = false;
+      }
+    },
+    [editor, registry, reflowOpts, shouldProcess]
+  );
+
   const scheduleReflowFrom = useCallback(
     (startPage: number) => {
       if (!shouldProcess()) return;
@@ -87,59 +139,11 @@ export function PaginationCoordinator({
         ric(() => runReflow(start));
       }, reflowOpts.debounceMs);
     },
-    [shouldProcess, reflowOpts.debounceMs]
+    [runReflow, shouldProcess, reflowOpts.debounceMs]
   );
 
-  const runReflow = useCallback(
-    async (startPage: number) => {
-      if (!shouldProcess() || !registry) return;
-
-      if (runningRef.current) {
-        scheduleReflowFrom(startPage);
-        return;
-      }
-
-      runningRef.current = true;
-
-      try {
-        // Wait for React to flush DOM updates
-        await new Promise((r) => requestAnimationFrame(r));
-
-        let page = Math.max(0, startPage);
-        let pagesProcessed = 0;
-
-        while (pagesProcessed < reflowOpts.maxPagesPerIdle) {
-          const pageDom = registry.getPageDom(page);
-          if (!pageDom) break; // Page not mounted
-
-          const nextPageDom = registry.getPageDom(page + 1);
-
-          const result = reflowPageBoundary(
-            editor,
-            page,
-            pageDom,
-            nextPageDom,
-            reflowOpts
-          );
-
-          pagesProcessed++;
-
-          if (result.changed) {
-            // Re-schedule to continue cascading
-            if (result.nextPageToContinue !== null) {
-              scheduleReflowFrom(result.nextPageToContinue);
-            }
-            break;
-          }
-          // No change — move to next page
-          page++;
-        }
-      } finally {
-        runningRef.current = false;
-      }
-    },
-    [editor, registry, reflowOpts, shouldProcess, scheduleReflowFrom]
-  );
+  // Keep ref in sync with latest scheduleReflowFrom
+  scheduleReflowFromRef.current = scheduleReflowFrom;
 
   // Subscribe to runtime dirty notifications
   useEffect(() => {

@@ -1,3 +1,6 @@
+/** biome-ignore-all lint/style/useConsistentTypeDefinitions: example file uses interfaces */
+/** biome-ignore-all lint/a11y/useButtonType: example file */
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: example file */
 import React, { useState } from 'react';
 import {
   Bold,

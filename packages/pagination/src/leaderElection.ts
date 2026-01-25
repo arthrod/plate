@@ -3,12 +3,7 @@
 // ============================================================
 import type { Awareness } from 'y-protocols/awareness';
 import type * as Y from 'yjs';
-
-export type LeaderElection = {
-  amILeader: () => boolean;
-  subscribe: (callback: () => void) => () => void;
-  destroy: () => void;
-};
+import type { LeaderElection } from './types';
 
 export function createAwarenessLeaderElection(
   awareness: Awareness,
@@ -30,7 +25,9 @@ export function createAwarenessLeaderElection(
   const amILeader = (): boolean => getLeaderClientId() === clientId;
 
   const handleChange = () => {
-    subscribers.forEach((fn) => fn());
+    subscribers.forEach((fn) => {
+      fn();
+    });
   };
 
   awareness.on('change', handleChange);

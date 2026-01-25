@@ -9228,7 +9228,7 @@ var NAMESPACE = require("./conventions").NAMESPACE;
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
 var nameStartChar = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]///\u10000-\uEFFFF
 var nameChar = new RegExp("[\\-\\.0-9"+nameStartChar.source.slice(1,-1)+"\\u00B7\\u0300-\\u036F\\u203F-\\u2040]");
-var tagNamePattern = new RegExp('^'+nameStartChar.source+nameChar.source+'*(?:\:'+nameStartChar.source+nameChar.source+'*)?$');
+var tagNamePattern = new RegExp('^'+nameStartChar.source+nameChar.source+'*(?::'+nameStartChar.source+nameChar.source+'*)?$');
 //var tagNamePattern = /^[a-zA-Z_][\w\-\.]*(?:\:[a-zA-Z_][\w\-\.]*)?$/
 //var handlers = 'resolveEntity,getExternalSubset,characters,endDocument,endElement,endPrefixMapping,ignorableWhitespace,processingInstruction,setDocumentLocator,skippedEntity,startDocument,startElement,startPrefixMapping,notationDecl,unparsedEntityDecl,error,fatalError,warning,attributeDecl,elementDecl,externalEntityDecl,internalEntityDecl,comment,endCDATA,endDTD,endEntity,startCDATA,startDTD,startEntity'.split(',')
 
@@ -9872,7 +9872,7 @@ ElementAttributes.prototype = {
 function split(source,start){
 	var match;
 	var buf = [];
-	var reg = /'[^']+'|"[^"]+"|[^\s<>\/=]+=?|(\/?\s*>|<)/g;
+	var reg = /'[^']+'|"[^"]+"|[^\s<>/=]+=?|(\/?\s*>|<)/g;
 	reg.lastIndex = start;
 	reg.exec(source);//skip <
 	while(match = reg.exec(source)){
@@ -10676,9 +10676,9 @@ var canAttachTrace = util.canAttachTrace;
 var unhandledRejectionHandled;
 var possiblyUnhandledRejection;
 var bluebirdFramePattern =
-    /[\\\/]bluebird[\\\/]js[\\\/](release|debug|instrumented)/;
+    /[\\/]bluebird[\\/]js[\\/](release|debug|instrumented)/;
 var nodeFramePattern = /\((?:timers\.js):\d+:\d+\)/;
-var parseLinePattern = /[\/<\(](.+?):(\d+):(\d+)\)?\s*$/;
+var parseLinePattern = /[/<(](.+?):(\d+):(\d+)\)?\s*$/;
 var stackFramePattern = null;
 var formatStack = null;
 var indentStackFrames = false;
@@ -11326,7 +11326,7 @@ function longStackTracesIsSupported() {
 }
 
 var shouldIgnore = function() { return false; };
-var parseLineInfoRegex = /[\/<\(]([^:\/]+):(\d+):(?:\d+)\)?\s*$/;
+var parseLineInfoRegex = /[/<(]([^:/]+):(\d+):(?:\d+)\)?\s*$/;
 function parseLineInfo(line) {
     var matches = line.match(parseLineInfoRegex);
     if (matches) {
@@ -17231,7 +17231,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
 // HELPER FUNCTIONS
 // ================
 
-var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
+var INVALID_BASE64_RE = /[^+/0-9A-Za-z-_]/g
 
 function base64clean (str) {
   // Node strips out invalid characters like \n and \t from the string, base64-js does not
