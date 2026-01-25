@@ -21,7 +21,7 @@ export function YjsPaginationBridge() {
   // Create leader election based on Yjs awareness
   const leaderElection = useMemo<LeaderElection | null>(() => {
     if (!awareness || !ydoc) return null;
-    return createAwarenessLeaderElection(awareness, ydoc);
+    return createAwarenessLeaderElection(awareness as any, ydoc as any);
   }, [awareness, ydoc]);
 
   // Wait for initial Yjs sync before paginating

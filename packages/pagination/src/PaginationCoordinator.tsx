@@ -91,7 +91,7 @@ export function PaginationCoordinator({
 
           const nextPageDom = registry.getPageDom(page + 1);
 
-          const result = reflowPageBoundary(editor, page, {
+          const result = reflowPageBoundary(editor as any, page, {
             pageDom,
             nextPageDom,
             opts: reflowOpts,
