@@ -2,7 +2,7 @@
 // pagination/PageElement.tsx
 // ============================================================
 import type { PlateElementProps } from 'platejs/react';
-import { usePath, usePluginOption } from 'platejs/react';
+import { useComposedRef, usePath, usePluginOption } from 'platejs/react';
 import React, { useEffect, useRef } from 'react';
 import { BasePaginationPlugin } from './BasePaginationPlugin';
 import { usePaginationRegistry } from './registry';
@@ -14,6 +14,7 @@ export function PageElement({
   const registry = usePaginationRegistry();
   const outerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const composedRef = useComposedRef(attributes.ref, outerRef);
 
   const settings = usePluginOption(BasePaginationPlugin, 'documentSettings');
   const viewMode = usePluginOption(BasePaginationPlugin, 'viewMode');
@@ -50,7 +51,7 @@ export function PageElement({
   return (
     <div
       {...attributes}
-      ref={outerRef}
+      ref={composedRef}
       className={
         isPaginated
           ? 'relative mx-auto my-6 bg-white shadow-lg'
@@ -72,7 +73,7 @@ export function PageElement({
           height: isPaginated ? contentHeight : 'auto',
           display: 'flex',
           flexDirection: 'column',
-          overflow: isPaginated ? 'hidden' : 'visible',
+          overflow: 'visible',
         }}
       >
         {children}

@@ -51,9 +51,17 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
 
   const commentsApi = editor.getApi(CommentPlugin).comment;
   const blockPath = editor.api.findPath(element);
+  const pageType = editor.getType?.('pagination');
+  const hasPages = Boolean(
+    pageType &&
+      Array.isArray(editor.children) &&
+      editor.children.some((node) => node?.type === pageType)
+  );
+  const depthOffset = hasPages ? 1 : 0;
+  const rootDepth = 1 + depthOffset;
 
   // avoid duplicate in table or column
-  if (!blockPath || blockPath.length > 1) return;
+  if (!blockPath || blockPath.length !== rootDepth) return;
 
   const draftCommentNode = commentsApi.node({ at: blockPath, isDraft: true });
 

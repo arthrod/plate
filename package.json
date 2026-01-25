@@ -46,6 +46,7 @@
     "lint:fix": "biome check . --fix",
     "nuke:cache": "rimraf '**/.turbo' '**/.next'",
     "nuke:node_modules": "rimraf '**/node_modules'",
+    "nuke:dist": "rimraf '**/dist'",
     "nuke:all": "rimraf '**/.turbo' '**/.next' '**/node_modules' '**/dist'",
     "p:brl": "sh tooling/scripts/brl.sh",
     "p:build": "cd \"$INIT_CWD\" && yarn p:tsdown",
