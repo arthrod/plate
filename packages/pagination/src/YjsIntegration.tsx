@@ -1,45 +1,54 @@
 // ============================================================
 // pagination/YjsIntegration.tsx
 // ============================================================
-import React, { useEffect, useMemo } from 'react'
-import { useEditorRef, usePluginOption } from 'platejs/react'
-import type { Awareness } from 'y-protocols/awareness'
-import type * as Y from 'yjs'
-import { getPaginationRuntime } from './BasePaginationPlugin'
-import { createAwarenessLeaderElection, type LeaderElection } from './leaderElection'
-import { PaginationCoordinator } from './PaginationCoordinator'
+import { YjsPlugin } from '@platejs/yjs/react';
+import { useEditorRef, usePluginOption } from 'platejs/react';
+import React, { useEffect, useMemo } from 'react';
+import { getPaginationRuntime } from './BasePaginationPlugin';
+import {
+  createAwarenessLeaderElection,
+  type LeaderElection,
+} from './leaderElection';
+import { PaginationCoordinator } from './PaginationCoordinator';
 
-type YjsPaginationBridgeProps = {
-  ydoc: Y.Doc
-  awareness: Awareness
-  providers?: Array<{ isSynced?: boolean }>
-}
+export function YjsPaginationBridge() {
+  const editor = useEditorRef();
+  const runtime = getPaginationRuntime(editor);
+  const awareness = usePluginOption(YjsPlugin, 'awareness');
+  const ydoc = usePluginOption(YjsPlugin, 'ydoc');
+  const isConnected = usePluginOption(YjsPlugin, '_isConnected');
+  const isSynced = usePluginOption(YjsPlugin, '_isSynced');
+  const canProcess = Boolean(isConnected && isSynced);
 
-export function YjsPaginationBridge({ ydoc, awareness, providers }: YjsPaginationBridgeProps) {
-  const editor = useEditorRef()
-  const runtime = getPaginationRuntime(editor)
-  
   // Create leader election based on Yjs awareness
-  const leaderElection = useMemo<LeaderElection>(() => {
-    return createAwarenessLeaderElection(awareness, ydoc)
-  }, [awareness, ydoc])
-  
+  const leaderElection = useMemo<LeaderElection | null>(() => {
+    if (!awareness || !ydoc) return null;
+    return createAwarenessLeaderElection(awareness, ydoc);
+  }, [awareness, ydoc]);
+
   // Wait for initial Yjs sync before paginating
-  const allSynced = providers?.length
-    ? providers.every(p => p.isSynced)
-    : true
-  
   useEffect(() => {
-    if (!allSynced || !runtime) return
-    
+    if (!canProcess || !runtime) return;
+
     // Kick pagination after Yjs sync completes
-    runtime.markDirty(0)
-  }, [allSynced, runtime])
-  
+    runtime.markDirty(0);
+  }, [canProcess, runtime]);
+
+  useEffect(() => {
+    if (!awareness) return;
+    awareness.setLocalStateField('pagination', { ready: canProcess });
+  }, [awareness, canProcess]);
+
   // Cleanup
   useEffect(() => {
-    return () => leaderElection.destroy()
-  }, [leaderElection])
-  
-  return <PaginationCoordinator leaderElection={leaderElection} />
+    if (!leaderElection) return;
+    return () => leaderElection.destroy();
+  }, [leaderElection]);
+
+  return (
+    <PaginationCoordinator
+      leaderElection={leaderElection ?? undefined}
+      canProcess={canProcess}
+    />
+  );
 }

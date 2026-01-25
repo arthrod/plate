@@ -4,6 +4,10 @@
 import { Editor, Element, Node, Transforms, type Path } from 'slate';
 import { HistoryEditor } from 'slate-history';
 import { ReactEditor } from 'slate-react';
+import {
+  BasePaginationPlugin,
+  withPaginationMutations,
+} from './BasePaginationPlugin';
 import type { PageDom, ReflowOptions } from './types';
 
 // Wrap transforms to avoid polluting undo history
@@ -73,11 +77,19 @@ export function reflowPageBoundary(
 
     // Ensure next page exists
     if (!Node.has(editor, nextPagePath)) {
+      const pageType =
+        (editor as any).getType?.(BasePaginationPlugin.key) ?? 'page';
+      const defaultBlockType =
+        (editor as any).getOption?.(BasePaginationPlugin, 'defaultBlockType') ??
+        'p';
       withoutSaving(editor, () => {
         Editor.withoutNormalizing(editor, () => {
           Transforms.insertNodes(
             editor,
-            { type: 'page', children: [] },
+            {
+              type: pageType,
+              children: [{ type: defaultBlockType, children: [{ text: '' }] }],
+            },
             { at: nextPagePath }
           );
         });
@@ -263,32 +275,39 @@ function splitOversizedBlock(
 
     const splitPoint = pointAtOffset(best);
     const nextPagePath: Path = [pagePath[0] + 1];
-
-    // Ensure next page exists
-    if (!Node.has(editor, nextPagePath)) {
-      withoutSaving(editor, () => {
-        Editor.withoutNormalizing(editor, () => {
-          Transforms.insertNodes(
-            editor,
-            { type: 'page', children: [] },
-            { at: nextPagePath }
-          );
-        });
-      });
-    }
+    const pageType =
+      (editor as any).getType?.(BasePaginationPlugin.key) ?? 'page';
+    const defaultBlockType =
+      (editor as any).getOption?.(BasePaginationPlugin, 'defaultBlockType') ??
+      'p';
 
     withoutSaving(editor, () => {
-      Editor.withoutNormalizing(editor, () => {
-        // Split the block at the calculated point
-        Transforms.splitNodes(editor, {
-          at: splitPoint,
-          match: (n) => Element.isElement(n) && Editor.isBlock(editor, n),
-        });
+      withPaginationMutations(editor as any, () => {
+        Editor.withoutNormalizing(editor, () => {
+          // Ensure next page exists
+            Transforms.insertNodes(
+              editor,
+              {
+                type: pageType,
+                children: [
+                  { type: defaultBlockType, children: [{ text: '' }] },
+                ],
+              },
+              { at: nextPagePath }
+            );
+          }
 
-        // Move the second half to next page
-        Transforms.moveNodes(editor, {
-          at: pagePath.concat([1]),
-          to: nextPagePath.concat([0]),
+          // Split the block at the calculated point
+          Transforms.splitNodes(editor, {
+            at: splitPoint,
+            match: (n) => Element.isElement(n) && Editor.isBlock(editor, n),
+          });
+
+          // Move the second half to next page
+          Transforms.moveNodes(editor, {
+            at: pagePath.concat([1]),
+            to: nextPagePath.concat([0]),
+          });
         });
       });
     });

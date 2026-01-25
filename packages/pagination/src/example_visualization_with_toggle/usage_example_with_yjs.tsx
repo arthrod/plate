@@ -43,11 +43,7 @@ export function CollaborativeEditor() {
           // ... other plugins
         ]}
       >
-        <YjsPaginationBridge
-          ydoc={ydoc}
-          awareness={provider.awareness}
-          providers={[provider]}
-        />
+        <YjsPaginationBridge />
         <PlateContent className="min-h-screen bg-gray-100 py-8" />
       </Plate>
     </PaginationRegistryProvider>

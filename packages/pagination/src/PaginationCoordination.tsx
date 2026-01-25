@@ -4,23 +4,27 @@
 import { useEditorRef, usePluginOption } from 'platejs/react';
 import { useCallback, useEffect, useRef } from 'react';
 import {
-    BasePaginationPlugin,
-    getPaginationRuntime,
+  BasePaginationPlugin,
+  getPaginationRuntime,
 } from './BasePaginationPlugin';
 import { createAlwaysLeader } from './leaderElection';
 import { reflowPageBoundary } from './reflowEngine';
 import { usePaginationRegistry } from './registry';
 import type {
-    CollaborationOptions,
-    LeaderElection,
-    ReflowOptions,
+  CollaborationOptions,
+  LeaderElection,
+  ReflowOptions,
 } from './types';
 
 type CoordinatorProps = {
   leaderElection?: LeaderElection;
+  canProcess?: boolean;
 };
 
-export function PaginationCoordinator({ leaderElection }: CoordinatorProps) {
+export function PaginationCoordinator({
+  leaderElection,
+  canProcess,
+}: CoordinatorProps) {
   const editor = useEditorRef();
   const registry = usePaginationRegistry();
 
@@ -54,10 +58,11 @@ export function PaginationCoordinator({ leaderElection }: CoordinatorProps) {
   }, [leader, collabOpts.mode]);
 
   const shouldProcess = useCallback(() => {
+    if (canProcess === false) return false;
     if (!reflowOpts.enabled) return false;
     if (collabOpts.mode === 'leader' && !isLeaderRef.current) return false;
     return true;
-  }, [reflowOpts.enabled, collabOpts.mode]);
+  }, [canProcess, reflowOpts.enabled, collabOpts.mode]);
 
   const scheduleReflowFrom = useCallback(
     (startPage: number) => {

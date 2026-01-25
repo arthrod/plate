@@ -19,7 +19,9 @@ export function createAwarenessLeaderElection(
 
   const getLeaderClientId = (): number => {
     const states = awareness.getStates();
-    const activeClients = Array.from(states.keys());
+    const activeClients = Array.from(states.entries())
+      .filter(([_, state]) => state?.pagination?.ready === true)
+      .map(([id]) => id);
 
     if (activeClients.length === 0) return clientId;
     return Math.min(...activeClients);

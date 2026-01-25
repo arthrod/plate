@@ -3661,6 +3661,34 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@platejs/pagination@workspace:packages/pagination":
+  version: 0.0.0-use.local
+  resolution: "@platejs/pagination@workspace:packages/pagination"
+  dependencies:
+    platejs: "workspace:^"
+    react-compiler-runtime: "npm:^1.0.0"
+    slate: "npm:>=0.112.0"
+    slate-history: "npm:>=0.112.0"
+    slate-react: "npm:>=0.112.0"
+    y-protocols: "npm:^1.0.6"
+    yjs: "npm:^13.6.0"
+  peerDependencies:
+    platejs: ">=52.0.0"
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+    slate: ">=0.112.0"
+    slate-history: ">=0.112.0"
+    slate-react: ">=0.112.0"
+    y-protocols: ">=1.0.0"
+    yjs: ">=13.6.0"
+  peerDependenciesMeta:
+    y-protocols:
+      optional: true
+    yjs:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
 "@platejs/playwright@workspace:^, @platejs/playwright@workspace:packages/playwright":
   version: 0.0.0-use.local
   resolution: "@platejs/playwright@workspace:packages/playwright"
@@ -18301,6 +18329,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"slate-history@npm:>=0.112.0":
+  version: 0.115.0
+  resolution: "slate-history@npm:0.115.0"
+  peerDependencies:
+    slate: ">=0.114.3"
+  checksum: 10c0/a33119e944bbc8f5193b509d749214d4ed8db40c7a690cae81359ea27ffe491c9aa15c65891c69710d99ca4e288a627a06c0193c1edb4dcf471e62a745a348e6
+  languageName: node
+  linkType: hard
+
 "slate-hyperscript@npm:0.100.0":
   version: 0.100.0
   resolution: "slate-hyperscript@npm:0.100.0"
@@ -18331,6 +18368,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"slate-react@npm:>=0.112.0":
+  version: 0.123.0
+  resolution: "slate-react@npm:0.123.0"
+  dependencies:
+    "@juggle/resize-observer": "npm:^3.4.0"
+    direction: "npm:^1.0.4"
+    is-hotkey: "npm:^0.2.0"
+    lodash: "npm:^4.17.21"
+    scroll-into-view-if-needed: "npm:^3.1.0"
+    tiny-invariant: "npm:1.3.1"
+  peerDependencies:
+    react: ">=18.2.0"
+    react-dom: ">=18.2.0"
+    slate: ">=0.121.0"
+    slate-dom: ">=0.119.1"
+  checksum: 10c0/7b0aeb8f914bb3670423d09936ab84a7a9e3145e01cad79bd37cf485d7d64f5b4e97802345a87fbdbaf8596c66cd05ee9ac5ed20a281bff83460e34cae5b51e2
+  languageName: node
+  linkType: hard
+
 "slate-test-utils@npm:1.3.2":
   version: 1.3.2
   resolution: "slate-test-utils@npm:1.3.2"
@@ -18354,6 +18410,13 @@ __metadata:
   version: 0.120.0
   resolution: "slate@npm:0.120.0"
   checksum: 10c0/af83b41f2b076444eb441e4d8747f1d629a7a555b5234adf79cc12ea37b517a35722e779270a421eaec803b04b805a0a6f284e31f9da2b063b097ba99a4c9ecb
+  languageName: node
+  linkType: hard
+
+"slate@npm:>=0.112.0":
+  version: 0.123.0
+  resolution: "slate@npm:0.123.0"
+  checksum: 10c0/c26d116f4db3e92b0baee9855ce77848542ef930b3173317141071b37cfe17ff100836af48c7c9bdd30cd1e0e09412c2623648122b8766344f7219c9577f4041
   languageName: node
   linkType: hard
 
@@ -20821,6 +20884,15 @@ __metadata:
     buffer-crc32: "npm:~0.2.3"
     fd-slicer: "npm:~1.1.0"
   checksum: 10c0/f265002af7541b9ec3589a27f5fb8f11cf348b53cc15e2751272e3c062cd73f3e715bc72d43257de71bbaecae446c3f1b14af7559e8ab0261625375541816422
+  languageName: node
+  linkType: hard
+
+"yjs@npm:^13.6.0":
+  version: 13.6.29
+  resolution: "yjs@npm:13.6.29"
+  dependencies:
+    lib0: "npm:^0.2.99"
+  checksum: 10c0/f300786ea63deac8a83e85598707ab9542e0a90b72fc0a1bcc77a58e618799de531ba4f85bcf349e647ad9e72bc4186edf50c4ecf67c8144cd53d3ac80d27351
   languageName: node
   linkType: hard
 
