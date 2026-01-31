@@ -16,33 +16,33 @@
  */
 
 import {
-  formatAuthorAsUserId,
-  isPointAfter,
-  parseDateToDate,
-  type SearchRangeFn,
-  type TPoint,
-  type TrackingEditor,
+    formatAuthorAsUserId,
+    isPointAfter,
+    parseDateToDate,
+    type SearchRangeFn,
+    type TPoint,
+    type TrackingEditor,
 } from './importTrackChanges';
 import type { TRange } from './searchRange';
 
 import {
-  DOCX_COMMENT_END_TOKEN_PREFIX,
-  DOCX_COMMENT_START_TOKEN_PREFIX,
-  DOCX_COMMENT_TOKEN_SUFFIX,
+    DOCX_COMMENT_END_TOKEN_PREFIX,
+    DOCX_COMMENT_START_TOKEN_PREFIX,
+    DOCX_COMMENT_TOKEN_SUFFIX,
 } from './html-to-docx/tracking';
 
 // Re-export token constants for test usage
 export {
-  DOCX_COMMENT_END_TOKEN_PREFIX,
-  DOCX_COMMENT_START_TOKEN_PREFIX,
-  DOCX_COMMENT_TOKEN_SUFFIX,
+    DOCX_COMMENT_END_TOKEN_PREFIX,
+    DOCX_COMMENT_START_TOKEN_PREFIX,
+    DOCX_COMMENT_TOKEN_SUFFIX
 } from './html-to-docx/tracking';
 
 // Re-export shared types
 export type {
-  SearchRangeFn,
-  TPoint,
-  TrackingEditor,
+    SearchRangeFn,
+    TPoint,
+    TrackingEditor
 } from './importTrackChanges';
 export type { TRange } from './searchRange';
 
@@ -882,10 +882,10 @@ export function applyTrackedCommentsLocal(
           editor.tf.delete({ at: endRange });
         }
         if (hasStartMarker && startRange) {
-          const updatedStartRange = searchRange(editor, comment.startToken);
-          if (updatedStartRange) {
-            editor.tf.delete({ at: updatedStartRange });
-          }
+          // Use the range ref which tracks the token through mutations.
+          // Do NOT re-search for the token string, as the document content
+          // may have changed (e.g. split text nodes) preventing the match.
+          editor.tf.delete({ at: startRange });
         }
       }
 
@@ -905,12 +905,12 @@ export function applyTrackedCommentsLocal(
 // ============================================================================
 
 import {
-  applyTrackedChangeSuggestions,
-  hasDocxTrackingTokens as hasTrackChangeTokens,
-  parseDocxTrackedChanges,
-  type ApplySuggestionsOptions,
-  type ApplySuggestionsResult,
-  type ParseTrackedChangesResult,
+    applyTrackedChangeSuggestions,
+    hasDocxTrackingTokens as hasTrackChangeTokens,
+    parseDocxTrackedChanges,
+    type ApplySuggestionsOptions,
+    type ApplySuggestionsResult,
+    type ParseTrackedChangesResult,
 } from './importTrackChanges';
 import type { DocxTrackedChange } from './types';
 
