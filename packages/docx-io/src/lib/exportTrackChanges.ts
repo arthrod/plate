@@ -16,12 +16,12 @@ import type { TNode, TText } from 'platejs';
 import { nanoid } from 'nanoid';
 
 import {
-  buildCommentEndToken,
-  buildCommentStartToken,
-  buildSuggestionEndToken,
-  buildSuggestionStartToken,
-  type CommentPayload,
-  type SuggestionPayload,
+    buildCommentEndToken,
+    buildCommentStartToken,
+    buildSuggestionEndToken,
+    buildSuggestionStartToken,
+    type CommentPayload,
+    type SuggestionPayload,
 } from './html-to-docx/tracking';
 
 // ============================================================================
@@ -285,35 +285,50 @@ function resolveCommentMeta(
   nodeToString?: (node: unknown) => string
 ): CommentPayload {
   const discussion = discussions?.find((item) => item?.id === id);
-  const comment = discussion?.comments?.[0];
-  const commentContent = comment?.contentRich;
-  let text = '';
+  const comments = discussion?.comments ?? [];
+  const firstComment = comments[0];
+  
+  const commentTexts: string[] = [];
 
-  if (Array.isArray(commentContent) && nodeToString) {
-    try {
-      text = nodeToString({
-        children: commentContent,
-        type: 'root',
-      });
-    } catch {
-      text = '';
+  if (comments.length > 0 && nodeToString) {
+    for (const comment of comments) {
+      const commentContent = comment?.contentRich;
+      if (Array.isArray(commentContent)) {
+        try {
+          const text = nodeToString({
+            children: commentContent,
+            type: 'root',
+          });
+          if (text) {
+            const userName = 
+              comment?.user?.name ?? 
+              userNameMap?.get(comment?.userId ?? '') ?? 
+              comment?.userId ?? 
+              'Unknown';
+            commentTexts.push(`${userName}: ${text}`);
+          }
+        } catch {
+        }
+      }
     }
   }
+
+  let text = commentTexts.join('\n\n');
 
   if (!text) {
     text = discussion?.documentContent ?? 'Imported comment';
   }
 
   const authorName =
-    comment?.user?.name ??
+    firstComment?.user?.name ??
     discussion?.user?.name ??
-    userNameMap?.get(comment?.userId ?? '') ??
+    userNameMap?.get(firstComment?.userId ?? '') ??
     userNameMap?.get(discussion?.userId ?? '') ??
-    comment?.userId ??
+    firstComment?.userId ??
     discussion?.userId ??
     'unknown';
 
-  const date = normalizeDate(comment?.createdAt ?? discussion?.createdAt);
+  const date = normalizeDate(firstComment?.createdAt ?? discussion?.createdAt);
 
   return {
     authorInitials: toInitials(authorName),

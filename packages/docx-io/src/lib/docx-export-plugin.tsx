@@ -41,10 +41,10 @@ import type { DocumentMargins } from './html-to-docx';
 
 import { htmlToDocxBlob } from './exportDocx';
 import {
-  buildUserNameMap,
-  injectDocxTrackingTokens,
-  type DocxExportDiscussion,
-  type InjectDocxTrackingTokensOptions,
+    buildUserNameMap,
+    injectDocxTrackingTokens,
+    type DocxExportDiscussion,
+    type InjectDocxTrackingTokensOptions,
 } from './exportTrackChanges';
 
 // =============================================================================
@@ -180,6 +180,12 @@ export type DocxTrackingExportOptions = {
    * If not provided, uses default implementation that looks for 'suggestion_' prefixed keys.
    */
   getSuggestions?: InjectDocxTrackingTokensOptions['getSuggestions'];
+
+  /**
+   * Include transient (uncommitted) comment marks in export.
+   * When enabled, draft comments that haven't been saved will be exported to DOCX.
+   */
+  includeTransientComments?: InjectDocxTrackingTokensOptions['includeTransientComments'];
 
   /**
    * Function to convert rich content to plain text.
@@ -462,6 +468,7 @@ async function exportToDocxInternal(
       discussions: tracking.discussions,
       getCommentIds: tracking.getCommentIds,
       getSuggestions: tracking.getSuggestions,
+      includeTransientComments: tracking.includeTransientComments,
       nodeToString: tracking.nodeToString,
       userNameMap,
     }) as Value;
@@ -721,8 +728,8 @@ export const DocxExportPlugin = createSlatePlugin({
 export { htmlToDocxBlob } from './exportDocx';
 
 // Re-export tracking types and utilities for convenience
-export type { DocxExportDiscussion } from './exportTrackChanges';
 export {
-  injectDocxTrackingTokens,
-  buildUserNameMap,
+    buildUserNameMap, injectDocxTrackingTokens
 } from './exportTrackChanges';
+export type { DocxExportDiscussion } from './exportTrackChanges';
+

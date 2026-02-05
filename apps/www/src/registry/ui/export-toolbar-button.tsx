@@ -13,18 +13,18 @@ import { useEditorRef } from 'platejs/react';
 import { serializeHtml } from 'platejs/static';
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { BaseEditorKit } from '@/registry/components/editor/editor-base-kit';
 import { discussionPlugin } from '@/registry/components/editor/plugins/discussion-kit';
 
+import { DocxExportKit } from '@/registry/components/editor/plugins/docx-export-kit';
 import { EditorStatic } from './editor-static';
 import { ToolbarButton } from './toolbar';
-import { DocxExportKit } from '@/registry/components/editor/plugins/docx-export-kit';
 
 const siteUrl = 'https://platejs.org';
 
@@ -173,6 +173,7 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
       editorPlugins: [...BaseEditorKit, ...DocxExportKit] as SlatePlugin[],
       tracking: {
         discussions: exportDiscussions,
+        includeTransientComments: true,
       },
     });
 
