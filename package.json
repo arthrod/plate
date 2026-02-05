@@ -52,7 +52,7 @@
     "p:lint": "biome check $INIT_CWD",
     "p:lint:fix": "biome check $INIT_CWD --fix",
     "p:test": "cd $INIT_CWD && bun test",
-    "p:tsdown": "cd $INIT_CWD && tsdown --config=${PROJECT_CWD}/tooling/config/tsdown.config.ts --log-level warn",
+    "p:tsdown": "cd $INIT_CWD && node --no-compilation-cache --no-concurrent-cache-deserialization ${PROJECT_CWD}/node_modules/tsdown/dist/run.mjs --config=${PROJECT_CWD}/tooling/config/tsdown.config.ts --log-level warn",
     "p:typecheck": "cd $INIT_CWD && tsc -p $INIT_CWD/tsconfig.json",
     "r": "yarn workspace www r",
     "rc": "turbo --filter=www rc",
@@ -135,5 +135,8 @@
     "node": ">=18.12.0",
     "npm": "please-use-yarn",
     "yarn": ">=1.22.0"
+  },
+  "dependencies": {
+    "yarn": "^1.22.22"
   }
 }
