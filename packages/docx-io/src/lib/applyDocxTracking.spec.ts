@@ -1,14 +1,15 @@
 import { describe, expect, it, mock } from 'bun:test';
 
 import {
-  applyAllTracking,
-  applyTrackedComments,
-  type DocxImportComment,
+    applyAllTracking,
+    applyTrackedComments,
+    applyTrackedCommentsLocal,
+    type DocxImportComment,
 } from './importComments';
 import {
-  applyTrackedChangeSuggestions,
-  type TrackingEditor,
-  type TRange,
+    applyTrackedChangeSuggestions,
+    type TrackingEditor,
+    type TRange,
 } from './importTrackChanges';
 import type { DocxTrackedChange } from './types';
 
@@ -1000,6 +1001,41 @@ describe('applyDocxTracking', () => {
           contentRich: undefined,
         })
       );
+    });
+  });
+
+  describe('applyTrackedCommentsLocal', () => {
+    it('removes reply tokens without creating discussions', () => {
+      const editor = createMockEditor();
+
+      const comments: DocxImportComment[] = [
+        {
+          id: 'cmt-reply',
+          text: 'Reply text',
+          startToken: '[[CMT_START:reply]]',
+          endToken: '[[CMT_END:reply]]',
+          hasStartToken: true,
+          hasEndToken: true,
+          parentParaId: 'parent-para-1',
+        },
+      ];
+
+      const result = applyTrackedCommentsLocal({
+        editor,
+        comments,
+        searchRange: createMockSearchRange(),
+        commentKey: 'comment',
+        getCommentKey: (id) => `comment_${id}`,
+        isText: () => true,
+        generateId: () => 'discussion-1',
+        documentDate: new Date(),
+      });
+
+      expect(result.applied).toBe(0);
+      expect(result.discussions).toEqual([]);
+      expect(result.errors).toEqual([]);
+      expect(editor.tf.setNodes).not.toHaveBeenCalled();
+      expect(editor.tf.delete).toHaveBeenCalledTimes(2);
     });
   });
 

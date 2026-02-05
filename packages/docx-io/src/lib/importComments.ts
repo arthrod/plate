@@ -35,14 +35,14 @@ import {
 export {
   DOCX_COMMENT_END_TOKEN_PREFIX,
   DOCX_COMMENT_START_TOKEN_PREFIX,
-  DOCX_COMMENT_TOKEN_SUFFIX,
+  DOCX_COMMENT_TOKEN_SUFFIX
 } from './html-to-docx/tracking';
 
 // Re-export shared types
 export type {
   SearchRangeFn,
   TPoint,
-  TrackingEditor,
+  TrackingEditor
 } from './importTrackChanges';
 export type { TRange } from './searchRange';
 
@@ -755,8 +755,8 @@ export async function applyTrackedComments(
       created++;
 
       editor.tf.withMerging(() => {
-        const currentStart = startTokenRef.current;
-        const currentEnd = endTokenRef.current;
+        const currentStart = startTokenRef?.current;
+        const currentEnd = endTokenRef?.current;
         const currentPoint = pointTokenRef?.current ?? null;
 
         if (currentStart && currentEnd) {
@@ -806,8 +806,8 @@ export async function applyTrackedComments(
       if (
         hasPointMarker &&
         pointRange &&
-        !isRangeEqual(pointRange, startRange) &&
-        !isRangeEqual(pointRange, endRange)
+        (!startRange || !isRangeEqual(pointRange, startRange)) &&
+        (!endRange || !isRangeEqual(pointRange, endRange))
       ) {
         editor.tf.delete({ at: pointTokenRef!.current! });
       }
@@ -819,9 +819,7 @@ export async function applyTrackedComments(
       }
     } catch (error) {
       errors.push(
-        `Failed to apply comment ${comment.id}: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to apply comment ${comment.id}: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {
       pointTokenRef?.unref();

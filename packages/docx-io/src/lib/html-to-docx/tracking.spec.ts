@@ -5,26 +5,26 @@
  * suggestions and comments to Word's tracked changes and comments format.
  */
 
-import { describe, expect, it } from 'bun:test';
+import { describe, expect, it, mock } from 'bun:test';
 import JSZip from 'jszip';
 
 import { htmlToDocxBlob } from '../exportDocx';
 import {
-  buildCommentEndToken,
-  buildCommentStartToken,
-  buildSuggestionEndToken,
-  buildSuggestionStartToken,
-  hasTrackingTokens,
-  splitDocxTrackingTokens,
-  DOCX_COMMENT_END_TOKEN_PREFIX,
-  DOCX_COMMENT_START_TOKEN_PREFIX,
-  DOCX_COMMENT_TOKEN_SUFFIX,
-  DOCX_DELETION_END_TOKEN_PREFIX,
-  DOCX_DELETION_START_TOKEN_PREFIX,
-  DOCX_DELETION_TOKEN_SUFFIX,
-  DOCX_INSERTION_END_TOKEN_PREFIX,
-  DOCX_INSERTION_START_TOKEN_PREFIX,
-  DOCX_INSERTION_TOKEN_SUFFIX,
+    buildCommentEndToken,
+    buildCommentStartToken,
+    buildSuggestionEndToken,
+    buildSuggestionStartToken,
+    DOCX_COMMENT_END_TOKEN_PREFIX,
+    DOCX_COMMENT_START_TOKEN_PREFIX,
+    DOCX_COMMENT_TOKEN_SUFFIX,
+    DOCX_DELETION_END_TOKEN_PREFIX,
+    DOCX_DELETION_START_TOKEN_PREFIX,
+    DOCX_DELETION_TOKEN_SUFFIX,
+    DOCX_INSERTION_END_TOKEN_PREFIX,
+    DOCX_INSERTION_START_TOKEN_PREFIX,
+    DOCX_INSERTION_TOKEN_SUFFIX,
+    hasTrackingTokens,
+    splitDocxTrackingTokens,
 } from './tracking';
 
 // Helper to load zip from Blob
@@ -371,6 +371,24 @@ describe('DOCX Export with Tracked Changes', () => {
 
     const commentsFile = zip.file('word/comments.xml');
     expect(commentsFile).toBeNull();
+  });
+
+  it('warns when dead tracking tokens remain in document.xml', async () => {
+    const warn = mock(() => {});
+    const originalWarn = console.warn;
+    console.warn = warn;
+
+    try {
+      const html = '<p>[[DOCX_INS_START:invalid]]text</p>';
+      await htmlToDocxBlob(html);
+    } finally {
+      console.warn = originalWarn;
+    }
+
+    expect(warn).toHaveBeenCalled();
+    expect(warn.mock.calls[0]?.[0]).toContain(
+      'dead tracking tokens in document.xml'
+    );
   });
 });
 

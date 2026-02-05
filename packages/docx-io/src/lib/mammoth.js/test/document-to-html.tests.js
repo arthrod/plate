@@ -796,6 +796,51 @@ test('comment references are linked to comment after main body', () => {
   });
 });
 
+test('comment body conversion errors are reported', () => {
+  var reference = documents.commentReference({ commentId: '4' });
+  var badElement = {
+    type: 'hyperlink',
+    children: {
+      map() {
+        throw new Error('Exploding comment body');
+      },
+    },
+  };
+  var comment = documents.comment({
+    commentId: '4',
+    body: [badElement],
+    authorName: 'The Piemaker',
+    authorInitials: 'TP',
+  });
+  var document = documents.document(
+    [
+      documents.paragraph([
+        runOfText('Knock knock'),
+        documents.run([reference]),
+      ]),
+    ],
+    { comments: [comment] }
+  );
+
+  var converter = new DocumentConverter({
+    idPrefix: 'doc-42-',
+    styleMap: [
+      { from: documentMatchers.commentReference, to: htmlPaths.element('sup') },
+    ],
+  });
+  return converter.convertToHtml(document).then((result) => {
+    assert.ok(result.value.indexOf('[[DOCX_CMT_START:') !== -1);
+    assert.equal(result.messages.length, 1);
+    var message = result.messages[0];
+    assert.equal(message.type, 'error');
+    assert.equal(
+      message.message,
+      'Failed to convert comment body for comment 4: Exploding comment body'
+    );
+    assert.ok(message.error instanceof Error);
+  });
+});
+
 test('images are written with data URIs', () => {
   var imageBuffer = new Buffer('Not an image at all!');
   var image = new documents.Image({
