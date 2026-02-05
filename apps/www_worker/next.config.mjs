@@ -8,6 +8,7 @@ const ogStubPath = path.join(__dirname, 'src/lib/og-stub.ts');
 
 const nextConfig = async (phase) => {
   const config = {
+    serverExternalPackages: ["react-dom", "shiki", "react-resizable-panels", "jiti", "jose", "react-textarea-autosize"],
     typescript: {
       ignoreBuildErrors: true,
     },
