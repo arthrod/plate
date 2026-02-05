@@ -1,11 +1,9 @@
-import { getHighlighter } from '@shikijs/compat';
 import {
   defineDocumentType,
   defineNestedType,
   makeSource,
 } from 'contentlayer2/source-files';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeSlug from 'rehype-slug';
 import { codeImport } from 'remark-code-import';
 import remarkGfm from 'remark-gfm';
@@ -18,7 +16,6 @@ import 'dotenv/config';
 
 const DIRECTORY_PATTERN_REGEX = /\(([^)]*)\)\//g;
 const EVENT_META_REGEX = /event="([^"]*)"/;
-
 /** @type {import('contentlayer2/source-files').ComputedFields} */
 const computedFields = {
   slug: {
@@ -136,26 +133,6 @@ export default makeSource({
           }
         });
       },
-      [
-        rehypePrettyCode,
-        {
-          getHighlighter,
-          theme: 'github-dark',
-          onVisitHighlightedLine(node) {
-            node.properties.className.push('line--highlighted');
-          },
-          onVisitHighlightedWord(node) {
-            node.properties.className = ['word--highlighted'];
-          },
-          onVisitLine(node) {
-            // Prevent lines from collapsing in `display: grid` mode, and allow empty
-            // lines to be copy/pasted
-            if (node.children.length === 0) {
-              node.children = [{ type: 'text', value: ' ' }];
-            }
-          },
-        },
-      ],
       () => (tree) => {
         visit(tree, (node) => {
           if (node?.type === 'element' && node?.tagName === 'div') {
