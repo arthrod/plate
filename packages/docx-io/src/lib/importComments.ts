@@ -181,7 +181,7 @@ const normalizeCommentContent = (
   const bodyText = extractCommentBodyText(body);
   const contentText = (bodyText || text || '').replace(/\s+$/g, '');
 
-  if (!contentText) return undefined;
+  if (!contentText) return;
 
   return [{ type: 'p', children: [{ text: contentText }] }];
 };
@@ -306,9 +306,7 @@ export function parseDocxComments(html: string): ParseCommentsResult {
 
       const startToken = `${DOCX_COMMENT_START_TOKEN_PREFIX}${rawPayload}${DOCX_COMMENT_TOKEN_SUFFIX}`;
       const endToken = `${DOCX_COMMENT_END_TOKEN_PREFIX}${encodeURIComponent(payload.id)}${DOCX_COMMENT_TOKEN_SUFFIX}`;
-      const pointToken = payload.isPoint
-        ? startToken + endToken
-        : undefined;
+      const pointToken = payload.isPoint ? startToken + endToken : undefined;
 
       upsertComment(payload.id, {
         ...payload,
@@ -592,6 +590,13 @@ export async function applyTrackedComments(
   const errors: string[] = [];
 
   for (const comment of comments) {
+    let startTokenRef: ReturnType<TrackingEditor['api']['rangeRef']> | null =
+      null;
+    let endTokenRef: ReturnType<TrackingEditor['api']['rangeRef']> | null =
+      null;
+    let pointTokenRef: ReturnType<TrackingEditor['api']['rangeRef']> | null =
+      null;
+
     try {
       const startTokenRange = comment.hasStartToken
         ? searchRange(editor, comment.startToken)
@@ -628,23 +633,23 @@ export async function applyTrackedComments(
         continue;
       }
 
-      const startTokenRef = editor.api.rangeRef(effectiveStartRange);
-      const endTokenRef = editor.api.rangeRef(effectiveEndRange);
-      const pointTokenRef =
+      startTokenRef = editor.api.rangeRef(effectiveStartRange);
+      endTokenRef = editor.api.rangeRef(effectiveEndRange);
+      pointTokenRef =
         hasPointMarker && pointTokenRange
           ? editor.api.rangeRef(pointTokenRange)
           : null;
+
+      if (!startTokenRef || !endTokenRef) {
+        skipped++;
+        continue;
+      }
 
       const currentStartRange = startTokenRef.current;
       const currentEndRange = endTokenRef.current;
       const currentPointRange = pointTokenRef?.current ?? null;
 
       if (!currentStartRange || !currentEndRange) {
-        startTokenRef.unref();
-        endTokenRef.unref();
-        if (pointTokenRef) {
-          pointTokenRef.unref();
-        }
         skipped++;
         continue;
       }
@@ -793,7 +798,8 @@ export async function applyTrackedComments(
       const endRange = endTokenRef.current;
       const skipEndDelete = Boolean(pointRange) && !hasStartMarker;
       const skipStartDelete = Boolean(pointRange) && !hasEndMarker;
-      const sameStartEnd = isRangeEqual(startRange, endRange);
+      const sameStartEnd =
+        startRange && endRange ? isRangeEqual(startRange, endRange) : false;
 
       // Delete tokens (only delete tokens that actually existed)
       // For point comments, both refs may point to the same range
@@ -811,16 +817,18 @@ export async function applyTrackedComments(
       if (!skipStartDelete && hasStartMarker && startRange && !sameStartEnd) {
         editor.tf.delete({ at: startTokenRef.current! });
       }
-
-      pointTokenRef?.unref();
-      if (endTokenRef !== startTokenRef) {
-        endTokenRef.unref();
-      }
-      startTokenRef.unref();
     } catch (error) {
       errors.push(
-        `Failed to apply comment ${comment.id}: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to apply comment ${comment.id}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
+    } finally {
+      pointTokenRef?.unref();
+      if (endTokenRef && (!startTokenRef || endTokenRef !== startTokenRef)) {
+        endTokenRef.unref();
+      }
+      startTokenRef?.unref();
     }
   }
 
@@ -856,11 +864,9 @@ export function applyTrackedCommentsLocal(
   let applied = 0;
   const discussions: DocxImportDiscussion[] = [];
 
-  // Process only root comments (those without a parentParaId).
-  // Replies are handled recursively via the 'replies' property in the payload.
-  const rootComments = comments.filter((c) => !c.parentParaId);
-
-  for (const comment of rootComments) {
+  // Process all comments; replies skip discussion creation but still remove tokens.
+  for (const comment of comments) {
+    const isReplyComment = Boolean(comment.parentParaId);
     try {
       const startTokenRange = comment.hasStartToken
         ? searchRange(editor, comment.startToken)
@@ -920,90 +926,97 @@ export function applyTrackedCommentsLocal(
         continue;
       }
 
-      const discussionId = generateId();
+      let discussion: DocxImportDiscussion | null = null;
 
-      const discussionComments: NonNullable<DocxImportDiscussion['comments']> =
-        [];
+      if (!isReplyComment) {
+        const discussionId = generateId();
 
-      const addCommentRecursive = (
-        c: Pick<DocxCommentData, 'authorName' | 'body' | 'date' | 'text'> & {
-          replies?: Array<
-            Pick<DocxCommentData, 'authorName' | 'body' | 'date' | 'text'>
-          >;
-        }
-      ) => {
-        const userId = formatAuthorAsUserId(c.authorName);
-        const createdAt = parseDateToDate(c.date, documentDate);
+        const discussionComments: NonNullable<
+          DocxImportDiscussion['comments']
+        > = [];
 
-        const contentRich = normalizeCommentContent(c.body, c.text);
+        const addCommentRecursive = (
+          c: Pick<DocxCommentData, 'authorName' | 'body' | 'date' | 'text'> & {
+            replies?: Pick<
+              DocxCommentData,
+              'authorName' | 'body' | 'date' | 'text'
+            >[];
+          }
+        ) => {
+          const userId = formatAuthorAsUserId(c.authorName);
+          const createdAt = parseDateToDate(c.date, documentDate);
 
-        discussionComments.push({
-          contentRich,
-          createdAt,
-          userId,
-          user: c.authorName ? { id: userId, name: c.authorName } : undefined,
-        });
+          const contentRich = normalizeCommentContent(c.body, c.text);
 
-        if (c.replies) {
-          c.replies.forEach(addCommentRecursive);
-        }
-      };
+          discussionComments.push({
+            contentRich,
+            createdAt,
+            userId,
+            user: c.authorName ? { id: userId, name: c.authorName } : undefined,
+          });
 
-      addCommentRecursive(comment);
+          if (c.replies) {
+            c.replies.forEach(addCommentRecursive);
+          }
+        };
 
-      const discussion: DocxImportDiscussion = {
-        id: discussionId,
-        comments: discussionComments,
-        createdAt: discussionComments[0]?.createdAt,
-        documentContent: comment.text ?? '',
-        userId: discussionComments[0]?.userId,
-        user: discussionComments[0]?.user,
-      };
+        addCommentRecursive(comment);
 
-      editor.tf.withMerging(() => {
-        const currentStart = startTokenRef.current;
-        const currentEnd = endTokenRef.current;
-        const currentPoint = pointTokenRef?.current ?? null;
+        discussion = {
+          id: discussionId,
+          comments: discussionComments,
+          createdAt: discussionComments[0]?.createdAt,
+          documentContent: comment.text ?? '',
+          userId: discussionComments[0]?.userId,
+          user: discussionComments[0]?.user,
+        };
 
-        if (currentStart && currentEnd) {
-          let rangeToMark: TRange | null = null;
-          const startEnd = currentStart.focus;
-          const endStart = currentEnd.anchor;
-          const isCollapsedRange = isPointEqual(startEnd, endStart);
-          const hasBothMarkers = hasStartMarker && hasEndMarker && !isSameTokenString;
-          const isPointComment = !hasBothMarkers || isCollapsedRange;
+        editor.tf.withMerging(() => {
+          const currentStart = startTokenRef.current;
+          const currentEnd = endTokenRef.current;
+          const currentPoint = pointTokenRef?.current ?? null;
 
-          if (isPointComment) {
-            const pointForMark = currentPoint
-              ? currentPoint.focus
-              : hasStartMarker && !hasEndMarker
-                ? startEnd
-                : endStart;
-            rangeToMark = getPointCommentMarkRange(editor, pointForMark, {
-              isText,
-            });
-          } else {
-            let anchor = startEnd;
-            let focus = endStart;
-            if (isPointAfter(anchor, focus)) {
-              [anchor, focus] = [focus, anchor];
+          if (currentStart && currentEnd) {
+            let rangeToMark: TRange | null = null;
+            const startEnd = currentStart.focus;
+            const endStart = currentEnd.anchor;
+            const isCollapsedRange = isPointEqual(startEnd, endStart);
+            const hasBothMarkers =
+              hasStartMarker && hasEndMarker && !isSameTokenString;
+            const isPointComment = !hasBothMarkers || isCollapsedRange;
+
+            if (isPointComment) {
+              const pointForMark = currentPoint
+                ? currentPoint.focus
+                : hasStartMarker && !hasEndMarker
+                  ? startEnd
+                  : endStart;
+              rangeToMark = getPointCommentMarkRange(editor, pointForMark, {
+                isText,
+              });
+            } else {
+              let anchor = startEnd;
+              let focus = endStart;
+              if (isPointAfter(anchor, focus)) {
+                [anchor, focus] = [focus, anchor];
+              }
+              rangeToMark = { anchor, focus };
             }
-            rangeToMark = { anchor, focus };
-          }
 
-          if (rangeToMark) {
-            editor.tf.setNodes(
-              {
-                [getCommentKey(discussionId)]: true,
-                [commentKey]: true,
-              },
-              { at: rangeToMark, match: isText, split: true }
-            );
-          } else {
-            errors.push(`Comment ${comment.id}: could not key range`);
+            if (rangeToMark) {
+              editor.tf.setNodes(
+                {
+                  [getCommentKey(discussionId)]: true,
+                  [commentKey]: true,
+                },
+                { at: rangeToMark, match: isText, split: true }
+              );
+            } else {
+              errors.push(`Comment ${comment.id}: could not key range`);
+            }
           }
-        }
-      });
+        });
+      }
 
       const pointRange = pointTokenRef?.current ?? null;
       const startRange = startTokenRef.current;
@@ -1039,8 +1052,10 @@ export function applyTrackedCommentsLocal(
       }
       startTokenRef.unref();
 
-      discussions.push(discussion);
-      applied++;
+      if (discussion) {
+        discussions.push(discussion);
+        applied++;
+      }
     } catch (error) {
       errors.push(
         `Comment ${comment.id}: ${error instanceof Error ? error.message : String(error)}`

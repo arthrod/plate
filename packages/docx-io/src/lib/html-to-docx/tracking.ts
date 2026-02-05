@@ -234,6 +234,24 @@ export function hasTrackingTokens(text: string): boolean {
   return tokenRegex.test(text);
 }
 
+/**
+ * Collect all tracking token strings from text.
+ */
+export function findDocxTrackingTokens(text: string): string[] {
+  const tokens: string[] = [];
+  const tokenRegex = new RegExp(DOCX_TOKEN_REGEX);
+  // biome-ignore lint/suspicious/noEvolvingTypes: regex exec result type
+  // biome-ignore lint/suspicious/noImplicitAnyLet: regex exec result type
+  let match;
+
+  // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex loop
+  while ((match = tokenRegex.exec(text)) !== null) {
+    tokens.push(match[0]);
+  }
+
+  return tokens;
+}
+
 // ============================================================================
 // Tracking State Management
 // ============================================================================

@@ -1,4 +1,6 @@
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+// oxlint-disable no-unused-vars
+/** biome-ignore-all lint/correctness/noUnusedFunctionParameters: <explanation> */
+
 import { globSync } from 'glob';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,20 +10,26 @@ const ogStubPath = path.join(__dirname, 'src/lib/og-stub.ts');
 
 const nextConfig = async (phase) => {
   const config = {
-    serverExternalPackages: ["react-dom", "shiki", "react-resizable-panels", "jiti", "jose", "react-textarea-autosize"],
+    serverExternalPackages: [
+      '@shikijs/compat',
+      'react-dom',
+      'shiki',
+      'react-resizable-panels',
+      'jiti',
+      'jose',
+      'react-textarea-autosize',
+      'decode-named-character-reference',
+      'unenv',
+      'miniflare',
+      'rolldown',
+      'esbuild',
+    ],
     typescript: {
       ignoreBuildErrors: true,
     },
+    eslint: { ignoreDuringBuilds: true },
 
-    turbopack: {
-      resolveAlias: {
-        'next/dist/compiled/@vercel/og/index.edge.js': ogStubPath,
-        'next/dist/compiled/@vercel/og/index.node.js': ogStubPath,
-      },
-    },
-    experimental: {
-      turbopackFileSystemCacheForDev: true,
-    },
+    experimental: {},
     productionBrowserSourceMaps: false,
     // https://nextjs.org/docs/basic-features/image-optimization#domains
     images: {
@@ -91,42 +99,17 @@ const nextConfig = async (phase) => {
         },
       ];
     },
-    webpack: (config) => {
+    webpack: (
+      config,
+      { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
+    ) => {
       config.resolve.alias = {
-        ...(config.resolve.alias || {}),
+        ...config.resolve.alias,
         'next/dist/compiled/@vercel/og/index.edge.js': ogStubPath,
         'next/dist/compiled/@vercel/og/index.node.js': ogStubPath,
       };
       return config;
     },
-
-    // webpack: (config, { buildId, dev, isServer, webpack }) => {
-    //   config.externals.push({
-    //     shiki: 'shiki',
-    //     typescript: 'typescript',
-    //   });
-
-    //   if (!isServer) {
-    //     config.resolve.fallback = {
-    //       ...config.resolve.fallback,
-    //       crypto: require.resolve('crypto-browserify'),
-    //       stream: require.resolve('stream-browserify'),
-    //     };
-
-    //     config.plugins.push(
-    //       new webpack.ProvidePlugin({
-    //         process: 'process/browser',
-    //       }),
-    //       new webpack.NormalModuleReplacementPlugin(
-    //         /node:crypto/,
-    //         (resource: any) => {
-    //           resource.request = resource.request.replace(/^node:/, '');
-    //         }
-    //       )
-    //     );
-    //   }
-    //   return config;
-    // },
   };
 
   if (phase === 'phase-development-server') {
@@ -153,6 +136,7 @@ const nextConfig = async (phase) => {
   return config;
 };
 
-export default nextConfig;
-
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 initOpenNextCloudflareForDev();
+
+export default nextConfig;

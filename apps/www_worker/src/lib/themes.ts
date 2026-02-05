@@ -224,16 +224,6 @@ const _THEMES = {
       secondary: '43 27% 16%',
       'secondary-foreground': '43 47% 88%',
     },
-    // fontFamily: {
-    //   body: {
-    //     name: 'Space Mono',
-    //     type: 'monospace',
-    //   },
-    //   heading: {
-    //     name: 'DM Sans',
-    //     type: 'sans-serif',
-    //   },
-    // },
     light: {
       accent: '36 33% 75% / 0.2',
       'accent-foreground': '39 14% 22%',
@@ -436,16 +426,6 @@ const _THEMES = {
       secondary: '225 7% 21%', // #323439
       'secondary-foreground': '220 5% 77%', // #c1c3c8
     },
-    // fontFamily: {
-    //   body: {
-    //     name: 'Manrope',
-    //     type: 'sans-serif',
-    //   },
-    //   heading: {
-    //     name: 'Manrope',
-    //     type: 'sans-serif',
-    //   },
-    // },
     light: {
       accent: '231 62% 63%', // #6e79d6
       'accent-foreground': '0 0% 98%', // #FBFBFB

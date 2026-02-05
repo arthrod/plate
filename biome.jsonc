@@ -28,7 +28,9 @@
       "!!tooling/config/global.d.ts",
       "!!templates",
       "!**/__registry__",
-      "!**/next-env.d.ts"
+      "!**/next-env.d.ts",
+      "!apps/www_worker/cloudflare-env.d.ts",
+      "!apps/www_worker/worker-configuration.d.ts"
     ]
   },
   "linter": {
@@ -48,7 +50,7 @@
       },
       "suspicious": {
         "noConsole": {
-          "level": "error",
+          "level": "info",
           "options": {
             "allow": ["assert", "error", "info", "warn"]
           }

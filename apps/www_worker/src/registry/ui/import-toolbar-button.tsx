@@ -10,8 +10,8 @@ import { MarkdownPlugin } from '@platejs/markdown';
 import { getSuggestionKey } from '@platejs/suggestion';
 import { ArrowUpToLineIcon } from 'lucide-react';
 import { KEYS, TextApi } from 'platejs';
-import { getEditorDOMFromHtmlString } from 'platejs/static';
 import { useEditorRef } from 'platejs/react';
+import { getEditorDOMFromHtmlString } from 'platejs/static';
 import { useFilePicker } from 'use-file-picker';
 
 import {
@@ -22,11 +22,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { commentPlugin } from '@/registry/components/editor/plugins/comment-kit';
 import {
   discussionPlugin,
   type TDiscussion,
 } from '@/registry/components/editor/plugins/discussion-kit';
-import { commentPlugin } from '@/registry/components/editor/plugins/comment-kit';
+import { getDiscussionCounterSeed } from '../lib/discussion-ids';
 import { ToolbarButton } from './toolbar';
 
 type ImportType = 'html' | 'markdown';
@@ -85,7 +86,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
       // Compute next discussion number to avoid ID collisions
       const existingDiscussions =
         editor.getOption(discussionPlugin, 'discussions') ?? [];
-      let discussionCounter = existingDiscussions.length;
+      let discussionCounter = getDiscussionCounterSeed(existingDiscussions);
 
       // Import with full tracking support (suggestions + comments)
       const result = await importDocxWithTracking(editor as any, arrayBuffer, {

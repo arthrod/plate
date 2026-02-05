@@ -2,3 +2,4 @@
 /_build
 /static/bootstrap
 /static/jszip
+bun.lock

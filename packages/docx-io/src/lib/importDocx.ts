@@ -15,6 +15,7 @@
  * 3. Deserialize HTML to editor nodes
  * 4. Apply tracked changes and comments to editor
  */
+/** biome-ignore-all lint/suspicious/noConsole: <explanation> */
 
 // Local mammoth.js fork browser build
 import mammothModule from './mammoth.js/mammoth.browser.js';
@@ -84,6 +85,12 @@ export type PreprocessMammothHtmlResult = {
 export function preprocessMammothHtml(
   html: string
 ): PreprocessMammothHtmlResult {
+  if (typeof DOMParser === 'undefined') {
+    throw new Error(
+      'preprocessMammothHtml requires DOMParser (browser-like environment).'
+    );
+  }
+
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const commentById = new Map<string, string>();
 
@@ -301,14 +308,14 @@ export async function importDocx(
 // ============================================================================
 
 import {
-  applyTrackedChangeSuggestions,
-  parseDocxTrackedChanges,
-} from './importTrackChanges';
-import {
   applyTrackedCommentsLocal,
   parseDocxComments,
   type DocxImportDiscussion,
 } from './importComments';
+import {
+  applyTrackedChangeSuggestions,
+  parseDocxTrackedChanges,
+} from './importTrackChanges';
 import { createSearchRangeFn } from './searchRange';
 
 /** Extended editor interface for tracking imports */

@@ -79,7 +79,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.cache
-
+specs/
 
 
 # Optional npm cache directory

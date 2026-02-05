@@ -334,7 +334,23 @@ function DocumentConversion(options, comments) {
       try {
         var richContent = convertElements(comment.body, messages, options);
         payload.body = Html.simplify(richContent);
-      } catch (e) {}
+      } catch (e) {
+        var detail = '';
+        if (e && typeof e.message === 'string') {
+          detail = e.message;
+        } else if (typeof e === 'string') {
+          detail = e;
+        }
+        var message =
+          'Failed to convert comment body for comment ' +
+          comment.commentId +
+          (detail ? ': ' + detail : '');
+        var error = e instanceof Error ? e : new Error(message);
+        if (error) {
+          error.message = message;
+        }
+        messages.push(results.error(error));
+      }
     }
 
     // Recursive replies

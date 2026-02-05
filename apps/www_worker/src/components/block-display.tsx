@@ -1,8 +1,6 @@
-import * as React from 'react';
-
 import type { RegistryItem } from 'shadcn/registry';
 
-import { BlockViewer } from '@/components/block-viewer';
+import { ClientBlockViewer } from '@/components/client-block-viewer';
 import {
   getCachedDependencies,
   getCachedFileTree,
@@ -23,7 +21,7 @@ export async function BlockDisplay({
 }) {
   if (block.meta?.src) {
     return (
-      <BlockViewer
+      <ClientBlockViewer
         dependencies={[]}
         highlightedFiles={[]}
         item={block}
@@ -45,7 +43,7 @@ export async function BlockDisplay({
   ]);
 
   return (
-    <BlockViewer
+    <ClientBlockViewer
       dependencies={dependencies}
       highlightedFiles={highlightedFiles}
       item={item}

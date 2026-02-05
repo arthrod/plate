@@ -1,17 +1,43 @@
 import type { UnistNode } from '@/types/unist';
-import type { z } from 'zod';
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import {
-  type Registry,
-  type RegistryItem,
-  type registryItemFileSchema,
-  registryItemSchema,
-} from 'shadcn/registry';
+import { z } from 'zod';
 
 import registryShadcnData from '../../registry-shadcn.json';
 import { registry } from '../registry/registry';
+
+// Local schema definitions — avoids importing from 'shadcn/registry'
+// which pulls in ts-morph/typescript and bloats the Cloudflare worker bundle.
+const registryItemFileSchema = z
+  .object({
+    path: z.string(),
+    content: z.string().optional(),
+    type: z.string().optional(),
+    target: z.string().optional(),
+  })
+  .passthrough();
+
+const registryItemSchema = z
+  .object({
+    name: z.string(),
+    type: z.string(),
+    title: z.string().optional(),
+    author: z.string().optional(),
+    description: z.string().optional(),
+    dependencies: z.array(z.string()).optional(),
+    devDependencies: z.array(z.string()).optional(),
+    registryDependencies: z.array(z.string()).optional(),
+    files: z.array(registryItemFileSchema).optional(),
+    css: z.record(z.string(), z.any()).optional(),
+    meta: z.record(z.string(), z.any()).optional(),
+    docs: z.string().optional(),
+    categories: z.array(z.string()).optional(),
+  })
+  .passthrough();
+
+type RegistryItem = z.infer<typeof registryItemSchema>;
+type Registry = { name: string; items: RegistryItem[] };
 
 const registryShadcn = registryShadcnData as unknown as Registry;
 

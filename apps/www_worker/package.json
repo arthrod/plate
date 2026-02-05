@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build:docs-data": "bunx contentlayer2 build && tsx --tsconfig ./scripts/tsconfig.scripts.json scripts/build-docs-data.mts",
-    "build": "bun run build:docs-data && bun run r && NODE_OPTIONS='--max-old-space-size=8192' next build",
+    "build": "bun run build:docs-data && bun run r && NODE_OPTIONS='--max-old-space-size=8192' next build --webpack",
     "build:worker": "opennextjs-cloudflare build",
     "build:contentlayer": "bunx contentlayer2 build",
     "build:registry": "NODE_ENV=production tsx --tsconfig ./scripts/tsconfig.scripts.json scripts/build-registry.mts",

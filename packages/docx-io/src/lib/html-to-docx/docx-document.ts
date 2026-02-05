@@ -13,7 +13,7 @@ import {
   COMMENTS_TEMPLATE,
   PEOPLE_TEMPLATE,
 } from './comment-templates';
-import { generateHexId } from './tracking';
+import { findDocxTrackingTokens, generateHexId } from './tracking';
 
 import {
   applicationName,
@@ -698,6 +698,19 @@ class DocxDocument {
         `</pic:${el}>`
       );
     });
+
+    const deadTokens = findDocxTrackingTokens(xmlString);
+    if (deadTokens.length > 0) {
+      const uniqueTokens = Array.from(new Set(deadTokens));
+      const sample = uniqueTokens.slice(0, 3).join(', ');
+      const suffix =
+        uniqueTokens.length > 3
+          ? ` (+${uniqueTokens.length - 3} more)`
+          : '';
+      console.warn(
+        `[docx] dead tracking tokens in document.xml: ${sample}${suffix}`
+      );
+    }
 
     return xmlString;
   }
