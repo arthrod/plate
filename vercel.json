@@ -1,7 +1,5 @@
 {
-  "functions": {
-    "app/**/*": {
-      "maxDuration": 1
-    }
-  }
+  "installCommand": "yarn install",
+  "buildCommand": "NODE_OPTIONS='--max-old-space-size=8192' TURBO_CONCURRENCY=1 yarn exec turbo build --filter=./apps/www",
+  "outputDirectory": "apps/www/.next"
 }
