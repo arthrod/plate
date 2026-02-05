@@ -92,7 +92,7 @@ export function APIItem({
                 onClick={(e) => e.stopPropagation()}
                 href={`#${id}`}
               >
-                <div className="-left-5 absolute top-2 pr-1 leading-none">
+                <div className="absolute top-2 -left-5 pr-1 leading-none">
                   <Icons.pragma className="size-4 text-muted-foreground" />
                 </div>
               </a>
@@ -237,7 +237,7 @@ export function APIList({
                     onClick={(e) => e.stopPropagation()}
                     href={`#${id}`}
                   >
-                    <div className="-left-5 absolute top-0 pr-1 leading-none">
+                    <div className='absolute top-0 -left-5 pr-1 leading-none'>
                       <Icons.pragma className="size-4 text-muted-foreground" />
                     </div>
                   </a>
@@ -354,7 +354,7 @@ export function APISubListItem({
             onClick={(e) => e.stopPropagation()}
             href={`#${id}`}
           >
-            <div className="-left-5 absolute top-2 pr-1 leading-none">
+            <div className='absolute top-2 -left-5 pr-1 leading-none'>
               <Icons.pragma className="size-4 text-muted-foreground" />
             </div>
           </a>

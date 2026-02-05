@@ -51,9 +51,17 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
 
   const commentsApi = editor.getApi(CommentPlugin).comment;
   const blockPath = editor.api.findPath(element);
+  const pageType = editor.getType?.('pagination');
+  const hasPages = Boolean(
+    pageType &&
+      Array.isArray(editor.children) &&
+      editor.children.some((node) => node?.type === pageType)
+  );
+  const depthOffset = hasPages ? 1 : 0;
+  const rootDepth = 1 + depthOffset;
 
   // avoid duplicate in table or column
-  if (!blockPath || blockPath.length > 1) return;
+  if (!blockPath || blockPath.length !== rootDepth) return;
 
   const draftCommentNode = commentsApi.node({ at: blockPath, isDraft: true });
 
@@ -87,6 +95,7 @@ const BlockCommentContent = ({
   children,
   commentNodes,
   draftCommentNode,
+  element,
   suggestionNodes,
 }: PlateElementProps & {
   blockPath: Path;
@@ -95,6 +104,7 @@ const BlockCommentContent = ({
   suggestionNodes: NodeEntry<TElement | TSuggestionText>[];
 }) => {
   const editor = useEditorRef();
+  const [iconOffsetTop, setIconOffsetTop] = React.useState(4);
   const resolvedSuggestions = useResolveSuggestion(suggestionNodes, blockPath);
   const resolvedDiscussions = useResolvedDiscussion(commentNodes, blockPath);
 
@@ -135,6 +145,30 @@ const BlockCommentContent = ({
     _open ||
     selected ||
     (isCommenting && !!draftCommentNode && commentingCurrent);
+
+  React.useLayoutEffect(() => {
+    try {
+      const domNode = editor.api.toDOMNode(element);
+      if (!(domNode instanceof HTMLElement)) return;
+      const textNode = domNode.querySelector(
+        '[data-slate-node="text"]'
+      ) as HTMLElement | null;
+      if (textNode) {
+        const blockRect = domNode.getBoundingClientRect();
+        const textRect = textNode.getBoundingClientRect();
+        const offset = Math.max(0, textRect.top - blockRect.top);
+        setIconOffsetTop(offset);
+        return;
+      }
+      const styles = getComputedStyle(domNode);
+      const marginTop = Number.parseFloat(styles.marginTop || '0');
+      const paddingTop = Number.parseFloat(styles.paddingTop || '0');
+      const borderTop = Number.parseFloat(styles.borderTopWidth || '0');
+      const offset = marginTop + paddingTop + borderTop;
+      if (!Number.isFinite(offset)) return;
+      setIconOffsetTop(offset);
+    } catch {}
+  }, [editor, element]);
 
   const anchorElement = React.useMemo(() => {
     let activeNode: NodeEntry | undefined;
@@ -250,7 +284,8 @@ const BlockCommentContent = ({
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
-                className="!px-1.5 mt-1 ml-1 flex h-6 gap-1 py-0 text-muted-foreground/80 hover:text-muted-foreground/80 data-[active=true]:bg-muted"
+                className="!px-1.5 ml-1 flex h-6 gap-1 py-0 text-muted-foreground/80 hover:text-muted-foreground/80 data-[active=true]:bg-muted"
+                style={{ marginTop: iconOffsetTop }}
                 data-active={open}
                 contentEditable={false}
               >

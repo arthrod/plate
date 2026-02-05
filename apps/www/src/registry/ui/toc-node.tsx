@@ -34,7 +34,7 @@ export function TocElement(props: PlateElementProps) {
         {headingList.length > 0 ? (
           headingList.map((item) => (
             <Button
-              key={item.id}
+              key={item.id ?? item.path.join('-')}
               variant="ghost"
               className={headingItemVariants({
                 depth: item.depth as 1 | 2 | 3,
