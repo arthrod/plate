@@ -1,4 +1,4 @@
 {
   "installCommand": "yarn install",
-  "buildCommand": "TURBO_CONCURRENCY=1 yarn exec turbo build --filter=./apps/www"
+  "buildCommand": "NODE_OPTIONS='--max-old-space-size=8192' TURBO_CONCURRENCY=1 yarn exec turbo build --filter=./apps/www"
 }
