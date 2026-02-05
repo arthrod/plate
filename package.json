@@ -149,7 +149,6 @@
     "yarn": ">=1.22.0"
   },
   "dependencies": {
-    "yarn": "^1.22.22"
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "csstype": "^3.2.3",
