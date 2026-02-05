@@ -5,11 +5,10 @@ import type { ComponentProps } from 'react';
 import dynamic from 'next/dynamic';
 
 const ComponentPreview = dynamic(
-  () =>
-    import('./component-preview').then((mod) => mod.ComponentPreview),
+  () => import('./component-preview').then((mod) => mod.ComponentPreview),
   {
     loading: () => (
-      <div className="mt-4 mb-12 text-sm text-muted-foreground">
+      <div className="mt-4 mb-12 text-muted-foreground text-sm">
         Loading preview...
       </div>
     ),

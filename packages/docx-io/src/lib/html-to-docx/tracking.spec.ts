@@ -10,21 +10,21 @@ import JSZip from 'jszip';
 
 import { htmlToDocxBlob } from '../exportDocx';
 import {
-    buildCommentEndToken,
-    buildCommentStartToken,
-    buildSuggestionEndToken,
-    buildSuggestionStartToken,
-    DOCX_COMMENT_END_TOKEN_PREFIX,
-    DOCX_COMMENT_START_TOKEN_PREFIX,
-    DOCX_COMMENT_TOKEN_SUFFIX,
-    DOCX_DELETION_END_TOKEN_PREFIX,
-    DOCX_DELETION_START_TOKEN_PREFIX,
-    DOCX_DELETION_TOKEN_SUFFIX,
-    DOCX_INSERTION_END_TOKEN_PREFIX,
-    DOCX_INSERTION_START_TOKEN_PREFIX,
-    DOCX_INSERTION_TOKEN_SUFFIX,
-    hasTrackingTokens,
-    splitDocxTrackingTokens,
+  buildCommentEndToken,
+  buildCommentStartToken,
+  buildSuggestionEndToken,
+  buildSuggestionStartToken,
+  DOCX_COMMENT_END_TOKEN_PREFIX,
+  DOCX_COMMENT_START_TOKEN_PREFIX,
+  DOCX_COMMENT_TOKEN_SUFFIX,
+  DOCX_DELETION_END_TOKEN_PREFIX,
+  DOCX_DELETION_START_TOKEN_PREFIX,
+  DOCX_DELETION_TOKEN_SUFFIX,
+  DOCX_INSERTION_END_TOKEN_PREFIX,
+  DOCX_INSERTION_START_TOKEN_PREFIX,
+  DOCX_INSERTION_TOKEN_SUFFIX,
+  hasTrackingTokens,
+  splitDocxTrackingTokens,
 } from './tracking';
 
 // Helper to load zip from Blob

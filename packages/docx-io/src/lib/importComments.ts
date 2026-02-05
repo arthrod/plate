@@ -35,14 +35,14 @@ import {
 export {
   DOCX_COMMENT_END_TOKEN_PREFIX,
   DOCX_COMMENT_START_TOKEN_PREFIX,
-  DOCX_COMMENT_TOKEN_SUFFIX
+  DOCX_COMMENT_TOKEN_SUFFIX,
 } from './html-to-docx/tracking';
 
 // Re-export shared types
 export type {
   SearchRangeFn,
   TPoint,
-  TrackingEditor
+  TrackingEditor,
 } from './importTrackChanges';
 export type { TRange } from './searchRange';
 

@@ -8,7 +8,7 @@ const BlockPageClient = dynamic(
   () => import('./block-page-client').then((mod) => mod.BlockPageClient),
   {
     loading: () => (
-      <div className="flex min-h-[350px] items-center justify-center text-sm text-muted-foreground">
+      <div className="flex min-h-[350px] items-center justify-center text-muted-foreground text-sm">
         Loading block...
       </div>
     ),

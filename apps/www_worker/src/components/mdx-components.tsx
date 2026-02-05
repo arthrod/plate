@@ -66,7 +66,7 @@ const ComponentInstallation = dynamic(
     ),
   {
     loading: () => (
-      <div className="mt-4 mb-12 text-sm text-muted-foreground">
+      <div className="mt-4 mb-12 text-muted-foreground text-sm">
         Loading installation...
       </div>
     ),
@@ -75,11 +75,10 @@ const ComponentInstallation = dynamic(
 );
 
 const ComponentPreview = dynamic(
-  () =>
-    import('./component-preview').then((mod) => mod.ComponentPreview),
+  () => import('./component-preview').then((mod) => mod.ComponentPreview),
   {
     loading: () => (
-      <div className="mt-4 mb-12 text-sm text-muted-foreground">
+      <div className="mt-4 mb-12 text-muted-foreground text-sm">
         Loading preview...
       </div>
     ),
@@ -89,12 +88,10 @@ const ComponentPreview = dynamic(
 
 const ComponentPreviewPro = dynamic(
   () =>
-    import('./component-preview-pro').then(
-      (mod) => mod.ComponentPreviewPro
-    ),
+    import('./component-preview-pro').then((mod) => mod.ComponentPreviewPro),
   {
     loading: () => (
-      <div className="mt-4 mb-12 text-sm text-muted-foreground">
+      <div className="mt-4 mb-12 text-muted-foreground text-sm">
         Loading preview...
       </div>
     ),

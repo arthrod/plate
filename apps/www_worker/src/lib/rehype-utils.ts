@@ -248,7 +248,9 @@ export async function getRegistryItem(
   const isShadcn = name.includes('shadcn/');
   const normalizedName = isShadcn ? name.split('shadcn/')[1] : name;
   const registryTarget = isShadcn ? registryShadcn : registry;
-  const item = registryTarget.items.find((entry) => entry.name === normalizedName);
+  const item = registryTarget.items.find(
+    (entry) => entry.name === normalizedName
+  );
 
   if (!item?.files?.length) {
     return null;
@@ -370,7 +372,7 @@ async function getAllItemFiles(
 }
 
 function normalizeRegistryPath(filePath?: string) {
-  if (!filePath) return undefined;
+  if (!filePath) return;
   return filePath.startsWith('src/registry/')
     ? filePath
     : `src/registry/${filePath}`;

@@ -98,7 +98,10 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         generateId: () => `discussion${++discussionCounter}`,
       });
       console.log('[DOCX DEBUG] import result:', result);
-      console.log('[DOCX DEBUG] editor.children after import:', JSON.stringify(editor.children, null, 2));
+      console.log(
+        '[DOCX DEBUG] editor.children after import:',
+        JSON.stringify(editor.children, null, 2)
+      );
 
       // Add imported discussions to the discussion plugin
       if (result.discussions.length > 0) {

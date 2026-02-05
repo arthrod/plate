@@ -500,7 +500,10 @@ export async function importDocxWithTracking(
   const setEditorValue = (nextValue: unknown[]) => {
     const tfAny = editor.tf as unknown as {
       setValue?: (value: unknown[]) => void;
-      replaceNodes?: (value: unknown[], options: { at: number[]; children: true }) => void;
+      replaceNodes?: (
+        value: unknown[],
+        options: { at: number[]; children: true }
+      ) => void;
     };
     if (tfAny?.setValue) {
       tfAny.setValue(nextValue);

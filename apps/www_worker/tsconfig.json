@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": ".",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
@@ -25,26 +21,14 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "ESNext",
-    "types": [
-      "node",
-      "@testing-library/jest-dom",
-      "bun-types"
-    ],
+    "types": ["node", "@testing-library/jest-dom", "bun-types"],
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "contentlayer/generated": [
-        "./.contentlayer/generated"
-      ],
-      "registry": [
-        "./public/r/registry.json"
-      ],
-      "registry-shadcn": [
-        "./registry-shadcn.json"
-      ]
+      "@/*": ["./src/*"],
+      "contentlayer/generated": ["./.contentlayer/generated"],
+      "registry": ["./public/r/registry.json"],
+      "registry-shadcn": ["./registry-shadcn.json"]
     },
     "plugins": [
       {
@@ -74,9 +58,5 @@
     "./registry.json",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "__registry__",
-    "**/blocks/fumadocs"
-  ]
+  "exclude": ["node_modules", "__registry__", "**/blocks/fumadocs"]
 }

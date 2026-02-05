@@ -704,9 +704,7 @@ class DocxDocument {
       const uniqueTokens = Array.from(new Set(deadTokens));
       const sample = uniqueTokens.slice(0, 3).join(', ');
       const suffix =
-        uniqueTokens.length > 3
-          ? ` (+${uniqueTokens.length - 3} more)`
-          : '';
+        uniqueTokens.length > 3 ? ` (+${uniqueTokens.length - 3} more)` : '';
       console.warn(
         `[docx] dead tracking tokens in document.xml: ${sample}${suffix}`
       );

@@ -11,7 +11,7 @@ const PlaygroundDemo = dynamic(
     ),
   {
     loading: () => (
-      <div className="flex min-h-[350px] items-center justify-center text-sm text-muted-foreground">
+      <div className="flex min-h-[350px] items-center justify-center text-muted-foreground text-sm">
         Loading playground...
       </div>
     ),

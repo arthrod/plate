@@ -6,12 +6,10 @@ import dynamic from 'next/dynamic';
 
 const ComponentInstallation = dynamic(
   () =>
-    import('./component-installation').then(
-      (mod) => mod.ComponentInstallation
-    ),
+    import('./component-installation').then((mod) => mod.ComponentInstallation),
   {
     loading: () => (
-      <div className="mt-4 mb-12 text-sm text-muted-foreground">
+      <div className="mt-4 mb-12 text-muted-foreground text-sm">
         Loading installation...
       </div>
     ),

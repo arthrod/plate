@@ -1,15 +1,15 @@
 import { describe, expect, it, mock } from 'bun:test';
 
 import {
-    applyAllTracking,
-    applyTrackedComments,
-    applyTrackedCommentsLocal,
-    type DocxImportComment,
+  applyAllTracking,
+  applyTrackedComments,
+  applyTrackedCommentsLocal,
+  type DocxImportComment,
 } from './importComments';
 import {
-    applyTrackedChangeSuggestions,
-    type TrackingEditor,
-    type TRange,
+  applyTrackedChangeSuggestions,
+  type TrackingEditor,
+  type TRange,
 } from './importTrackChanges';
 import type { DocxTrackedChange } from './types';
 
