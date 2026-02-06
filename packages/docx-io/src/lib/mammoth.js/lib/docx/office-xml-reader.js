@@ -34,6 +34,7 @@ var xmlNamespaceMap = {
   // [MS-DOCX]: Word Extensions to the Office Open XML (.docx) File Format
   // https://learn.microsoft.com/en-us/openspecs/office_standards/ms-docx/b839fe1f-e1ca-4fa6-8c26-5954d0abbccd
   'http://schemas.microsoft.com/office/word/2010/wordml': 'wordml',
+  'http://schemas.microsoft.com/office/word/2012/wordml': 'w15',
 };
 
 function read(xmlString) {

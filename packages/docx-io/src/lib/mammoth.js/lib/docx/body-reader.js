@@ -322,7 +322,10 @@ function BodyReader(options) {
         readParagraphProperties(paragraphPropertiesElement),
         readXmlElements(childrenXml),
         (properties, children) => {
-          properties.paraId = element.attributes['w14:paraId'];
+          properties.paraId =
+            element.attributes['w14:paraId'] ||
+            element.attributes['wordml:paraId'] ||
+            element.attributes['w15:paraId'];
           return new documents.Paragraph(children, properties);
         }
       ).insertExtra();

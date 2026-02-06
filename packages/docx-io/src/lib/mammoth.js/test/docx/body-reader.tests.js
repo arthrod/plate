@@ -84,6 +84,12 @@ test('paragraph has style ID and name read from paragraph properties if present'
   assert.deepEqual(paragraph.styleName, 'Heading 1');
 });
 
+test('paragraph uses w15:paraId when w14:paraId is missing', () => {
+  var paragraphXml = new XmlElement('w:p', { 'w15:paraId': 'ABCD1234' }, []);
+  var paragraph = readXmlElementValue(paragraphXml);
+  assert.equal(paragraph.paraId, 'ABCD1234');
+});
+
 test('warning is emitted when paragraph style cannot be found', () => {
   var styleXml = new XmlElement('w:pStyle', { 'w:val': 'Heading1' }, []);
   var propertiesXml = new XmlElement('w:pPr', {}, [styleXml]);

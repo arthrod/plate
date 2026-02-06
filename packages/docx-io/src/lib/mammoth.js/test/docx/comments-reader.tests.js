@@ -62,3 +62,26 @@ test('when optional attributes of comment are not blank then they are read', () 
   assert.strictEqual(comment.authorName, 'The Piemaker');
   assert.strictEqual(comment.authorInitials, 'TP');
 });
+
+test('paraId and parentParaId are read with commentsExtended mapping', () => {
+  var bodyReader = createBodyReader({ styles: stylesReader.defaultStyles });
+  var commentsReader = createCommentsReader(bodyReader, {
+    PARA_CHILD: 'PARA_PARENT',
+  });
+  var comments = commentsReader(
+    xml.element('w:comments', {}, [
+      xml.element(
+        'w:comment',
+        {
+          'w:id': '1',
+          'w:author': 'Alice',
+        },
+        [xml.element('w:p', { 'w14:paraId': 'PARA_CHILD' })]
+      ),
+    ])
+  );
+
+  assert.equal(comments.value.length, 1);
+  assert.strictEqual(comments.value[0].paraId, 'PARA_CHILD');
+  assert.strictEqual(comments.value[0].parentParaId, 'PARA_PARENT');
+});

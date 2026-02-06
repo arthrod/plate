@@ -108,7 +108,7 @@ export type DocxImportComment = Omit<DocxCommentData, 'replies'> & {
 export type ParseCommentsResult = {
   /** All comments found */
   comments: DocxImportComment[];
-  /** Number of comments found */
+  /** Number of top-level comments (excludes replies) */
   count: number;
 };
 
@@ -352,7 +352,8 @@ export function parseDocxComments(html: string): ParseCommentsResult {
   }
 
   const comments = Array.from(commentsById.values());
-  return { comments, count: comments.length };
+  const nonReplyComments = comments.filter((comment) => !comment.parentParaId);
+  return { comments, count: nonReplyComments.length };
 }
 
 // ============================================================================

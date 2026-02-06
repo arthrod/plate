@@ -7,9 +7,9 @@ import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import { getCommentKey } from '@platejs/comment';
 import { importDocxWithTracking } from '@platejs/docx-io';
 import { MarkdownPlugin } from '@platejs/markdown';
-import { getSuggestionKey } from '@platejs/suggestion';
+import { BaseSuggestionPlugin, getSuggestionKey } from '@platejs/suggestion';
 import { ArrowUpToLineIcon } from 'lucide-react';
-import { KEYS, TextApi } from 'platejs';
+import { KEYS, TextApi, type TNode } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 import { getEditorDOMFromHtmlString } from 'platejs/static';
 import { useFilePicker } from 'use-file-picker';
@@ -31,6 +31,9 @@ import { getDiscussionCounterSeed } from '../lib/discussion-ids';
 import { ToolbarButton } from './toolbar';
 
 type ImportType = 'html' | 'markdown';
+
+// Regex pattern for splitting author names into initials (top-level for performance)
+const WHITESPACE_REGEX = /\s+/;
 
 export function ImportToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -103,6 +106,60 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         JSON.stringify(editor.children, null, 2)
       );
 
+      // Diagnostic: iterate over all nodes to find suggestion marks
+      for (const [node, path] of editor.api.nodes({
+        at: [],
+        mode: 'all',
+      })) {
+        const nodeRecord = node as TNode & { suggestion?: boolean };
+        if (nodeRecord.suggestion) {
+          console.log(
+            '[DIAG] suggestion node:',
+            JSON.stringify(node),
+            'path:',
+            path
+          );
+          const dataList = editor
+            .getApi(BaseSuggestionPlugin)
+            .suggestion.dataList(nodeRecord as any);
+          console.log('[DIAG] dataList:', dataList);
+        }
+      }
+
+      // Diagnostic: Log result summary
+      console.log('[DOCX DIAG] Result summary:', {
+        insertions: result.insertions,
+        deletions: result.deletions,
+        comments: result.comments,
+        discussionCount: result.discussions.length,
+        errors: result.errors,
+        hasTracking: result.hasTracking,
+      });
+
+      // Diagnostic: Inspect what marks are actually on nodes after a delay
+      setTimeout(() => {
+        const allText = Array.from(
+          editor.api.nodes({ at: [], mode: 'all', match: TextApi.isText })
+        ) as [TNode & { text?: string; [key: string]: unknown }, number[]][];
+        for (const [node, path] of allText) {
+          const textNode = node as TNode & {
+            text?: string;
+            [key: string]: unknown;
+          };
+          const hasSuggestion = textNode[KEYS.suggestion];
+          const hasComment = textNode[KEYS.comment];
+          if (hasSuggestion || hasComment) {
+            console.log('[DOCX DIAG] annotated node:', {
+              text: textNode.text?.slice(0, 50),
+              path,
+              hasSuggestion,
+              hasComment,
+              keys: Object.keys(textNode).filter((k) => k !== 'text'),
+            });
+          }
+        }
+      }, 100);
+
       // Add imported discussions to the discussion plugin
       if (result.discussions.length > 0) {
         // Convert imported discussions to TDiscussion format
@@ -119,7 +176,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
             authorName: c.user?.name,
             authorInitials: c.user?.name
               ? c.user.name
-                  .split(/\s+/)
+                  .split(WHITESPACE_REGEX)
                   .slice(0, 2)
                   .map((w) => w[0]?.toUpperCase() ?? '')
                   .join('')
@@ -132,7 +189,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
           authorName: d.user?.name,
           authorInitials: d.user?.name
             ? d.user.name
-                .split(/\s+/)
+                .split(WHITESPACE_REGEX)
                 .slice(0, 2)
                 .map((w) => w[0]?.toUpperCase() ?? '')
                 .join('')

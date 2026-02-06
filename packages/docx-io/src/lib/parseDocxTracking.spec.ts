@@ -8,15 +8,6 @@
 import { describe, expect, it } from 'bun:test';
 
 import {
-  DOCX_DELETION_END_TOKEN_PREFIX,
-  DOCX_DELETION_START_TOKEN_PREFIX,
-  DOCX_DELETION_TOKEN_SUFFIX,
-  DOCX_INSERTION_END_TOKEN_PREFIX,
-  DOCX_INSERTION_START_TOKEN_PREFIX,
-  DOCX_INSERTION_TOKEN_SUFFIX,
-  parseDocxTrackedChanges,
-} from './importTrackChanges';
-import {
   DOCX_COMMENT_END_TOKEN_PREFIX,
   DOCX_COMMENT_START_TOKEN_PREFIX,
   DOCX_COMMENT_TOKEN_SUFFIX,
@@ -25,6 +16,15 @@ import {
   parseDocxTracking,
   stripDocxTrackingTokens,
 } from './importComments';
+import {
+  DOCX_DELETION_END_TOKEN_PREFIX,
+  DOCX_DELETION_START_TOKEN_PREFIX,
+  DOCX_DELETION_TOKEN_SUFFIX,
+  DOCX_INSERTION_END_TOKEN_PREFIX,
+  DOCX_INSERTION_START_TOKEN_PREFIX,
+  DOCX_INSERTION_TOKEN_SUFFIX,
+  parseDocxTrackedChanges,
+} from './importTrackChanges';
 
 // Helper to build tokens for testing
 function buildInsertionToken(
@@ -302,6 +302,18 @@ describe('parseDocxComments', () => {
       expect(result.count).toBe(2);
       expect(result.comments[0].text).toBe('First');
       expect(result.comments[1].text).toBe('Second');
+    });
+
+    it('should exclude replies from count but keep them in comments', () => {
+      const html = `
+        <p>${buildCommentToken({ id: 'cmt-1', text: 'Parent' }, 'start')}text${buildCommentToken({ id: 'cmt-1' }, 'end')}</p>
+        <p>${buildCommentToken({ id: 'cmt-2', text: 'Reply', parentParaId: 'parent-para' }, 'start')}reply${buildCommentToken({ id: 'cmt-2' }, 'end')}</p>
+      `;
+
+      const result = parseDocxComments(html);
+
+      expect(result.comments).toHaveLength(2);
+      expect(result.count).toBe(1);
     });
   });
 

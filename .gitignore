@@ -140,12 +140,6 @@ CLAUDE.local.md
 /.cursor/mcp.json
 /.cursor/rules
 /.mcp.json
-/AGENTS.md
-/CLAUDE.md
 # END Skiller Generated Files
 .worktrees
 tmp/
-.claude/
-.claude/commands/
-.claude/skills/
-.claude/scripts/
