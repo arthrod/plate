@@ -171,6 +171,7 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
       comments: d.comments?.map((c) => ({
         contentRich: c.contentRich,
         createdAt: c.createdAt,
+        id: c.id,
         userId: c.userId,
         user: resolveUser(c.userId, c.authorName),
       })),

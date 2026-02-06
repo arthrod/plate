@@ -524,7 +524,7 @@ const buildRunsFromTextWithTokens = (
         const parentParaId = parentComment?.paraId;
 
         data.replies.forEach((reply, idx) => {
-          const replyId = `${data.id}-reply-${idx}`;
+          const replyId = reply.id || `${data.id}-reply-${idx}`;
           const replyCommentId = docxDocumentInstance.ensureComment!(
             {
               id: replyId,

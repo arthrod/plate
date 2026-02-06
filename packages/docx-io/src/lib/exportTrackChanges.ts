@@ -46,6 +46,7 @@ export type DocxExportUser = {
 export type DocxExportComment = {
   contentRich?: unknown | null;
   createdAt?: Date | number | string | null;
+  id?: string | null;
   user?: DocxExportUser | null;
   userId?: string | null;
 };
@@ -376,6 +377,7 @@ function resolveCommentMeta(
             authorInitials: toInitials(replyAuthorName),
             authorName: replyAuthorName,
             date: replyDate,
+            id: reply?.id ?? nanoid(),
             text: replyText,
           };
         })

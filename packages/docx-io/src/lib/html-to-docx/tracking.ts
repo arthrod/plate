@@ -29,6 +29,7 @@ export interface SuggestionPayload {
 
 /** Payload for a single comment reply */
 export interface CommentReply {
+  id: string;
   authorName?: string;
   authorInitials?: string;
   date?: string;

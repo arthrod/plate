@@ -76,6 +76,8 @@ export type DocxCommentData = {
 
 /** Reply within an imported DOCX comment */
 export type DocxImportCommentReply = {
+  /** Unique ID for this reply (preserved from DOCX) */
+  id: string;
   /** Author display name */
   authorName?: string;
   /** Author initials (for Word compatibility) */
@@ -118,6 +120,8 @@ export type DocxImportDiscussion = {
   id: string;
   /** Comments in this discussion */
   comments?: Array<{
+    /** Unique ID for the comment */
+    id?: string;
     /** Rich content of the comment */
     contentRich?: unknown;
     /** When the comment was created */
@@ -934,10 +938,13 @@ export function applyTrackedCommentsLocal(
         > = [];
 
         const addCommentRecursive = (
-          c: Pick<DocxCommentData, 'authorName' | 'body' | 'date' | 'text'> & {
+          c: Pick<
+            DocxCommentData,
+            'authorName' | 'body' | 'date' | 'text' | 'id'
+          > & {
             replies?: Pick<
               DocxCommentData,
-              'authorName' | 'body' | 'date' | 'text'
+              'authorName' | 'body' | 'date' | 'text' | 'id'
             >[];
           }
         ) => {
@@ -949,6 +956,7 @@ export function applyTrackedCommentsLocal(
           discussionComments.push({
             contentRich,
             createdAt,
+            id: c.id,
             userId,
             user: c.authorName ? { id: userId, name: c.authorName } : undefined,
           });
