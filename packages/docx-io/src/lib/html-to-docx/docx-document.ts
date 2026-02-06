@@ -1094,7 +1094,8 @@ class DocxDocument {
    */
   ensureComment(data: Partial<CommentPayload>, parentParaId?: string): number {
     const { id, authorName, authorInitials, date, text } = data;
-    const commentId = id || `comment-${this.lastCommentId + 1}`;
+    const commentId =
+      id !== undefined ? id : `comment-${this.lastCommentId + 1}`;
     let numericId = this.commentIdMap.get(commentId);
 
     if (numericId === undefined) {
@@ -1139,7 +1140,7 @@ class DocxDocument {
    * Get the numeric ID for a comment, creating it if necessary.
    */
   getCommentId(id: string): number {
-    if (!id) {
+    if (id === undefined || id === null) {
       return this.ensureComment({ id: undefined });
     }
     return this.ensureComment({ id });

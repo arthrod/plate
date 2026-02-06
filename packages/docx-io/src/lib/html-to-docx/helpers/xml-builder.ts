@@ -524,7 +524,7 @@ const buildRunsFromTextWithTokens = (
         const parentParaId = parentComment?.paraId;
 
         data.replies.forEach((reply, idx) => {
-          const replyId = reply.id || `${data.id}-reply-${idx}`;
+          const replyId = reply.id ?? `${data.id}-reply-${idx}`;
 
           // Track reply ID associated with this parent
           const existingReplies =
