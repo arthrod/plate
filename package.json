@@ -19,8 +19,6 @@
     "build:watch": "ROARR_LOG=true turbowatch ./tooling/config/turbowatch.config.ts | roarr",
     "deps:check": "npx npm-check-updates@latest --configFileName config/ncurc.yml --workspaces --root --mergeConfig",
     "deps:update": "npx npm-check-updates@latest --configFileName config/ncurc.yml -u --workspaces --root --mergeConfig",
-    "deploy:www": "vercel deploy --prod --yes",
-    "deploy:www-worker": "yarn workspace www-worker deploy",
     "dev": "turbo --filter=www dev",
     "dev:webrtc": "PORT=4444 node ./node_modules/y-webrtc/bin/server.js",
     "devt": "yarn workspace www devt",

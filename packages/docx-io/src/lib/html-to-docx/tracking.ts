@@ -83,6 +83,7 @@ export interface StoredComment {
 /** Tracking state maintained during document generation */
 export interface TrackingState {
   suggestionStack: ActiveSuggestion[];
+  replyIdsByParent: Map<string, string[]>;
 }
 
 /** Interface for document instance with tracking support */
@@ -266,6 +267,7 @@ export function ensureTrackingState(
   if (!docxDocumentInstance._trackingState) {
     docxDocumentInstance._trackingState = {
       suggestionStack: [],
+      replyIdsByParent: new Map(),
     };
   }
   return docxDocumentInstance._trackingState;

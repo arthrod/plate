@@ -507,6 +507,85 @@ export function getPointCommentMarkRange(
   return scanFromIndex(0, textEntries.length, 1, false);
 }
 
+/**
+ * Resolve target ranges for a comment (mark range and content range).
+ */
+export function resolveCommentTargetRanges(
+  editor: TrackingEditor,
+  startRange: TRange,
+  endRange: TRange,
+  pointRange: TRange | null,
+  options: {
+    hasStartMarker: boolean;
+    hasEndMarker: boolean;
+    isText: (node: unknown) => boolean;
+  }
+): { markRange: TRange | null; contentRange: TRange } {
+  const { hasStartMarker, hasEndMarker, isText } = options;
+
+  const startTokenPoint = startRange.focus;
+  const endTokenPoint = endRange.anchor;
+  const shouldUsePointMarker =
+    !!pointRange &&
+    (!hasStartMarker ||
+      !hasEndMarker ||
+      isPointEqual(startTokenPoint, endTokenPoint));
+
+  // Detect point comments
+  const isPointComment =
+    shouldUsePointMarker ||
+    !hasStartMarker ||
+    !hasEndMarker ||
+    isPointEqual(startTokenPoint, endTokenPoint);
+
+  // Check if both tokens exist but are collapsed (at same position)
+  const pointHasNoSpan =
+    hasStartMarker &&
+    hasEndMarker &&
+    isPointEqual(startTokenPoint, endTokenPoint);
+
+  if (!isPointComment) {
+    // Normal range comment - just normalize direction
+    let anchor = startTokenPoint;
+    let focus = endTokenPoint;
+
+    if (isPointAfter(anchor, focus)) {
+      [anchor, focus] = [focus, anchor];
+    }
+
+    const range = { anchor, focus };
+    return { markRange: range, contentRange: range };
+  }
+
+  // Point comment - determine expansion direction based on which marker exists
+  // - Only end token → prefer expanding before (true)
+  // - Only start token → prefer expanding after (false)
+  // - Both collapsed → prefer before (true)
+  const preferBefore = !(hasStartMarker && !hasEndMarker);
+
+  // Use the appropriate point for marking
+  const pointForMark = shouldUsePointMarker
+    ? pointRange!.focus
+    : hasStartMarker && !hasEndMarker
+      ? startTokenPoint
+      : endTokenPoint;
+
+  // Expand point to a single-character range
+  const markRange = getPointCommentMarkRange(editor, pointForMark, {
+    preferBefore,
+    skipCurrentNode: pointHasNoSpan,
+    isText,
+  });
+
+  return {
+    markRange,
+    contentRange: markRange ?? {
+      anchor: pointForMark,
+      focus: pointForMark,
+    },
+  };
+}
+
 // ============================================================================
 // Types for API-based Comment Application
 // ============================================================================
@@ -658,86 +737,17 @@ export async function applyTrackedComments(
         continue;
       }
 
-      /**
-       * Resolve ranges for point comments.
-       *
-       * Returns both markRange (for applying marks) and contentRange (for
-       * extracting document content). For point comments, these may differ
-       * as markRange is expanded to cover at least one character.
-       */
-      const resolveRanges = (
-        startRange: TRange,
-        endRange: TRange,
-        pointRange: TRange | null
-      ): { markRange: TRange | null; contentRange: TRange } => {
-        const startTokenPoint = startRange.focus;
-        const endTokenPoint = endRange.anchor;
-        const shouldUsePointMarker =
-          !!pointRange &&
-          (!hasStartMarker ||
-            !hasEndMarker ||
-            isPointEqual(startTokenPoint, endTokenPoint));
-
-        // Detect point comments
-        const isPointComment =
-          shouldUsePointMarker ||
-          !hasStartMarker ||
-          !hasEndMarker ||
-          isPointEqual(startTokenPoint, endTokenPoint);
-
-        // Check if both tokens exist but are collapsed (at same position)
-        const pointHasNoSpan =
-          hasStartMarker &&
-          hasEndMarker &&
-          isPointEqual(startTokenPoint, endTokenPoint);
-
-        if (!isPointComment) {
-          // Normal range comment - just normalize direction
-          let anchor = startTokenPoint;
-          let focus = endTokenPoint;
-
-          if (isPointAfter(anchor, focus)) {
-            [anchor, focus] = [focus, anchor];
-          }
-
-          const range = { anchor, focus };
-          return { markRange: range, contentRange: range };
-        }
-
-        // Point comment - determine expansion direction based on which marker exists
-        // - Only end token → prefer expanding before (true)
-        // - Only start token → prefer expanding after (false)
-        // - Both collapsed → prefer before (true)
-        const preferBefore = !(hasStartMarker && !hasEndMarker);
-
-        // Use the appropriate point for marking
-        const pointForMark = shouldUsePointMarker
-          ? pointRange!.focus
-          : hasStartMarker && !hasEndMarker
-            ? startTokenPoint
-            : endTokenPoint;
-
-        // Expand point to a single-character range
-        const markRange = getPointCommentMarkRange(editor, pointForMark, {
-          preferBefore,
-          skipCurrentNode: pointHasNoSpan,
-          isText,
-        });
-
-        return {
-          markRange,
-          contentRange: markRange ?? {
-            anchor: pointForMark,
-            focus: pointForMark,
-          },
-        };
-      };
-
       // Get content range for document text extraction
-      const { contentRange } = resolveRanges(
+      const { contentRange } = resolveCommentTargetRanges(
+        editor,
         currentStartRange,
         currentEndRange,
-        currentPointRange
+        currentPointRange,
+        {
+          hasStartMarker,
+          hasEndMarker,
+          isText,
+        }
       );
 
       let documentContent = editor.api.string(contentRange);
@@ -765,10 +775,16 @@ export async function applyTrackedComments(
 
         if (currentStart && currentEnd) {
           // Re-resolve ranges after potential mutations
-          const { markRange } = resolveRanges(
+          const { markRange } = resolveCommentTargetRanges(
+            editor,
             currentStart,
             currentEnd,
-            currentPoint
+            currentPoint,
+            {
+              hasStartMarker,
+              hasEndMarker,
+              isText,
+            }
           );
 
           if (!markRange) {
@@ -865,6 +881,7 @@ export function applyTrackedCommentsLocal(
   const errors: string[] = [];
   let applied = 0;
   const discussions: DocxImportDiscussion[] = [];
+  const processedCommentIds = new Set<string>();
 
   // Process all comments; replies skip discussion creation but still remove tokens.
   for (const comment of comments) {
@@ -930,7 +947,7 @@ export function applyTrackedCommentsLocal(
 
       let discussion: DocxImportDiscussion | null = null;
 
-      if (!isReplyComment) {
+      if (!isReplyComment && !processedCommentIds.has(comment.id)) {
         const discussionId = generateId();
 
         const discussionComments: NonNullable<
@@ -948,6 +965,8 @@ export function applyTrackedCommentsLocal(
             >[];
           }
         ) => {
+          processedCommentIds.add(c.id);
+
           const userId = formatAuthorAsUserId(c.authorName);
           const createdAt = parseDateToDate(c.date, documentDate);
 
@@ -968,11 +987,29 @@ export function applyTrackedCommentsLocal(
 
         addCommentRecursive(comment);
 
+        // Resolve range early to get document content
+        const { contentRange } = resolveCommentTargetRanges(
+          editor,
+          currentStartRange,
+          currentEndRange,
+          pointTokenRef?.current ?? null,
+          {
+            hasStartMarker,
+            hasEndMarker,
+            isText,
+          }
+        );
+
+        let documentContent = editor.api.string(contentRange);
+        if (!documentContent || documentContent.trim().length === 0) {
+          documentContent = comment.text ?? '';
+        }
+
         discussion = {
           id: discussionId,
           comments: discussionComments,
           createdAt: discussionComments[0]?.createdAt,
-          documentContent: comment.text ?? '',
+          documentContent,
           userId: discussionComments[0]?.userId,
           user: discussionComments[0]?.user,
         };
@@ -983,39 +1020,26 @@ export function applyTrackedCommentsLocal(
           const currentPoint = pointTokenRef?.current ?? null;
 
           if (currentStart && currentEnd) {
-            let rangeToMark: TRange | null = null;
-            const startEnd = currentStart.focus;
-            const endStart = currentEnd.anchor;
-            const isCollapsedRange = isPointEqual(startEnd, endStart);
-            const hasBothMarkers =
-              hasStartMarker && hasEndMarker && !isSameTokenString;
-            const isPointComment = !hasBothMarkers || isCollapsedRange;
-
-            if (isPointComment) {
-              const pointForMark = currentPoint
-                ? currentPoint.focus
-                : hasStartMarker && !hasEndMarker
-                  ? startEnd
-                  : endStart;
-              rangeToMark = getPointCommentMarkRange(editor, pointForMark, {
+            // Re-resolve range inside transaction
+            const { markRange } = resolveCommentTargetRanges(
+              editor,
+              currentStart,
+              currentEnd,
+              currentPoint,
+              {
+                hasStartMarker,
+                hasEndMarker: hasEndMarker && !isSameTokenString,
                 isText,
-              });
-            } else {
-              let anchor = startEnd;
-              let focus = endStart;
-              if (isPointAfter(anchor, focus)) {
-                [anchor, focus] = [focus, anchor];
               }
-              rangeToMark = { anchor, focus };
-            }
+            );
 
-            if (rangeToMark) {
+            if (markRange) {
               editor.tf.setNodes(
                 {
                   [getCommentKey(discussionId)]: true,
                   [commentKey]: true,
                 },
-                { at: rangeToMark, match: isText, split: true }
+                { at: markRange, match: isText, split: true }
               );
             } else {
               errors.push(`Comment ${comment.id}: could not key range`);
