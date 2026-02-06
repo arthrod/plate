@@ -2112,10 +2112,11 @@ const buildTableCell = async (
       }
     }
   } else {
-    // TODO: Figure out why building with buildParagraph() isn't working
-    const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
-      .ele('@w', 'p')
-      .up();
+    const paragraphFragment = await buildParagraph(
+      vNode,
+      paragraphAttributes,
+      docxDocumentInstance
+    );
     tableCellFragment.import(paragraphFragment);
   }
   tableCellFragment.up();
