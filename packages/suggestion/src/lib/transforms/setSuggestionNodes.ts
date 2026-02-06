@@ -30,6 +30,7 @@ export const setSuggestionNodes = (
   const _nodeEntries = editor.api.nodes({
     match: (n) => ElementApi.isElement(n) && editor.api.isInline(n),
     ...options,
+    at,
   });
   const nodeEntries = [..._nodeEntries];
 
