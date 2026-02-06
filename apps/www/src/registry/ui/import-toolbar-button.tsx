@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noConsole: <We are debugging the import process TODO remove> */
 'use client';
 
 import * as React from 'react';
@@ -5,7 +6,12 @@ import * as React from 'react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
 import { getCommentKey } from '@platejs/comment';
-import { importDocxWithTracking } from '@platejs/docx-io';
+import {
+  convertToHtmlWithTracking,
+  importDocxWithTracking,
+  parseDocxComments,
+  parseDocxTrackedChanges,
+} from '@platejs/docx-io';
 import { MarkdownPlugin } from '@platejs/markdown';
 import { BaseSuggestionPlugin, getSuggestionKey } from '@platejs/suggestion';
 import { ArrowUpToLineIcon } from 'lucide-react';
@@ -27,6 +33,7 @@ import {
   discussionPlugin,
   type TDiscussion,
 } from '@/registry/components/editor/plugins/discussion-kit';
+import { suggestionPlugin } from '@/registry/components/editor/plugins/suggestion-kit';
 import { getDiscussionCounterSeed } from '../lib/discussion-ids';
 import { ToolbarButton } from './toolbar';
 
@@ -91,7 +98,44 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         editor.getOption(discussionPlugin, 'discussions') ?? [];
       let discussionCounter = getDiscussionCounterSeed(existingDiscussions);
 
-      // Import with full tracking support (suggestions + comments)
+      // =========================================================================
+      // DEBUG STEP 1: Get raw HTML from DOCX (mammoth output)
+      // =========================================================================
+      console.group('[DOCX DEBUG] === IMPORT FLOW START ===');
+
+      // First, manually get the raw HTML to log it separately
+      const rawHtmlResult = await convertToHtmlWithTracking(arrayBuffer);
+      console.log('[DOCX DEBUG] (1) RAW MAMMOTH HTML OUTPUT:');
+      console.log(rawHtmlResult.value);
+      console.log('[DOCX DEBUG] Mammoth messages:', rawHtmlResult.messages);
+
+      // =========================================================================
+      // DEBUG STEP 2: Parse tracked changes and comments from HTML
+      // =========================================================================
+      const trackedChanges = parseDocxTrackedChanges(rawHtmlResult.value);
+      const parsedComments = parseDocxComments(rawHtmlResult.value);
+      console.log('[DOCX DEBUG] (2) PARSED TRACKED CHANGES:', trackedChanges);
+      console.log('[DOCX DEBUG] (2) PARSED COMMENTS:', parsedComments);
+
+      // =========================================================================
+      // DEBUG STEP 3: Preview what HTML would become in Plate (before full import)
+      // =========================================================================
+      const previewParser = new DOMParser();
+      const previewDoc = previewParser.parseFromString(
+        rawHtmlResult.value,
+        'text/html'
+      );
+      const previewNodes = editor.api.html.deserialize({
+        element: previewDoc.body,
+      });
+      console.log(
+        '[DOCX DEBUG] (3) HTML → PLATE CONVERSION (preview, before tracking applied):',
+        JSON.stringify(previewNodes, null, 2)
+      );
+
+      // =========================================================================
+      // DEBUG STEP 4: Run full import with tracking
+      // =========================================================================
       const result = await importDocxWithTracking(editor as any, arrayBuffer, {
         suggestionKey: KEYS.suggestion,
         getSuggestionKey,
@@ -100,13 +144,21 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         isText: TextApi.isText,
         generateId: () => `discussion${++discussionCounter}`,
       });
-      console.log('[DOCX DEBUG] import result:', result);
+
       console.log(
-        '[DOCX DEBUG] editor.children after import:',
+        '[DOCX DEBUG] (4) IMPORT RESULT (from importDocxWithTracking):'
+      );
+      console.log(JSON.stringify(result, null, 2));
+
+      console.log(
+        '[DOCX DEBUG] (5) PLATE CONVERSION RESULT (editor.children after import):',
         JSON.stringify(editor.children, null, 2)
       );
 
-      // Diagnostic: iterate over all nodes to find suggestion marks
+      // =========================================================================
+      // DEBUG: Iterate over all nodes to find suggestion marks
+      // =========================================================================
+      console.group('[DOCX DEBUG] Suggestion Nodes in Editor:');
       for (const [node, path] of editor.api.nodes({
         at: [],
         mode: 'all',
@@ -125,8 +177,11 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
           console.log('[DIAG] dataList:', dataList);
         }
       }
+      console.groupEnd();
 
-      // Diagnostic: Log result summary
+      // =========================================================================
+      // DEBUG: Log result summary
+      // =========================================================================
       console.log('[DOCX DIAG] Result summary:', {
         insertions: result.insertions,
         deletions: result.deletions,
@@ -136,8 +191,13 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         hasTracking: result.hasTracking,
       });
 
-      // Diagnostic: Inspect what marks are actually on nodes after a delay
+      // =========================================================================
+      // DEBUG: Inspect annotated nodes after a delay
+      // =========================================================================
       setTimeout(() => {
+        console.group(
+          '[DOCX DEBUG] Annotated Text Nodes (delayed inspection):'
+        );
         const allText = Array.from(
           editor.api.nodes({ at: [], mode: 'all', match: TextApi.isText })
         ) as [TNode & { text?: string; [key: string]: unknown }, number[]][];
@@ -158,10 +218,66 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
             });
           }
         }
+        console.groupEnd();
+
+        // =========================================================================
+        // DEBUG STEP 6: Log complete plugin state for suggestions/discussions/comments
+        // =========================================================================
+        console.group('[DOCX DEBUG] (6) COMPLETE PLUGIN STATE AFTER IMPORT:');
+
+        // Suggestions plugin state
+        const suggestionActiveId = editor.getOption(
+          suggestionPlugin,
+          'activeId'
+        );
+        const suggestionHoverId = editor.getOption(suggestionPlugin, 'hoverId');
+        const suggestionUniquePathMap = editor.getOption(
+          suggestionPlugin,
+          'uniquePathMap'
+        );
+        console.log('[DOCX DEBUG] SUGGESTIONS PLUGIN STATE:', {
+          activeId: suggestionActiveId,
+          hoverId: suggestionHoverId,
+          uniquePathMap: suggestionUniquePathMap
+            ? Object.fromEntries(suggestionUniquePathMap)
+            : null,
+        });
+
+        // Discussions plugin state
+        const allDiscussions =
+          editor.getOption(discussionPlugin, 'discussions') ?? [];
+        const allUsers = editor.getOption(discussionPlugin, 'users') ?? {};
+        const currentUserId = editor.getOption(
+          discussionPlugin,
+          'currentUserId'
+        );
+        console.log('[DOCX DEBUG] DISCUSSIONS PLUGIN STATE:', {
+          currentUserId,
+          users: allUsers,
+          discussionCount: allDiscussions.length,
+        });
+        console.log(
+          '[DOCX DEBUG] ALL DISCUSSIONS (full objects):',
+          JSON.stringify(allDiscussions, null, 2)
+        );
+
+        // Comments plugin state
+        const commentUniquePathMap = editor.getOption(
+          commentPlugin,
+          'uniquePathMap'
+        );
+        console.log('[DOCX DEBUG] COMMENTS PLUGIN STATE:', {
+          uniquePathMap: commentUniquePathMap
+            ? Object.fromEntries(commentUniquePathMap)
+            : null,
+        });
+
+        console.groupEnd();
       }, 100);
 
-      // Add imported discussions to the discussion plugin
-      if (result.discussions.length > 0) {
+      // =========================================================================
+        // Add imported discussions to the discussion plugin
+        // =========================================================================
         // Convert imported discussions to TDiscussion format
         const newDiscussions: TDiscussion[] = result.discussions.map((d) => ({
           id: d.id,
@@ -196,6 +312,11 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
             : undefined,
         }));
 
+        console.log(
+          '[DOCX DEBUG] New discussions to add:',
+          JSON.stringify(newDiscussions, null, 2)
+        );
+
         editor.setOption(discussionPlugin, 'discussions', [
           ...existingDiscussions,
           ...newDiscussions,
@@ -212,6 +333,8 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
           console.warn('[DOCX Import] Errors:', result.errors);
         }
       }
+
+      console.groupEnd();
     },
   });
 
