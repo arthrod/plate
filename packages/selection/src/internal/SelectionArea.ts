@@ -16,7 +16,6 @@ import {
   type SelectAllSelectors,
   css,
   frames,
-  intersectsScroll,
   isSafariBrowser,
   isTouchDevice,
   off,
@@ -58,6 +57,7 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
 
   private readonly _scrollSpeed: Coordinates = { x: 0, y: 0 };
   private _selectables: Element[] = [];
+  private _selectablesRects: DOMRect[] = [];
 
   // Selection store
   private _selection: SelectionStore = {
@@ -720,7 +720,7 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
   _updateElementSelection(): void {
     const { _areaRect, _options, _selectables, _selection } = this;
     const { selected, stored, touched } = _selection;
-    const { intersect, overlap } = _options.behaviour;
+    const { overlap } = _options.behaviour;
 
     const invert = overlap === 'invert';
     const newlyTouched: Element[] = [];
@@ -728,18 +728,16 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
     const removed: Element[] = [];
 
     // Find newly selected elements
-    // biome-ignore lint/style/useForOf: performance-critical loop
     for (let i = 0; i < _selectables.length; i++) {
       const node = _selectables[i];
+      const rect = this._selectablesRects[i];
 
       // Check if area intersects element
       if (
-        intersectsScroll(
-          _areaRect,
-          node.getBoundingClientRect(),
-          intersect,
-          this._container as HTMLElement
-        )
+        _areaRect.right >= rect.left &&
+        _areaRect.left <= rect.right &&
+        _areaRect.bottom >= rect.top &&
+        _areaRect.top <= rect.bottom
       ) {
         // Check if the element wasn't present in the last selection.
         if (!selected.includes(node)) {
@@ -884,6 +882,33 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
       this._options.selectables,
       this._options.document
     );
+
+    if (this._container) {
+      this._updateSelectablesRects();
+    }
+  }
+
+  _updateSelectablesRects(): void {
+    const containerRect = this._container!.getBoundingClientRect();
+    const { scrollLeft, scrollTop } = this._container!;
+
+    this._selectablesRects = this._selectables.map((el) => {
+      const rect = el.getBoundingClientRect();
+      const top = rect.top - containerRect.top + scrollTop;
+      const left = rect.left - containerRect.left + scrollLeft;
+
+      return {
+        bottom: top + rect.height,
+        height: rect.height,
+        left,
+        right: left + rect.width,
+        top,
+        width: rect.width,
+        x: left,
+        y: top,
+        toJSON: () => {},
+      } as DOMRect;
+    });
   }
 
   /**
