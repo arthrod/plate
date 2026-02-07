@@ -19,7 +19,7 @@ export type ParsedToken =
 
 /** Payload for a suggestion (insertion or deletion) */
 export interface SuggestionPayload {
-  author: string;
+  author?: string;
   date?: string;
   id: string;
 }
@@ -54,8 +54,8 @@ export interface ActiveSuggestion {
 
 /** Internal tracking structure for stored comments */
 export interface StoredComment {
-  authorInitials?: string;
-  authorName?: string;
+  authorInitials: string;
+  authorName: string;
   date?: string;
   durableId: string;
   id: number;
@@ -131,8 +131,15 @@ export const DOCX_COMMENT_START_TOKEN_PREFIX = '[[DOCX_CMT_START:';
 export const DOCX_COMMENT_END_TOKEN_PREFIX = '[[DOCX_CMT_END:';
 export const DOCX_COMMENT_TOKEN_SUFFIX = ']]';
 
+/**
+ * Regex pattern string for DOCX tracking tokens.
+ * We use [\s\S]+? to capture payload because line wrapping can insert newlines
+ * or spaces into the encoded JSON payload string.
+ */
+const DOCX_TOKEN_PATTERN_STRING = '\\[\\[DOCX_(INS|DEL|CMT)_(START|END):([\\s\\S]+?)\\]\\]';
+
 /** Regex to match all DOCX tracking tokens */
-const DOCX_TOKEN_REGEX = /\[\[DOCX_(INS|DEL|CMT)_(START|END):([\s\S]+?)\]\]/g;
+const DOCX_TOKEN_REGEX = new RegExp(DOCX_TOKEN_PATTERN_STRING, 'g');
 
 // ============================================================================
 // Token Parsing
@@ -147,7 +154,10 @@ function parseDocxToken(
   rawPayload: string
 ): ParsedToken | null {
   try {
-    // Remove any whitespace that might have been introduced by line wrapping/formatting
+    // The payload is strictly a URI-encoded JSON string.
+    // Any whitespace present in the raw payload is an artifact of line wrapping/formatting
+    // during the export process and is invalid in a URI-encoded string.
+    // Therefore, it is safe and necessary to strip all whitespace before decoding.
     const cleanPayload = rawPayload.replace(/\s/g, '');
     const decoded = decodeURIComponent(cleanPayload);
 
@@ -183,7 +193,11 @@ function parseDocxToken(
 export function splitDocxTrackingTokens(text: string): ParsedToken[] {
   const parts: ParsedToken[] = [];
   let lastIndex = 0;
-  const tokenRegex = new RegExp(DOCX_TOKEN_REGEX);
+
+  // Re-create regex to ensure clean state (though global flag is stateful, we loop)
+  // Using the shared pattern constant ensures consistency
+  const tokenRegex = new RegExp(DOCX_TOKEN_PATTERN_STRING, 'g');
+
   // biome-ignore lint/suspicious/noEvolvingTypes: regex exec result type
   // biome-ignore lint/suspicious/noImplicitAnyLet: regex exec result type
   let match;
@@ -219,9 +233,9 @@ export function splitDocxTrackingTokens(text: string): ParsedToken[] {
  * Check if text contains any DOCX tracking tokens.
  */
 export function hasTrackingTokens(text: string): boolean {
-  // Create a new regex each time to avoid state issues with global flag
-  // biome-ignore lint/performance/useTopLevelRegex: avoid global flag state issues
-  const tokenRegex = /\[\[DOCX_(INS|DEL|CMT)_(START|END):([\s\S]+?)\]\]/;
+  // Use the shared pattern constant to avoid divergence
+  // No global flag needed for simple test
+  const tokenRegex = new RegExp(DOCX_TOKEN_PATTERN_STRING);
   return tokenRegex.test(text);
 }
 
@@ -230,7 +244,8 @@ export function hasTrackingTokens(text: string): boolean {
  */
 export function findDocxTrackingTokens(text: string): string[] {
   const tokens: string[] = [];
-  const tokenRegex = new RegExp(DOCX_TOKEN_REGEX);
+  const tokenRegex = new RegExp(DOCX_TOKEN_PATTERN_STRING, 'g');
+
   // biome-ignore lint/suspicious/noEvolvingTypes: regex exec result type
   // biome-ignore lint/suspicious/noImplicitAnyLet: regex exec result type
   let match;
