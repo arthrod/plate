@@ -137,6 +137,7 @@
     "typescript-eslint": "^8.47.0",
     "ultracite": "6.3.4",
     "y-webrtc": "^10.3.0",
+    "yarn": "^1.22.22",
     "zod": "4.1.12"
   },
   "packageManager": "yarn@4.12.0",
@@ -151,6 +152,7 @@
     "csstype": "^3.2.3",
     "is-hotkey": "0.2.0",
     "is-plain-object": "^5.0.0",
+    "jsonfile": "^6.2.0",
     "lodash": "^4.17.21",
     "marked": "^17.0.1",
     "react-dnd": "16.0.1",
