@@ -1,16 +1,3 @@
-/**
- * DOCX Tracked Changes and Comments Export Support
- *
- * This module provides token-based tracking for exporting Plate editor
- * suggestions and comments to Word's tracked changes and comments format.
- *
- * Token Format:
- * - Insertions: [[DOCX_INS_START:{payload}]] ... [[DOCX_INS_END:id]]
- * - Deletions: [[DOCX_DEL_START:{payload}]] ... [[DOCX_DEL_END:id]]
- * - Comments: [[DOCX_CMT_START:{payload}]] ... [[DOCX_CMT_END:id]]
- */
-/** biome-ignore-all lint/style/useConsistentTypeDefinitions: legacy code */
-
 import { fragment } from 'xmlbuilder2';
 import type { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 
@@ -20,86 +7,86 @@ import namespaces from './namespaces';
 // Types
 // ============================================================================
 
-/** Payload for insertion/deletion tokens */
-export interface SuggestionPayload {
-  id: string;
-  author?: string;
-  date?: string;
-}
-
-/** Payload for a single comment reply */
-export interface CommentReply {
-  id: string;
-  authorName?: string;
-  authorInitials?: string;
-  date?: string;
-  text?: string;
-}
-
-/** Payload for comment tokens */
-export interface CommentPayload {
-  id: string;
-  authorName?: string;
-  authorInitials?: string;
-  date?: string;
-  text?: string;
-  replies?: CommentReply[];
-}
-
-/** Parsed token from text */
+/** Parsed tracking token */
 export type ParsedToken =
-  | { type: 'text'; value: string }
-  | { type: 'insStart'; data: SuggestionPayload }
-  | { type: 'insEnd'; id: string }
-  | { type: 'delStart'; data: SuggestionPayload }
-  | { type: 'delEnd'; id: string }
-  | { type: 'commentStart'; data: CommentPayload }
-  | { type: 'commentEnd'; id: string };
+  | { data: CommentPayload; type: 'commentStart' }
+  | { id: string; type: 'commentEnd' }
+  | { id: string; type: 'delEnd' }
+  | { data: SuggestionPayload; type: 'delStart' }
+  | { id: string; type: 'insEnd' }
+  | { data: SuggestionPayload; type: 'insStart' }
+  | { type: 'text'; value: string };
 
-/** Active suggestion state for nesting */
-export interface ActiveSuggestion {
-  id: string;
-  type: 'insert' | 'remove';
-  author?: string;
+/** Payload for a suggestion (insertion or deletion) */
+export interface SuggestionPayload {
+  author: string;
   date?: string;
-  revisionId: number;
+  id: string;
 }
 
-/** Comment stored in the document */
-export interface StoredComment {
-  id: number;
-  authorName: string;
-  authorInitials: string;
+/** Payload for a comment reply */
+export interface CommentReplyPayload {
+  authorInitials?: string;
+  authorName?: string;
   date?: string;
-  text: string;
-  /** 8-char uppercase hex ID < 0x7FFFFFFF, links comments.xml <-> commentsExtended.xml <-> commentsIds.xml */
-  paraId: string;
-  /** 8-char uppercase hex ID < 0x7FFFFFFF, links commentsIds.xml <-> commentsExtensible.xml */
+  id?: string;
+  text?: string;
+}
+
+/** Payload for a comment start token */
+export interface CommentPayload {
+  authorInitials?: string;
+  authorName?: string;
+  date?: string;
+  id: string;
+  replies?: CommentReplyPayload[];
+  text?: string;
+}
+
+/** Internal tracking structure for active suggestions */
+export interface ActiveSuggestion {
+  author?: string;
+  date?: string;
+  id: string;
+  revisionId: number;
+  type: 'insert' | 'remove';
+}
+
+/** Internal tracking structure for stored comments */
+export interface StoredComment {
+  authorInitials?: string;
+  authorName?: string;
+  date?: string;
   durableId: string;
-  /** paraId of parent comment; present only on replies */
+  id: number;
+  paraId: string;
+  text: string;
+  /** parent comment numeric ID (if this is a reply) - not strictly needed for XML but helpful */
+  parentId?: number;
+  /** parent comment paraId (if this is a reply) - used for w15:paraIdParent */
   parentParaId?: string;
 }
 
 /** Tracking state maintained during document generation */
 export interface TrackingState {
-  suggestionStack: ActiveSuggestion[];
   replyIdsByParent: Map<string, string[]>;
+  suggestionStack: ActiveSuggestion[];
 }
 
 /** Interface for document instance with tracking support */
 export interface TrackingDocumentInstance {
   _trackingState?: TrackingState;
-  comments: StoredComment[];
   commentIdMap: Map<string, number>;
-  lastCommentId: number;
-  revisionIdMap: Map<string, number>;
-  lastRevisionId: number;
+  comments: StoredComment[];
   ensureComment: (
     data: Partial<CommentPayload>,
     parentParaId?: string
   ) => number;
   getCommentId: (id: string) => number;
   getRevisionId: (id?: string) => number;
+  lastCommentId: number;
+  lastRevisionId: number;
+  revisionIdMap: Map<string, number>;
 }
 
 // ============================================================================
@@ -145,7 +132,7 @@ export const DOCX_COMMENT_END_TOKEN_PREFIX = '[[DOCX_CMT_END:';
 export const DOCX_COMMENT_TOKEN_SUFFIX = ']]';
 
 /** Regex to match all DOCX tracking tokens */
-const DOCX_TOKEN_REGEX = /\[\[DOCX_(INS|DEL|CMT)_(START|END):(.+?)\]\]/g;
+const DOCX_TOKEN_REGEX = /\[\[DOCX_(INS|DEL|CMT)_(START|END):([\s\S]+?)\]\]/g;
 
 // ============================================================================
 // Token Parsing
@@ -160,29 +147,31 @@ function parseDocxToken(
   rawPayload: string
 ): ParsedToken | null {
   try {
-    const decoded = decodeURIComponent(rawPayload);
+    // Remove any whitespace that might have been introduced by line wrapping/formatting
+    const cleanPayload = rawPayload.replace(/\s/g, '');
+    const decoded = decodeURIComponent(cleanPayload);
 
     if (position === 'END') {
       if (!decoded) return null;
 
       if (kind === 'CMT') {
-        return { type: 'commentEnd', id: decoded };
+        return { id: decoded, type: 'commentEnd' };
       }
       if (kind === 'DEL') {
-        return { type: 'delEnd', id: decoded };
+        return { id: decoded, type: 'delEnd' };
       }
-      return { type: 'insEnd', id: decoded };
+      return { id: decoded, type: 'insEnd' };
     }
 
     const data = JSON.parse(decoded);
 
     if (kind === 'CMT') {
-      return { type: 'commentStart', data: data as CommentPayload };
+      return { data: data as CommentPayload, type: 'commentStart' };
     }
     if (kind === 'DEL') {
-      return { type: 'delStart', data: data as SuggestionPayload };
+      return { data: data as SuggestionPayload, type: 'delStart' };
     }
-    return { type: 'insStart', data: data as SuggestionPayload };
+    return { data: data as SuggestionPayload, type: 'insStart' };
   } catch {
     return null;
   }
@@ -232,7 +221,7 @@ export function splitDocxTrackingTokens(text: string): ParsedToken[] {
 export function hasTrackingTokens(text: string): boolean {
   // Create a new regex each time to avoid state issues with global flag
   // biome-ignore lint/performance/useTopLevelRegex: avoid global flag state issues
-  const tokenRegex = /\[\[DOCX_(INS|DEL|CMT)_(START|END):(.+?)\]\]/;
+  const tokenRegex = /\[\[DOCX_(INS|DEL|CMT)_(START|END):([\s\S]+?)\]\]/;
   return tokenRegex.test(text);
 }
 
@@ -266,8 +255,8 @@ export function ensureTrackingState(
 ): TrackingState {
   if (!docxDocumentInstance._trackingState) {
     docxDocumentInstance._trackingState = {
-      suggestionStack: [],
       replyIdsByParent: new Map(),
+      suggestionStack: [],
     };
   }
   return docxDocumentInstance._trackingState;

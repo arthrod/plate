@@ -425,3 +425,23 @@ describe('Round-trip Token Encoding', () => {
     }
   });
 });
+
+  it('should handle token payload broken by whitespace', () => {
+    const payload = encodeURIComponent(
+      JSON.stringify({ id: 'cmt-broken', authorName: 'Broken', text: 'Fix me' })
+    );
+    // Find a % character to break escape sequence
+    const pctIndex = payload.indexOf('%');
+    // Insert space after % to simulate line wrapping breaking a URI escape sequence
+    const brokenPayload =
+      payload.slice(0, pctIndex + 1) + ' ' + payload.slice(pctIndex + 1);
+    const text = `[[DOCX_CMT_START:${brokenPayload}]]content[[DOCX_CMT_END:cmt-broken]]`;
+
+    const parts = splitDocxTrackingTokens(text);
+
+    expect(parts).toHaveLength(3);
+    expect(parts[0].type).toBe('commentStart');
+    if (parts[0].type === 'commentStart') {
+      expect(parts[0].data.authorName).toBe('Broken');
+    }
+  });
