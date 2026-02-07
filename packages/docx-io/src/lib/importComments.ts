@@ -510,6 +510,7 @@ export function getPointCommentMarkRange(
 /**
  * Resolve target ranges for a comment (mark range and content range).
  */
+// biome-ignore lint/nursery/useMaxParams: keeping original signature
 export function resolveCommentTargetRanges(
   editor: TrackingEditor,
   startRange: TRange,
