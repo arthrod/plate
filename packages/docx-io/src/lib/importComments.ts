@@ -84,6 +84,10 @@ export type DocxImportCommentReply = {
   authorInitials?: string;
   /** Date when the reply was made (ISO string) */
   date?: string;
+  /** OOXML paraId for round-trip threading fidelity */
+  paraId?: string;
+  /** OOXML parentParaId for round-trip reply threading */
+  parentParaId?: string;
   /** Reply text content */
   text?: string;
 };
@@ -126,6 +130,10 @@ export type DocxImportDiscussion = {
     contentRich?: unknown;
     /** When the comment was created */
     createdAt?: Date;
+    /** OOXML paraId for round-trip threading fidelity */
+    paraId?: string;
+    /** OOXML parentParaId for round-trip reply threading */
+    parentParaId?: string;
     /** User ID of the commenter */
     userId?: string;
     /** Optional user object for direct author info */
@@ -135,6 +143,8 @@ export type DocxImportDiscussion = {
   createdAt?: Date;
   /** The document text that was commented on */
   documentContent?: string;
+  /** OOXML paraId of the root comment for round-trip threading fidelity */
+  paraId?: string;
   /** User ID who created the discussion */
   userId?: string;
   /** Optional user object for direct author info */
@@ -755,7 +765,7 @@ export async function applyTrackedComments(
         documentContent = 'Imported comment';
       }
 
-      const commentText = comment.text ?? '';
+      const commentText = stripDocxTrackingTokens(comment.text ?? '');
       const contentRich = commentText
         ? [{ children: [{ text: commentText }], type: 'p' }]
         : undefined;
@@ -957,11 +967,11 @@ export function applyTrackedCommentsLocal(
         const addCommentRecursive = (
           c: Pick<
             DocxCommentData,
-            'authorName' | 'body' | 'date' | 'text' | 'id'
+            'authorName' | 'body' | 'date' | 'text' | 'id' | 'paraId' | 'parentParaId'
           > & {
             replies?: Pick<
               DocxCommentData,
-              'authorName' | 'body' | 'date' | 'text' | 'id'
+              'authorName' | 'body' | 'date' | 'text' | 'id' | 'paraId' | 'parentParaId'
             >[];
           }
         ) => {
@@ -976,6 +986,8 @@ export function applyTrackedCommentsLocal(
             contentRich,
             createdAt,
             id: c.id,
+            paraId: c.paraId,
+            parentParaId: c.parentParaId ?? undefined,
             userId,
             user: c.authorName ? { id: userId, name: c.authorName } : undefined,
           });
@@ -1002,7 +1014,7 @@ export function applyTrackedCommentsLocal(
 
         let documentContent = editor.api.string(contentRange);
         if (!documentContent || documentContent.trim().length === 0) {
-          documentContent = comment.text ?? '';
+          documentContent = stripDocxTrackingTokens(comment.text ?? '');
         }
 
         discussion = {
@@ -1010,6 +1022,7 @@ export function applyTrackedCommentsLocal(
           comments: discussionComments,
           createdAt: discussionComments[0]?.createdAt,
           documentContent,
+          paraId: comment.paraId,
           userId: discussionComments[0]?.userId,
           user: discussionComments[0]?.user,
         };

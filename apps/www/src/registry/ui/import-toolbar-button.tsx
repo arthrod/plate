@@ -124,6 +124,8 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
                   .map((w) => w[0]?.toUpperCase() ?? '')
                   .join('')
               : undefined,
+            paraId: c.paraId,
+            parentParaId: c.parentParaId,
           })),
           createdAt: d.createdAt ?? new Date(),
           documentContent: d.documentContent,
@@ -137,6 +139,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
                 .map((w) => w[0]?.toUpperCase() ?? '')
                 .join('')
             : undefined,
+          paraId: d.paraId,
         }));
 
         editor.setOption(discussionPlugin, 'discussions', [

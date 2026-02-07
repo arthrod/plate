@@ -58,6 +58,10 @@ export type TComment = {
   authorName?: string;
   /** Author initials from DOCX import */
   authorInitials?: string;
+  /** OOXML paraId for round-trip DOCX threading fidelity */
+  paraId?: string;
+  /** OOXML parentParaId for round-trip DOCX reply threading */
+  parentParaId?: string;
 };
 
 export function Comment(props: {

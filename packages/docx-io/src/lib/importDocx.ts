@@ -569,80 +569,37 @@ export async function importDocxWithTracking(
   }
 
   // Post-processing: strip any remaining tracking tokens from text nodes.
-  // editor.tf.delete can fail after direct children mutation (Slate WeakMaps stale),
-  // so we clean up tokens by directly mutating text nodes.
+  // After Slate transforms, nodes may be frozen (Immer), so we rebuild
+  // the tree with new objects instead of mutating in-place.
   if (hasTracking) {
-    const tokenPattern = /\[\[DOCX_(INS|DEL|CMT)_(START|END):[^\]]*\]\]/g;
+    // Use non-greedy .*? with s flag to handle any content between [[ and ]]
+    const tokenPattern = /\[\[DOCX_(?:INS|DEL|CMT)_(?:START|END):[\s\S]*?\]\]/g;
 
-    const stripTokensFromTextGroup = (group: Array<{ text: string }>) => {
-      if (group.length === 0) return;
-      const combined = group.map((node) => node.text).join('');
-      const matches = Array.from(combined.matchAll(tokenPattern));
-      if (matches.length === 0) return;
+    const stripTokenText = (text: string): string =>
+      text.replace(tokenPattern, '');
 
-      const removeMask = new Array(combined.length).fill(false);
-      for (const match of matches) {
-        const start = match.index ?? 0;
-        const end = start + match[0].length;
-        for (let i = start; i < end; i++) {
-          removeMask[i] = true;
-        }
+    const stripTokensFromNode = (node: any): any => {
+      if (typeof node.text === 'string') {
+        const stripped = stripTokenText(node.text);
+        if (stripped === node.text) return node;
+        return { ...node, text: stripped };
       }
-
-      let offset = 0;
-      for (const node of group) {
-        const length = node.text.length;
-        if (length === 0) continue;
-        let nextText = '';
-        for (let i = 0; i < length; i++) {
-          if (!removeMask[offset + i]) {
-            nextText += node.text[i] ?? '';
-          }
-        }
-        node.text = nextText;
-        offset += length;
+      if (Array.isArray(node.children)) {
+        const newChildren = node.children
+          .map(stripTokensFromNode)
+          .filter((child: any) =>
+            typeof child.text !== 'string' || child.text !== ''
+          );
+        // Ensure at least one child in elements
+        const children =
+          newChildren.length > 0 ? newChildren : [{ text: '' }];
+        return { ...node, children };
       }
+      return node;
     };
 
-    const stripTokensFromNodes = (nodes: any[]) => {
-      let textGroup: Array<{ text: string }> = [];
-
-      const flushTextGroup = () => {
-        if (textGroup.length === 0) return;
-        stripTokensFromTextGroup(textGroup);
-        // Remove empty text nodes (keep at least one if all are empty)
-        const nonEmpty = textGroup.filter((node) => node.text !== '');
-        if (nonEmpty.length === 0) {
-          textGroup[0].text = '';
-          for (let i = textGroup.length - 1; i >= 1; i--) {
-            const idx = nodes.indexOf(textGroup[i] as any);
-            if (idx !== -1) nodes.splice(idx, 1);
-          }
-        } else {
-          for (let i = textGroup.length - 1; i >= 0; i--) {
-            if (textGroup[i].text === '') {
-              const idx = nodes.indexOf(textGroup[i] as any);
-              if (idx !== -1) nodes.splice(idx, 1);
-            }
-          }
-        }
-        textGroup = [];
-      };
-
-      for (const node of [...nodes]) {
-        if (typeof node.text === 'string') {
-          textGroup.push(node);
-        } else {
-          flushTextGroup();
-          if (Array.isArray(node.children)) {
-            stripTokensFromNodes(node.children);
-          }
-        }
-      }
-      flushTextGroup();
-    };
-
-    stripTokensFromNodes(editor.children as any[]);
+    const stripped = (editor.children as any[]).map(stripTokensFromNode);
+    setEditorValue(stripped);
   }
 
   return {

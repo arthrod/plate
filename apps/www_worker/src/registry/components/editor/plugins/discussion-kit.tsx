@@ -17,6 +17,8 @@ export type TDiscussion = {
   authorName?: string;
   /** Author initials from DOCX import */
   authorInitials?: string;
+  /** OOXML paraId for round-trip DOCX threading fidelity */
+  paraId?: string;
 };
 
 const discussionsData: TDiscussion[] = [

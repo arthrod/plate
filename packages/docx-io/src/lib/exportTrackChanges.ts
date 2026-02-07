@@ -47,6 +47,10 @@ export type DocxExportComment = {
   contentRich?: unknown | null;
   createdAt?: Date | number | string | null;
   id?: string | null;
+  /** OOXML paraId for round-trip threading fidelity */
+  paraId?: string | null;
+  /** OOXML parentParaId for round-trip reply threading */
+  parentParaId?: string | null;
   user?: DocxExportUser | null;
   userId?: string | null;
 };
@@ -57,6 +61,8 @@ export type DocxExportDiscussion = {
   createdAt?: Date | number | string | null;
   documentContent?: string | null;
   id: string;
+  /** OOXML paraId of the first (root) comment for round-trip threading fidelity */
+  paraId?: string | null;
   user?: DocxExportUser | null;
   userId?: string | null;
 };
@@ -378,6 +384,7 @@ function resolveCommentMeta(
             authorName: replyAuthorName,
             date: replyDate,
             id: reply?.id ?? nanoid(),
+            paraId: reply?.paraId ?? undefined,
             text: replyText,
           };
         })
@@ -387,7 +394,9 @@ function resolveCommentMeta(
     authorInitials: toInitials(authorName),
     authorName,
     date,
-    id,
+    // Prefer original comment ID (preserved from DOCX import) over discussion ID
+    id: comment?.id ?? id,
+    paraId: comment?.paraId ?? discussion?.paraId ?? undefined,
     replies,
     text,
   };
@@ -578,7 +587,11 @@ function buildResolvedCommentStartToken(
     options.nodeToString
   );
   console.log(
-    '[DOCX DEBUG] export comment payload for id=' + id + ':',
+    '[DOCX DEBUG] export comment payload for id=' +
+      id +
+      ' paraId=' +
+      (payload.paraId ?? 'NONE') +
+      ':',
     JSON.stringify(payload)
   );
 

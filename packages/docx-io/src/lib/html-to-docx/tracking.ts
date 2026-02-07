@@ -33,6 +33,8 @@ export interface CommentReply {
   authorName?: string;
   authorInitials?: string;
   date?: string;
+  /** OOXML paraId for round-trip threading fidelity */
+  paraId?: string;
   text?: string;
 }
 
@@ -42,6 +44,10 @@ export interface CommentPayload {
   authorName?: string;
   authorInitials?: string;
   date?: string;
+  /** OOXML paraId for round-trip threading fidelity */
+  paraId?: string;
+  /** OOXML parentParaId for round-trip threading fidelity */
+  parentParaId?: string;
   text?: string;
   replies?: CommentReply[];
 }

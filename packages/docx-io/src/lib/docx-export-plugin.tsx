@@ -479,6 +479,8 @@ async function exportToDocxInternal(
   // Wrap in complete HTML document
   const fullHtml = wrapHtmlForDocx(bodyHtml, customStyles);
 
+  console.log('[DOCX DEBUG] fullHtml before html-to-docx plugin:\n', fullHtml);
+
   // Convert to DOCX using browser-compatible implementation
   const blob = await htmlToDocxBlob(fullHtml, {
     margins: {

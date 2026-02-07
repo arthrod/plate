@@ -506,6 +506,7 @@ const buildRunsFromTextWithTokens = (
         authorName: data.authorName,
         authorInitials: data.authorInitials,
         date: data.date,
+        paraId: data.paraId,
         text: data.text,
       });
       fragments.push(buildCommentRangeStart(parentCommentId));
@@ -542,6 +543,7 @@ const buildRunsFromTextWithTokens = (
               authorName: reply.authorName,
               authorInitials: reply.authorInitials,
               date: reply.date,
+              paraId: reply.paraId,
               text: reply.text,
             },
             parentParaId

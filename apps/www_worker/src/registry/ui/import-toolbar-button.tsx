@@ -109,7 +109,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         const newDiscussions: TDiscussion[] = result.discussions.map((d) => ({
           id: d.id,
           comments: (d.comments ?? []).map((c, index) => ({
-            id: `comment${index + 1}`,
+            id: c.id || `comment${index + 1}`,
             contentRich:
               c.contentRich as TDiscussion['comments'][number]['contentRich'],
             createdAt: c.createdAt ?? new Date(),
@@ -124,6 +124,8 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
                   .map((w) => w[0]?.toUpperCase() ?? '')
                   .join('')
               : undefined,
+            paraId: c.paraId,
+            parentParaId: c.parentParaId,
           })),
           createdAt: d.createdAt ?? new Date(),
           documentContent: d.documentContent,
@@ -137,6 +139,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
                 .map((w) => w[0]?.toUpperCase() ?? '')
                 .join('')
             : undefined,
+          paraId: d.paraId,
         }));
 
         editor.setOption(discussionPlugin, 'discussions', [

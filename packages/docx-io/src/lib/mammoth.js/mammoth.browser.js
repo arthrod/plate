@@ -1349,7 +1349,7 @@ function BodyReader(options) {
         readParagraphProperties(paragraphPropertiesElement),
         readXmlElements(childrenXml),
         (properties, children) => {
-          properties.paraId = element.attributes['w14:paraId'];
+          properties.paraId = element.attributes['wordml:paraId'];
           return new documents.Paragraph(children, properties);
         }
       ).insertExtra();
@@ -1925,19 +1925,30 @@ var Result = require('../results').Result;
 function createCommentsExtendedReader(bodyReader) {
   function readCommentsExtendedXml(element) {
     var mappings = {};
-    console.log('[DOCX DEBUG] commentsExtended children count:', element.children.length);
+    console.log(
+      '[DOCX DEBUG] commentsExtended children count:',
+      element.children.length
+    );
     element.children.forEach((child) => {
       if (child.name === 'w15:commentEx') {
         var paraId = child.attributes['w15:paraId'];
         var parentParaId = child.attributes['w15:paraIdParent'];
         var done = child.attributes['w15:done'];
-        console.log('[DOCX DEBUG] commentEx:', { paraId, parentParaId, done, allAttrs: JSON.stringify(child.attributes) });
+        console.log('[DOCX DEBUG] commentEx:', {
+          paraId,
+          parentParaId,
+          done,
+          allAttrs: JSON.stringify(child.attributes),
+        });
         if (paraId && parentParaId) {
           mappings[paraId] = parentParaId;
         }
       }
     });
-    console.log('[DOCX DEBUG] commentsExtended mappings:', JSON.stringify(mappings));
+    console.log(
+      '[DOCX DEBUG] commentsExtended mappings:',
+      JSON.stringify(mappings)
+    );
     return new Result(mappings);
   }
 
@@ -1970,7 +1981,12 @@ function createCommentsReader(bodyReader, commentsExtended) {
       var paraId = null;
       if (body) {
         for (var i = 0; i < body.length; i++) {
-          console.log('[DOCX DEBUG] comment ' + id + ' body[' + i + '] type:', body[i].type, 'paraId:', body[i].paraId);
+          console.log(
+            '[DOCX DEBUG] comment ' + id + ' body[' + i + '] type:',
+            body[i].type,
+            'paraId:',
+            body[i].paraId
+          );
           if (body[i].paraId) {
             paraId = body[i].paraId;
             break;
@@ -1978,7 +1994,16 @@ function createCommentsReader(bodyReader, commentsExtended) {
         }
       }
       var parentParaId = paraId ? commentsExtended[paraId] : null;
-      console.log('[DOCX DEBUG] comment ' + id + ': paraId=' + paraId + ' parentParaId=' + parentParaId + ' commentsExtended keys:', Object.keys(commentsExtended));
+      console.log(
+        '[DOCX DEBUG] comment ' +
+          id +
+          ': paraId=' +
+          paraId +
+          ' parentParaId=' +
+          parentParaId +
+          ' commentsExtended keys:',
+        Object.keys(commentsExtended)
+      );
 
       return documents.comment({
         commentId: id,
@@ -2154,7 +2179,12 @@ function read(docxFile, input, options) {
         result.docxFile,
         result.partPaths.commentsExtended
       ).then((xml) => {
-        console.log('[DOCX DEBUG] commentsExtended path:', result.partPaths.commentsExtended, 'xml found:', !!xml);
+        console.log(
+          '[DOCX DEBUG] commentsExtended path:',
+          result.partPaths.commentsExtended,
+          'xml found:',
+          !!xml
+        );
         if (xml) {
           return commentsExtendedReader.createCommentsExtendedReader()(xml);
         }
@@ -2560,6 +2590,9 @@ var xmlNamespaceMap = {
   // [MS-DOCX]: Word Extensions to the Office Open XML (.docx) File Format
   // https://learn.microsoft.com/en-us/openspecs/office_standards/ms-docx/b839fe1f-e1ca-4fa6-8c26-5954d0abbccd
   'http://schemas.microsoft.com/office/word/2010/wordml': 'wordml',
+
+  // Word 2012 extensions (comments threading via commentsExtended.xml)
+  'http://schemas.microsoft.com/office/word/2012/wordml': 'w15',
 };
 
 function read(xmlString) {
@@ -9360,7 +9393,7 @@ var NAMESPACE = require("./conventions").NAMESPACE;
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
 var nameStartChar = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]///\u10000-\uEFFFF
 var nameChar = new RegExp("[\\-\\.0-9"+nameStartChar.source.slice(1,-1)+"\\u00B7\\u0300-\\u036F\\u203F-\\u2040]");
-var tagNamePattern = new RegExp('^'+nameStartChar.source+nameChar.source+'*(?::'+nameStartChar.source+nameChar.source+'*)?$');
+var tagNamePattern = new RegExp('^'+nameStartChar.source+nameChar.source+'*(?:\:'+nameStartChar.source+nameChar.source+'*)?$');
 //var tagNamePattern = /^[a-zA-Z_][\w\-\.]*(?:\:[a-zA-Z_][\w\-\.]*)?$/
 //var handlers = 'resolveEntity,getExternalSubset,characters,endDocument,endElement,endPrefixMapping,ignorableWhitespace,processingInstruction,setDocumentLocator,skippedEntity,startDocument,startElement,startPrefixMapping,notationDecl,unparsedEntityDecl,error,fatalError,warning,attributeDecl,elementDecl,externalEntityDecl,internalEntityDecl,comment,endCDATA,endDTD,endEntity,startCDATA,startDTD,startEntity'.split(',')
 
@@ -10004,7 +10037,7 @@ ElementAttributes.prototype = {
 function split(source,start){
 	var match;
 	var buf = [];
-	var reg = /'[^']+'|"[^"]+"|[^\s<>/=]+=?|(\/?\s*>|<)/g;
+	var reg = /'[^']+'|"[^"]+"|[^\s<>\/=]+=?|(\/?\s*>|<)/g;
 	reg.lastIndex = start;
 	reg.exec(source);//skip <
 	while(match = reg.exec(source)){
@@ -10808,9 +10841,9 @@ var canAttachTrace = util.canAttachTrace;
 var unhandledRejectionHandled;
 var possiblyUnhandledRejection;
 var bluebirdFramePattern =
-    /[\\/]bluebird[\\/]js[\\/](release|debug|instrumented)/;
+    /[\\\/]bluebird[\\\/]js[\\\/](release|debug|instrumented)/;
 var nodeFramePattern = /\((?:timers\.js):\d+:\d+\)/;
-var parseLinePattern = /[/<(](.+?):(\d+):(\d+)\)?\s*$/;
+var parseLinePattern = /[\/<\(](.+?):(\d+):(\d+)\)?\s*$/;
 var stackFramePattern = null;
 var formatStack = null;
 var indentStackFrames = false;
@@ -11458,7 +11491,7 @@ function longStackTracesIsSupported() {
 }
 
 var shouldIgnore = function() { return false; };
-var parseLineInfoRegex = /[/<(]([^:/]+):(\d+):(?:\d+)\)?\s*$/;
+var parseLineInfoRegex = /[\/<\(]([^:\/]+):(\d+):(?:\d+)\)?\s*$/;
 function parseLineInfo(line) {
     var matches = line.match(parseLineInfoRegex);
     if (matches) {
@@ -17363,7 +17396,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
 // HELPER FUNCTIONS
 // ================
 
-var INVALID_BASE64_RE = /[^+/0-9A-Za-z-_]/g
+var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
 
 function base64clean (str) {
   // Node strips out invalid characters like \n and \t from the string, base64-js does not

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'bun:test';
 import { htmlToDocxBlob } from '../exportDocx';
-import { buildCommentStartToken, buildSuggestionStartToken } from '../html-to-docx/tracking';
+import {
+  buildCommentStartToken,
+  buildSuggestionStartToken,
+} from '../html-to-docx/tracking';
 
 describe('Crash Reproduction: Overlapping and Duplicate IDs', () => {
   it('should not crash when exporting overlapping comments/suggestions and duplicate reply IDs', async () => {
@@ -17,9 +20,9 @@ describe('Crash Reproduction: Overlapping and Duplicate IDs', () => {
           authorName: 'Bob',
           authorInitials: 'B',
           date: '2026-02-06T11:56:46.789Z',
-          text: 'Agreed! The link to the docs makes it easy to learn more.'
-        }
-      ]
+          text: 'Agreed! The link to the docs makes it easy to learn more.',
+        },
+      ],
     };
 
     const discussion2Payload = {
@@ -34,16 +37,16 @@ describe('Crash Reproduction: Overlapping and Duplicate IDs', () => {
           authorName: 'Charlie',
           authorInitials: 'C',
           date: '2026-02-06T12:01:46.789Z',
-          text: 'This helps users understand how powerful the editor can be.'
-        }
-      ]
+          text: 'This helps users understand how powerful the editor can be.',
+        },
+      ],
     };
 
     const suggestionPayload = {
       id: 'playground3',
       type: 'insert',
       author: 'charlie',
-      date: '1770379506741'
+      date: '1770379506741',
     };
 
     // 2. Construct Tokens

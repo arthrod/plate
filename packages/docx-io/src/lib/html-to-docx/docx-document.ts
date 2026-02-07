@@ -13,7 +13,11 @@ import {
   COMMENTS_TEMPLATE,
   PEOPLE_TEMPLATE,
 } from './comment-templates';
-import { findDocxTrackingTokens, generateHexId } from './tracking';
+import {
+  allocatedIds,
+  findDocxTrackingTokens,
+  generateHexId,
+} from './tracking';
 
 import {
   applicationName,
@@ -1119,7 +1123,20 @@ class DocxDocument {
       if (!existing.text && text) {
         existing.text = text;
       }
+      if (!existing.parentParaId && parentParaId) {
+        existing.parentParaId = parentParaId;
+      }
       return numericId;
+    }
+
+    // Preserve imported paraId when provided; otherwise generate fresh.
+    // Register in allocatedIds to prevent collisions with generated IDs.
+    let paraId: string;
+    if (data.paraId) {
+      paraId = data.paraId;
+      allocatedIds.add(paraId);
+    } else {
+      paraId = generateHexId();
     }
 
     this.comments.push({
@@ -1128,7 +1145,7 @@ class DocxDocument {
       authorInitials: authorInitials || '',
       date,
       durableId: generateHexId(),
-      paraId: generateHexId(),
+      paraId,
       parentParaId,
       text: text || 'Imported comment',
     });
