@@ -756,7 +756,7 @@ export async function applyTrackedComments(
         documentContent = 'Imported comment';
       }
 
-      const commentText = comment.text ?? '';
+      const commentText = stripDocxTrackingTokens(comment.text ?? '');
       const contentRich = commentText
         ? [{ children: [{ text: commentText }], type: 'p' }]
         : undefined;
@@ -1003,7 +1003,7 @@ export function applyTrackedCommentsLocal(
 
         let documentContent = editor.api.string(contentRange);
         if (!documentContent || documentContent.trim().length === 0) {
-          documentContent = comment.text ?? '';
+          documentContent = stripDocxTrackingTokens(comment.text ?? '');
         }
 
         discussion = {

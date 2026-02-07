@@ -445,6 +445,20 @@ describe('parseDocxTracking', () => {
 });
 
 describe('stripDocxTrackingTokens', () => {
+  it('should strip tokens from comment text bodies', () => {
+    // This test verifies the fix for comment re-import issue where
+    // comment text contains tracking tokens
+    const startToken = buildCommentToken({ id: 'cmt-1', text: 'Original comment' }, 'start');
+    const endToken = buildCommentToken({ id: 'cmt-1' }, 'end');
+
+    // Simulate comment text that might contain tokens from re-import
+    const commentTextWithTokens = `${startToken}comment body${endToken}`;
+    const cleanedText = stripDocxTrackingTokens(commentTextWithTokens);
+
+    expect(cleanedText).toBe('comment body');
+    expect(cleanedText).not.toContain('[[DOCX_CMT_');
+  });
+
   it('should remove insertion tokens', () => {
     const html = `<p>before ${buildInsertionToken({ id: 'ins-1' }, 'start')}inserted${buildInsertionToken({ id: 'ins-1' }, 'end')} after</p>`;
 
