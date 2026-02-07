@@ -182,8 +182,12 @@
     "zod": "3.25.61"
   },
   "devDependencies": {
+    "@playwright/test": "1.53.0",
     "@shikijs/compat": "1.1.7",
+    "@slate-yjs/core": "^1.0.2",
     "@tailwindcss/cli": "4.1.8",
+    "@types/node": "24.0.0",
+    "@types/react": "19.2.7",
     "@types/react-syntax-highlighter": "15.5.13",
     "autoprefixer": "10.4.21",
     "concurrently": "9.1.2",
@@ -203,6 +207,9 @@
     "remark-code-import": "1.2.0",
     "rimraf": "6.0.1",
     "shiki": "1.10.1",
+    "slate": "0.120.0",
+    "slate-dom": "0.119.0",
+    "slate-react": "0.120.0",
     "tailwind-scrollbar-hide": "4.0.0",
     "tailwindcss": "4.1.8",
     "ts-node": "10.9.2",
@@ -211,6 +218,8 @@
     "typescript": "5.8.3",
     "unist-builder": "4.0.0",
     "unist-util-visit": "5.0.0",
-    "wrangler": "^4.0.0"
+    "wrangler": "^4.0.0",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.27"
   }
 }

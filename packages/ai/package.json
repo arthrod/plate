@@ -50,7 +50,10 @@
   "devDependencies": {
     "@ai-sdk/react": "^3.0.0",
     "@platejs/combobox": "52.0.15",
-    "ai": "^6.0.0"
+    "ai": "^6.0.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "zod": "^3.24.1"
   },
   "peerDependencies": {
     "platejs": ">=52.0.15",

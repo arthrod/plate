@@ -43,7 +43,9 @@
     "react-compiler-runtime": "^1.0.0"
   },
   "devDependencies": {
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "peerDependencies": {
     "@playwright/test": ">=1.42.1",

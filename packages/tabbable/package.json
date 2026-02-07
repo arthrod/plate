@@ -44,7 +44,9 @@
     "tabbable": "^6.2.0"
   },
   "devDependencies": {
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "peerDependencies": {
     "platejs": ">=52.0.11",

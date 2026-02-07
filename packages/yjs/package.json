@@ -46,7 +46,10 @@
     "yjs": "^13.6.27"
   },
   "devDependencies": {
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "slate": "0.120.0"
   },
   "peerDependencies": {
     "@hocuspocus/provider": "^3.4.0",
