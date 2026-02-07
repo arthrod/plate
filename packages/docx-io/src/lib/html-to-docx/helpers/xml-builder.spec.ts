@@ -1,9 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 import { buildRunsFromTextWithTokens } from './xml-builder';
-import type { DocxDocumentInstance } from '../helpers/xml-builder'; // Note: DocxDocumentInstance is not exported from xml-builder.ts, we might need to mock or infer it.
-// Actually DocxDocumentInstance is defined in xml-builder.ts but not exported.
-// However, the function buildRunsFromTextWithTokens takes a type compatible with it.
-// We can define a mock interface here.
 
 // Mock types
 type MockDocxDocumentInstance = {
@@ -78,6 +74,59 @@ describe('buildRunsFromTextWithTokens', () => {
 
     // Check for Reply End - THIS IS THE FIX VERIFICATION
     // This asserts that the fix logic correctly found the reply ID and emitted the end tag
+    expect(combinedXml).toMatch(new RegExp(`commentRangeEnd[^>]*id="${replyNumericId}"`));
+  });
+
+  it('should fallback to generated ID when reply.id is missing', () => {
+    const parentId = 'parent-1';
+    const parentNumericId = 100;
+    const expectedGeneratedId = `${parentId}-reply-0`;
+    const replyNumericId = 200;
+
+    const mockInstance: MockDocxDocumentInstance = {
+      comments: [],
+      commentIdMap: new Map(),
+      lastCommentId: 0,
+      revisionIdMap: new Map(),
+      lastRevisionId: 0,
+      ensureComment: vi.fn((data: any) => {
+        if (data.id === parentId) return parentNumericId;
+        if (data.id === expectedGeneratedId) return replyNumericId;
+        return 999;
+      }),
+      getCommentId: vi.fn((id: string) => {
+        if (id === parentId) return parentNumericId;
+        return 0;
+      }),
+      getRevisionId: vi.fn(() => 0),
+    };
+
+    mockInstance.commentIdMap.set(parentId, parentNumericId);
+    mockInstance.commentIdMap.set(expectedGeneratedId, replyNumericId);
+
+    const tokenText = `[[DOCX_CMT_START:${encodeURIComponent(
+      JSON.stringify({
+        id: parentId,
+        replies: [{ text: 'Reply without ID' }], // No ID provided
+      })
+    )}]]Comment Text[[DOCX_CMT_END:${encodeURIComponent(parentId)}]]`;
+
+    const fragments = buildRunsFromTextWithTokens(
+      tokenText,
+      {},
+      mockInstance as any
+    );
+
+    expect(fragments).not.toBeNull();
+    if (!fragments) return;
+
+    const xmlStrings = fragments.map((f) => f.toString());
+    const combinedXml = xmlStrings.join('');
+
+    // Check for Reply Start with expected generated ID
+    expect(combinedXml).toMatch(new RegExp(`commentRangeStart[^>]*id="${replyNumericId}"`));
+
+    // Check for Reply End
     expect(combinedXml).toMatch(new RegExp(`commentRangeEnd[^>]*id="${replyNumericId}"`));
   });
 });

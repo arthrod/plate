@@ -47,8 +47,7 @@ describe('resolveCommentMeta with reply IDs', () => {
   it('should include IDs in replies', () => {
     const discussionId = 'disc-001';
 
-    // We force the type here because DocxExportComment doesn't support 'id' yet in the codebase
-    const discussions: any[] = [
+    const discussions: DocxExportDiscussion[] = [
       {
         id: discussionId,
         comments: [
