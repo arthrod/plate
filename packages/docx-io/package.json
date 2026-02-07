@@ -33,6 +33,9 @@
     "dist/**/*"
   ],
   "scripts": {
+    "cli:html-to-docx": "bun cli/html-to-docx.ts",
+    "cli:docx-to-html": "bun cli/docx-to-html.ts",
+    "cli:validate-docx": "bun cli/validate-docx.ts",
     "brl": "yarn p:brl",
     "build": "yarn p:build",
     "build:watch": "yarn p:build:watch",
