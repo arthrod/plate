@@ -84,6 +84,50 @@ describe('resolveCommentMeta with reply IDs', () => {
     expect(payload!.replies).toHaveLength(1);
 
     // This check is expected to fail initially because 'id' is not passed through
-    expect((payload!.replies![0] as any).id).toBe('reply-1');
+    expect(payload!.replies![0]!.id).toBe('reply-1');
+  });
+
+  it('should generate IDs for replies when missing', () => {
+    const discussionId = 'disc-002';
+
+    const discussions: DocxExportDiscussion[] = [
+      {
+        id: discussionId,
+        comments: [
+          {
+            contentRich: [
+              { type: 'p', children: [{ text: 'Parent comment text' }] },
+            ],
+            createdAt: '2025-01-15T10:00:00.000Z',
+            user: { id: 'user-1', name: 'Alice Author' },
+            userId: 'user-1',
+          },
+          {
+            // Missing ID, should be generated
+            contentRich: [
+              { type: 'p', children: [{ text: 'Reply without ID' }] },
+            ],
+            createdAt: '2025-01-15T11:00:00.000Z',
+            user: { id: 'user-2', name: 'Bob Reviewer' },
+            userId: 'user-2',
+          },
+        ],
+        createdAt: '2025-01-15T10:00:00.000Z',
+        documentContent: 'Parent comment text',
+        user: { id: 'user-1', name: 'Alice Author' },
+        userId: 'user-1',
+      },
+    ];
+
+    const payload = extractCommentPayload(discussionId, discussions);
+
+    expect(payload).toBeDefined();
+    expect(payload!.replies).toBeDefined();
+    expect(payload!.replies).toHaveLength(1);
+
+    const replyId = payload!.replies![0]!.id;
+    expect(replyId).toBeDefined();
+    expect(typeof replyId).toBe('string');
+    expect(replyId.length).toBeGreaterThan(0);
   });
 });

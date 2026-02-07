@@ -102,7 +102,7 @@ export type DocxImportComment = Omit<DocxCommentData, 'replies'> & {
   hasEndToken: boolean;
   /** Whether a point token was found in HTML */
   hasPointToken?: boolean;
-  /** Nested replies (use DocxImportCommentReply which omits fields like id) */
+  /** Nested replies */
   replies?: DocxImportCommentReply[];
 };
 
