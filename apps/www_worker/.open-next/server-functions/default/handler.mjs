@@ -1,0 +1,1 @@
+export { handler } from "./apps/www_worker/handler.mjs";

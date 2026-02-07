@@ -1,0 +1,52 @@
+{
+  "name": "@platejs/test-utils",
+  "version": "52.0.10",
+  "description": "Testing utilities for Plate",
+  "keywords": [
+    "plate",
+    "plugin",
+    "slate",
+    "test"
+  ],
+  "homepage": "https://platejs.org",
+  "bugs": {
+    "url": "https://github.com/udecode/plate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/udecode/plate.git",
+    "directory": "packages/test-utils"
+  },
+  "license": "MIT",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "brl": "yarn p:brl",
+    "build": "yarn p:build",
+    "build:watch": "yarn p:build:watch",
+    "clean": "yarn p:clean",
+    "lint": "yarn p:lint",
+    "lint:fix": "yarn p:lint:fix",
+    "test": "yarn p:test",
+    "test:watch": "yarn p:test:watch",
+    "typecheck": "yarn p:typecheck"
+  },
+  "dependencies": {
+    "@platejs/slate": "52.0.10",
+    "slate": "0.120.0",
+    "slate-hyperscript": "0.100.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "module": "./dist/index.js"
+}
