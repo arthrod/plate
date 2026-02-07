@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, mock } from 'bun:test';
 import { buildRunsFromTextWithTokens } from './xml-builder';
 
 // Mock types
@@ -29,16 +29,16 @@ describe('buildRunsFromTextWithTokens', () => {
       lastCommentId: 0,
       revisionIdMap: new Map(),
       lastRevisionId: 0,
-      ensureComment: vi.fn((data: any) => {
+      ensureComment: mock((data: any) => {
         if (data.id === parentId) return parentNumericId;
         if (data.id === compositeReplyId) return replyNumericId;
         return 999;
       }),
-      getCommentId: vi.fn((id: string) => {
+      getCommentId: mock((id: string) => {
         if (id === parentId) return parentNumericId;
         return 0;
       }),
-      getRevisionId: vi.fn(() => 0),
+      getRevisionId: mock(() => 0),
     };
 
     // Populate commentIdMap as it would be during execution
@@ -99,16 +99,16 @@ describe('buildRunsFromTextWithTokens', () => {
       lastCommentId: 0,
       revisionIdMap: new Map(),
       lastRevisionId: 0,
-      ensureComment: vi.fn((data: any) => {
+      ensureComment: mock((data: any) => {
         if (data.id === parentId) return parentNumericId;
         if (data.id === expectedGeneratedId) return replyNumericId;
         return 999;
       }),
-      getCommentId: vi.fn((id: string) => {
+      getCommentId: mock((id: string) => {
         if (id === parentId) return parentNumericId;
         return 0;
       }),
-      getRevisionId: vi.fn(() => 0),
+      getRevisionId: mock(() => 0),
     };
 
     mockInstance.commentIdMap.set(parentId, parentNumericId);

@@ -394,8 +394,9 @@ function resolveCommentMeta(
     authorInitials: toInitials(authorName),
     authorName,
     date,
-    // Prefer original comment ID (preserved from DOCX import) over discussion ID
-    id: comment?.id ?? id,
+    // Must use discussion ID (= `id`) because END tokens are keyed by discussion ID.
+    // Using comment?.id would mismatch START vs END and create duplicate entries.
+    id,
     paraId: comment?.paraId ?? discussion?.paraId ?? undefined,
     replies,
     text,

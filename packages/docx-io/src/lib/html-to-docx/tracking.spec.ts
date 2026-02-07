@@ -374,9 +374,9 @@ describe('DOCX Export with Tracked Changes', () => {
   });
 
   it('warns when dead tracking tokens remain in document.xml', async () => {
-    const warn = mock(() => {});
+    const warn = mock((..._args: unknown[]) => {});
     const originalWarn = console.warn;
-    console.warn = warn;
+    console.warn = warn as typeof console.warn;
 
     try {
       const html = '<p>[[DOCX_INS_START:invalid]]text</p>';
@@ -386,9 +386,8 @@ describe('DOCX Export with Tracked Changes', () => {
     }
 
     expect(warn).toHaveBeenCalled();
-    expect(warn.mock.calls[0]?.[0]).toContain(
-      'dead tracking tokens in document.xml'
-    );
+    const firstCall = warn.mock.calls[0];
+    expect(firstCall?.[0]).toContain('dead tracking tokens in document.xml');
   });
 });
 

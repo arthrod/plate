@@ -967,11 +967,23 @@ export function applyTrackedCommentsLocal(
         const addCommentRecursive = (
           c: Pick<
             DocxCommentData,
-            'authorName' | 'body' | 'date' | 'text' | 'id' | 'paraId' | 'parentParaId'
+            | 'authorName'
+            | 'body'
+            | 'date'
+            | 'text'
+            | 'id'
+            | 'paraId'
+            | 'parentParaId'
           > & {
             replies?: Pick<
               DocxCommentData,
-              'authorName' | 'body' | 'date' | 'text' | 'id' | 'paraId' | 'parentParaId'
+              | 'authorName'
+              | 'body'
+              | 'date'
+              | 'text'
+              | 'id'
+              | 'paraId'
+              | 'parentParaId'
             >[];
           }
         ) => {

@@ -1,0 +1,491 @@
+# DOCX Comment Threading & ID Resolution Pipeline
+
+## Overview
+
+Plate's DOCX comment round-trip has 3 stages: **Import** (mammoth.js -> tokens -> Plate), **Editor** (Plate state), **Export** (Plate -> tokens -> html-to-docx -> OOXML ZIP). Each stage uses different ID namespaces and author resolution strategies. Mismatches between them cause: "unknown" authors, duplicate OOXML entries, lost threading, and cross-discussion collision.
+
+## Architecture Diagram
+
+```
+IMPORT:
+  .docx (ZIP) -> mammoth.js fork -> HTML with tokens
+    -> importDocx.ts (convertToHtmlWithTracking)
+    -> importComments.ts (parseDocxComments + applyTrackedCommentsLocal)
+    -> import-toolbar-button.tsx (maps DocxImportDiscussion -> TDiscussion)
+    -> Token removal: importDocx.ts removeTrackingTokensFromNodes() [immutable rebuild]
+
+EXPORT:
+  Plate editor.children (with comment_[discussionId] marks)
+    -> export-toolbar-button.tsx (maps TDiscussion -> DocxExportDiscussion)
+    -> exportTrackChanges.ts (injectDocxTrackingTokens)
+      -> resolveCommentMeta() builds CommentPayload per discussion
+      -> tokens injected into text: [[DOCX_CMT_START:{json}]] ... [[DOCX_CMT_END:id]]
+    -> exportDocx.ts (htmlToDocxBlob)
+      -> html-to-docx/tracking.ts (splitDocxTrackingTokens parses tokens)
+      -> html-to-docx/helpers/xml-builder.ts (buildRunsFromTextWithTokens)
+        -> docx-document.ts (ensureComment registers OOXML entries)
+      -> docx-document.ts generates comments.xml + commentsExtended.xml
+    -> Output: .docx ZIP blob
+```
+
+## Critical Invariant: START/END Token ID Match
+
+**The #1 source of bugs.** START and END tokens MUST use the same ID namespace.
+
+```
+Token pair for discussion "discussion1":
+  START: [[DOCX_CMT_START:{id:"discussion1", authorName:"Alice", ...}]]
+  END:   [[DOCX_CMT_END:discussion1]]
+```
+
+If START uses `comment?.id` (e.g. "comment1") but END uses discussion ID ("discussion1"), then `getCommentId("discussion1")` in xml-builder.ts creates a SECOND entry with `authorName="unknown"`.
+
+## Key Files
+
+### 1. `packages/docx-io/src/lib/exportTrackChanges.ts`
+
+Central export token injection. Contains `resolveCommentMeta()`.
+
+**Types:**
+
+```typescript
+export type DocxExportComment = {
+  contentRich?: unknown | null;
+  createdAt?: Date | number | string | null;
+  id?: string | null;
+  paraId?: string | null;        // OOXML round-trip
+  parentParaId?: string | null;  // OOXML round-trip
+  user?: DocxExportUser | null;
+  userId?: string | null;
+};
+
+export type DocxExportDiscussion = {
+  comments?: DocxExportComment[] | null;
+  createdAt?: Date | number | string | null;
+  documentContent?: string | null;
+  id: string;
+  paraId?: string | null;
+  user?: DocxExportUser | null;
+  userId?: string | null;
+};
+```
+
+**resolveCommentMeta (critical function):**
+
+```typescript
+function resolveCommentMeta(
+  id: string,  // <-- this is the DISCUSSION ID from mark key
+  discussions?: DocxExportDiscussion[] | null,
+  userNameMap?: Map<string, string>,
+  nodeToString?: (node: unknown) => string
+): CommentPayload {
+  const discussion = discussions?.find((item) => item?.id === id);
+  const comment = discussion?.comments?.[0]; // root comment
+
+  // Build replies from discussion.comments[1..n]
+  const replyComments = discussion?.comments?.slice(1);
+  const replies = replyComments?.map((reply) => ({
+    authorInitials: toInitials(resolveCommentAuthorName(reply, discussion, userNameMap)),
+    authorName: resolveCommentAuthorName(reply, discussion, userNameMap),
+    date: normalizeDate(reply?.createdAt),
+    id: reply?.id ?? nanoid(),
+    paraId: reply?.paraId ?? undefined,
+    text: resolveCommentText(reply, undefined, nodeToString),
+  }));
+
+  return {
+    authorInitials: toInitials(authorName),
+    authorName,
+    date,
+    id,  // MUST be discussion ID, NOT comment?.id
+    paraId: comment?.paraId ?? discussion?.paraId ?? undefined,
+    replies,
+    text,
+  };
+}
+```
+
+**Mark extraction (how discussion IDs are found on nodes):**
+
+```typescript
+const COMMENT_KEY_PREFIX = 'comment_';
+
+function defaultGetCommentIds(node: TText): string[] {
+  const ids: string[] = [];
+  for (const key of Object.keys(node)) {
+    if (key.startsWith(COMMENT_KEY_PREFIX) && node[key]) {
+      ids.push(key.slice(COMMENT_KEY_PREFIX.length)); // returns discussion ID
+    }
+  }
+  return ids;
+}
+```
+
+### 2. `packages/docx-io/src/lib/html-to-docx/tracking.ts`
+
+Token building/parsing types and functions.
+
+**Types:**
+
+```typescript
+export interface CommentPayload {
+  id: string;
+  authorName?: string;
+  authorInitials?: string;
+  date?: string;
+  paraId?: string;
+  parentParaId?: string;
+  text?: string;
+  replies?: CommentReply[];
+}
+
+export interface CommentReply {
+  id: string;
+  authorName?: string;
+  authorInitials?: string;
+  date?: string;
+  paraId?: string;
+  text?: string;
+}
+
+export type ParsedToken =
+  | { type: 'text'; value: string }
+  | { type: 'commentStart'; data: CommentPayload }
+  | { type: 'commentEnd'; id: string }
+  | { type: 'insStart'; data: SuggestionPayload }
+  | { type: 'insEnd'; id: string }
+  | { type: 'delStart'; data: SuggestionPayload }
+  | { type: 'delEnd'; id: string };
+```
+
+**Token building:**
+
+```typescript
+export function buildCommentStartToken(payload: CommentPayload): string {
+  return `[[DOCX_CMT_START:${encodeURIComponent(JSON.stringify(payload))}]]`;
+}
+
+export function buildCommentEndToken(id: string): string {
+  return `[[DOCX_CMT_END:${encodeURIComponent(id)}]]`;
+}
+
+export function splitDocxTrackingTokens(text: string): ParsedToken[] { ... }
+```
+
+### 3. `packages/docx-io/src/lib/html-to-docx/helpers/xml-builder.ts`
+
+Parses tokens from HTML and creates OOXML elements via `ensureComment`.
+
+**Comment START handling:**
+
+```typescript
+if (part.type === 'commentStart') {
+  const data = part.data;
+  // Register parent comment -- uses data.id as lookup key
+  const parentCommentId = docxDocumentInstance.ensureComment({
+    id: data.id,
+    authorName: data.authorName,
+    authorInitials: data.authorInitials,
+    date: data.date,
+    paraId: data.paraId,
+    text: data.text,
+  });
+  fragments.push(buildCommentRangeStart(parentCommentId));
+
+  // Register replies with composite IDs
+  if (data.replies?.length) {
+    const parentComment = docxDocumentInstance.comments.find(c => c.id === parentCommentId);
+    const parentParaId = parentComment?.paraId;
+
+    data.replies.forEach((reply, idx) => {
+      const replyId = reply.id
+        ? `${data.id}-reply-${reply.id}`   // composite ID
+        : `${data.id}-reply-${idx}`;        // fallback
+
+      const replyCommentId = docxDocumentInstance.ensureComment!(
+        { id: replyId, authorName: reply.authorName, paraId: reply.paraId, ... },
+        parentParaId  // links reply -> parent in commentsExtended.xml
+      );
+      fragments.push(buildCommentRangeStart(replyCommentId));
+    });
+  }
+}
+```
+
+**Comment END handling:**
+
+```typescript
+if (part.type === 'commentEnd') {
+  // part.id = discussion ID (must match START payload's data.id)
+  const commentId = docxDocumentInstance.getCommentId(part.id);
+  fragments.push(buildCommentRangeEnd(commentId));
+  fragments.push(buildCommentReferenceRun(commentId));
+
+  // Also emit END for all reply IDs tracked under this parent
+  const trackedReplies = trackingState.replyIdsByParent.get(part.id) || [];
+  for (const replyKey of trackedReplies) {
+    const numId = docxDocumentInstance.commentIdMap.get(replyKey);
+    if (numId !== undefined) {
+      fragments.push(buildCommentRangeEnd(numId));
+      fragments.push(buildCommentReferenceRun(numId));
+    }
+  }
+}
+```
+
+### 4. `packages/docx-io/src/lib/html-to-docx/docx-document.ts`
+
+OOXML document builder. `ensureComment()` is the central comment registry.
+
+```typescript
+ensureComment(data: Partial<CommentPayload>, parentParaId?: string): number {
+  const commentId = id !== undefined ? id : `comment-${this.lastCommentId + 1}`;
+  let numericId = this.commentIdMap.get(commentId); // string -> number lookup
+
+  if (numericId === undefined) {
+    this.lastCommentId += 1;
+    numericId = this.lastCommentId;
+    this.commentIdMap.set(commentId, numericId);
+  }
+
+  const existing = this.comments.find((item) => item.id === numericId);
+  if (existing) {
+    // Only update MISSING fields (won't overwrite)
+    if (!existing.authorName && authorName) existing.authorName = authorName;
+    if (!existing.parentParaId && parentParaId) existing.parentParaId = parentParaId;
+    return numericId;
+  }
+
+  // Preserve imported paraId or generate fresh
+  let paraId: string;
+  if (data.paraId) {
+    paraId = data.paraId;
+    allocatedIds.add(paraId);
+  } else {
+    paraId = generateHexId(); // 8-char hex < 0x7FFFFFFF
+  }
+
+  this.comments.push({
+    id: numericId,
+    authorName: authorName || 'unknown',  // <-- source of "unknown" bug
+    authorInitials: authorInitials || '',
+    date, durableId: generateHexId(),
+    paraId, parentParaId,
+    text: text || 'Imported comment',
+  });
+  return numericId;
+}
+
+getCommentId(id: string): number {
+  // Calls ensureComment({id}) -- creates entry with ONLY id, no author
+  // If this ID doesn't match the START's data.id, a new entry appears with "unknown"
+  return this.ensureComment({ id });
+}
+```
+
+### 5. `packages/docx-io/src/lib/importDocx.ts`
+
+Import entry point. Uses mammoth.js fork for DOCX->HTML conversion.
+
+```typescript
+import mammothModule from './mammoth.js/mammoth.browser.js';
+
+// Post-import: must remove tracking tokens from deserialized nodes
+// Nodes are frozen by Immer after Slate transforms -- CANNOT mutate in place
+function removeTrackingTokensFromNodes(nodes: TNode[]): TNode[] {
+  return nodes.map(node => {
+    if ('text' in node && typeof node.text === 'string') {
+      const cleaned = node.text.replace(TOKEN_REGEX, '');
+      if (cleaned !== node.text) {
+        return { ...node, text: cleaned }; // spread = new object (Immer-safe)
+      }
+      return node;
+    }
+    if ('children' in node) {
+      const newChildren = removeTrackingTokensFromNodes(node.children);
+      if (newChildren !== node.children) {
+        return { ...node, children: newChildren };
+      }
+    }
+    return node;
+  });
+}
+```
+
+### 6. `packages/docx-io/src/lib/importComments.ts`
+
+Comment parsing from HTML tokens and discussion construction.
+
+```typescript
+export type DocxImportDiscussion = {
+  id: string;
+  comments?: Array<{
+    id?: string;
+    contentRich?: unknown;
+    createdAt?: Date;
+    paraId?: string;         // round-trip
+    parentParaId?: string;   // round-trip
+    userId?: string;
+    user?: { id: string; name: string };
+  }>;
+  createdAt?: Date;
+  documentContent?: string;
+  paraId?: string;           // root comment paraId
+  userId?: string;
+  user?: { id: string; name: string };
+};
+```
+
+### 7. `apps/www/src/registry/ui/export-toolbar-button.tsx`
+
+Maps Plate TDiscussion -> DocxExportDiscussion for export.
+
+```typescript
+const exportDiscussions: DocxExportDiscussion[] = discussions.map((d) => ({
+  id: d.id,
+  comments: d.comments?.map((c) => ({
+    contentRich: c.contentRich,
+    createdAt: c.createdAt,
+    id: c.id,
+    paraId: c.paraId,           // pass through for round-trip
+    parentParaId: c.parentParaId,
+    userId: c.userId,
+    user: resolveUser(c.userId, c.authorName),
+  })),
+  createdAt: d.createdAt,
+  documentContent: d.documentContent,
+  paraId: d.paraId,
+  userId: d.userId,
+  user: resolveUser(d.userId, d.authorName),
+}));
+
+const blob = await exportToDocx(editor.children, {
+  editorPlugins: [...BaseEditorKit, ...DocxExportKit] as SlatePlugin[],
+  tracking: { discussions: exportDiscussions },
+});
+```
+
+### 8. `apps/www/src/registry/ui/import-toolbar-button.tsx`
+
+Maps DocxImportDiscussion -> TDiscussion after import.
+
+```typescript
+const newDiscussions: TDiscussion[] = result.discussions.map((d) => ({
+  id: d.id,
+  comments: (d.comments ?? []).map((c, index) => ({
+    id: c.id || `comment${index + 1}`,
+    contentRich: c.contentRich,
+    createdAt: c.createdAt ?? new Date(),
+    discussionId: d.id,
+    userId: c.userId ?? c.user?.id ?? 'imported-unknown',
+    authorName: c.user?.name,
+    paraId: c.paraId,
+    parentParaId: c.parentParaId,
+  })),
+  createdAt: d.createdAt ?? new Date(),
+  documentContent: d.documentContent,
+  userId: d.userId ?? d.user?.id ?? 'imported-unknown',
+  authorName: d.user?.name,
+  paraId: d.paraId,
+}));
+```
+
+## Known Bug Patterns & Fixes
+
+### 1. "unknown" Author in Exported DOCX
+
+**Symptom:** comments.xml has `author="unknown"` despite author data being available.
+
+**Root cause:** START token payload `id` differs from END token `id`.
+
+```
+START: {id: "comment1", authorName: "Alice"}  // WRONG -- uses comment.id
+END:   discussion1                              // always uses discussion ID
+```
+
+`getCommentId("discussion1")` calls `ensureComment({id:"discussion1"})` which creates a NEW entry (no author match with "comment1") -> `authorName: 'unknown'`.
+
+**Fix:** In `resolveCommentMeta`, always use `id` (discussion ID), never `comment?.id`.
+
+### 2. Cross-Discussion ID Collision
+
+**Symptom:** Two discussions with same comment IDs (e.g., both have "comment1") produce merged/overwritten author data.
+
+**Root cause:** Using `comment.id` as payload ID means `ensureComment("comment1")` returns the SAME numeric ID for both discussions.
+
+**Fix:** Use discussion ID as payload ID. Discussion IDs are globally unique.
+
+### 3. Frozen Immer Nodes After Import
+
+**Symptom:** Tracking tokens remain in text after import. Silent mutation failure.
+
+**Root cause:** Slate/Immer freezes nodes. `node.text = cleaned` silently fails on frozen objects.
+
+**Fix:** Use spread to create new objects: `return { ...node, text: cleaned }`.
+
+### 4. Missing paraId on Fresh Export
+
+**Symptom:** Debug log shows `paraId=NONE` for comments.
+
+**Not a bug:** Demo/fresh data has no paraId. `ensureComment` generates fresh hex IDs via `generateHexId()`. Only imported-then-re-exported comments preserve their original paraIds.
+
+### 5. Reply commentRangeEnd Missing
+
+**Symptom:** Reply comment ranges never close in document.xml, causing Word rendering issues.
+
+**Root cause:** END handler only emitted ranges for parent comment, not replies.
+
+**Fix:** Track reply IDs in `trackingState.replyIdsByParent` map during START, emit END ranges for all tracked replies.
+
+## Testing
+
+Tests use `bun:test` (NOT vitest). Located in:
+
+```
+packages/docx-io/src/lib/__tests__/
+  export-comment-ids.spec.ts      # ID uniqueness, collision, author resolution
+  export-ooxml-comments.spec.ts   # OOXML XML generation, paraId uniqueness
+  export-replies.spec.ts          # Reply handling through resolveCommentMeta
+  export-replies-id.spec.ts       # Reply ID generation
+  complex-tracking-export.spec.ts # Overlapping comments/suggestions crash test
+
+packages/docx-io/src/lib/html-to-docx/helpers/
+  xml-builder.spec.ts             # commentRangeStart/End emission
+
+packages/docx-io/src/lib/html-to-docx/
+  tracking.spec.ts                # Token building/parsing
+```
+
+**Run tests:**
+
+```bash
+cd packages/docx-io && bun test
+```
+
+**Important:** Use `mock()` from `bun:test`, NOT `vi.fn()` from vitest.
+
+## OOXML Comment Threading Model
+
+```xml
+<!-- word/comments.xml -->
+<w:comment w:id="1" w:author="Alice" w:initials="A">
+  <w:p w14:paraId="0A1B2C3D">
+    <w:r><w:t>Root comment text</w:t></w:r>
+  </w:p>
+</w:comment>
+<w:comment w:id="2" w:author="Bob" w:initials="B">
+  <w:p w14:paraId="4E5F6A7B">
+    <w:r><w:t>Reply text</w:t></w:r>
+  </w:p>
+</w:comment>
+
+<!-- word/commentsExtended.xml -->
+<w15:commentEx w15:paraId="0A1B2C3D" w15:done="0"/>
+<w15:commentEx w15:paraId="4E5F6A7B" w15:paraIdParent="0A1B2C3D" w15:done="0"/>
+<!--                                  ^^^^^^^^^^^^^^^^^^^^^^^^ links reply to parent -->
+```
+
+- `paraId` = 8-char uppercase hex < 0x7FFFFFFF, unique across all comments
+- `paraIdParent` = paraId of the parent comment (present only on replies)
+- `comments.xml` stores flat list; `commentsExtended.xml` adds threading via paraId links
+- `commentsIds.xml` adds `durableId` for cross-document persistence

@@ -7,7 +7,7 @@
  * These tests should FAIL until Phase 3 implementation populates replies.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'bun:test';
 
 import type { TNode } from 'platejs';
 

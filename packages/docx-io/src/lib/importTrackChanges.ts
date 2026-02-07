@@ -446,6 +446,6 @@ export function hasDocxTrackingTokens(html: string): boolean {
  * @returns HTML with tokens removed (content preserved)
  */
 export function stripDocxTrackingTokens(html: string): string {
-  const tokenPattern = /\[\[DOCX_(INS|DEL)_(START|END):[^\]]+\]\]/g;
+  const tokenPattern = /\[\[DOCX_(INS|DEL|CMT)_(START|END):[^\]]+\]\]/g;
   return html.replace(tokenPattern, '');
 }

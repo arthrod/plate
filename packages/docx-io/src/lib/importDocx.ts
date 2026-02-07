@@ -587,12 +587,11 @@ export async function importDocxWithTracking(
       if (Array.isArray(node.children)) {
         const newChildren = node.children
           .map(stripTokensFromNode)
-          .filter((child: any) =>
-            typeof child.text !== 'string' || child.text !== ''
+          .filter(
+            (child: any) => typeof child.text !== 'string' || child.text !== ''
           );
         // Ensure at least one child in elements
-        const children =
-          newChildren.length > 0 ? newChildren : [{ text: '' }];
+        const children = newChildren.length > 0 ? newChildren : [{ text: '' }];
         return { ...node, children };
       }
       return node;
