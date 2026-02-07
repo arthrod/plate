@@ -1003,7 +1003,7 @@ export function applyTrackedCommentsLocal(
 
         let documentContent = editor.api.string(contentRange);
         if (!documentContent || documentContent.trim().length === 0) {
-          documentContent = stripDocxTrackingTokens(comment.text ?? '');
+          documentContent = 'Imported comment';
         }
 
         discussion = {
