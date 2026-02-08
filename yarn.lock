@@ -5967,7 +5967,7 @@ __metadata:
     react: "npm:19.2.3"
     react-compiler-runtime: "npm:^1.0.0"
     react-dom: "npm:19.2.3"
-    zod: "npm:^3.24.1"
+    zod: "npm:4.1.12"
   peerDependencies:
     platejs: ">=52.0.15"
     react: ">=18.0.0"
@@ -13743,7 +13743,7 @@ __metadata:
     kleur: "npm:4.1.5"
     ora: "npm:8.2.0"
     prompts: "npm:2.4.2"
-    zod: "npm:3.25.61"
+    zod: "npm:4.1.12"
   bin:
     depset: ./dist/index.js
   languageName: unknown
@@ -26215,7 +26215,7 @@ __metadata:
     y-protocols: "npm:^1.0.6"
     y-webrtc: "npm:10.3.0"
     yjs: "npm:^13.6.27"
-    zod: "npm:3.25.61"
+    zod: "npm:4.1.12"
   languageName: unknown
   linkType: soft
 
@@ -26395,7 +26395,7 @@ __metadata:
     y-protocols: "npm:^1.0.6"
     y-webrtc: "npm:10.3.0"
     yjs: "npm:^13.6.27"
-    zod: "npm:^4.1.12"
+    zod: "npm:4.1.12"
   languageName: unknown
   linkType: soft
 
@@ -26652,13 +26652,6 @@ __metadata:
   version: 3.22.3
   resolution: "zod@npm:3.22.3"
   checksum: 10c0/cb4b24aed7dec98552eb9042e88cbd645455bf2830e5704174d2da96f554dabad4630e3b4f6623e1b6562b9eaa43535a37b7f2011f29b8d8e9eabe1ddf3b656b
-  languageName: node
-  linkType: hard
-
-"zod@npm:3.25.61":
-  version: 3.25.61
-  resolution: "zod@npm:3.25.61"
-  checksum: 10c0/45386e88c52b5946dbe22c95fe45f3e7c1c90c4fba8cd7b8ce4e6cf0a79c987026990cbb082c54bb2926be35ed49947f351f05b35d6507aa17c23c088a5f4667
   languageName: node
   linkType: hard
 
