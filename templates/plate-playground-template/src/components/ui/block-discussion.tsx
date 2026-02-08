@@ -318,29 +318,22 @@ const useResolvedDiscussion = (
     let changed = false;
     const newMap = new Map(uniquePathMap);
 
-    commentNodes.forEach(([node]) => {
+    for (const [node] of commentNodes) {
       const id = api.comment.nodeId(node);
-      if (!id) return;
+      if (!id) continue;
 
       const previousPath = newMap.get(id);
 
       if (PathApi.isPath(previousPath)) {
+        if (PathApi.equals(previousPath, blockPath)) continue;
+
         const nodes = api.comment.node({ id, at: previousPath });
-
-        if (!nodes) {
-          if (!PathApi.equals(previousPath, blockPath)) {
-            newMap.set(id, blockPath);
-            changed = true;
-          }
-          return;
-        }
-
-        return;
+        if (nodes) continue;
       }
 
       newMap.set(id, blockPath);
       changed = true;
-    });
+    }
 
     if (changed) {
       setOption('uniquePathMap', newMap);
