@@ -16,6 +16,14 @@ export type TDiscussion = {
   /** Direct author name from DOCX import (bypasses user lookup) */
   authorName?: string;
   /** Author initials from DOCX import */
+  // TODO(paraId-fidelity): Add paraId and parentParaId fields here!
+  // These threading IDs from DOCX are lost because editor has nowhere to store them.
+  // To fix:
+  // 1. Add: paraId?: string;
+  // 2. Add: parentParaId?: string;
+  // 3. Update database schema to persist these fields
+  // 4. Pass through import/export pipeline like reply IDs (see PR `#45`)
+  // Related: importComments.ts lines 763-767, exportTrackChanges.ts
   authorInitials?: string;
 };
 
