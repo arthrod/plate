@@ -68,7 +68,9 @@
   "devDependencies": {
     "@platejs/docx": "workspace:^",
     "@platejs/markdown": "workspace:^",
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "peerDependencies": {
     "@platejs/docx": ">=52.0.0",

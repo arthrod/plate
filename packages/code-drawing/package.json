@@ -56,10 +56,13 @@
     "viz.js": "^2.1.2"
   },
   "devDependencies": {
+    "@codemirror/view": "^6.0.0",
     "@types/lodash": "^4.17.13",
     "@types/plantuml-encoder": "^1.4.2",
     "@types/viz.js": "^2.1.5",
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "peerDependencies": {
     "platejs": ">=52.0.11",
