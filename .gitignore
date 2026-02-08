@@ -17,6 +17,7 @@ templates/my-app
 
 **/traceDir
 **/__logs__
+**/__pycache__
 
 .netrc
 
