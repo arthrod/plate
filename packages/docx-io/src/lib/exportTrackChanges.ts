@@ -848,6 +848,25 @@ export function injectDocxTrackingTokens(
 
   ensureNonEmptyCommentRanges(leaves);
 
+  // Warn about discussions without text marks (can't be exported to DOCX)
+  if (mergedDiscussions.length > 0) {
+    const anchoredIds = new Set<string>();
+
+    for (const leaf of leaves) {
+      for (const id of leaf.commentIds) {
+        anchoredIds.add(id);
+      }
+    }
+
+    for (const disc of mergedDiscussions) {
+      if (!anchoredIds.has(disc.id) && process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `[DOCX Export] Discussion "${disc.id}" has no comment marks on text - skipping export (comments need text selection to anchor in DOCX)`
+        );
+      }
+    }
+  }
+
   // Track when each suggestion/comment first appears
   const suggestionStartOrder = new Map<string, number>();
   const commentStartOrder = new Map<string, number>();

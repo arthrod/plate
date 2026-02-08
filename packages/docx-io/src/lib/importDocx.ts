@@ -15,8 +15,6 @@
  * 3. Deserialize HTML to editor nodes
  * 4. Apply tracked changes and comments to editor
  */
-/** biome-ignore-all lint/suspicious/noConsole: <explanation> */
-
 // Local mammoth.js fork browser build
 import mammothModule from './mammoth.js/mammoth.browser.js';
 
@@ -315,6 +313,7 @@ import {
 import {
   applyTrackedChangeSuggestions,
   parseDocxTrackedChanges,
+  type ImportedUser,
 } from './importTrackChanges';
 import { createSearchRangeFn } from './searchRange';
 
@@ -392,6 +391,8 @@ export type ImportDocxWithTrackingResult = {
   comments: number;
   /** Discussion data for UI (to be stored in discussion plugin) */
   discussions: DocxImportDiscussion[];
+  /** Unique users found in imported content (register in user store for display) */
+  users: ImportedUser[];
   /** Any errors encountered during import */
   errors: string[];
   /** Messages from mammoth (warnings, etc.) */
@@ -476,6 +477,7 @@ export async function importDocxWithTracking(
   let deletions = 0;
   let commentsApplied = 0;
   const discussions: DocxImportDiscussion[] = [];
+  const importedUsersMap = new Map<string, string>();
 
   // Step 1: Convert DOCX to HTML with tracking tokens
   const result = await convertToHtmlWithTracking(arrayBuffer, convertOptions);
@@ -536,6 +538,11 @@ export async function importDocxWithTracking(
       insertions = suggestionsResult.insertions;
       deletions = suggestionsResult.deletions;
       errors.push(...suggestionsResult.errors);
+
+      // Collect users from suggestions
+      for (const user of suggestionsResult.users) {
+        importedUsersMap.set(user.id, user.name);
+      }
     }
 
     // Step 5: Apply comments
@@ -553,6 +560,18 @@ export async function importDocxWithTracking(
       commentsApplied = commentsResult.applied;
       discussions.push(...commentsResult.discussions);
       errors.push(...commentsResult.errors);
+
+      // Collect users from comments
+      for (const disc of commentsResult.discussions) {
+        if (disc.user) {
+          importedUsersMap.set(disc.user.id, disc.user.name);
+        }
+        for (const c of disc.comments ?? []) {
+          if (c.user) {
+            importedUsersMap.set(c.user.id, c.user.name);
+          }
+        }
+      }
     }
   } catch (error) {
     // Restore original content on failure
@@ -598,6 +617,10 @@ export async function importDocxWithTracking(
     deletions,
     comments: commentsApplied,
     discussions,
+    users: Array.from(importedUsersMap.entries()).map(([id, name]) => ({
+      id,
+      name,
+    })),
     errors,
     messages: result.messages,
     hasTracking,

@@ -32,6 +32,8 @@ import { ToolbarButton } from './toolbar';
 
 type ImportType = 'html' | 'markdown';
 
+const WHITESPACE_REGEX = /\s+/;
+
 export function ImportToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -97,11 +99,24 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         isText: TextApi.isText,
         generateId: () => `discussion${++discussionCounter}`,
       });
-      console.log('[DOCX DEBUG] import result:', result);
-      console.log(
-        '[DOCX DEBUG] editor.children after import:',
-        JSON.stringify(editor.children, null, 2)
-      );
+
+      // Register imported users so suggestion/comment UI can resolve them
+      if (result.users.length > 0) {
+        const existingUsers = editor.getOption(discussionPlugin, 'users') ?? {};
+        const updatedUsers = { ...existingUsers };
+
+        for (const user of result.users) {
+          if (!updatedUsers[user.id]) {
+            updatedUsers[user.id] = {
+              id: user.id,
+              name: user.name,
+              avatarUrl: `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(user.name)}`,
+            };
+          }
+        }
+
+        editor.setOption(discussionPlugin, 'users', updatedUsers);
+      }
 
       // Add imported discussions to the discussion plugin
       if (result.discussions.length > 0) {
@@ -119,7 +134,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
             authorName: c.user?.name,
             authorInitials: c.user?.name
               ? c.user.name
-                  .split(/\s+/)
+                  .split(WHITESPACE_REGEX)
                   .slice(0, 2)
                   .map((w) => w[0]?.toUpperCase() ?? '')
                   .join('')
@@ -134,7 +149,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
           authorName: d.user?.name,
           authorInitials: d.user?.name
             ? d.user.name
-                .split(/\s+/)
+                .split(WHITESPACE_REGEX)
                 .slice(0, 2)
                 .map((w) => w[0]?.toUpperCase() ?? '')
                 .join('')
@@ -142,21 +157,19 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
           paraId: d.paraId,
         }));
 
-        editor.setOption(discussionPlugin, 'discussions', [
-          ...existingDiscussions,
-          ...newDiscussions,
-        ]);
+        // Replace all discussions (not append) because importDocxWithTracking
+        // replaces the entire editor content, making old discussions stale
+        editor.setOption(discussionPlugin, 'discussions', newDiscussions);
         editor.setOption(commentPlugin, 'uniquePathMap', new Map());
       }
 
-      // Log import results
-      if (result.hasTracking) {
-        console.log(
-          `[DOCX Import] Imported ${result.insertions} insertions, ${result.deletions} deletions, ${result.comments} comments`
-        );
-        if (result.errors.length > 0) {
-          console.warn('[DOCX Import] Errors:', result.errors);
-        }
+      // Log import results in dev only
+      if (
+        result.hasTracking &&
+        result.errors.length > 0 &&
+        process.env.NODE_ENV !== 'production'
+      ) {
+        console.warn('[DOCX Import] Errors:', result.errors);
       }
     },
   });

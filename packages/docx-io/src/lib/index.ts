@@ -33,6 +33,7 @@ export {
   DOCX_INSERTION_TOKEN_SUFFIX,
   type ApplySuggestionsOptions,
   type ApplySuggestionsResult,
+  type ImportedUser,
   type ParseTrackedChangesResult,
   type SearchRangeFn,
   type TPoint,
