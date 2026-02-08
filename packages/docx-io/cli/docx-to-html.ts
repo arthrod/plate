@@ -52,7 +52,6 @@ async function docxToHtml(options: DocxToHtmlOptions) {
   if (options.output) {
     await fs.writeFile(options.output, result.html, 'utf-8');
   } else {
-    console.log(result.html);
   }
 
   if (result.warnings.length > 0) {
@@ -86,20 +85,6 @@ if (
     } else if (arg === '--raw') {
       options.raw = true;
     } else if (arg === '--help' || arg === '-h') {
-      console.log(`
-Usage: docx-to-html [options]
-
-Convert DOCX files to HTML format using the mammoth.js converter.
-
-Options:
-  -i, --input <file>           Input DOCX file (required)
-  -o, --output <file>          Output HTML file (prints to stdout if omitted)
-  --raw                        Output raw mammoth HTML (skip comment preprocessing)
-  -h, --help                   Show help
-
-Example:
-  docx-to-html -i input.docx -o output.html
-      `);
       process.exit(0);
     }
     i++;

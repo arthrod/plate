@@ -91,10 +91,10 @@
   "type": "module",
   "module": "./dist/index.js",
   "bin": {
+    "docx-to-html": "./cli/docx-to-html.ts",
+    "html-to-docx": "./cli/html-to-docx.ts",
     "html-to-plate": "./cli/html-to-plate.ts",
     "plate-to-html": "./cli/plate-to-html.ts",
-    "html-to-docx": "./cli/html-to-docx.ts",
-    "docx-to-html": "./cli/docx-to-html.ts",
     "validate-roundtrip": "./cli/validate-roundtrip.ts"
   }
 }

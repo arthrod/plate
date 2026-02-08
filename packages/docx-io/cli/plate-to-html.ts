@@ -49,7 +49,6 @@ async function plateToHtml(options: PlateToHtmlOptions) {
   if (options.output) {
     await fs.writeFile(options.output, html, 'utf-8');
   } else {
-    console.log(html);
   }
 
   return html;
@@ -82,20 +81,6 @@ if (
       if (!options.preserveClassNames) options.preserveClassNames = [];
       options.preserveClassNames.push(args[++i]);
     } else if (arg === '--help' || arg === '-h') {
-      console.log(`
-Usage: plate-to-html [options]
-
-Options:
-  -i, --input <file>           Input Plate JSON file (required)
-  -o, --output <file>          Output HTML file (prints to stdout if omitted)
-  --strip-classes              Remove all CSS class names
-  --strip-data                 Remove all data-* attributes
-  --preserve-class <name>      Keep specific class name (can use multiple times)
-  -h, --help                   Show help
-
-Example:
-  plate-to-html -i input.json -o output.html --strip-data
-      `);
       process.exit(0);
     }
     i++;

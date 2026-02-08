@@ -39,7 +39,6 @@ async function htmlToPlate(options: HtmlToPlateOptions) {
   if (options.output) {
     await fs.writeFile(options.output, json, 'utf-8');
   } else {
-    console.log(json);
   }
 
   return nodes;
@@ -70,19 +69,6 @@ if (
     } else if (arg === '--preserve-whitespace') {
       options.collapseWhiteSpace = false;
     } else if (arg === '--help' || arg === '-h') {
-      console.log(`
-Usage: html-to-plate [options]
-
-Options:
-  -i, --input <file>           Input HTML file (required)
-  -o, --output <file>          Output JSON file (prints to stdout if omitted)
-  -p, --pretty                 Pretty-print JSON
-  --preserve-whitespace        Don't collapse whitespace
-  -h, --help                   Show help
-
-Example:
-  html-to-plate -i input.html -o output.json --pretty
-      `);
       process.exit(0);
     }
     i++;

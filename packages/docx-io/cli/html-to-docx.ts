@@ -60,15 +60,6 @@ if (
     } else if (arg === '--landscape') {
       options.landscape = true;
     } else if (arg === '--help' || arg === '-h') {
-      console.log(`
-Usage: html-to-docx [options]
-
-Options:
-  -i, --input <file>           Input HTML file (required)
-  -o, --output <file>          Output DOCX file (writes to stdout if omitted)
-  --landscape                  Use landscape orientation
-  -h, --help                   Show help
-      `);
       process.exit(0);
     }
     i++;

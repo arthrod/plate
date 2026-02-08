@@ -16,6 +16,7 @@ templates/my-app
 .repo_ignore
 
 **/traceDir
+**/__logs__
 
 .netrc
 

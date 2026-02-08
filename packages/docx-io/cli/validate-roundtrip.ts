@@ -74,21 +74,13 @@ async function runCli(options: ValidateRoundtripOptions) {
   const result = await runValidation(html);
 
   if (options.verbose) {
-    console.log(`Nodes: ${result.plateJson.length}`);
-    console.log(`JSON:\n${JSON.stringify(result.plateJson, null, 2)}\n`);
   }
 
   if (result.success) {
-    console.log('VALIDATION PASSED');
   } else {
-    console.log('VALIDATION FAILED');
-
     if (result.differences) {
-      console.log('Differences:');
-      console.log(result.differences);
     }
-    for (const err of result.errors) {
-      console.log(`  - ${err}`);
+    for (const _err of result.errors) {
     }
   }
 
@@ -129,21 +121,6 @@ if (
     } else if (arg === '--fail-on-diff') {
       options.failOnDiff = true;
     } else if (arg === '--help' || arg === '-h') {
-      console.log(`
-Usage: validate-roundtrip [options]
-
-Validates HTML -> Plate -> HTML round-trip fidelity.
-
-Options:
-  -i, --input <file>           Input HTML file (required)
-  -o, --output <file>          Output JSON report
-  -v, --verbose                Show detailed output
-  --fail-on-diff               Exit with code 1 if differences found
-  -h, --help                   Show help
-
-Example:
-  validate-roundtrip -i sample.html -o report.json --verbose
-      `);
       process.exit(0);
     }
     i++;
