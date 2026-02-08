@@ -465,6 +465,10 @@ async function exportToDocxInternal(
       nodeToString: tracking.nodeToString,
       userNameMap,
     }) as Value;
+    console.log(
+      '[DOCX DEBUG] processedValue (after token injection):',
+      JSON.stringify(processedValue, null, 2)
+    );
   }
 
   // Serialize editor content to HTML
@@ -475,6 +479,8 @@ async function exportToDocxInternal(
     plugins: editorPlugins,
     value: processedValue,
   });
+
+  console.log('[DOCX DEBUG] bodyHtml (serialized with tokens):\n', bodyHtml);
 
   // Wrap in complete HTML document
   const fullHtml = wrapHtmlForDocx(bodyHtml, customStyles);

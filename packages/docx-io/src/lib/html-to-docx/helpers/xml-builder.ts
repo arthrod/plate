@@ -462,6 +462,27 @@ const buildRunsFromTextWithTokens = (
     return null;
   }
 
+  console.log(
+    '[DOCX DEBUG] xml-builder parsed tokens:',
+    JSON.stringify(
+      parts.map((p) =>
+        p.type === 'text'
+          ? { type: 'text', len: p.value.length }
+          : p.type === 'commentStart'
+            ? {
+                type: 'commentStart',
+                id: p.data.id,
+                author: p.data.authorName,
+                paraId: p.data.paraId,
+                replies: p.data.replies?.length ?? 0,
+              }
+            : p.type === 'commentEnd'
+              ? { type: 'commentEnd', id: p.id }
+              : p
+      )
+    )
+  );
+
   const fragments: XMLBuilderType[] = [];
   const trackingState = ensureTrackingState(
     docxDocumentInstance as Required<

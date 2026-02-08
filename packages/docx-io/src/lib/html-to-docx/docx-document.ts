@@ -1126,6 +1126,14 @@ class DocxDocument {
       if (!existing.parentParaId && parentParaId) {
         existing.parentParaId = parentParaId;
       }
+      console.log(
+        '[DOCX DEBUG] ensureComment UPDATE existing:',
+        JSON.stringify({
+          stringId: commentId,
+          numericId,
+          authorName: existing.authorName,
+        })
+      );
       return numericId;
     }
 
@@ -1139,7 +1147,7 @@ class DocxDocument {
       paraId = generateHexId();
     }
 
-    this.comments.push({
+    const entry = {
       id: numericId,
       authorName: authorName || 'unknown',
       authorInitials: authorInitials || '',
@@ -1148,7 +1156,12 @@ class DocxDocument {
       paraId,
       parentParaId,
       text: text || 'Imported comment',
-    });
+    };
+    this.comments.push(entry);
+    console.log(
+      '[DOCX DEBUG] ensureComment NEW:',
+      JSON.stringify({ stringId: commentId, ...entry })
+    );
 
     return numericId;
   }
@@ -1169,6 +1182,20 @@ class DocxDocument {
    * CommentReference style on first run, text runs with formatting.
    */
   generateCommentsXML(): string {
+    console.log(
+      '[DOCX DEBUG] generateCommentsXML: ' +
+        this.comments.length +
+        ' comments:',
+      JSON.stringify(
+        this.comments.map((c) => ({
+          id: c.id,
+          author: c.authorName,
+          paraId: c.paraId,
+          parentParaId: c.parentParaId,
+          text: c.text?.slice(0, 50),
+        }))
+      )
+    );
     const w = namespaces.w;
     const commentsXML = create(COMMENTS_TEMPLATE);
     const root = commentsXML.root();

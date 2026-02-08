@@ -74,22 +74,22 @@ export type DocxCommentData = {
   replies?: DocxCommentData[];
 };
 
-/** Reply within an imported DOCX comment */
-export type DocxImportCommentReply = {
-  /** Unique ID for this reply (preserved from DOCX) */
-  id: string;
-  /** Author display name */
-  authorName?: string;
-  /** Author initials (for Word compatibility) */
-  authorInitials?: string;
-  /** Date when the reply was made (ISO string) */
-  date?: string;
-  /** OOXML paraId for round-trip threading fidelity */
-  paraId?: string;
-  /** OOXML parentParaId for round-trip reply threading */
-  parentParaId?: string;
-  /** Reply text content */
-  text?: string;
+/** Comment parsed from HTML with token metadata */
+export type DocxImportCommentReply = Omit<DocxCommentData, 'replies'> & {
+  /** The full start token string (for searching in editor) */
+  startToken: string;
+  /** The full end token string (for searching in editor) */
+  endToken: string;
+  /** The full point token string (comment reference start+end) */
+  pointToken?: string;
+  /** Whether the start token was found in HTML */
+  hasStartToken: boolean;
+  /** Whether the end token was found in HTML */
+  hasEndToken: boolean;
+  /** Whether a point token was found in HTML */
+  hasPointToken?: boolean;
+  /** Nested replies */
+  replies?: DocxImportCommentReply[];
 };
 
 /** Comment parsed from HTML with token metadata */
@@ -323,7 +323,8 @@ export function parseDocxComments(html: string): ParseCommentsResult {
       const pointToken = payload.isPoint ? startToken + endToken : undefined;
 
       upsertComment(payload.id, {
-        ...payload,
+        ...(payload as Omit<DocxCommentData, 'replies'>),
+        replies: payload.replies as DocxImportCommentReply[] | undefined,
         ...(payload.isPoint
           ? {
               pointToken,
@@ -760,7 +761,9 @@ export async function applyTrackedComments(
         }
       );
 
-      let documentContent = editor.api.string(contentRange);
+      let documentContent = stripDocxTrackingTokens(
+        editor.api.string(contentRange)
+      );
       if (!documentContent || documentContent.trim().length === 0) {
         documentContent = 'Imported comment';
       }
@@ -1024,7 +1027,9 @@ export function applyTrackedCommentsLocal(
           }
         );
 
-        let documentContent = editor.api.string(contentRange);
+        let documentContent = stripDocxTrackingTokens(
+          editor.api.string(contentRange)
+        );
         if (!documentContent || documentContent.trim().length === 0) {
           documentContent = stripDocxTrackingTokens(comment.text ?? '');
         }

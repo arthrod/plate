@@ -559,6 +559,10 @@ function buildResolvedSuggestionStartToken(
     date: normalizeDate(suggestion.createdAt),
     id: suggestion.id,
   };
+  console.log(
+    '[DOCX DEBUG] export suggestion payload:',
+    JSON.stringify({ type, ...payload })
+  );
 
   return buildSuggestionStartToken(payload, type);
 }
