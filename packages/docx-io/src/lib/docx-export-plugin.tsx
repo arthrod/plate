@@ -33,6 +33,7 @@
 'use client';
 
 import type { SlatePlugin, Value } from 'platejs';
+import juice from 'juice';
 import { createSlateEditor, createSlatePlugin } from 'platejs';
 import type { PlateStaticProps, SerializeHtmlOptions } from 'platejs/static';
 import { serializeHtml } from 'platejs/static';
@@ -465,10 +466,6 @@ async function exportToDocxInternal(
       nodeToString: tracking.nodeToString,
       userNameMap,
     }) as Value;
-    console.log(
-      '[DOCX DEBUG] processedValue (after token injection):',
-      JSON.stringify(processedValue, null, 2)
-    );
   }
 
   // Serialize editor content to HTML
@@ -480,15 +477,20 @@ async function exportToDocxInternal(
     value: processedValue,
   });
 
-  console.log('[DOCX DEBUG] bodyHtml (serialized with tokens):\n', bodyHtml);
-
   // Wrap in complete HTML document
   const fullHtml = wrapHtmlForDocx(bodyHtml, customStyles);
 
-  console.log('[DOCX DEBUG] fullHtml before html-to-docx plugin:\n', fullHtml);
+  // Inline CSS styles using juice for DOCX compatibility
+  // html-to-docx only reads inline style="" attributes, so CSS <style> blocks
+  // (e.g. table borders, backgrounds) must be inlined first.
+  const inlinedHtml = juice(fullHtml, {
+    removeStyleTags: false,
+    preserveMediaQueries: false,
+    preserveFontFaces: false,
+  });
 
   // Convert to DOCX using browser-compatible implementation
-  const blob = await htmlToDocxBlob(fullHtml, {
+  const blob = await htmlToDocxBlob(inlinedHtml, {
     margins: {
       ...DEFAULT_DOCX_MARGINS,
       ...margins,

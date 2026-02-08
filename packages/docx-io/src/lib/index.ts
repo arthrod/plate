@@ -72,6 +72,7 @@ export {
   buildUserNameMap,
   injectDocxTrackingTokens,
   normalizeDate,
+  normalizeDateUtc,
   toInitials,
   type DocxExportComment,
   type DocxExportDiscussion,

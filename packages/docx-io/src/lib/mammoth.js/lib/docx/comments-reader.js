@@ -1,8 +1,9 @@
 var documents = require('../documents');
 var Result = require('../results').Result;
 
-function createCommentsReader(bodyReader, commentsExtended) {
+function createCommentsReader(bodyReader, commentsExtended, dateUtcMap) {
   commentsExtended = commentsExtended || {};
+  dateUtcMap = dateUtcMap || {};
 
   function readCommentsXml(element) {
     return Result.combine(
@@ -21,12 +22,6 @@ function createCommentsReader(bodyReader, commentsExtended) {
       var paraId = null;
       if (body) {
         for (var i = 0; i < body.length; i++) {
-          console.log(
-            '[DOCX DEBUG] comment ' + id + ' body[' + i + '] type:',
-            body[i].type,
-            'paraId:',
-            body[i].paraId
-          );
           if (body[i].paraId) {
             paraId = body[i].paraId;
             break;
@@ -34,23 +29,18 @@ function createCommentsReader(bodyReader, commentsExtended) {
         }
       }
       var parentParaId = paraId ? commentsExtended[paraId] : null;
-      console.log(
-        '[DOCX DEBUG] comment ' +
-          id +
-          ': paraId=' +
-          paraId +
-          ' parentParaId=' +
-          parentParaId +
-          ' commentsExtended keys:',
-        Object.keys(commentsExtended)
-      );
+
+      // Prefer dateUtc (real UTC from commentsExtensible.xml) over
+      // w:date (local time with fake Z, Word convention)
+      var dateFromXml = readOptionalAttribute('w:date');
+      var resolvedDate = (paraId && dateUtcMap[paraId]) || dateFromXml;
 
       return documents.comment({
         commentId: id,
         body,
         authorName: readOptionalAttribute('w:author'),
         authorInitials: readOptionalAttribute('w:initials'),
-        date: readOptionalAttribute('w:date'),
+        date: resolvedDate,
         paraId,
         parentParaId,
       });

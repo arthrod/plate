@@ -49,17 +49,56 @@ function read(docxFile, input, options) {
         result.docxFile,
         result.partPaths.commentsExtended
       ).then((xml) => {
-        console.log(
-          '[DOCX DEBUG] commentsExtended path:',
-          result.partPaths.commentsExtended,
-          'xml found:',
-          !!xml
-        );
         if (xml) {
           return commentsExtendedReader.createCommentsExtendedReader()(xml);
         }
         return new Result({});
       }),
+      // Read commentsIds.xml (paraId → durableId) and
+      // commentsExtensible.xml (durableId → dateUtc) to build
+      // a paraId → dateUtc map for correcting Word's fake-Z dates.
+      dateUtcMap: promises
+        .props({
+          idsXml: readXmlFromZipFile(
+            result.docxFile,
+            result.partPaths.commentsIds || 'word/commentsIds.xml'
+          ),
+          extXml: readXmlFromZipFile(
+            result.docxFile,
+            result.partPaths.commentsExtensible || 'word/commentsExtensible.xml'
+          ),
+        })
+        .then((r) => {
+          var paraIdToDurable = {};
+          if (r.idsXml) {
+            r.idsXml.children.forEach((child) => {
+              if (child.name === 'w16cid:commentId') {
+                var pid = child.attributes['w16cid:paraId'];
+                var did = child.attributes['w16cid:durableId'];
+                if (pid && did) paraIdToDurable[pid] = did;
+              }
+            });
+          }
+          var durableToDateUtc = {};
+          if (r.extXml) {
+            r.extXml.children.forEach((child) => {
+              if (child.name === 'w16cex:commentExtensible') {
+                var did = child.attributes['w16cex:durableId'];
+                var utc = child.attributes['w16cex:dateUtc'];
+                if (did && utc) durableToDateUtc[did] = utc;
+              }
+            });
+          }
+          // Combine: paraId → durableId → dateUtc
+          var map = {};
+          Object.keys(paraIdToDurable).forEach((pid) => {
+            var did = paraIdToDurable[pid];
+            if (durableToDateUtc[did]) {
+              map[pid] = durableToDateUtc[did];
+            }
+          });
+          return new Result(map);
+        }),
     }))
     .also((result) => ({
       footnotes: readXmlFileWithBody(
@@ -89,7 +128,8 @@ function read(docxFile, input, options) {
           if (xml) {
             return commentsReader.createCommentsReader(
               bodyReader,
-              result.commentsExtended.value || {}
+              result.commentsExtended.value || {},
+              result.dateUtcMap.value || {}
             )(xml);
           }
           return new Result([]);

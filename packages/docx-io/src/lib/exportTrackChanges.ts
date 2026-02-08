@@ -249,9 +249,43 @@ export function toInitials(name?: null | string): string {
 }
 
 /**
- * Normalize a date to ISO string format.
+ * Format a Date as the browser's local time with a "Z" suffix.
+ * This matches Word's convention: w:date stores the author's local time
+ * but always appends "Z" regardless of timezone.
+ * e.g. user at 11:51 AM EST → "2024-01-15T11:51:00Z" (NOT real UTC)
+ *
+ * The real UTC is preserved separately in dateUtc (commentsExtensible.xml).
+ */
+function toLocalWithFakeZ(date: Date): string {
+  const Y = date.getFullYear();
+  const M = String(date.getMonth() + 1).padStart(2, '0');
+  const D = String(date.getDate()).padStart(2, '0');
+  const h = String(date.getHours()).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  const s = String(date.getSeconds()).padStart(2, '0');
+
+  return `${Y}-${M}-${D}T${h}:${m}:${s}Z`;
+}
+
+/**
+ * Normalize a date to local time with "Z" suffix (Word convention).
+ * Used for w:date attributes on comments and track changes.
  */
 export function normalizeDate(
+  date?: Date | null | number | string
+): string | undefined {
+  if (!date) return;
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return;
+
+  return toLocalWithFakeZ(parsed);
+}
+
+/**
+ * Normalize a date to ISO string in UTC (suffix "Z").
+ * Used for w16cex:dateUtc in commentsExtensible.xml.
+ */
+export function normalizeDateUtc(
   date?: Date | null | number | string
 ): string | undefined {
   if (!date) return;
@@ -559,10 +593,6 @@ function buildResolvedSuggestionStartToken(
     date: normalizeDate(suggestion.createdAt),
     id: suggestion.id,
   };
-  console.log(
-    '[DOCX DEBUG] export suggestion payload:',
-    JSON.stringify({ type, ...payload })
-  );
 
   return buildSuggestionStartToken(payload, type);
 }
@@ -590,14 +620,6 @@ function buildResolvedCommentStartToken(
     options.discussions,
     options.userNameMap,
     options.nodeToString
-  );
-  console.log(
-    '[DOCX DEBUG] export comment payload for id=' +
-      id +
-      ' paraId=' +
-      (payload.paraId ?? 'NONE') +
-      ':',
-    JSON.stringify(payload)
   );
 
   return buildCommentStartToken(payload);

@@ -479,12 +479,10 @@ export async function importDocxWithTracking(
 
   // Step 1: Convert DOCX to HTML with tracking tokens
   const result = await convertToHtmlWithTracking(arrayBuffer, convertOptions);
-  console.log('[DOCX DEBUG] mammoth HTML output:', result.value);
 
   // Step 2: Parse tracked changes and comments from HTML
   const trackedChanges = parseDocxTrackedChanges(result.value);
   const parsedComments = parseDocxComments(result.value);
-  console.log('[DOCX DEBUG] parsedComments:', parsedComments);
 
   const hasTracking =
     trackedChanges.changes.length > 0 || parsedComments.comments.length > 0;
@@ -517,11 +515,6 @@ export async function importDocxWithTracking(
     (editor.children as unknown[]).push(...nextValue);
   };
   setEditorValue(nodes as unknown[]);
-  console.log(
-    '[DOCX DEBUG] Plate editor.children:',
-    JSON.stringify(editor.children, null, 2)
-  );
-
   try {
     // Create search function adapter
     // createSearchRangeFn returns (search) => TRange, but SearchRangeFn expects (editor, search) => TRange
@@ -557,7 +550,6 @@ export async function importDocxWithTracking(
         generateId,
       });
 
-      console.log('[DOCX DEBUG] applyResult:', commentsResult);
       commentsApplied = commentsResult.applied;
       discussions.push(...commentsResult.discussions);
       errors.push(...commentsResult.errors);

@@ -21,6 +21,7 @@ export {
   buildUserNameMap,
   createDiscussionsForTransientComments,
   normalizeDate,
+  normalizeDateUtc,
   toInitials,
 } from './exportTrackChanges';
 

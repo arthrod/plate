@@ -37,6 +37,12 @@ var xmlNamespaceMap = {
 
   // Word 2012 extensions (comments threading via commentsExtended.xml)
   'http://schemas.microsoft.com/office/word/2012/wordml': 'w15',
+
+  // Word 2016 extensions (commentsIds.xml — durable IDs)
+  'http://schemas.microsoft.com/office/word/2016/wordml/cid': 'w16cid',
+
+  // Word 2018 extensions (commentsExtensible.xml — dateUtc)
+  'http://schemas.microsoft.com/office/word/2018/wordml/cex': 'w16cex',
 };
 
 function read(xmlString) {

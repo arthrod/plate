@@ -1925,31 +1925,16 @@ var Result = require('../results').Result;
 function createCommentsExtendedReader(bodyReader) {
   function readCommentsExtendedXml(element) {
     var mappings = {};
-    console.log(
-      '[DOCX DEBUG] commentsExtended children count:',
-      element.children.length
-    );
     element.children.forEach((child) => {
-      console.log('[DOCX DEBUG] commentsExtended child:', child.name, child.type, JSON.stringify(child.attributes || {}).slice(0, 200));
       if (child.name === 'w15:commentEx') {
         var paraId = child.attributes['w15:paraId'];
         var parentParaId = child.attributes['w15:paraIdParent'];
         var done = child.attributes['w15:done'];
-        console.log('[DOCX DEBUG] commentEx:', {
-          paraId,
-          parentParaId,
-          done,
-          allAttrs: JSON.stringify(child.attributes),
-        });
         if (paraId && parentParaId) {
           mappings[paraId] = parentParaId;
         }
       }
     });
-    console.log(
-      '[DOCX DEBUG] commentsExtended mappings:',
-      JSON.stringify(mappings)
-    );
     return new Result(mappings);
   }
 
@@ -1962,8 +1947,9 @@ exports.createCommentsExtendedReader = createCommentsExtendedReader;
 var documents = require('../documents');
 var Result = require('../results').Result;
 
-function createCommentsReader(bodyReader, commentsExtended) {
+function createCommentsReader(bodyReader, commentsExtended, dateUtcMap) {
   commentsExtended = commentsExtended || {};
+  dateUtcMap = dateUtcMap || {};
 
   function readCommentsXml(element) {
     return Result.combine(
@@ -1982,12 +1968,6 @@ function createCommentsReader(bodyReader, commentsExtended) {
       var paraId = null;
       if (body) {
         for (var i = 0; i < body.length; i++) {
-          console.log(
-            '[DOCX DEBUG] comment ' + id + ' body[' + i + '] type:',
-            body[i].type,
-            'paraId:',
-            body[i].paraId
-          );
           if (body[i].paraId) {
             paraId = body[i].paraId;
             break;
@@ -1995,23 +1975,18 @@ function createCommentsReader(bodyReader, commentsExtended) {
         }
       }
       var parentParaId = paraId ? commentsExtended[paraId] : null;
-      console.log(
-        '[DOCX DEBUG] comment ' +
-          id +
-          ': paraId=' +
-          paraId +
-          ' parentParaId=' +
-          parentParaId +
-          ' commentsExtended keys:',
-        Object.keys(commentsExtended)
-      );
+
+      // Prefer dateUtc (real UTC from commentsExtensible.xml) over
+      // w:date (local time with fake Z, Word convention)
+      var dateFromXml = readOptionalAttribute('w:date');
+      var resolvedDate = (paraId && dateUtcMap[paraId]) || dateFromXml;
 
       return documents.comment({
         commentId: id,
         body,
         authorName: readOptionalAttribute('w:author'),
         authorInitials: readOptionalAttribute('w:initials'),
-        date: readOptionalAttribute('w:date'),
+        date: resolvedDate,
         paraId,
         parentParaId,
       });
@@ -2180,17 +2155,56 @@ function read(docxFile, input, options) {
         result.docxFile,
         result.partPaths.commentsExtended
       ).then((xml) => {
-        console.log(
-          '[DOCX DEBUG] commentsExtended path:',
-          result.partPaths.commentsExtended,
-          'xml found:',
-          !!xml
-        );
         if (xml) {
           return commentsExtendedReader.createCommentsExtendedReader()(xml);
         }
         return new Result({});
       }),
+      // Read commentsIds.xml (paraId → durableId) and
+      // commentsExtensible.xml (durableId → dateUtc) to build
+      // a paraId → dateUtc map for correcting Word's fake-Z dates.
+      dateUtcMap: promises
+        .props({
+          idsXml: readXmlFromZipFile(
+            result.docxFile,
+            result.partPaths.commentsIds || 'word/commentsIds.xml'
+          ),
+          extXml: readXmlFromZipFile(
+            result.docxFile,
+            result.partPaths.commentsExtensible || 'word/commentsExtensible.xml'
+          ),
+        })
+        .then((r) => {
+          var paraIdToDurable = {};
+          if (r.idsXml) {
+            r.idsXml.children.forEach((child) => {
+              if (child.name === 'w16cid:commentId') {
+                var pid = child.attributes['w16cid:paraId'];
+                var did = child.attributes['w16cid:durableId'];
+                if (pid && did) paraIdToDurable[pid] = did;
+              }
+            });
+          }
+          var durableToDateUtc = {};
+          if (r.extXml) {
+            r.extXml.children.forEach((child) => {
+              if (child.name === 'w16cex:commentExtensible') {
+                var did = child.attributes['w16cex:durableId'];
+                var utc = child.attributes['w16cex:dateUtc'];
+                if (did && utc) durableToDateUtc[did] = utc;
+              }
+            });
+          }
+          // Combine: paraId → durableId → dateUtc
+          var map = {};
+          Object.keys(paraIdToDurable).forEach((pid) => {
+            var did = paraIdToDurable[pid];
+            if (durableToDateUtc[did]) {
+              map[pid] = durableToDateUtc[did];
+            }
+          });
+          return new Result(map);
+        }),
     }))
     .also((result) => ({
       footnotes: readXmlFileWithBody(
@@ -2220,7 +2234,8 @@ function read(docxFile, input, options) {
           if (xml) {
             return commentsReader.createCommentsReader(
               bodyReader,
-              result.commentsExtended.value || {}
+              result.commentsExtended.value || {},
+              result.dateUtcMap.value || {}
             )(xml);
           }
           return new Result([]);
@@ -2594,6 +2609,12 @@ var xmlNamespaceMap = {
 
   // Word 2012 extensions (comments threading via commentsExtended.xml)
   'http://schemas.microsoft.com/office/word/2012/wordml': 'w15',
+
+  // Word 2016 extensions (commentsIds.xml — durable IDs)
+  'http://schemas.microsoft.com/office/word/2016/wordml/cid': 'w16cid',
+
+  // Word 2018 extensions (commentsExtensible.xml — dateUtc)
+  'http://schemas.microsoft.com/office/word/2018/wordml/cex': 'w16cex',
 };
 
 function read(xmlString) {

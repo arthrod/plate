@@ -41,18 +41,34 @@ describe('injectDocxTrackingTokens', () => {
         expect(normalizeDate(undefined)).toBeUndefined();
       });
 
-      it('converts Date object to ISO string', () => {
+      it('converts Date object to local time with Z suffix (Word convention)', () => {
         const date = new Date('2024-01-15T12:00:00Z');
-        expect(normalizeDate(date)).toBe('2024-01-15T12:00:00.000Z');
+        const result = normalizeDate(date)!;
+        // Should be ISO 8601 with Z suffix (local time, Word convention)
+        expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+        // The time should be the browser's local representation
+        const expected = [
+          date.getFullYear(),
+          String(date.getMonth() + 1).padStart(2, '0'),
+          String(date.getDate()).padStart(2, '0'),
+        ].join('-');
+        expect(result).toContain(expected);
       });
 
-      it('converts valid string to ISO string', () => {
-        expect(normalizeDate('2024-01-15')).toMatch(/^2024-01-15/);
+      it('converts valid string to local time with Z', () => {
+        const result = normalizeDate('2024-01-15');
+        expect(result).toMatch(/^2024-01-1/);
+        expect(result).toMatch(/Z$/);
       });
 
-      it('converts timestamp to ISO string', () => {
+      it('converts timestamp to local time with Z', () => {
         const timestamp = new Date('2024-01-15T12:00:00Z').getTime();
-        expect(normalizeDate(timestamp)).toBe('2024-01-15T12:00:00.000Z');
+        const result = normalizeDate(timestamp)!;
+        expect(result).toMatch(/Z$/);
+        // Local hours should match Date.getHours()
+        const d = new Date(timestamp);
+        const localHours = String(d.getHours()).padStart(2, '0');
+        expect(result).toContain(`T${localHours}:`);
       });
 
       it('returns undefined for invalid date', () => {

@@ -620,8 +620,9 @@ describe('docx roundtrip', () => {
 
     expect(dates.length).toBeGreaterThan(0);
 
-    // Verify the exported date matches input (normalized to ISO string)
-    const normalizedInput = new Date(inputDate).toISOString();
-    expect(dates).toContain(normalizedInput);
+    // Verify the exported date represents the same instant as input (may differ in tz offset)
+    const inputMs = new Date(inputDate).getTime();
+    const matchesInstant = dates.some((d) => new Date(d).getTime() === inputMs);
+    expect(matchesInstant).toBe(true);
   });
 });

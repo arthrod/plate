@@ -1126,14 +1126,6 @@ class DocxDocument {
       if (!existing.parentParaId && parentParaId) {
         existing.parentParaId = parentParaId;
       }
-      console.log(
-        '[DOCX DEBUG] ensureComment UPDATE existing:',
-        JSON.stringify({
-          stringId: commentId,
-          numericId,
-          authorName: existing.authorName,
-        })
-      );
       return numericId;
     }
 
@@ -1158,10 +1150,6 @@ class DocxDocument {
       text: text || 'Imported comment',
     };
     this.comments.push(entry);
-    console.log(
-      '[DOCX DEBUG] ensureComment NEW:',
-      JSON.stringify({ stringId: commentId, ...entry })
-    );
 
     return numericId;
   }
@@ -1182,20 +1170,6 @@ class DocxDocument {
    * CommentReference style on first run, text runs with formatting.
    */
   generateCommentsXML(): string {
-    console.log(
-      '[DOCX DEBUG] generateCommentsXML: ' +
-        this.comments.length +
-        ' comments:',
-      JSON.stringify(
-        this.comments.map((c) => ({
-          id: c.id,
-          author: c.authorName,
-          paraId: c.paraId,
-          parentParaId: c.parentParaId,
-          text: c.text?.slice(0, 50),
-        }))
-      )
-    );
     const w = namespaces.w;
     const commentsXML = create(COMMENTS_TEMPLATE);
     const root = commentsXML.root();
@@ -1327,7 +1301,19 @@ class DocxDocument {
       const el = root.ele(namespaces.w16cex, 'commentExtensible');
       el.att(namespaces.w16cex, 'durableId', comment.durableId);
       if (comment.date) {
-        el.att(namespaces.w16cex, 'dateUtc', comment.date);
+        // comment.date is local time with fake Z (Word convention).
+        // Reverse the fake Z to recover real UTC:
+        //   fakeMs = epoch interpreting local time as UTC
+        //   tzMs   = browser offset (positive = west of UTC)
+        //   real   = fakeMs + tzMs
+        const fakeMs = new Date(comment.date).getTime();
+        const tzMs = new Date().getTimezoneOffset() * 60_000;
+        const realUtc = new Date(fakeMs + tzMs);
+        el.att(
+          namespaces.w16cex,
+          'dateUtc',
+          Number.isNaN(realUtc.getTime()) ? comment.date : realUtc.toISOString()
+        );
       }
       el.up();
     });
