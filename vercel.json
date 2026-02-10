@@ -1,7 +1,4 @@
 {
-  "functions": {
-    "app/**/*": {
-      "maxDuration": 1
-    }
-  }
+  "installCommand": "yarn install",
+  "buildCommand": "TURBO_CONCURRENCY=1 yarn turbo build --filter=./apps/www"
 }
