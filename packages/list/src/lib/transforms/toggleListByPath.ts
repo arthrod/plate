@@ -5,18 +5,33 @@ export const toggleListByPath = (
   [node, path]: NodeEntry,
   listStyleType: string
 ) => {
-  editor.tf.setNodes(
-    {
-      [KEYS.indent]: node.indent ?? 1,
-      // TODO: normalized if not todo remove this property.
-      [KEYS.listChecked]: false,
-      [KEYS.listType]: listStyleType,
-      type: KEYS.p,
-    },
-    {
-      at: path,
+  editor.tf.withoutNormalizing(() => {
+    if (listStyleType === 'todo') {
+      editor.tf.setNodes(
+        {
+          [KEYS.indent]: node.indent ?? 1,
+          [KEYS.listChecked]: false,
+          [KEYS.listType]: listStyleType,
+          type: KEYS.p,
+        },
+        {
+          at: path,
+        }
+      );
+    } else {
+      editor.tf.unsetNodes([KEYS.listChecked], { at: path });
+      editor.tf.setNodes(
+        {
+          [KEYS.indent]: node.indent ?? 1,
+          [KEYS.listType]: listStyleType,
+          type: KEYS.p,
+        },
+        {
+          at: path,
+        }
+      );
     }
-  );
+  });
 };
 
 export const toggleListByPathUnSet = (
