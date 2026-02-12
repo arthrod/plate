@@ -1,217 +1,144 @@
 #!/usr/bin/env node
-import fs from 'fs/promises';
-import { JSDOM } from 'jsdom';
-import { createCLIEditor, createStaticCLIEditor } from './shared/editor-config';
-import { diff } from 'jest-diff';
+import fs from 'node:fs/promises';
 
-interface ValidationResult {
+import { diff } from 'jest-diff';
+import type { TNode } from 'platejs';
+
+import { convertHtmlToPlate } from './html-to-plate';
+import { convertPlateToHtml } from './plate-to-html';
+import { normalizeHtml, validateFields } from './shared/validation-utils';
+
+export type ValidationResult = {
   success: boolean;
-  originalHtml: string;
-  plateJson: any;
-  regeneratedHtml: string;
   differences?: string;
   errors: string[];
-}
+  originalHtml: string;
+  plateJson: TNode[];
+  regeneratedHtml: string;
+};
 
-interface Options {
+export type ValidateRoundtripOptions = {
   input: string;
+  failOnDiff?: boolean;
   output?: string;
   verbose?: boolean;
-  failOnDiff?: boolean;
-}
+};
 
-async function validateRoundtrip(options: Options): Promise<ValidationResult> {
+// Re-export for backwards compatibility
+export { normalizeHtml, validateFields } from './shared/validation-utils';
+
+/** Run round-trip validation: HTML -> Plate -> HTML. */
+export async function runValidation(html: string): Promise<ValidationResult> {
   const result: ValidationResult = {
-    success: true,
-    originalHtml: '',
-    plateJson: null,
-    regeneratedHtml: '',
     errors: [],
+    originalHtml: html,
+    plateJson: [],
+    regeneratedHtml: '',
+    success: true,
   };
 
-  try {
-    console.log('🐰 Starting round-trip validation...\n');
+  // Step 1: HTML -> Plate
+  result.plateJson = convertHtmlToPlate(html);
 
-    // Step 1: Read original HTML
-    result.originalHtml = await fs.readFile(options.input, 'utf-8');
-    console.log('✅ Step 1: Read original HTML');
-    if (options.verbose) {
-      console.log(`   Length: ${result.originalHtml.length} chars`);
-    }
+  // Step 2: Plate -> HTML
+  result.regeneratedHtml = await convertPlateToHtml(result.plateJson);
 
-    // Step 2: HTML → Plate
-    const dom = new JSDOM(result.originalHtml);
-    const editor = createCLIEditor();
-    // @ts-ignore
-    result.plateJson = editor.api.html.deserialize({
-      element: dom.window.document.body,
-      collapseWhiteSpace: true,
-    });
-    console.log('✅ Step 2: Converted HTML → Plate');
-    if (options.verbose) {
-      console.log(`   Nodes: ${result.plateJson.length}`);
-      console.log(`   JSON:\n${JSON.stringify(result.plateJson, null, 2)}\n`);
-    }
+  // Step 3: Compare normalized HTML
+  const normalizedOriginal = normalizeHtml(result.originalHtml);
+  const normalizedRegenerated = normalizeHtml(result.regeneratedHtml);
 
-    // Step 3: Plate → HTML
-    const staticEditor = createStaticCLIEditor();
-    staticEditor.children = result.plateJson;
-    const { serializeHtml } = await import('platejs/static');
-    // @ts-ignore
-    result.regeneratedHtml = await serializeHtml(staticEditor, {
-      stripClassNames: false,
-      stripDataAttributes: false,
-    });
-    console.log('✅ Step 3: Converted Plate → HTML');
-    if (options.verbose) {
-      console.log(`   Length: ${result.regeneratedHtml.length} chars\n`);
-    }
-
-    // Step 4: Compare HTML (normalize whitespace)
-    const normalizeHtml = (html: string) => {
-      const dom = new JSDOM(html);
-      return dom.window.document.body.innerHTML
-        .replace(/\s+/g, ' ')
-        .trim();
-    };
-
-    const normalizedOriginal = normalizeHtml(result.originalHtml);
-    const normalizedRegenerated = normalizeHtml(result.regeneratedHtml);
-
-    if (normalizedOriginal !== normalizedRegenerated) {
-      result.success = false;
-      result.differences = diff(normalizedOriginal, normalizedRegenerated, {
+  if (normalizedOriginal !== normalizedRegenerated) {
+    result.success = false;
+    result.differences =
+      diff(normalizedOriginal, normalizedRegenerated, {
         contextLines: 3,
         expand: false,
       }) || 'No diff output';
-
-      console.log('❌ Step 4: HTML comparison FAILED\n');
-      console.log('Differences:');
-      console.log(result.differences);
-
-      result.errors.push('Round-trip HTML does not match original');
-    } else {
-      console.log('✅ Step 4: HTML comparison PASSED');
-    }
-
-    // Step 5: Validate specific fields (paraId, parentParaId, reply IDs, etc.)
-    console.log('\n🔍 Step 5: Validating field preservation...');
-
-    const validateFields = (nodes: any[], path = 'root'): void => {
-      nodes.forEach((node, idx) => {
-        const nodePath = `${path}[${idx}]`;
-
-        // Check for discussion/comment fields
-        if (node.type === 'discussion' || node.type === 'comment') {
-          // Check if paraId would be lost in export
-          if (node.paraId) {
-            console.log(`   ⚠️  Found paraId at ${nodePath} (check if exported)`);
-          }
-          if (node.parentParaId) {
-            console.log(`   ⚠️  Found parentParaId at ${nodePath} (check if exported)`);
-          }
-
-          // Check replies
-          if (node.replies) {
-            node.replies.forEach((reply: any, rIdx: number) => {
-              if (!reply.id) {
-                result.errors.push(`Missing reply.id at ${nodePath}.replies[${rIdx}]`);
-                result.success = false;
-                console.log(`   ❌ Missing reply.id at ${nodePath}.replies[${rIdx}]`);
-              } else {
-                console.log(`   ✅ Reply.id present at ${nodePath}.replies[${rIdx}]: ${reply.id}`);
-              }
-            });
-          }
-        }
-
-        // Recurse into children
-        if (node.children) {
-          validateFields(node.children, nodePath);
-        }
-      });
-    };
-
-    validateFields(result.plateJson);
-
-    // Summary
-    console.log('\n' + '='.repeat(60));
-    if (result.success) {
-      console.log('✅ VALIDATION PASSED');
-    } else {
-      console.log('❌ VALIDATION FAILED');
-      console.log(`   Errors: ${result.errors.length}`);
-      result.errors.forEach(err => console.log(`   - ${err}`));
-    }
-    console.log('='.repeat(60));
-
-  } catch (error: any) {
-    result.success = false;
-    result.errors.push(error.message);
-    console.error('\n❌ Validation error:', error.message);
+    result.errors.push('Round-trip HTML does not match original');
   }
 
-  // Write report
+  // Step 4: Validate field preservation
+  const fieldErrors: string[] = [];
+  validateFields(result.plateJson, fieldErrors);
+
+  if (fieldErrors.length > 0) {
+    result.success = false;
+    result.errors.push(...fieldErrors);
+  }
+
+  return result;
+}
+
+async function runCli(options: ValidateRoundtripOptions) {
+  const html = await fs.readFile(options.input, 'utf-8');
+  const result = await runValidation(html);
+
+  if (options.verbose) {
+  }
+
+  if (result.success) {
+  } else {
+    if (result.differences) {
+    }
+    for (const _err of result.errors) {
+    }
+  }
+
   if (options.output) {
     await fs.writeFile(
       options.output,
       JSON.stringify(result, null, 2),
       'utf-8'
     );
-    console.log(`\n📄 Report written to ${options.output}`);
   }
 
   return result;
 }
 
-// CLI argument parsing
-const args = process.argv.slice(2);
-const options: Options = {
-  input: '',
-  verbose: false,
-  failOnDiff: false,
-};
+// Only run CLI when executed directly (not when imported for testing)
+if (
+  import.meta.url === `file://${process.argv[1]}` ||
+  process.argv[1]?.endsWith('validate-roundtrip.ts')
+) {
+  const args = process.argv.slice(2);
+  const options: ValidateRoundtripOptions = {
+    failOnDiff: false,
+    input: '',
+    verbose: false,
+  };
 
-for (let i = 0; i < args.length; i++) {
-  const arg = args[i];
-  if (arg === '--input' || arg === '-i') {
-    options.input = args[++i];
-  } else if (arg === '--output' || arg === '-o') {
-    options.output = args[++i];
-  } else if (arg === '--verbose' || arg === '-v') {
-    options.verbose = true;
-  } else if (arg === '--fail-on-diff') {
-    options.failOnDiff = true;
-  } else if (arg === '--help' || arg === '-h') {
-    console.log(`
-Usage: validate-roundtrip [options]
+  let i = 0;
 
-Validates HTML → Plate → HTML round-trip fidelity.
+  while (i < args.length) {
+    const arg = args[i];
 
-Options:
-  -i, --input <file>           Input HTML file (required)
-  -o, --output <file>          Output JSON report
-  -v, --verbose                Show detailed output
-  --fail-on-diff               Exit with code 1 if differences found
-  -h, --help                   Show help
-
-Example:
-  validate-roundtrip -i sample.html -o report.json --verbose
-    `);
-    process.exit(0);
+    if (arg === '--input' || arg === '-i') {
+      options.input = args[++i];
+    } else if (arg === '--output' || arg === '-o') {
+      options.output = args[++i];
+    } else if (arg === '--verbose' || arg === '-v') {
+      options.verbose = true;
+    } else if (arg === '--fail-on-diff') {
+      options.failOnDiff = true;
+    } else if (arg === '--help' || arg === '-h') {
+      process.exit(0);
+    }
+    i++;
   }
-}
 
-if (!options.input) {
-  console.error('❌ Error: --input is required');
-  process.exit(1);
-}
-
-validateRoundtrip(options).then((result) => {
-  if (options.failOnDiff && !result.success) {
+  if (!options.input) {
+    console.error('Error: --input is required');
     process.exit(1);
   }
-}).catch((err) => {
-  console.error('❌ Fatal error:', err.message);
-  process.exit(1);
-});
+
+  runCli(options)
+    .then((result) => {
+      if (options.failOnDiff && !result.success) {
+        process.exit(1);
+      }
+    })
+    .catch((err: Error) => {
+      console.error('Fatal error:', err.message);
+      process.exit(1);
+    });
+}

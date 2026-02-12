@@ -16,6 +16,8 @@ templates/my-app
 .repo_ignore
 
 **/traceDir
+**/__logs__
+**/__pycache__
 
 .netrc
 
@@ -145,7 +147,7 @@ CLAUDE.local.md
 # END Skiller Generated Files
 .worktrees
 tmp/
-#.claude/
+.claude/
 .claude/commands/
-#.claude/skills/
+.claude/skills/
 .claude/scripts/

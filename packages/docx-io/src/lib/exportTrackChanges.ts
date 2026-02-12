@@ -588,10 +588,6 @@ function buildResolvedCommentStartToken(
     options.userNameMap,
     options.nodeToString
   );
-  console.log(
-    '[DOCX DEBUG] export comment payload for id=' + id + ':',
-    JSON.stringify(payload)
-  );
 
   return buildCommentStartToken(payload);
 }

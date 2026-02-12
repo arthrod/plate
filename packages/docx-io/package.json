@@ -44,6 +44,8 @@
     "typecheck": "yarn p:typecheck",
     "cli:html-to-plate": "tsx cli/html-to-plate.ts",
     "cli:plate-to-html": "tsx cli/plate-to-html.ts",
+    "cli:html-to-docx": "tsx cli/html-to-docx.ts",
+    "cli:docx-to-html": "tsx cli/docx-to-html.ts",
     "cli:validate": "tsx cli/validate-roundtrip.ts"
   },
   "dependencies": {
@@ -89,6 +91,8 @@
   "type": "module",
   "module": "./dist/index.js",
   "bin": {
+    "docx-to-html": "./cli/docx-to-html.ts",
+    "html-to-docx": "./cli/html-to-docx.ts",
     "html-to-plate": "./cli/html-to-plate.ts",
     "plate-to-html": "./cli/plate-to-html.ts",
     "validate-roundtrip": "./cli/validate-roundtrip.ts"

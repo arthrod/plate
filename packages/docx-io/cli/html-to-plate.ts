@@ -1,95 +1,87 @@
 #!/usr/bin/env node
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
+
 import { JSDOM } from 'jsdom';
+import type { TNode } from 'platejs';
+
 import { createCLIEditor } from './shared/editor-config';
 
-interface Options {
+export type HtmlToPlateOptions = {
   input: string;
+  collapseWhiteSpace?: boolean;
   output?: string;
   pretty?: boolean;
-  collapseWhiteSpace?: boolean;
-}
+};
 
-async function htmlToPlate(options: Options) {
-  console.log('🐰 Converting HTML to Plate...');
-
-  // Read HTML file
-  const html = await fs.readFile(options.input, 'utf-8');
-  console.log(`📖 Read ${options.input}`);
-
-  // Parse HTML
+/** Convert an HTML string to Plate JSON nodes using production plugins. */
+export function convertHtmlToPlate(
+  html: string,
+  collapseWhiteSpace = true
+): TNode[] {
   const dom = new JSDOM(html);
-  const document = dom.window.document;
-  const element = document.body;
-
-  // Create editor with production plugins
+  const element = dom.window.document.body;
   const editor = createCLIEditor();
 
-  // Deserialize using production logic
-  // @ts-ignore - API exists but type checking might complain depending on imports
-  const nodes = editor.api.html.deserialize({
+  return editor.api.html.deserialize({
+    collapseWhiteSpace,
     element,
-    collapseWhiteSpace: options.collapseWhiteSpace ?? true,
-  });
+  }) as TNode[];
+}
 
-  // Format output
+async function htmlToPlate(options: HtmlToPlateOptions) {
+  const html = await fs.readFile(options.input, 'utf-8');
+  const nodes = convertHtmlToPlate(html, options.collapseWhiteSpace ?? true);
+
   const json = options.pretty
     ? JSON.stringify(nodes, null, 2)
     : JSON.stringify(nodes);
 
-  // Write or print
   if (options.output) {
     await fs.writeFile(options.output, json, 'utf-8');
-    console.log(`✅ Wrote ${options.output}`);
   } else {
-    console.log(json);
   }
 
   return nodes;
 }
 
-// CLI argument parsing
-const args = process.argv.slice(2);
-const options: Options = {
-  input: '',
-  collapseWhiteSpace: true,
-};
+// Only run CLI when executed directly (not when imported for testing)
+if (
+  import.meta.url === `file://${process.argv[1]}` ||
+  process.argv[1]?.endsWith('html-to-plate.ts')
+) {
+  const args = process.argv.slice(2);
+  const options: HtmlToPlateOptions = {
+    input: '',
+    collapseWhiteSpace: true,
+  };
 
-for (let i = 0; i < args.length; i++) {
-  const arg = args[i];
-  if (arg === '--input' || arg === '-i') {
-    options.input = args[++i];
-  } else if (arg === '--output' || arg === '-o') {
-    options.output = args[++i];
-  } else if (arg === '--pretty' || arg === '-p') {
-    options.pretty = true;
-  } else if (arg === '--preserve-whitespace') {
-    options.collapseWhiteSpace = false;
-  } else if (arg === '--help' || arg === '-h') {
-    console.log(`
-Usage: html-to-plate [options]
+  let i = 0;
 
-Options:
-  -i, --input <file>           Input HTML file (required)
-  -o, --output <file>          Output JSON file (prints to stdout if omitted)
-  -p, --pretty                 Pretty-print JSON
-  --preserve-whitespace        Don't collapse whitespace
-  -h, --help                   Show help
+  while (i < args.length) {
+    const arg = args[i];
 
-Example:
-  html-to-plate -i input.html -o output.json --pretty
-    `);
-    process.exit(0);
+    if (arg === '--input' || arg === '-i') {
+      options.input = args[++i];
+    } else if (arg === '--output' || arg === '-o') {
+      options.output = args[++i];
+    } else if (arg === '--pretty' || arg === '-p') {
+      options.pretty = true;
+    } else if (arg === '--preserve-whitespace') {
+      options.collapseWhiteSpace = false;
+    } else if (arg === '--help' || arg === '-h') {
+      process.exit(0);
+    }
+    i++;
   }
-}
 
-if (!options.input) {
-  console.error('❌ Error: --input is required');
-  console.error('Run with --help for usage');
-  process.exit(1);
-}
+  if (!options.input) {
+    console.error('Error: --input is required');
+    console.error('Run with --help for usage');
+    process.exit(1);
+  }
 
-htmlToPlate(options).catch((err) => {
-  console.error('❌ Error:', err.message);
-  process.exit(1);
-});
+  htmlToPlate(options).catch((err: Error) => {
+    console.error('Error:', err.message);
+    process.exit(1);
+  });
+}

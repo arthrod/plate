@@ -510,6 +510,7 @@ export function getPointCommentMarkRange(
 /**
  * Resolve target ranges for a comment (mark range and content range).
  */
+// biome-ignore lint/nursery/useMaxParams: keeping original signature
 export function resolveCommentTargetRanges(
   editor: TrackingEditor,
   startRange: TRange,
@@ -755,7 +756,7 @@ export async function applyTrackedComments(
         documentContent = 'Imported comment';
       }
 
-      const commentText = comment.text ?? '';
+      const commentText = stripDocxTrackingTokens(comment.text ?? '');
       const contentRich = commentText
         ? [{ children: [{ text: commentText }], type: 'p' }]
         : undefined;
@@ -1010,7 +1011,7 @@ export function applyTrackedCommentsLocal(
 
         let documentContent = editor.api.string(contentRange);
         if (!documentContent || documentContent.trim().length === 0) {
-          documentContent = comment.text ?? '';
+          documentContent = 'Imported comment';
         }
 
         discussion = {
