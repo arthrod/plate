@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "brl": "yarn g:brl",
-    "build": "TURBO_CONCURRENCY=1 turbo build --filter=\"./packages/**\" && cd apps/www_worker && opennextjs-cloudflare build",
+    "build": "turbo build --filter=\"./packages/**\" && cd apps/www_worker && opennextjs-cloudflare build",
     "build:apps": "turbo --filter \"./apps/www\" build",
     "build:www": "yarn workspace www build",
     "build:www-worker": "yarn workspace www-worker build:worker",
