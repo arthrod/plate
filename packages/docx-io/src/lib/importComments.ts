@@ -756,11 +756,19 @@ export async function applyTrackedComments(
         documentContent = 'Imported comment';
       }
 
-      const commentText = comment.text ?? '';
+      const commentText = stripDocxTrackingTokens(comment.text ?? '');
       const contentRich = commentText
         ? [{ children: [{ text: commentText }], type: 'p' }]
         : undefined;
 
+        // TODO(paraId-fidelity): paraId and parentParaId from DOCX are lost here!
+        // These fields are correctly parsed by mammoth.browser.js from w15:paraId
+        // and w15:paraIdParent XML attributes, but are not passed to the API.
+        // To fix:
+        // 1. Add paraId and parentParaId to TDiscussion or TComment types
+        // 2. Update createDiscussionWithComment API to accept these fields
+        // 3. Pass docxComment.paraId and docxComment.parentParaId here
+        // Related: PR `#45` fixed reply IDs; this needs the same treatment for threading IDs
       const discussion = await createDiscussionWithComment.mutateAsync({
         contentRich,
         documentContent,
@@ -1003,7 +1011,7 @@ export function applyTrackedCommentsLocal(
 
         let documentContent = editor.api.string(contentRange);
         if (!documentContent || documentContent.trim().length === 0) {
-          documentContent = comment.text ?? '';
+          documentContent = 'Imported comment';
         }
 
         discussion = {

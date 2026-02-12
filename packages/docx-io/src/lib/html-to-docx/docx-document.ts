@@ -1128,7 +1128,15 @@ class DocxDocument {
       authorInitials: authorInitials || '',
       date,
       durableId: generateHexId(),
-      paraId: generateHexId(),
+      // TODO(paraId-fidelity): BUG! Generating NEW random paraId instead of preserving imported value!
+      // This breaks round-trip fidelity - every export creates different IDs.
+      // To fix:
+      // 1. Accept paraId and parentParaId as parameters to ensureComment()
+      // 2. Pass from CommentPayload (tracking.ts) through xml-builder.ts
+      // 3. Use provided values if available: paraId: providedParaId || generateHexId()
+      // 4. Same for parentParaId
+      // Related: PR `#45` fixed this for reply IDs; threading IDs need same treatment
+      paraId: generateHexId(),        // ❌ Should use comment.paraId if provided!
       parentParaId,
       text: text || 'Imported comment',
     });

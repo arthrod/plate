@@ -41,7 +41,12 @@
     "lint:fix": "yarn p:lint:fix",
     "test": "yarn p:test",
     "test:watch": "yarn p:test:watch",
-    "typecheck": "yarn p:typecheck"
+    "typecheck": "yarn p:typecheck",
+    "cli:html-to-plate": "tsx cli/html-to-plate.ts",
+    "cli:plate-to-html": "tsx cli/plate-to-html.ts",
+    "cli:html-to-docx": "tsx cli/html-to-docx.ts",
+    "cli:docx-to-html": "tsx cli/docx-to-html.ts",
+    "cli:validate": "tsx cli/validate-roundtrip.ts"
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.8.6",
@@ -52,6 +57,8 @@
     "dingbat-to-unicode": "^1.0.1",
     "html-entities": "^2.5.2",
     "html-to-vdom": "^0.7.0",
+    "jest-diff": "^29.7.0",
+    "jsdom": "^24.0.0",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "lop": "^0.4.2",
@@ -68,7 +75,8 @@
   "devDependencies": {
     "@platejs/docx": "workspace:^",
     "@platejs/markdown": "workspace:^",
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "tsx": "^4.7.1"
   },
   "peerDependencies": {
     "@platejs/docx": ">=52.0.0",
@@ -81,5 +89,12 @@
     "access": "public"
   },
   "type": "module",
-  "module": "./dist/index.js"
+  "module": "./dist/index.js",
+  "bin": {
+    "docx-to-html": "./cli/docx-to-html.ts",
+    "html-to-docx": "./cli/html-to-docx.ts",
+    "html-to-plate": "./cli/html-to-plate.ts",
+    "plate-to-html": "./cli/plate-to-html.ts",
+    "validate-roundtrip": "./cli/validate-roundtrip.ts"
+  }
 }

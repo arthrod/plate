@@ -1,0 +1,1102 @@
+2026-02-08T11:37:14.929Z	Initializing build environment...
+2026-02-08T11:37:16.488Z	Success: Finished initializing build environment
+2026-02-08T11:37:16.825Z	Cloning repository...
+2026-02-08T11:37:21.790Z	Restoring from dependencies cache
+2026-02-08T11:37:21.792Z	Restoring from build output cache
+2026-02-08T11:37:23.746Z	Detected the following tools from environment: nodejs@22.22.0, yarn@4.12.0, bun@1.2.15
+2026-02-08T11:37:23.747Z	Installing nodejs 22.22.0
+2026-02-08T11:37:31.440Z	Installing project dependencies: bun install --frozen-lockfile
+2026-02-08T11:37:31.624Z	bun install v1.2.15 (df017990)
+2026-02-08T11:37:51.191Z	
+2026-02-08T11:37:51.191Z	$ bunx skiller@latest apply && patch-package --patch-dir tooling/patches
+2026-02-08T11:37:51.214Z	Resolving dependencies
+2026-02-08T11:37:51.448Z	Resolved, downloaded and extracted [42]
+2026-02-08T11:37:51.473Z	Saved lockfile
+2026-02-08T11:37:51.805Z	[skiller] Warning: skills.generate_from_rules is deprecated and has no effect. Skills are now edited directly in .claude/skills/
+2026-02-08T11:37:51.810Z	[skiller] Warning: skills.generate_from_rules is deprecated and has no effect. Skills are now edited directly in .claude/skills/
+2026-02-08T11:37:51.858Z	[skiller] Applying rules for Claude Code...
+2026-02-08T11:37:51.861Z	[skiller] Applying rules for OpenAI Codex CLI...
+2026-02-08T11:37:51.863Z	[skiller] Applying rules for Cursor...
+2026-02-08T11:37:51.867Z	[skiller] Apply completed successfully.
+2026-02-08T11:37:52.108Z	patch-package 8.0.0
+2026-02-08T11:37:52.109Z	Applying patches...
+2026-02-08T11:37:52.112Z	@opennextjs/aws@3.9.14 ✔
+2026-02-08T11:37:52.112Z	@opennextjs/cloudflare@1.16.2 ✔
+2026-02-08T11:37:52.113Z	is-hotkey@0.2.0 ✔
+2026-02-08T11:37:52.190Z	next@16.0.10 ✔
+2026-02-08T11:37:52.191Z	react-dnd@16.0.1 ✔
+2026-02-08T11:37:52.192Z	
+2026-02-08T11:37:52.192Z	Warning: patch-package detected a patch file version mismatch
+2026-02-08T11:37:52.193Z	
+2026-02-08T11:37:52.193Z	  Don't worry! This is probably fine. The patch was still applied
+2026-02-08T11:37:52.193Z	  successfully. Here's the deets:
+2026-02-08T11:37:52.193Z	
+2026-02-08T11:37:52.194Z	  Patch file created for
+2026-02-08T11:37:52.194Z	
+2026-02-08T11:37:52.194Z	    next@16.0.10
+2026-02-08T11:37:52.194Z	
+2026-02-08T11:37:52.194Z	  applied to
+2026-02-08T11:37:52.194Z	
+2026-02-08T11:37:52.194Z	    next@16.1.6
+2026-02-08T11:37:52.195Z	  
+2026-02-08T11:37:52.195Z	  At path
+2026-02-08T11:37:52.195Z	  
+2026-02-08T11:37:52.195Z	    node_modules/next
+2026-02-08T11:37:52.195Z	
+2026-02-08T11:37:52.196Z	  This warning is just to give you a heads-up. There is a small chance of
+2026-02-08T11:37:52.196Z	  breakage even though the patch was applied successfully. Make sure the package
+2026-02-08T11:37:52.196Z	  still behaves like you expect (you wrote tests, right?) and then run
+2026-02-08T11:37:52.197Z	
+2026-02-08T11:37:52.198Z	    patch-package next
+2026-02-08T11:37:52.198Z	
+2026-02-08T11:37:52.198Z	  to update the version in the patch file name and make this warning go away.
+2026-02-08T11:37:52.198Z	
+2026-02-08T11:37:52.198Z	---
+2026-02-08T11:37:52.198Z	patch-package finished with 1 warning(s).
+2026-02-08T11:37:52.220Z	
+2026-02-08T11:37:52.221Z	+ @biomejs/biome@2.3.6
+2026-02-08T11:37:52.221Z	+ @changesets/cli@2.29.7
+2026-02-08T11:37:52.221Z	+ @changesets/get-github-info@0.6.0
+2026-02-08T11:37:52.221Z	+ @happy-dom/global-registrator@20.0.10
+2026-02-08T11:37:52.222Z	+ @opennextjs/aws@3.9.14
+2026-02-08T11:37:52.222Z	+ @opennextjs/cloudflare@1.16.2
+2026-02-08T11:37:52.222Z	+ @playwright/test@1.53.0
+2026-02-08T11:37:52.222Z	+ @roarr/cli@5.12.4
+2026-02-08T11:37:52.222Z	+ @rollup/plugin-babel@6.1.0
+2026-02-08T11:37:52.222Z	+ @swc/core@1.12.0
+2026-02-08T11:37:52.222Z	+ @tailwindcss/postcss@4.1.8
+2026-02-08T11:37:52.222Z	+ @testing-library/dom@10.4.0
+2026-02-08T11:37:52.222Z	+ @testing-library/jest-dom@6.6.3
+2026-02-08T11:37:52.222Z	+ @testing-library/react@16.3.0
+2026-02-08T11:37:52.222Z	+ @testing-library/user-event@14.6.1
+2026-02-08T11:37:52.222Z	+ @types/bun@1.3.2
+2026-02-08T11:37:52.222Z	+ @types/is-hotkey@0.1.10
+2026-02-08T11:37:52.222Z	+ @types/lodash@4.17.17
+2026-02-08T11:37:52.222Z	+ @types/node@24.0.0
+2026-02-08T11:37:52.222Z	+ @types/prismjs@1.26.5
+2026-02-08T11:37:52.223Z	+ @types/prompts@2.4.9
+2026-02-08T11:37:52.223Z	+ @types/raf@3.4.3
+2026-02-08T11:37:52.223Z	+ @types/react@19.2.7
+2026-02-08T11:37:52.223Z	+ @types/react-dom@19.2.3
+2026-02-08T11:37:52.223Z	+ @types/validator@13.15.1
+2026-02-08T11:37:52.223Z	+ @typescript-eslint/parser@8.54.0
+2026-02-08T11:37:52.223Z	+ app-root-path@3.1.0
+2026-02-08T11:37:52.223Z	+ autoprefixer@10.4.21
+2026-02-08T11:37:52.223Z	+ babel-plugin-react-compiler@1.0.0
+2026-02-08T11:37:52.223Z	+ barrelsby@2.8.1
+2026-02-08T11:37:52.223Z	+ bun-types@1.3.8
+2026-02-08T11:37:52.223Z	+ commander@14.0.1
+2026-02-08T11:37:52.223Z	+ concurrently@9.1.2
+2026-02-08T11:37:52.223Z	+ cross-env@7.0.3
+2026-02-08T11:37:52.224Z	+ dotenv@16.5.0
+2026-02-08T11:37:52.224Z	+ eslint@9.39.2
+2026-02-08T11:37:52.224Z	+ eslint-plugin-react-hooks@7.0.1
+2026-02-08T11:37:52.224Z	+ next@16.1.6
+2026-02-08T11:37:52.224Z	+ openai@5.3.0
+2026-02-08T11:37:52.224Z	+ patch-package@8.0.0
+2026-02-08T11:37:52.224Z	+ prompts@2.4.2
+2026-02-08T11:37:52.224Z	+ react@19.2.3
+2026-02-08T11:37:52.224Z	+ react-dnd-test-backend@16.0.1
+2026-02-08T11:37:52.225Z	+ react-dom@19.2.3
+2026-02-08T11:37:52.225Z	+ rimraf@6.0.1
+2026-02-08T11:37:52.225Z	+ slate-test-utils@1.3.2
+2026-02-08T11:37:52.225Z	+ tailwindcss@4.1.8
+2026-02-08T11:37:52.225Z	+ tinyglobby@0.2.14
+2026-02-08T11:37:52.225Z	+ tsdown@0.16.6
+2026-02-08T11:37:52.225Z	+ turbo@2.6.1
+2026-02-08T11:37:52.225Z	+ turbowatch@2.29.4
+2026-02-08T11:37:52.225Z	+ typescript@5.8.3
+2026-02-08T11:37:52.225Z	+ typescript-eslint@8.54.0
+2026-02-08T11:37:52.225Z	+ ultracite@6.3.4
+2026-02-08T11:37:52.226Z	+ y-webrtc@10.3.0
+2026-02-08T11:37:52.226Z	+ zod@4.1.12
+2026-02-08T11:37:52.226Z	+ class-variance-authority@0.7.1
+2026-02-08T11:37:52.226Z	+ clsx@2.1.1
+2026-02-08T11:37:52.226Z	+ csstype@3.2.3
+2026-02-08T11:37:52.227Z	+ is-hotkey@0.2.0
+2026-02-08T11:37:52.227Z	+ is-plain-object@5.0.0
+2026-02-08T11:37:52.227Z	+ lodash@4.17.23
+2026-02-08T11:37:52.227Z	+ marked@17.0.1
+2026-02-08T11:37:52.227Z	+ react-dnd@16.0.1
+2026-02-08T11:37:52.227Z	+ remark-mdx@3.1.1
+2026-02-08T11:37:52.227Z	+ scroll-into-view-if-needed@3.1.0
+2026-02-08T11:37:52.227Z	+ tailwind-merge@3.4.0
+2026-02-08T11:37:52.227Z	+ unist-util-visit@5.1.0
+2026-02-08T11:37:52.227Z	+ validator@13.15.26
+2026-02-08T11:37:52.227Z	
+2026-02-08T11:37:52.227Z	2066 packages installed [20.65s]
+2026-02-08T11:37:52.418Z	Executing user build command: yarn install && bun run build
+2026-02-08T11:37:53.296Z	➤ YN0000: · Yarn 4.12.0
+2026-02-08T11:37:53.303Z	➤ YN0000: ┌ Resolution step
+2026-02-08T11:37:53.760Z	➤ YN0000: └ Completed in 0s 456ms
+2026-02-08T11:37:53.769Z	➤ YN0000: ┌ Post-resolution validation
+2026-02-08T11:37:53.769Z	➤ YN0060: │ @hocuspocus/provider is listed by your project with version 2.15.2 (p3a5f21), which doesn't satisfy what @platejs/yjs requests (^3.4.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ @testing-library/jest-dom is listed by your project with version 6.6.3 (pd77e36), which doesn't satisfy what slate-test-utils requests (^5.15.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ @testing-library/react is listed by your project with version 16.3.0 (pa9fb16), which doesn't satisfy what slate-test-utils requests (^12.1.2).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ date-fns is listed by your project with version 4.1.0 (p225111), which doesn't satisfy what react-day-picker requests (^2.28.0 || ^3.0.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ date-fns is listed by your project with version 4.1.0 (p762da7), which doesn't satisfy what react-day-picker requests (^2.28.0 || ^3.0.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ next is listed by your project with version 16.1.6 (pb15a19), which doesn't satisfy what fumadocs-core and other dependencies request (^14.2.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ next is listed by your project with version 16.1.6 (pe8377c), which doesn't satisfy what fumadocs-core and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ react is listed by your project with version 19.2.3 (pb5b34c), which doesn't satisfy what react-day-picker and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ react is listed by your project with version 19.2.3 (pccc6fc), which doesn't satisfy what react-day-picker and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ react-dom is listed by your project with version 19.2.3 (p5f933f), which doesn't satisfy what @radix-ui/react-tabs (via @excalidraw/excalidraw) and other dependencies request (^18.2.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ react-dom is listed by your project with version 19.2.3 (pbbc76f), which doesn't satisfy what @radix-ui/react-tabs (via @excalidraw/excalidraw) and other dependencies request (^18.2.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ zod is listed by your project with version 3.25.61 (p1788a6), which doesn't satisfy what @ai-sdk/gateway and other dependencies request (^3.25.76 || ^4.1.8).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ zod is listed by your project with version 3.25.61 (p48d447), which doesn't satisfy what @ai-sdk/gateway and other dependencies request (^3.25.76 || ^4.1.8).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ zod is listed by your project with version 4.1.12 (p6cfe9d), which doesn't satisfy what openai requests (^3.23.8).
+2026-02-08T11:37:53.770Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai [e2df0] doesn't provide zod (p9d382d), requested by ai.
+2026-02-08T11:37:53.770Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide react (pf982c1), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide react-dom (p32ed7c), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide zod (pf01bf8), requested by ai.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/autoformat@workspace:packages/autoformat doesn't provide react (p1eb90d), requested by platejs and other dependencies.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/autoformat@workspace:packages/autoformat doesn't provide react-dom (p6ceda6), requested by platejs.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/basic-nodes@workspace:packages/basic-nodes doesn't provide react (p58870c), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/basic-nodes@workspace:packages/basic-nodes doesn't provide react-dom (p217b74), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/basic-styles@workspace:packages/basic-styles doesn't provide react (p1ee9ed), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/basic-styles@workspace:packages/basic-styles doesn't provide react-dom (p3e25cb), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/callout@workspace:packages/callout doesn't provide react (pe3d13f), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/callout@workspace:packages/callout doesn't provide react-dom (p990c84), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/caption@workspace:packages/caption doesn't provide react (p1df4a5), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/caption@workspace:packages/caption doesn't provide react-dom (pb9a6ce), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-block@workspace:packages/code-block doesn't provide react (p1988b8), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-block@workspace:packages/code-block doesn't provide react-dom (pe92b53), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing [e2df0] doesn't provide @codemirror/view (p78cd89), requested by @uiw/react-codemirror.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide @codemirror/view (p0cab30), requested by @uiw/react-codemirror.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide react (pbd6ae6), requested by @uiw/react-codemirror and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide react-dom (p75cf69), requested by @uiw/react-codemirror and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/combobox@workspace:packages/combobox doesn't provide react (pa4238b), requested by platejs and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/combobox@workspace:packages/combobox doesn't provide react-dom (p641d04), requested by platejs.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/comment@workspace:packages/comment doesn't provide react (p8a6db3), requested by platejs and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/comment@workspace:packages/comment doesn't provide react-dom (pc00d92), requested by platejs.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/core@workspace:packages/core doesn't provide react (p304b57), requested by @udecode/react-hotkeys and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/core@workspace:packages/core doesn't provide react-dom (p780345), requested by @udecode/react-hotkeys and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/csv@workspace:packages/csv doesn't provide react (pbee4ca), requested by @platejs/table and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/csv@workspace:packages/csv doesn't provide react-dom (pc4fc44), requested by @platejs/table and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/cursor@workspace:packages/cursor doesn't provide react (p96c5a1), requested by platejs and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/cursor@workspace:packages/cursor doesn't provide react-dom (p61d5a3), requested by platejs.
+2026-02-08T11:37:53.774Z	➤ YN0002: │ @platejs/date@workspace:packages/date doesn't provide react (p06df59), requested by platejs and other dependencies.
+2026-02-08T11:37:53.774Z	➤ YN0002: │ @platejs/date@workspace:packages/date doesn't provide react-dom (p2c09ad), requested by platejs.
+2026-02-08T11:37:53.774Z	➤ YN0002: │ @platejs/diff@workspace:packages/diff doesn't provide react (p735523), requested by platejs and other dependencies.
+2026-02-08T11:37:53.774Z	➤ YN0002: │ @platejs/diff@workspace:packages/diff doesn't provide react-dom (p9a16be), requested by platejs.
+2026-02-08T11:37:53.775Z	➤ YN0002: │ @platejs/dnd@workspace:packages/dnd doesn't provide react (p4f8a78), requested by platejs and other dependencies.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/dnd@workspace:packages/dnd doesn't provide react-dom (p22f8eb), requested by platejs.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/docx-io@workspace:packages/docx-io doesn't provide react (pd57aba), requested by @platejs/docx and other dependencies.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/docx-io@workspace:packages/docx-io doesn't provide react-dom (p202d8b), requested by @platejs/docx and other dependencies.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/docx@workspace:packages/docx doesn't provide react (p22d453), requested by platejs and other dependencies.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/docx@workspace:packages/docx doesn't provide react-dom (p122baa), requested by platejs.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/emoji@workspace:packages/emoji doesn't provide react (pc4d374), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/emoji@workspace:packages/emoji doesn't provide react-dom (p65f912), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/excalidraw@workspace:packages/excalidraw doesn't provide react (p819bdc), requested by @excalidraw/excalidraw and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/excalidraw@workspace:packages/excalidraw doesn't provide react-dom (pc09f3c), requested by @excalidraw/excalidraw and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/find-replace@workspace:packages/find-replace doesn't provide react (p845224), requested by platejs and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/find-replace@workspace:packages/find-replace doesn't provide react-dom (pdb0b8f), requested by platejs.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/floating@workspace:packages/floating doesn't provide react (pe50a96), requested by @floating-ui/react and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/floating@workspace:packages/floating doesn't provide react-dom (p96c521), requested by @floating-ui/react and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/indent@workspace:packages/indent doesn't provide react (pb2992f), requested by platejs and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/indent@workspace:packages/indent doesn't provide react-dom (p810737), requested by platejs.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/juice@workspace:packages/juice doesn't provide react (p1e07a4), requested by platejs and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/juice@workspace:packages/juice doesn't provide react-dom (p1cb294), requested by platejs.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/layout@workspace:packages/layout doesn't provide react (p4db81c), requested by platejs and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/layout@workspace:packages/layout doesn't provide react-dom (p397b52), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/link@workspace:packages/link doesn't provide react (p96f0a5), requested by @platejs/floating and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/link@workspace:packages/link doesn't provide react-dom (pd7ea45), requested by @platejs/floating and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/list-classic@workspace:packages/list-classic doesn't provide react (p270bd0), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/list-classic@workspace:packages/list-classic doesn't provide react-dom (p4557e8), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/list@workspace:packages/list doesn't provide react (p57ae57), requested by @platejs/indent and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/list@workspace:packages/list doesn't provide react-dom (pb506af), requested by @platejs/indent and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/markdown@workspace:packages/markdown doesn't provide react (pf3e84d), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/markdown@workspace:packages/markdown doesn't provide react-dom (p26dbbb), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/math@workspace:packages/math doesn't provide react (pf6147a), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/math@workspace:packages/math doesn't provide react-dom (p1e184c), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/media@workspace:packages/media doesn't provide react (p3e2e74), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/media@workspace:packages/media doesn't provide react-dom (p475831), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/mention@workspace:packages/mention doesn't provide react (p53fd75), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/mention@workspace:packages/mention doesn't provide react-dom (p976067), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/playwright@workspace:packages/playwright doesn't provide react (pb90867), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/playwright@workspace:packages/playwright doesn't provide react-dom (p9352da), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/resizable@workspace:packages/resizable doesn't provide react (pcfda50), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/resizable@workspace:packages/resizable doesn't provide react-dom (pc4bd43), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/selection@workspace:packages/selection doesn't provide react (p78286c), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/selection@workspace:packages/selection doesn't provide react-dom (p3b9a24), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/slash-command@workspace:packages/slash-command doesn't provide react (pf41f89), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/slash-command@workspace:packages/slash-command doesn't provide react-dom (pc6dbec), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/suggestion@workspace:packages/suggestion doesn't provide react (pa5908b), requested by @platejs/diff and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/suggestion@workspace:packages/suggestion doesn't provide react-dom (p187837), requested by @platejs/diff and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/tabbable@workspace:packages/tabbable doesn't provide react (pdf2179), requested by platejs and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/tabbable@workspace:packages/tabbable doesn't provide react-dom (p42a4ef), requested by platejs.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/table@workspace:packages/table doesn't provide react (pe4208b), requested by @platejs/resizable and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/table@workspace:packages/table doesn't provide react-dom (pe19108), requested by @platejs/resizable and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/tag@workspace:packages/tag doesn't provide react (p8926a2), requested by platejs and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/tag@workspace:packages/tag doesn't provide react-dom (pe5f29d), requested by platejs.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/toc@workspace:packages/toc doesn't provide react (p74d6fe), requested by platejs and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/toc@workspace:packages/toc doesn't provide react-dom (paabbc0), requested by platejs.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/toggle@workspace:packages/toggle doesn't provide react (p000030), requested by @platejs/indent and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/toggle@workspace:packages/toggle doesn't provide react-dom (pe73f2f), requested by @platejs/indent and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/utils@workspace:packages/utils doesn't provide react (p2ec680), requested by @platejs/core and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/utils@workspace:packages/utils doesn't provide react-dom (pf35245), requested by @platejs/core and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs [e2df0] doesn't provide slate (p931f3c), requested by @slate-yjs/core.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide react (pa1aa28), requested by platejs and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide react-dom (p0763cc), requested by platejs.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide slate (pdcb790), requested by @slate-yjs/core.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @udecode/cmdk@workspace:packages/udecode/cmdk doesn't provide react (p6ef159), requested by @radix-ui/react-dialog and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @udecode/cmdk@workspace:packages/udecode/cmdk doesn't provide react-dom (p4a7ec5), requested by @radix-ui/react-dialog and other dependencies.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ @udecode/cn@workspace:packages/udecode/cn doesn't provide react (p3c4157), requested by @udecode/react-utils and other dependencies.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ @udecode/cn@workspace:packages/udecode/cn doesn't provide react-dom (p5a9a48), requested by @udecode/react-utils.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ @udecode/react-hotkeys@workspace:packages/udecode/react-hotkeys doesn't provide react (p977c33), requested by react-compiler-runtime.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ @udecode/react-utils@workspace:packages/udecode/react-utils doesn't provide react (p47e5d9), requested by @radix-ui/react-slot and other dependencies.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide @babel/core (p981d37), requested by @rollup/plugin-babel.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide postcss (p32eb1c), requested by autoprefixer.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide slate (pc409ce), requested by slate-test-utils.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide slate-history (p52c5e6), requested by slate-test-utils.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide slate-react (p5dfd83), requested by slate-test-utils.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ plate@workspace:. doesn't provide wrangler (p7d6270), requested by @opennextjs/cloudflare.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ plate@workspace:. doesn't provide yjs (pd451f9), requested by y-webrtc.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ platejs@workspace:packages/plate doesn't provide react (p34448d), requested by @platejs/core and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ platejs@workspace:packages/plate doesn't provide react-dom (p9b67ca), requested by @platejs/core and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @playwright/test (p096389), requested by @platejs/playwright and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @slate-yjs/core (pe44c7d), requested by @slate-yjs/react.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @types/node (p86b8db), requested by react-dnd and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @types/react (pbedce2), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide slate (p533d3f), requested by @slate-yjs/react.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide slate-react (pf2a246), requested by @slate-yjs/react.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide y-protocols (pc296af), requested by @hocuspocus/provider.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide yjs (pa97873), requested by @hocuspocus/provider and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @playwright/test (pdbccce), requested by @platejs/playwright and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @types/node (p408e0f), requested by react-dnd and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @types/react (pf9c12a), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide slate-dom (p7c4e69), requested by slate-react.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide y-protocols (paf8971), requested by @hocuspocus/provider.
+2026-02-08T11:37:53.781Z	➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+2026-02-08T11:37:53.781Z	➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+2026-02-08T11:37:53.781Z	➤ YN0000: └ Completed
+2026-02-08T11:37:53.781Z	➤ YN0000: ┌ Fetch step
+2026-02-08T11:38:18.351Z	➤ YN0013: │ 2058 packages were added to the project (+ 1.57 GiB).
+2026-02-08T11:38:18.351Z	➤ YN0000: └ Completed in 24s 585ms
+2026-02-08T11:38:18.460Z	➤ YN0000: ┌ Link step
+2026-02-08T11:39:18.945Z	➤ YN0007: │ esbuild@npm:0.25.4 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.247Z	➤ YN0007: │ @swc/core@npm:1.12.0 [dfd09] must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.247Z	➤ YN0007: │ sharp@npm:0.34.5 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.247Z	➤ YN0007: │ @tailwindcss/oxide@npm:4.1.8 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.248Z	➤ YN0007: │ puppeteer@npm:24.10.0 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.248Z	➤ YN0007: │ esbuild@npm:0.25.12 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.248Z	➤ YN0007: │ esbuild@npm:0.27.0 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ @parcel/watcher@npm:2.5.6 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ msw@npm:2.12.8 [180a4] must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ workerd@npm:1.20260205.0 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ esbuild@npm:0.20.2 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ msgpackr-extract@npm:3.0.3 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ protobufjs@npm:7.5.4 must be built because it never has been before or the last one failed
+2026-02-08T11:39:21.224Z	➤ YN0000: │ puppeteer@npm:24.10.0 STDOUT **INFO** Skipping Firefox download as instructed.
+2026-02-08T11:39:21.224Z	➤ YN0000: │ puppeteer@npm:24.10.0 STDOUT chrome (137.0.7151.55) downloaded to /opt/buildhome/.cache/puppeteer/chrome/linux-137.0.7151.55
+2026-02-08T11:39:21.224Z	➤ YN0000: │ puppeteer@npm:24.10.0 STDOUT chrome-headless-shell (137.0.7151.55) downloaded to /opt/buildhome/.cache/puppeteer/chrome-headless-shell/linux-137.0.7151.55
+2026-02-08T11:39:21.309Z	➤ YN0007: │ plate@workspace:. must be built because it never has been before or the last one failed
+2026-02-08T11:39:21.311Z	➤ YN0007: │ contentlayer2@npm:0.4.6 must be built because it never has been before or the last one failed
+2026-02-08T11:39:21.599Z	➤ YN0000: │ plate@workspace:. STDERR Resolving dependencies
+2026-02-08T11:39:21.637Z	➤ YN0000: │ plate@workspace:. STDERR Resolved, downloaded and extracted [2]
+2026-02-08T11:39:21.673Z	➤ YN0000: │ plate@workspace:. STDERR Saved lockfile
+2026-02-08T11:39:21.962Z	➤ YN0000: │ plate@workspace:. STDERR [skiller] Warning: skills.generate_from_rules is deprecated and has no effect. Skills are now edited directly in .claude/skills/
+2026-02-08T11:39:21.969Z	➤ YN0000: │ plate@workspace:. STDERR [skiller] Warning: skills.generate_from_rules is deprecated and has no effect. Skills are now edited directly in .claude/skills/
+2026-02-08T11:39:22.038Z	➤ YN0000: │ plate@workspace:. STDOUT [skiller] Applying rules for Claude Code...
+2026-02-08T11:39:22.042Z	➤ YN0000: │ plate@workspace:. STDOUT [skiller] Applying rules for OpenAI Codex CLI...
+2026-02-08T11:39:22.046Z	➤ YN0000: │ plate@workspace:. STDOUT [skiller] Applying rules for Cursor...
+2026-02-08T11:39:22.053Z	➤ YN0000: │ plate@workspace:. STDOUT [skiller] Apply completed successfully.
+2026-02-08T11:39:22.328Z	➤ YN0000: │ plate@workspace:. STDOUT patch-package 8.0.0
+2026-02-08T11:39:22.330Z	➤ YN0000: │ plate@workspace:. STDOUT Applying patches...
+2026-02-08T11:39:22.343Z	➤ YN0000: │ plate@workspace:. STDOUT @opennextjs/aws@3.9.14 ✔
+2026-02-08T11:39:22.346Z	➤ YN0000: │ plate@workspace:. STDOUT @opennextjs/cloudflare@1.16.2 ✔
+2026-02-08T11:39:22.348Z	➤ YN0000: │ plate@workspace:. STDOUT is-hotkey@0.2.0 ✔
+2026-02-08T11:39:22.464Z	➤ YN0000: │ plate@workspace:. STDOUT next@16.0.10 ✔
+2026-02-08T11:39:22.467Z	➤ YN0000: │ plate@workspace:. STDOUT react-dnd@16.0.1 ✔
+2026-02-08T11:39:22.468Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.469Z	➤ YN0000: │ plate@workspace:. STDOUT Warning: patch-package detected a patch file version mismatch
+2026-02-08T11:39:22.469Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.469Z	➤ YN0000: │ plate@workspace:. STDOUT   Don't worry! This is probably fine. The patch was still applied
+2026-02-08T11:39:22.469Z	➤ YN0000: │ plate@workspace:. STDOUT   successfully. Here's the deets:
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   Patch file created for
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT     next@16.0.10
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   applied to
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT     next@16.1.6
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   At path
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT     node_modules/next
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT   This warning is just to give you a heads-up. There is a small chance of
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT   breakage even though the patch was applied successfully. Make sure the package
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT   still behaves like you expect (you wrote tests, right?) and then run
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT     patch-package next
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT   to update the version in the patch file name and make this warning go away.
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT ---
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT patch-package finished with 1 warning(s).
+2026-02-08T11:39:22.832Z	➤ YN0000: └ Completed in 1m 5s
+2026-02-08T11:39:23.064Z	➤ YN0000: · Done with warnings in 1m 30s
+2026-02-08T11:39:23.632Z	$ yarn install && yarn g:build
+2026-02-08T11:39:24.560Z	➤ YN0000: · Yarn 4.12.0
+2026-02-08T11:39:24.580Z	➤ YN0000: ┌ Resolution step
+2026-02-08T11:39:24.984Z	➤ YN0000: └ Completed in 0s 405ms
+2026-02-08T11:39:24.989Z	➤ YN0000: ┌ Post-resolution validation
+2026-02-08T11:39:24.989Z	➤ YN0060: │ @hocuspocus/provider is listed by your project with version 2.15.2 (p3a5f21), which doesn't satisfy what @platejs/yjs requests (^3.4.0).
+2026-02-08T11:39:24.989Z	➤ YN0060: │ @testing-library/jest-dom is listed by your project with version 6.6.3 (pd77e36), which doesn't satisfy what slate-test-utils requests (^5.15.0).
+2026-02-08T11:39:24.989Z	➤ YN0060: │ @testing-library/react is listed by your project with version 16.3.0 (pa9fb16), which doesn't satisfy what slate-test-utils requests (^12.1.2).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ date-fns is listed by your project with version 4.1.0 (p225111), which doesn't satisfy what react-day-picker requests (^2.28.0 || ^3.0.0).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ date-fns is listed by your project with version 4.1.0 (p762da7), which doesn't satisfy what react-day-picker requests (^2.28.0 || ^3.0.0).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ next is listed by your project with version 16.1.6 (pb15a19), which doesn't satisfy what fumadocs-core and other dependencies request (^14.2.0).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ next is listed by your project with version 16.1.6 (pe8377c), which doesn't satisfy what fumadocs-core and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ react is listed by your project with version 19.2.3 (pb5b34c), which doesn't satisfy what react-day-picker and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ react is listed by your project with version 19.2.3 (pccc6fc), which doesn't satisfy what react-day-picker and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ react-dom is listed by your project with version 19.2.3 (p5f933f), which doesn't satisfy what @radix-ui/react-tabs (via @excalidraw/excalidraw) and other dependencies request (^18.2.0).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ react-dom is listed by your project with version 19.2.3 (pbbc76f), which doesn't satisfy what @radix-ui/react-tabs (via @excalidraw/excalidraw) and other dependencies request (^18.2.0).
+2026-02-08T11:39:24.991Z	➤ YN0060: │ zod is listed by your project with version 3.25.61 (p1788a6), which doesn't satisfy what @ai-sdk/gateway and other dependencies request (^3.25.76 || ^4.1.8).
+2026-02-08T11:39:24.991Z	➤ YN0060: │ zod is listed by your project with version 3.25.61 (p48d447), which doesn't satisfy what @ai-sdk/gateway and other dependencies request (^3.25.76 || ^4.1.8).
+2026-02-08T11:39:24.991Z	➤ YN0060: │ zod is listed by your project with version 4.1.12 (p6cfe9d), which doesn't satisfy what openai requests (^3.23.8).
+2026-02-08T11:39:24.991Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai [e2df0] doesn't provide zod (p9d382d), requested by ai.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide react (pf982c1), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide react-dom (p32ed7c), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide zod (pf01bf8), requested by ai.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/autoformat@workspace:packages/autoformat doesn't provide react (p1eb90d), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/autoformat@workspace:packages/autoformat doesn't provide react-dom (p6ceda6), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/basic-nodes@workspace:packages/basic-nodes doesn't provide react (p58870c), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/basic-nodes@workspace:packages/basic-nodes doesn't provide react-dom (p217b74), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/basic-styles@workspace:packages/basic-styles doesn't provide react (p1ee9ed), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/basic-styles@workspace:packages/basic-styles doesn't provide react-dom (p3e25cb), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/callout@workspace:packages/callout doesn't provide react (pe3d13f), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/callout@workspace:packages/callout doesn't provide react-dom (p990c84), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/caption@workspace:packages/caption doesn't provide react (p1df4a5), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/caption@workspace:packages/caption doesn't provide react-dom (pb9a6ce), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/code-block@workspace:packages/code-block doesn't provide react (p1988b8), requested by platejs and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-block@workspace:packages/code-block doesn't provide react-dom (pe92b53), requested by platejs.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing [e2df0] doesn't provide @codemirror/view (p78cd89), requested by @uiw/react-codemirror.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide @codemirror/view (p0cab30), requested by @uiw/react-codemirror.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide react (pbd6ae6), requested by @uiw/react-codemirror and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide react-dom (p75cf69), requested by @uiw/react-codemirror and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/combobox@workspace:packages/combobox doesn't provide react (pa4238b), requested by platejs and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/combobox@workspace:packages/combobox doesn't provide react-dom (p641d04), requested by platejs.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/comment@workspace:packages/comment doesn't provide react (p8a6db3), requested by platejs and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/comment@workspace:packages/comment doesn't provide react-dom (pc00d92), requested by platejs.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/core@workspace:packages/core doesn't provide react (p304b57), requested by @udecode/react-hotkeys and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/core@workspace:packages/core doesn't provide react-dom (p780345), requested by @udecode/react-hotkeys and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/csv@workspace:packages/csv doesn't provide react (pbee4ca), requested by @platejs/table and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/csv@workspace:packages/csv doesn't provide react-dom (pc4fc44), requested by @platejs/table and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/cursor@workspace:packages/cursor doesn't provide react (p96c5a1), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/cursor@workspace:packages/cursor doesn't provide react-dom (p61d5a3), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/date@workspace:packages/date doesn't provide react (p06df59), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/date@workspace:packages/date doesn't provide react-dom (p2c09ad), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/diff@workspace:packages/diff doesn't provide react (p735523), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/diff@workspace:packages/diff doesn't provide react-dom (p9a16be), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/dnd@workspace:packages/dnd doesn't provide react (p4f8a78), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/dnd@workspace:packages/dnd doesn't provide react-dom (p22f8eb), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/docx-io@workspace:packages/docx-io doesn't provide react (pd57aba), requested by @platejs/docx and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/docx-io@workspace:packages/docx-io doesn't provide react-dom (p202d8b), requested by @platejs/docx and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/docx@workspace:packages/docx doesn't provide react (p22d453), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/docx@workspace:packages/docx doesn't provide react-dom (p122baa), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/emoji@workspace:packages/emoji doesn't provide react (pc4d374), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/emoji@workspace:packages/emoji doesn't provide react-dom (p65f912), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/excalidraw@workspace:packages/excalidraw doesn't provide react (p819bdc), requested by @excalidraw/excalidraw and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/excalidraw@workspace:packages/excalidraw doesn't provide react-dom (pc09f3c), requested by @excalidraw/excalidraw and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/find-replace@workspace:packages/find-replace doesn't provide react (p845224), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/find-replace@workspace:packages/find-replace doesn't provide react-dom (pdb0b8f), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/floating@workspace:packages/floating doesn't provide react (pe50a96), requested by @floating-ui/react and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/floating@workspace:packages/floating doesn't provide react-dom (p96c521), requested by @floating-ui/react and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/indent@workspace:packages/indent doesn't provide react (pb2992f), requested by platejs and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/indent@workspace:packages/indent doesn't provide react-dom (p810737), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/juice@workspace:packages/juice doesn't provide react (p1e07a4), requested by platejs and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/juice@workspace:packages/juice doesn't provide react-dom (p1cb294), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/layout@workspace:packages/layout doesn't provide react (p4db81c), requested by platejs and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/layout@workspace:packages/layout doesn't provide react-dom (p397b52), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/link@workspace:packages/link doesn't provide react (p96f0a5), requested by @platejs/floating and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/link@workspace:packages/link doesn't provide react-dom (pd7ea45), requested by @platejs/floating and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/list-classic@workspace:packages/list-classic doesn't provide react (p270bd0), requested by platejs and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/list-classic@workspace:packages/list-classic doesn't provide react-dom (p4557e8), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/list@workspace:packages/list doesn't provide react (p57ae57), requested by @platejs/indent and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/list@workspace:packages/list doesn't provide react-dom (pb506af), requested by @platejs/indent and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/markdown@workspace:packages/markdown doesn't provide react (pf3e84d), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/markdown@workspace:packages/markdown doesn't provide react-dom (p26dbbb), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/math@workspace:packages/math doesn't provide react (pf6147a), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/math@workspace:packages/math doesn't provide react-dom (p1e184c), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/media@workspace:packages/media doesn't provide react (p3e2e74), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/media@workspace:packages/media doesn't provide react-dom (p475831), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/mention@workspace:packages/mention doesn't provide react (p53fd75), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/mention@workspace:packages/mention doesn't provide react-dom (p976067), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/playwright@workspace:packages/playwright doesn't provide react (pb90867), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/playwright@workspace:packages/playwright doesn't provide react-dom (p9352da), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/resizable@workspace:packages/resizable doesn't provide react (pcfda50), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/resizable@workspace:packages/resizable doesn't provide react-dom (pc4bd43), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/selection@workspace:packages/selection doesn't provide react (p78286c), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/selection@workspace:packages/selection doesn't provide react-dom (p3b9a24), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/slash-command@workspace:packages/slash-command doesn't provide react (pf41f89), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/slash-command@workspace:packages/slash-command doesn't provide react-dom (pc6dbec), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/suggestion@workspace:packages/suggestion doesn't provide react (pa5908b), requested by @platejs/diff and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/suggestion@workspace:packages/suggestion doesn't provide react-dom (p187837), requested by @platejs/diff and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/tabbable@workspace:packages/tabbable doesn't provide react (pdf2179), requested by platejs and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/tabbable@workspace:packages/tabbable doesn't provide react-dom (p42a4ef), requested by platejs.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/table@workspace:packages/table doesn't provide react (pe4208b), requested by @platejs/resizable and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/table@workspace:packages/table doesn't provide react-dom (pe19108), requested by @platejs/resizable and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/tag@workspace:packages/tag doesn't provide react (p8926a2), requested by platejs and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/tag@workspace:packages/tag doesn't provide react-dom (pe5f29d), requested by platejs.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/toc@workspace:packages/toc doesn't provide react (p74d6fe), requested by platejs and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/toc@workspace:packages/toc doesn't provide react-dom (paabbc0), requested by platejs.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/toggle@workspace:packages/toggle doesn't provide react (p000030), requested by @platejs/indent and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/toggle@workspace:packages/toggle doesn't provide react-dom (pe73f2f), requested by @platejs/indent and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/utils@workspace:packages/utils doesn't provide react (p2ec680), requested by @platejs/core and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/utils@workspace:packages/utils doesn't provide react-dom (pf35245), requested by @platejs/core and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs [e2df0] doesn't provide slate (p931f3c), requested by @slate-yjs/core.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide react (pa1aa28), requested by platejs and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide react-dom (p0763cc), requested by platejs.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide slate (pdcb790), requested by @slate-yjs/core.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/cmdk@workspace:packages/udecode/cmdk doesn't provide react (p6ef159), requested by @radix-ui/react-dialog and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/cmdk@workspace:packages/udecode/cmdk doesn't provide react-dom (p4a7ec5), requested by @radix-ui/react-dialog and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/cn@workspace:packages/udecode/cn doesn't provide react (p3c4157), requested by @udecode/react-utils and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/cn@workspace:packages/udecode/cn doesn't provide react-dom (p5a9a48), requested by @udecode/react-utils.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/react-hotkeys@workspace:packages/udecode/react-hotkeys doesn't provide react (p977c33), requested by react-compiler-runtime.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/react-utils@workspace:packages/udecode/react-utils doesn't provide react (p47e5d9), requested by @radix-ui/react-slot and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide @babel/core (p981d37), requested by @rollup/plugin-babel.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide postcss (p32eb1c), requested by autoprefixer.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide slate (pc409ce), requested by slate-test-utils.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide slate-history (p52c5e6), requested by slate-test-utils.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide slate-react (p5dfd83), requested by slate-test-utils.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide wrangler (p7d6270), requested by @opennextjs/cloudflare.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide yjs (pd451f9), requested by y-webrtc.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ platejs@workspace:packages/plate doesn't provide react (p34448d), requested by @platejs/core and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ platejs@workspace:packages/plate doesn't provide react-dom (p9b67ca), requested by @platejs/core and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @playwright/test (p096389), requested by @platejs/playwright and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @slate-yjs/core (pe44c7d), requested by @slate-yjs/react.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @types/node (p86b8db), requested by react-dnd and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @types/react (pbedce2), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide slate (p533d3f), requested by @slate-yjs/react.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide slate-react (pf2a246), requested by @slate-yjs/react.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide y-protocols (pc296af), requested by @hocuspocus/provider.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide yjs (pa97873), requested by @hocuspocus/provider and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @playwright/test (pdbccce), requested by @platejs/playwright and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @types/node (p408e0f), requested by react-dnd and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @types/react (pf9c12a), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide slate-dom (p7c4e69), requested by slate-react.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide y-protocols (paf8971), requested by @hocuspocus/provider.
+2026-02-08T11:39:25.000Z	➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+2026-02-08T11:39:25.000Z	➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+2026-02-08T11:39:25.000Z	➤ YN0000: └ Completed
+2026-02-08T11:39:25.000Z	➤ YN0000: ┌ Fetch step
+2026-02-08T11:39:27.650Z	➤ YN0000: └ Completed in 2s 657ms
+2026-02-08T11:39:27.755Z	➤ YN0000: ┌ Link step
+2026-02-08T11:39:28.553Z	➤ YN0000: └ Completed in 0s 797ms
+2026-02-08T11:39:28.786Z	➤ YN0000: · Done with warnings in 4s 226ms
+2026-02-08T11:39:30.015Z	
+2026-02-08T11:39:30.016Z	Attention:
+2026-02-08T11:39:30.016Z	Turborepo now collects completely anonymous telemetry regarding usage.
+2026-02-08T11:39:30.016Z	This information is used to shape the Turborepo roadmap and prioritize features.
+2026-02-08T11:39:30.016Z	You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+2026-02-08T11:39:30.016Z	https://turborepo.com/docs/telemetry
+2026-02-08T11:39:30.016Z	
+2026-02-08T11:39:30.317Z	• Packages in scope: @platejs/ai, @platejs/autoformat, @platejs/basic-nodes, @platejs/basic-styles, @platejs/callout, @platejs/caption, @platejs/code-block, @platejs/code-drawing, @platejs/combobox, @platejs/comment, @platejs/core, @platejs/csv, @platejs/cursor, @platejs/date, @platejs/diff, @platejs/dnd, @platejs/docx, @platejs/docx-io, @platejs/emoji, @platejs/excalidraw, @platejs/find-replace, @platejs/floating, @platejs/indent, @platejs/juice, @platejs/layout, @platejs/link, @platejs/list, @platejs/list-classic, @platejs/markdown, @platejs/math, @platejs/media, @platejs/mention, @platejs/playwright, @platejs/resizable, @platejs/selection, @platejs/slash-command, @platejs/slate, @platejs/suggestion, @platejs/tabbable, @platejs/table, @platejs/tag, @platejs/test-utils, @platejs/toc, @platejs/toggle, @platejs/utils, @platejs/yjs, @udecode/cmdk, @udecode/cn, @udecode/react-hotkeys, @udecode/react-utils, @udecode/utils, depset, platejs
+2026-02-08T11:39:30.317Z	• Running build in 53 packages
+2026-02-08T11:39:30.317Z	• Remote caching disabled
+2026-02-08T11:39:30.515Z	@udecode/utils:build: cache bypass, force executing 92a4433f291361ac
+2026-02-08T11:39:30.518Z	@udecode/cmdk:build: cache bypass, force executing c503dd3c16290455
+2026-02-08T11:39:30.521Z	@udecode/react-hotkeys:build: cache bypass, force executing 34cbf3c06052936a
+2026-02-08T11:39:30.529Z	depset:build: cache bypass, force executing 1c54b4552ca0afe3
+2026-02-08T11:39:37.994Z	@platejs/slate:build: cache bypass, force executing 864c46e34fb6c974
+2026-02-08T11:39:37.999Z	@udecode/react-utils:build: cache bypass, force executing 45970a45db1bfb99
+2026-02-08T11:39:44.842Z	@udecode/cn:build: cache bypass, force executing df6c63b8bda10fbe
+2026-02-08T11:39:46.351Z	@platejs/core:build: cache bypass, force executing 44b9f36e793544a0
+2026-02-08T11:39:46.354Z	@platejs/test-utils:build: cache bypass, force executing 615f1810996a972b
+2026-02-08T11:39:57.999Z	@platejs/utils:build: cache bypass, force executing 528f7414e3207443
+2026-02-08T11:40:03.913Z	platejs:build: cache bypass, force executing d9f01e279cf71d82
+2026-02-08T11:40:08.666Z	@platejs/selection:build: cache bypass, force executing 67398ba7924d84b0
+2026-02-08T11:40:08.669Z	@platejs/diff:build: cache bypass, force executing 79d5c3e0af7a6953
+2026-02-08T11:40:08.671Z	@platejs/juice:build: cache bypass, force executing f6b1dbdd7d25523f
+2026-02-08T11:40:08.674Z	@platejs/code-block:build: cache bypass, force executing 18dbed69f449b1bc
+2026-02-08T11:40:08.679Z	@platejs/comment:build: cache bypass, force executing 58bdcb9605ecfeb7
+2026-02-08T11:40:08.690Z	@platejs/date:build: cache bypass, force executing 82ecd6d16b185954
+2026-02-08T11:40:08.690Z	@platejs/cursor:build: cache bypass, force executing 9861d0503366c9c0
+2026-02-08T11:40:08.695Z	@platejs/resizable:build: cache bypass, force executing 8950c849b0771713
+2026-02-08T11:40:08.701Z	@platejs/find-replace:build: cache bypass, force executing 981811bd7ea1f230
+2026-02-08T11:40:08.705Z	@platejs/media:build: cache bypass, force executing ccc753d116c51163
+2026-02-08T11:40:32.045Z	@platejs/code-block:build: ERROR: command finished with error: command (/opt/buildhome/repo/packages/code-block) /tmp/xfs-f7879562/yarn run build exited (129)
+2026-02-08T11:40:32.143Z	@platejs/playwright:build: cache bypass, force executing b788c751f73adc38
+2026-02-08T11:40:32.146Z	@platejs/basic-nodes:build: cache bypass, force executing f3b9719feaded1ad
+2026-02-08T11:40:32.163Z	@platejs/tag:build: cache bypass, force executing 731677dc6279d530
+2026-02-08T11:40:32.163Z	@platejs/basic-styles:build: cache bypass, force executing c407901b4ad23b70
+2026-02-08T11:40:32.172Z	@platejs/tabbable:build: cache bypass, force executing 8aa123c3bd9a4254
+2026-02-08T11:40:32.172Z	@platejs/docx:build: cache bypass, force executing e5d2dee9fcf51923
+2026-02-08T11:40:32.174Z	@platejs/list-classic:build: cache bypass, force executing 379d21416fb8b52e
+2026-02-08T11:40:32.189Z	@platejs/excalidraw:build: cache bypass, force executing d237065250d95917
+2026-02-08T11:40:32.190Z	@platejs/markdown:build: cache bypass, force executing 023db1ffb2e6db8a
+2026-02-08T11:40:32.201Z	@platejs/layout:build: cache bypass, force executing 612f30ceede8d440
+2026-02-08T11:40:32.212Z	@platejs/toc:build: cache bypass, force executing f20c988cf90185eb
+2026-02-08T11:40:32.222Z	@platejs/caption:build: cache bypass, force executing db8410ad27c7c85f
+2026-02-08T11:40:32.224Z	@platejs/math:build: cache bypass, force executing 8b7d94d7fd5803f2
+2026-02-08T11:40:32.226Z	@platejs/dnd:build: cache bypass, force executing 347361b0b38f0e50
+2026-02-08T11:40:32.238Z	@platejs/callout:build: cache bypass, force executing bef298e2d4a8a39e
+2026-02-08T11:40:32.242Z	@platejs/floating:build: cache bypass, force executing 3aab40438b685a06
+2026-02-08T11:40:32.244Z	@platejs/code-drawing:build: cache bypass, force executing 9a3ff61cb1adf7f9
+2026-02-08T11:40:32.263Z	@platejs/autoformat:build: cache bypass, force executing 2877f9339b1fae7d
+2026-02-08T11:40:32.264Z	@platejs/indent:build: cache bypass, force executing 6be9eb22023e014a
+2026-02-08T11:40:32.271Z	@platejs/combobox:build: cache bypass, force executing a742e33805601c34
+2026-02-08T11:40:32.273Z	@platejs/yjs:build: cache bypass, force executing 3aea2686e5f538ba
+2026-02-08T11:40:32.630Z	@platejs/code-block#build: command (/opt/buildhome/repo/packages/code-block) /tmp/xfs-f7879562/yarn run build exited (129)
+2026-02-08T11:40:32.637Z	
+2026-02-08T11:40:32.638Z	 Tasks:    11 successful, 42 total
+2026-02-08T11:40:32.638Z	Cached:    0 cached, 42 total
+2026-02-08T11:40:32.639Z	  Time:    1m2.558s 
+2026-02-08T11:40:32.639Z	Failed:    @platejs/code-block#build
+2026-02-08T11:40:32.639Z	
+2026-02-08T11:40:32.721Z	 ERROR  run failed: command  exited (129)
+2026-02-08T11:40:33.143Z	error: script "build" exited with code 129
+2026-02-08T11:40:33.169Z	Failed: error occurred while running build command
+2026-02-08T11:37:14.929Z	Initializing build environment...
+2026-02-08T11:37:16.488Z	Success: Finished initializing build environment
+2026-02-08T11:37:16.825Z	Cloning repository...
+2026-02-08T11:37:21.790Z	Restoring from dependencies cache
+2026-02-08T11:37:21.792Z	Restoring from build output cache
+2026-02-08T11:37:23.746Z	Detected the following tools from environment: nodejs@22.22.0, yarn@4.12.0, bun@1.2.15
+2026-02-08T11:37:23.747Z	Installing nodejs 22.22.0
+2026-02-08T11:37:31.440Z	Installing project dependencies: bun install --frozen-lockfile
+2026-02-08T11:37:31.624Z	bun install v1.2.15 (df017990)
+2026-02-08T11:37:51.191Z	
+2026-02-08T11:37:51.191Z	$ bunx skiller@latest apply && patch-package --patch-dir tooling/patches
+2026-02-08T11:37:51.214Z	Resolving dependencies
+2026-02-08T11:37:51.448Z	Resolved, downloaded and extracted [42]
+2026-02-08T11:37:51.473Z	Saved lockfile
+2026-02-08T11:37:51.805Z	[skiller] Warning: skills.generate_from_rules is deprecated and has no effect. Skills are now edited directly in .claude/skills/
+2026-02-08T11:37:51.810Z	[skiller] Warning: skills.generate_from_rules is deprecated and has no effect. Skills are now edited directly in .claude/skills/
+2026-02-08T11:37:51.858Z	[skiller] Applying rules for Claude Code...
+2026-02-08T11:37:51.861Z	[skiller] Applying rules for OpenAI Codex CLI...
+2026-02-08T11:37:51.863Z	[skiller] Applying rules for Cursor...
+2026-02-08T11:37:51.867Z	[skiller] Apply completed successfully.
+2026-02-08T11:37:52.108Z	patch-package 8.0.0
+2026-02-08T11:37:52.109Z	Applying patches...
+2026-02-08T11:37:52.112Z	@opennextjs/aws@3.9.14 ✔
+2026-02-08T11:37:52.112Z	@opennextjs/cloudflare@1.16.2 ✔
+2026-02-08T11:37:52.113Z	is-hotkey@0.2.0 ✔
+2026-02-08T11:37:52.190Z	next@16.0.10 ✔
+2026-02-08T11:37:52.191Z	react-dnd@16.0.1 ✔
+2026-02-08T11:37:52.192Z	
+2026-02-08T11:37:52.192Z	Warning: patch-package detected a patch file version mismatch
+2026-02-08T11:37:52.193Z	
+2026-02-08T11:37:52.193Z	  Don't worry! This is probably fine. The patch was still applied
+2026-02-08T11:37:52.193Z	  successfully. Here's the deets:
+2026-02-08T11:37:52.193Z	
+2026-02-08T11:37:52.194Z	  Patch file created for
+2026-02-08T11:37:52.194Z	
+2026-02-08T11:37:52.194Z	    next@16.0.10
+2026-02-08T11:37:52.194Z	
+2026-02-08T11:37:52.194Z	  applied to
+2026-02-08T11:37:52.194Z	
+2026-02-08T11:37:52.194Z	    next@16.1.6
+2026-02-08T11:37:52.195Z	  
+2026-02-08T11:37:52.195Z	  At path
+2026-02-08T11:37:52.195Z	  
+2026-02-08T11:37:52.195Z	    node_modules/next
+2026-02-08T11:37:52.195Z	
+2026-02-08T11:37:52.196Z	  This warning is just to give you a heads-up. There is a small chance of
+2026-02-08T11:37:52.196Z	  breakage even though the patch was applied successfully. Make sure the package
+2026-02-08T11:37:52.196Z	  still behaves like you expect (you wrote tests, right?) and then run
+2026-02-08T11:37:52.197Z	
+2026-02-08T11:37:52.198Z	    patch-package next
+2026-02-08T11:37:52.198Z	
+2026-02-08T11:37:52.198Z	  to update the version in the patch file name and make this warning go away.
+2026-02-08T11:37:52.198Z	
+2026-02-08T11:37:52.198Z	---
+2026-02-08T11:37:52.198Z	patch-package finished with 1 warning(s).
+2026-02-08T11:37:52.220Z	
+2026-02-08T11:37:52.221Z	+ @biomejs/biome@2.3.6
+2026-02-08T11:37:52.221Z	+ @changesets/cli@2.29.7
+2026-02-08T11:37:52.221Z	+ @changesets/get-github-info@0.6.0
+2026-02-08T11:37:52.221Z	+ @happy-dom/global-registrator@20.0.10
+2026-02-08T11:37:52.222Z	+ @opennextjs/aws@3.9.14
+2026-02-08T11:37:52.222Z	+ @opennextjs/cloudflare@1.16.2
+2026-02-08T11:37:52.222Z	+ @playwright/test@1.53.0
+2026-02-08T11:37:52.222Z	+ @roarr/cli@5.12.4
+2026-02-08T11:37:52.222Z	+ @rollup/plugin-babel@6.1.0
+2026-02-08T11:37:52.222Z	+ @swc/core@1.12.0
+2026-02-08T11:37:52.222Z	+ @tailwindcss/postcss@4.1.8
+2026-02-08T11:37:52.222Z	+ @testing-library/dom@10.4.0
+2026-02-08T11:37:52.222Z	+ @testing-library/jest-dom@6.6.3
+2026-02-08T11:37:52.222Z	+ @testing-library/react@16.3.0
+2026-02-08T11:37:52.222Z	+ @testing-library/user-event@14.6.1
+2026-02-08T11:37:52.222Z	+ @types/bun@1.3.2
+2026-02-08T11:37:52.222Z	+ @types/is-hotkey@0.1.10
+2026-02-08T11:37:52.222Z	+ @types/lodash@4.17.17
+2026-02-08T11:37:52.222Z	+ @types/node@24.0.0
+2026-02-08T11:37:52.222Z	+ @types/prismjs@1.26.5
+2026-02-08T11:37:52.223Z	+ @types/prompts@2.4.9
+2026-02-08T11:37:52.223Z	+ @types/raf@3.4.3
+2026-02-08T11:37:52.223Z	+ @types/react@19.2.7
+2026-02-08T11:37:52.223Z	+ @types/react-dom@19.2.3
+2026-02-08T11:37:52.223Z	+ @types/validator@13.15.1
+2026-02-08T11:37:52.223Z	+ @typescript-eslint/parser@8.54.0
+2026-02-08T11:37:52.223Z	+ app-root-path@3.1.0
+2026-02-08T11:37:52.223Z	+ autoprefixer@10.4.21
+2026-02-08T11:37:52.223Z	+ babel-plugin-react-compiler@1.0.0
+2026-02-08T11:37:52.223Z	+ barrelsby@2.8.1
+2026-02-08T11:37:52.223Z	+ bun-types@1.3.8
+2026-02-08T11:37:52.223Z	+ commander@14.0.1
+2026-02-08T11:37:52.223Z	+ concurrently@9.1.2
+2026-02-08T11:37:52.223Z	+ cross-env@7.0.3
+2026-02-08T11:37:52.224Z	+ dotenv@16.5.0
+2026-02-08T11:37:52.224Z	+ eslint@9.39.2
+2026-02-08T11:37:52.224Z	+ eslint-plugin-react-hooks@7.0.1
+2026-02-08T11:37:52.224Z	+ next@16.1.6
+2026-02-08T11:37:52.224Z	+ openai@5.3.0
+2026-02-08T11:37:52.224Z	+ patch-package@8.0.0
+2026-02-08T11:37:52.224Z	+ prompts@2.4.2
+2026-02-08T11:37:52.224Z	+ react@19.2.3
+2026-02-08T11:37:52.224Z	+ react-dnd-test-backend@16.0.1
+2026-02-08T11:37:52.225Z	+ react-dom@19.2.3
+2026-02-08T11:37:52.225Z	+ rimraf@6.0.1
+2026-02-08T11:37:52.225Z	+ slate-test-utils@1.3.2
+2026-02-08T11:37:52.225Z	+ tailwindcss@4.1.8
+2026-02-08T11:37:52.225Z	+ tinyglobby@0.2.14
+2026-02-08T11:37:52.225Z	+ tsdown@0.16.6
+2026-02-08T11:37:52.225Z	+ turbo@2.6.1
+2026-02-08T11:37:52.225Z	+ turbowatch@2.29.4
+2026-02-08T11:37:52.225Z	+ typescript@5.8.3
+2026-02-08T11:37:52.225Z	+ typescript-eslint@8.54.0
+2026-02-08T11:37:52.225Z	+ ultracite@6.3.4
+2026-02-08T11:37:52.226Z	+ y-webrtc@10.3.0
+2026-02-08T11:37:52.226Z	+ zod@4.1.12
+2026-02-08T11:37:52.226Z	+ class-variance-authority@0.7.1
+2026-02-08T11:37:52.226Z	+ clsx@2.1.1
+2026-02-08T11:37:52.226Z	+ csstype@3.2.3
+2026-02-08T11:37:52.227Z	+ is-hotkey@0.2.0
+2026-02-08T11:37:52.227Z	+ is-plain-object@5.0.0
+2026-02-08T11:37:52.227Z	+ lodash@4.17.23
+2026-02-08T11:37:52.227Z	+ marked@17.0.1
+2026-02-08T11:37:52.227Z	+ react-dnd@16.0.1
+2026-02-08T11:37:52.227Z	+ remark-mdx@3.1.1
+2026-02-08T11:37:52.227Z	+ scroll-into-view-if-needed@3.1.0
+2026-02-08T11:37:52.227Z	+ tailwind-merge@3.4.0
+2026-02-08T11:37:52.227Z	+ unist-util-visit@5.1.0
+2026-02-08T11:37:52.227Z	+ validator@13.15.26
+2026-02-08T11:37:52.227Z	
+2026-02-08T11:37:52.227Z	2066 packages installed [20.65s]
+2026-02-08T11:37:52.418Z	Executing user build command: yarn install && bun run build
+2026-02-08T11:37:53.296Z	➤ YN0000: · Yarn 4.12.0
+2026-02-08T11:37:53.303Z	➤ YN0000: ┌ Resolution step
+2026-02-08T11:37:53.760Z	➤ YN0000: └ Completed in 0s 456ms
+2026-02-08T11:37:53.769Z	➤ YN0000: ┌ Post-resolution validation
+2026-02-08T11:37:53.769Z	➤ YN0060: │ @hocuspocus/provider is listed by your project with version 2.15.2 (p3a5f21), which doesn't satisfy what @platejs/yjs requests (^3.4.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ @testing-library/jest-dom is listed by your project with version 6.6.3 (pd77e36), which doesn't satisfy what slate-test-utils requests (^5.15.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ @testing-library/react is listed by your project with version 16.3.0 (pa9fb16), which doesn't satisfy what slate-test-utils requests (^12.1.2).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ date-fns is listed by your project with version 4.1.0 (p225111), which doesn't satisfy what react-day-picker requests (^2.28.0 || ^3.0.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ date-fns is listed by your project with version 4.1.0 (p762da7), which doesn't satisfy what react-day-picker requests (^2.28.0 || ^3.0.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ next is listed by your project with version 16.1.6 (pb15a19), which doesn't satisfy what fumadocs-core and other dependencies request (^14.2.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ next is listed by your project with version 16.1.6 (pe8377c), which doesn't satisfy what fumadocs-core and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ react is listed by your project with version 19.2.3 (pb5b34c), which doesn't satisfy what react-day-picker and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ react is listed by your project with version 19.2.3 (pccc6fc), which doesn't satisfy what react-day-picker and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ react-dom is listed by your project with version 19.2.3 (p5f933f), which doesn't satisfy what @radix-ui/react-tabs (via @excalidraw/excalidraw) and other dependencies request (^18.2.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ react-dom is listed by your project with version 19.2.3 (pbbc76f), which doesn't satisfy what @radix-ui/react-tabs (via @excalidraw/excalidraw) and other dependencies request (^18.2.0).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ zod is listed by your project with version 3.25.61 (p1788a6), which doesn't satisfy what @ai-sdk/gateway and other dependencies request (^3.25.76 || ^4.1.8).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ zod is listed by your project with version 3.25.61 (p48d447), which doesn't satisfy what @ai-sdk/gateway and other dependencies request (^3.25.76 || ^4.1.8).
+2026-02-08T11:37:53.770Z	➤ YN0060: │ zod is listed by your project with version 4.1.12 (p6cfe9d), which doesn't satisfy what openai requests (^3.23.8).
+2026-02-08T11:37:53.770Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai [e2df0] doesn't provide zod (p9d382d), requested by ai.
+2026-02-08T11:37:53.770Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide react (pf982c1), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide react-dom (p32ed7c), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide zod (pf01bf8), requested by ai.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/autoformat@workspace:packages/autoformat doesn't provide react (p1eb90d), requested by platejs and other dependencies.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/autoformat@workspace:packages/autoformat doesn't provide react-dom (p6ceda6), requested by platejs.
+2026-02-08T11:37:53.771Z	➤ YN0002: │ @platejs/basic-nodes@workspace:packages/basic-nodes doesn't provide react (p58870c), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/basic-nodes@workspace:packages/basic-nodes doesn't provide react-dom (p217b74), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/basic-styles@workspace:packages/basic-styles doesn't provide react (p1ee9ed), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/basic-styles@workspace:packages/basic-styles doesn't provide react-dom (p3e25cb), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/callout@workspace:packages/callout doesn't provide react (pe3d13f), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/callout@workspace:packages/callout doesn't provide react-dom (p990c84), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/caption@workspace:packages/caption doesn't provide react (p1df4a5), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/caption@workspace:packages/caption doesn't provide react-dom (pb9a6ce), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-block@workspace:packages/code-block doesn't provide react (p1988b8), requested by platejs and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-block@workspace:packages/code-block doesn't provide react-dom (pe92b53), requested by platejs.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing [e2df0] doesn't provide @codemirror/view (p78cd89), requested by @uiw/react-codemirror.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide @codemirror/view (p0cab30), requested by @uiw/react-codemirror.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide react (pbd6ae6), requested by @uiw/react-codemirror and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide react-dom (p75cf69), requested by @uiw/react-codemirror and other dependencies.
+2026-02-08T11:37:53.772Z	➤ YN0002: │ @platejs/combobox@workspace:packages/combobox doesn't provide react (pa4238b), requested by platejs and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/combobox@workspace:packages/combobox doesn't provide react-dom (p641d04), requested by platejs.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/comment@workspace:packages/comment doesn't provide react (p8a6db3), requested by platejs and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/comment@workspace:packages/comment doesn't provide react-dom (pc00d92), requested by platejs.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/core@workspace:packages/core doesn't provide react (p304b57), requested by @udecode/react-hotkeys and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/core@workspace:packages/core doesn't provide react-dom (p780345), requested by @udecode/react-hotkeys and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/csv@workspace:packages/csv doesn't provide react (pbee4ca), requested by @platejs/table and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/csv@workspace:packages/csv doesn't provide react-dom (pc4fc44), requested by @platejs/table and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/cursor@workspace:packages/cursor doesn't provide react (p96c5a1), requested by platejs and other dependencies.
+2026-02-08T11:37:53.773Z	➤ YN0002: │ @platejs/cursor@workspace:packages/cursor doesn't provide react-dom (p61d5a3), requested by platejs.
+2026-02-08T11:37:53.774Z	➤ YN0002: │ @platejs/date@workspace:packages/date doesn't provide react (p06df59), requested by platejs and other dependencies.
+2026-02-08T11:37:53.774Z	➤ YN0002: │ @platejs/date@workspace:packages/date doesn't provide react-dom (p2c09ad), requested by platejs.
+2026-02-08T11:37:53.774Z	➤ YN0002: │ @platejs/diff@workspace:packages/diff doesn't provide react (p735523), requested by platejs and other dependencies.
+2026-02-08T11:37:53.774Z	➤ YN0002: │ @platejs/diff@workspace:packages/diff doesn't provide react-dom (p9a16be), requested by platejs.
+2026-02-08T11:37:53.775Z	➤ YN0002: │ @platejs/dnd@workspace:packages/dnd doesn't provide react (p4f8a78), requested by platejs and other dependencies.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/dnd@workspace:packages/dnd doesn't provide react-dom (p22f8eb), requested by platejs.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/docx-io@workspace:packages/docx-io doesn't provide react (pd57aba), requested by @platejs/docx and other dependencies.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/docx-io@workspace:packages/docx-io doesn't provide react-dom (p202d8b), requested by @platejs/docx and other dependencies.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/docx@workspace:packages/docx doesn't provide react (p22d453), requested by platejs and other dependencies.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/docx@workspace:packages/docx doesn't provide react-dom (p122baa), requested by platejs.
+2026-02-08T11:37:53.776Z	➤ YN0002: │ @platejs/emoji@workspace:packages/emoji doesn't provide react (pc4d374), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/emoji@workspace:packages/emoji doesn't provide react-dom (p65f912), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/excalidraw@workspace:packages/excalidraw doesn't provide react (p819bdc), requested by @excalidraw/excalidraw and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/excalidraw@workspace:packages/excalidraw doesn't provide react-dom (pc09f3c), requested by @excalidraw/excalidraw and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/find-replace@workspace:packages/find-replace doesn't provide react (p845224), requested by platejs and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/find-replace@workspace:packages/find-replace doesn't provide react-dom (pdb0b8f), requested by platejs.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/floating@workspace:packages/floating doesn't provide react (pe50a96), requested by @floating-ui/react and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/floating@workspace:packages/floating doesn't provide react-dom (p96c521), requested by @floating-ui/react and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/indent@workspace:packages/indent doesn't provide react (pb2992f), requested by platejs and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/indent@workspace:packages/indent doesn't provide react-dom (p810737), requested by platejs.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/juice@workspace:packages/juice doesn't provide react (p1e07a4), requested by platejs and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/juice@workspace:packages/juice doesn't provide react-dom (p1cb294), requested by platejs.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/layout@workspace:packages/layout doesn't provide react (p4db81c), requested by platejs and other dependencies.
+2026-02-08T11:37:53.777Z	➤ YN0002: │ @platejs/layout@workspace:packages/layout doesn't provide react-dom (p397b52), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/link@workspace:packages/link doesn't provide react (p96f0a5), requested by @platejs/floating and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/link@workspace:packages/link doesn't provide react-dom (pd7ea45), requested by @platejs/floating and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/list-classic@workspace:packages/list-classic doesn't provide react (p270bd0), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/list-classic@workspace:packages/list-classic doesn't provide react-dom (p4557e8), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/list@workspace:packages/list doesn't provide react (p57ae57), requested by @platejs/indent and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/list@workspace:packages/list doesn't provide react-dom (pb506af), requested by @platejs/indent and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/markdown@workspace:packages/markdown doesn't provide react (pf3e84d), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/markdown@workspace:packages/markdown doesn't provide react-dom (p26dbbb), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/math@workspace:packages/math doesn't provide react (pf6147a), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/math@workspace:packages/math doesn't provide react-dom (p1e184c), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/media@workspace:packages/media doesn't provide react (p3e2e74), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/media@workspace:packages/media doesn't provide react-dom (p475831), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/mention@workspace:packages/mention doesn't provide react (p53fd75), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/mention@workspace:packages/mention doesn't provide react-dom (p976067), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/playwright@workspace:packages/playwright doesn't provide react (pb90867), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/playwright@workspace:packages/playwright doesn't provide react-dom (p9352da), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/resizable@workspace:packages/resizable doesn't provide react (pcfda50), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/resizable@workspace:packages/resizable doesn't provide react-dom (pc4bd43), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/selection@workspace:packages/selection doesn't provide react (p78286c), requested by platejs and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/selection@workspace:packages/selection doesn't provide react-dom (p3b9a24), requested by platejs.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/slash-command@workspace:packages/slash-command doesn't provide react (pf41f89), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.778Z	➤ YN0002: │ @platejs/slash-command@workspace:packages/slash-command doesn't provide react-dom (pc6dbec), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/suggestion@workspace:packages/suggestion doesn't provide react (pa5908b), requested by @platejs/diff and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/suggestion@workspace:packages/suggestion doesn't provide react-dom (p187837), requested by @platejs/diff and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/tabbable@workspace:packages/tabbable doesn't provide react (pdf2179), requested by platejs and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/tabbable@workspace:packages/tabbable doesn't provide react-dom (p42a4ef), requested by platejs.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/table@workspace:packages/table doesn't provide react (pe4208b), requested by @platejs/resizable and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/table@workspace:packages/table doesn't provide react-dom (pe19108), requested by @platejs/resizable and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/tag@workspace:packages/tag doesn't provide react (p8926a2), requested by platejs and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/tag@workspace:packages/tag doesn't provide react-dom (pe5f29d), requested by platejs.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/toc@workspace:packages/toc doesn't provide react (p74d6fe), requested by platejs and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/toc@workspace:packages/toc doesn't provide react-dom (paabbc0), requested by platejs.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/toggle@workspace:packages/toggle doesn't provide react (p000030), requested by @platejs/indent and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/toggle@workspace:packages/toggle doesn't provide react-dom (pe73f2f), requested by @platejs/indent and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/utils@workspace:packages/utils doesn't provide react (p2ec680), requested by @platejs/core and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/utils@workspace:packages/utils doesn't provide react-dom (pf35245), requested by @platejs/core and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs [e2df0] doesn't provide slate (p931f3c), requested by @slate-yjs/core.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide react (pa1aa28), requested by platejs and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide react-dom (p0763cc), requested by platejs.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide slate (pdcb790), requested by @slate-yjs/core.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @udecode/cmdk@workspace:packages/udecode/cmdk doesn't provide react (p6ef159), requested by @radix-ui/react-dialog and other dependencies.
+2026-02-08T11:37:53.779Z	➤ YN0002: │ @udecode/cmdk@workspace:packages/udecode/cmdk doesn't provide react-dom (p4a7ec5), requested by @radix-ui/react-dialog and other dependencies.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ @udecode/cn@workspace:packages/udecode/cn doesn't provide react (p3c4157), requested by @udecode/react-utils and other dependencies.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ @udecode/cn@workspace:packages/udecode/cn doesn't provide react-dom (p5a9a48), requested by @udecode/react-utils.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ @udecode/react-hotkeys@workspace:packages/udecode/react-hotkeys doesn't provide react (p977c33), requested by react-compiler-runtime.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ @udecode/react-utils@workspace:packages/udecode/react-utils doesn't provide react (p47e5d9), requested by @radix-ui/react-slot and other dependencies.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide @babel/core (p981d37), requested by @rollup/plugin-babel.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide postcss (p32eb1c), requested by autoprefixer.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide slate (pc409ce), requested by slate-test-utils.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide slate-history (p52c5e6), requested by slate-test-utils.
+2026-02-08T11:37:53.780Z	➤ YN0002: │ plate@workspace:. doesn't provide slate-react (p5dfd83), requested by slate-test-utils.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ plate@workspace:. doesn't provide wrangler (p7d6270), requested by @opennextjs/cloudflare.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ plate@workspace:. doesn't provide yjs (pd451f9), requested by y-webrtc.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ platejs@workspace:packages/plate doesn't provide react (p34448d), requested by @platejs/core and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ platejs@workspace:packages/plate doesn't provide react-dom (p9b67ca), requested by @platejs/core and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @playwright/test (p096389), requested by @platejs/playwright and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @slate-yjs/core (pe44c7d), requested by @slate-yjs/react.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @types/node (p86b8db), requested by react-dnd and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @types/react (pbedce2), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide slate (p533d3f), requested by @slate-yjs/react.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide slate-react (pf2a246), requested by @slate-yjs/react.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide y-protocols (pc296af), requested by @hocuspocus/provider.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide yjs (pa97873), requested by @hocuspocus/provider and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @playwright/test (pdbccce), requested by @platejs/playwright and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @types/node (p408e0f), requested by react-dnd and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @types/react (pf9c12a), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide slate-dom (p7c4e69), requested by slate-react.
+2026-02-08T11:37:53.781Z	➤ YN0002: │ www@workspace:apps/www doesn't provide y-protocols (paf8971), requested by @hocuspocus/provider.
+2026-02-08T11:37:53.781Z	➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+2026-02-08T11:37:53.781Z	➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+2026-02-08T11:37:53.781Z	➤ YN0000: └ Completed
+2026-02-08T11:37:53.781Z	➤ YN0000: ┌ Fetch step
+2026-02-08T11:38:18.351Z	➤ YN0013: │ 2058 packages were added to the project (+ 1.57 GiB).
+2026-02-08T11:38:18.351Z	➤ YN0000: └ Completed in 24s 585ms
+2026-02-08T11:38:18.460Z	➤ YN0000: ┌ Link step
+2026-02-08T11:39:18.945Z	➤ YN0007: │ esbuild@npm:0.25.4 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.247Z	➤ YN0007: │ @swc/core@npm:1.12.0 [dfd09] must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.247Z	➤ YN0007: │ sharp@npm:0.34.5 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.247Z	➤ YN0007: │ @tailwindcss/oxide@npm:4.1.8 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.248Z	➤ YN0007: │ puppeteer@npm:24.10.0 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.248Z	➤ YN0007: │ esbuild@npm:0.25.12 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.248Z	➤ YN0007: │ esbuild@npm:0.27.0 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ @parcel/watcher@npm:2.5.6 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ msw@npm:2.12.8 [180a4] must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ workerd@npm:1.20260205.0 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ esbuild@npm:0.20.2 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ msgpackr-extract@npm:3.0.3 must be built because it never has been before or the last one failed
+2026-02-08T11:39:19.249Z	➤ YN0007: │ protobufjs@npm:7.5.4 must be built because it never has been before or the last one failed
+2026-02-08T11:39:21.224Z	➤ YN0000: │ puppeteer@npm:24.10.0 STDOUT **INFO** Skipping Firefox download as instructed.
+2026-02-08T11:39:21.224Z	➤ YN0000: │ puppeteer@npm:24.10.0 STDOUT chrome (137.0.7151.55) downloaded to /opt/buildhome/.cache/puppeteer/chrome/linux-137.0.7151.55
+2026-02-08T11:39:21.224Z	➤ YN0000: │ puppeteer@npm:24.10.0 STDOUT chrome-headless-shell (137.0.7151.55) downloaded to /opt/buildhome/.cache/puppeteer/chrome-headless-shell/linux-137.0.7151.55
+2026-02-08T11:39:21.309Z	➤ YN0007: │ plate@workspace:. must be built because it never has been before or the last one failed
+2026-02-08T11:39:21.311Z	➤ YN0007: │ contentlayer2@npm:0.4.6 must be built because it never has been before or the last one failed
+2026-02-08T11:39:21.599Z	➤ YN0000: │ plate@workspace:. STDERR Resolving dependencies
+2026-02-08T11:39:21.637Z	➤ YN0000: │ plate@workspace:. STDERR Resolved, downloaded and extracted [2]
+2026-02-08T11:39:21.673Z	➤ YN0000: │ plate@workspace:. STDERR Saved lockfile
+2026-02-08T11:39:21.962Z	➤ YN0000: │ plate@workspace:. STDERR [skiller] Warning: skills.generate_from_rules is deprecated and has no effect. Skills are now edited directly in .claude/skills/
+2026-02-08T11:39:21.969Z	➤ YN0000: │ plate@workspace:. STDERR [skiller] Warning: skills.generate_from_rules is deprecated and has no effect. Skills are now edited directly in .claude/skills/
+2026-02-08T11:39:22.038Z	➤ YN0000: │ plate@workspace:. STDOUT [skiller] Applying rules for Claude Code...
+2026-02-08T11:39:22.042Z	➤ YN0000: │ plate@workspace:. STDOUT [skiller] Applying rules for OpenAI Codex CLI...
+2026-02-08T11:39:22.046Z	➤ YN0000: │ plate@workspace:. STDOUT [skiller] Applying rules for Cursor...
+2026-02-08T11:39:22.053Z	➤ YN0000: │ plate@workspace:. STDOUT [skiller] Apply completed successfully.
+2026-02-08T11:39:22.328Z	➤ YN0000: │ plate@workspace:. STDOUT patch-package 8.0.0
+2026-02-08T11:39:22.330Z	➤ YN0000: │ plate@workspace:. STDOUT Applying patches...
+2026-02-08T11:39:22.343Z	➤ YN0000: │ plate@workspace:. STDOUT @opennextjs/aws@3.9.14 ✔
+2026-02-08T11:39:22.346Z	➤ YN0000: │ plate@workspace:. STDOUT @opennextjs/cloudflare@1.16.2 ✔
+2026-02-08T11:39:22.348Z	➤ YN0000: │ plate@workspace:. STDOUT is-hotkey@0.2.0 ✔
+2026-02-08T11:39:22.464Z	➤ YN0000: │ plate@workspace:. STDOUT next@16.0.10 ✔
+2026-02-08T11:39:22.467Z	➤ YN0000: │ plate@workspace:. STDOUT react-dnd@16.0.1 ✔
+2026-02-08T11:39:22.468Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.469Z	➤ YN0000: │ plate@workspace:. STDOUT Warning: patch-package detected a patch file version mismatch
+2026-02-08T11:39:22.469Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.469Z	➤ YN0000: │ plate@workspace:. STDOUT   Don't worry! This is probably fine. The patch was still applied
+2026-02-08T11:39:22.469Z	➤ YN0000: │ plate@workspace:. STDOUT   successfully. Here's the deets:
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   Patch file created for
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT     next@16.0.10
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   applied to
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT     next@16.1.6
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   At path
+2026-02-08T11:39:22.470Z	➤ YN0000: │ plate@workspace:. STDOUT   
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT     node_modules/next
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT   This warning is just to give you a heads-up. There is a small chance of
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT   breakage even though the patch was applied successfully. Make sure the package
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT   still behaves like you expect (you wrote tests, right?) and then run
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT     patch-package next
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT   to update the version in the patch file name and make this warning go away.
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT 
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT ---
+2026-02-08T11:39:22.471Z	➤ YN0000: │ plate@workspace:. STDOUT patch-package finished with 1 warning(s).
+2026-02-08T11:39:22.832Z	➤ YN0000: └ Completed in 1m 5s
+2026-02-08T11:39:23.064Z	➤ YN0000: · Done with warnings in 1m 30s
+2026-02-08T11:39:23.632Z	$ yarn install && yarn g:build
+2026-02-08T11:39:24.560Z	➤ YN0000: · Yarn 4.12.0
+2026-02-08T11:39:24.580Z	➤ YN0000: ┌ Resolution step
+2026-02-08T11:39:24.984Z	➤ YN0000: └ Completed in 0s 405ms
+2026-02-08T11:39:24.989Z	➤ YN0000: ┌ Post-resolution validation
+2026-02-08T11:39:24.989Z	➤ YN0060: │ @hocuspocus/provider is listed by your project with version 2.15.2 (p3a5f21), which doesn't satisfy what @platejs/yjs requests (^3.4.0).
+2026-02-08T11:39:24.989Z	➤ YN0060: │ @testing-library/jest-dom is listed by your project with version 6.6.3 (pd77e36), which doesn't satisfy what slate-test-utils requests (^5.15.0).
+2026-02-08T11:39:24.989Z	➤ YN0060: │ @testing-library/react is listed by your project with version 16.3.0 (pa9fb16), which doesn't satisfy what slate-test-utils requests (^12.1.2).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ date-fns is listed by your project with version 4.1.0 (p225111), which doesn't satisfy what react-day-picker requests (^2.28.0 || ^3.0.0).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ date-fns is listed by your project with version 4.1.0 (p762da7), which doesn't satisfy what react-day-picker requests (^2.28.0 || ^3.0.0).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ next is listed by your project with version 16.1.6 (pb15a19), which doesn't satisfy what fumadocs-core and other dependencies request (^14.2.0).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ next is listed by your project with version 16.1.6 (pe8377c), which doesn't satisfy what fumadocs-core and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ react is listed by your project with version 19.2.3 (pb5b34c), which doesn't satisfy what react-day-picker and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ react is listed by your project with version 19.2.3 (pccc6fc), which doesn't satisfy what react-day-picker and other dependencies request (but they have non-overlapping ranges!).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ react-dom is listed by your project with version 19.2.3 (p5f933f), which doesn't satisfy what @radix-ui/react-tabs (via @excalidraw/excalidraw) and other dependencies request (^18.2.0).
+2026-02-08T11:39:24.990Z	➤ YN0060: │ react-dom is listed by your project with version 19.2.3 (pbbc76f), which doesn't satisfy what @radix-ui/react-tabs (via @excalidraw/excalidraw) and other dependencies request (^18.2.0).
+2026-02-08T11:39:24.991Z	➤ YN0060: │ zod is listed by your project with version 3.25.61 (p1788a6), which doesn't satisfy what @ai-sdk/gateway and other dependencies request (^3.25.76 || ^4.1.8).
+2026-02-08T11:39:24.991Z	➤ YN0060: │ zod is listed by your project with version 3.25.61 (p48d447), which doesn't satisfy what @ai-sdk/gateway and other dependencies request (^3.25.76 || ^4.1.8).
+2026-02-08T11:39:24.991Z	➤ YN0060: │ zod is listed by your project with version 4.1.12 (p6cfe9d), which doesn't satisfy what openai requests (^3.23.8).
+2026-02-08T11:39:24.991Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai [e2df0] doesn't provide zod (p9d382d), requested by ai.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide react (pf982c1), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide react-dom (p32ed7c), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/ai@workspace:packages/ai doesn't provide zod (pf01bf8), requested by ai.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/autoformat@workspace:packages/autoformat doesn't provide react (p1eb90d), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/autoformat@workspace:packages/autoformat doesn't provide react-dom (p6ceda6), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/basic-nodes@workspace:packages/basic-nodes doesn't provide react (p58870c), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/basic-nodes@workspace:packages/basic-nodes doesn't provide react-dom (p217b74), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/basic-styles@workspace:packages/basic-styles doesn't provide react (p1ee9ed), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/basic-styles@workspace:packages/basic-styles doesn't provide react-dom (p3e25cb), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/callout@workspace:packages/callout doesn't provide react (pe3d13f), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/callout@workspace:packages/callout doesn't provide react-dom (p990c84), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/caption@workspace:packages/caption doesn't provide react (p1df4a5), requested by platejs and other dependencies.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/caption@workspace:packages/caption doesn't provide react-dom (pb9a6ce), requested by platejs.
+2026-02-08T11:39:24.992Z	➤ YN0002: │ @platejs/code-block@workspace:packages/code-block doesn't provide react (p1988b8), requested by platejs and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-block@workspace:packages/code-block doesn't provide react-dom (pe92b53), requested by platejs.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing [e2df0] doesn't provide @codemirror/view (p78cd89), requested by @uiw/react-codemirror.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide @codemirror/view (p0cab30), requested by @uiw/react-codemirror.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide react (pbd6ae6), requested by @uiw/react-codemirror and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/code-drawing@workspace:packages/code-drawing doesn't provide react-dom (p75cf69), requested by @uiw/react-codemirror and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/combobox@workspace:packages/combobox doesn't provide react (pa4238b), requested by platejs and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/combobox@workspace:packages/combobox doesn't provide react-dom (p641d04), requested by platejs.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/comment@workspace:packages/comment doesn't provide react (p8a6db3), requested by platejs and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/comment@workspace:packages/comment doesn't provide react-dom (pc00d92), requested by platejs.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/core@workspace:packages/core doesn't provide react (p304b57), requested by @udecode/react-hotkeys and other dependencies.
+2026-02-08T11:39:24.993Z	➤ YN0002: │ @platejs/core@workspace:packages/core doesn't provide react-dom (p780345), requested by @udecode/react-hotkeys and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/csv@workspace:packages/csv doesn't provide react (pbee4ca), requested by @platejs/table and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/csv@workspace:packages/csv doesn't provide react-dom (pc4fc44), requested by @platejs/table and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/cursor@workspace:packages/cursor doesn't provide react (p96c5a1), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/cursor@workspace:packages/cursor doesn't provide react-dom (p61d5a3), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/date@workspace:packages/date doesn't provide react (p06df59), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/date@workspace:packages/date doesn't provide react-dom (p2c09ad), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/diff@workspace:packages/diff doesn't provide react (p735523), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/diff@workspace:packages/diff doesn't provide react-dom (p9a16be), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/dnd@workspace:packages/dnd doesn't provide react (p4f8a78), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/dnd@workspace:packages/dnd doesn't provide react-dom (p22f8eb), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/docx-io@workspace:packages/docx-io doesn't provide react (pd57aba), requested by @platejs/docx and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/docx-io@workspace:packages/docx-io doesn't provide react-dom (p202d8b), requested by @platejs/docx and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/docx@workspace:packages/docx doesn't provide react (p22d453), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/docx@workspace:packages/docx doesn't provide react-dom (p122baa), requested by platejs.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/emoji@workspace:packages/emoji doesn't provide react (pc4d374), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/emoji@workspace:packages/emoji doesn't provide react-dom (p65f912), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/excalidraw@workspace:packages/excalidraw doesn't provide react (p819bdc), requested by @excalidraw/excalidraw and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/excalidraw@workspace:packages/excalidraw doesn't provide react-dom (pc09f3c), requested by @excalidraw/excalidraw and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/find-replace@workspace:packages/find-replace doesn't provide react (p845224), requested by platejs and other dependencies.
+2026-02-08T11:39:24.994Z	➤ YN0002: │ @platejs/find-replace@workspace:packages/find-replace doesn't provide react-dom (pdb0b8f), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/floating@workspace:packages/floating doesn't provide react (pe50a96), requested by @floating-ui/react and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/floating@workspace:packages/floating doesn't provide react-dom (p96c521), requested by @floating-ui/react and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/indent@workspace:packages/indent doesn't provide react (pb2992f), requested by platejs and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/indent@workspace:packages/indent doesn't provide react-dom (p810737), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/juice@workspace:packages/juice doesn't provide react (p1e07a4), requested by platejs and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/juice@workspace:packages/juice doesn't provide react-dom (p1cb294), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/layout@workspace:packages/layout doesn't provide react (p4db81c), requested by platejs and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/layout@workspace:packages/layout doesn't provide react-dom (p397b52), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/link@workspace:packages/link doesn't provide react (p96f0a5), requested by @platejs/floating and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/link@workspace:packages/link doesn't provide react-dom (pd7ea45), requested by @platejs/floating and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/list-classic@workspace:packages/list-classic doesn't provide react (p270bd0), requested by platejs and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/list-classic@workspace:packages/list-classic doesn't provide react-dom (p4557e8), requested by platejs.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/list@workspace:packages/list doesn't provide react (p57ae57), requested by @platejs/indent and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/list@workspace:packages/list doesn't provide react-dom (pb506af), requested by @platejs/indent and other dependencies.
+2026-02-08T11:39:24.995Z	➤ YN0002: │ @platejs/markdown@workspace:packages/markdown doesn't provide react (pf3e84d), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/markdown@workspace:packages/markdown doesn't provide react-dom (p26dbbb), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/math@workspace:packages/math doesn't provide react (pf6147a), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/math@workspace:packages/math doesn't provide react-dom (p1e184c), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/media@workspace:packages/media doesn't provide react (p3e2e74), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/media@workspace:packages/media doesn't provide react-dom (p475831), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/mention@workspace:packages/mention doesn't provide react (p53fd75), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/mention@workspace:packages/mention doesn't provide react-dom (p976067), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/playwright@workspace:packages/playwright doesn't provide react (pb90867), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/playwright@workspace:packages/playwright doesn't provide react-dom (p9352da), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/resizable@workspace:packages/resizable doesn't provide react (pcfda50), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/resizable@workspace:packages/resizable doesn't provide react-dom (pc4bd43), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/selection@workspace:packages/selection doesn't provide react (p78286c), requested by platejs and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/selection@workspace:packages/selection doesn't provide react-dom (p3b9a24), requested by platejs.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/slash-command@workspace:packages/slash-command doesn't provide react (pf41f89), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.997Z	➤ YN0002: │ @platejs/slash-command@workspace:packages/slash-command doesn't provide react-dom (pc6dbec), requested by @platejs/combobox and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/suggestion@workspace:packages/suggestion doesn't provide react (pa5908b), requested by @platejs/diff and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/suggestion@workspace:packages/suggestion doesn't provide react-dom (p187837), requested by @platejs/diff and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/tabbable@workspace:packages/tabbable doesn't provide react (pdf2179), requested by platejs and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/tabbable@workspace:packages/tabbable doesn't provide react-dom (p42a4ef), requested by platejs.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/table@workspace:packages/table doesn't provide react (pe4208b), requested by @platejs/resizable and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/table@workspace:packages/table doesn't provide react-dom (pe19108), requested by @platejs/resizable and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/tag@workspace:packages/tag doesn't provide react (p8926a2), requested by platejs and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/tag@workspace:packages/tag doesn't provide react-dom (pe5f29d), requested by platejs.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/toc@workspace:packages/toc doesn't provide react (p74d6fe), requested by platejs and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/toc@workspace:packages/toc doesn't provide react-dom (paabbc0), requested by platejs.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/toggle@workspace:packages/toggle doesn't provide react (p000030), requested by @platejs/indent and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/toggle@workspace:packages/toggle doesn't provide react-dom (pe73f2f), requested by @platejs/indent and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/utils@workspace:packages/utils doesn't provide react (p2ec680), requested by @platejs/core and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/utils@workspace:packages/utils doesn't provide react-dom (pf35245), requested by @platejs/core and other dependencies.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs [e2df0] doesn't provide slate (p931f3c), requested by @slate-yjs/core.
+2026-02-08T11:39:24.998Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide react (pa1aa28), requested by platejs and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide react-dom (p0763cc), requested by platejs.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @platejs/yjs@workspace:packages/yjs doesn't provide slate (pdcb790), requested by @slate-yjs/core.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/cmdk@workspace:packages/udecode/cmdk doesn't provide react (p6ef159), requested by @radix-ui/react-dialog and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/cmdk@workspace:packages/udecode/cmdk doesn't provide react-dom (p4a7ec5), requested by @radix-ui/react-dialog and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/cn@workspace:packages/udecode/cn doesn't provide react (p3c4157), requested by @udecode/react-utils and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/cn@workspace:packages/udecode/cn doesn't provide react-dom (p5a9a48), requested by @udecode/react-utils.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/react-hotkeys@workspace:packages/udecode/react-hotkeys doesn't provide react (p977c33), requested by react-compiler-runtime.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ @udecode/react-utils@workspace:packages/udecode/react-utils doesn't provide react (p47e5d9), requested by @radix-ui/react-slot and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide @babel/core (p981d37), requested by @rollup/plugin-babel.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide postcss (p32eb1c), requested by autoprefixer.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide slate (pc409ce), requested by slate-test-utils.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide slate-history (p52c5e6), requested by slate-test-utils.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide slate-react (p5dfd83), requested by slate-test-utils.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide wrangler (p7d6270), requested by @opennextjs/cloudflare.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ plate@workspace:. doesn't provide yjs (pd451f9), requested by y-webrtc.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ platejs@workspace:packages/plate doesn't provide react (p34448d), requested by @platejs/core and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ platejs@workspace:packages/plate doesn't provide react-dom (p9b67ca), requested by @platejs/core and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @playwright/test (p096389), requested by @platejs/playwright and other dependencies.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @slate-yjs/core (pe44c7d), requested by @slate-yjs/react.
+2026-02-08T11:39:24.999Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @types/node (p86b8db), requested by react-dnd and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide @types/react (pbedce2), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide slate (p533d3f), requested by @slate-yjs/react.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide slate-react (pf2a246), requested by @slate-yjs/react.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide y-protocols (pc296af), requested by @hocuspocus/provider.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www-worker@workspace:apps/www_worker doesn't provide yjs (pa97873), requested by @hocuspocus/provider and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @playwright/test (pdbccce), requested by @platejs/playwright and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @types/node (p408e0f), requested by react-dnd and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide @types/react (pf9c12a), requested by @ai-sdk/react and other dependencies.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide slate-dom (p7c4e69), requested by slate-react.
+2026-02-08T11:39:25.000Z	➤ YN0002: │ www@workspace:apps/www doesn't provide y-protocols (paf8971), requested by @hocuspocus/provider.
+2026-02-08T11:39:25.000Z	➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+2026-02-08T11:39:25.000Z	➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+2026-02-08T11:39:25.000Z	➤ YN0000: └ Completed
+2026-02-08T11:39:25.000Z	➤ YN0000: ┌ Fetch step
+2026-02-08T11:39:27.650Z	➤ YN0000: └ Completed in 2s 657ms
+2026-02-08T11:39:27.755Z	➤ YN0000: ┌ Link step
+2026-02-08T11:39:28.553Z	➤ YN0000: └ Completed in 0s 797ms
+2026-02-08T11:39:28.786Z	➤ YN0000: · Done with warnings in 4s 226ms
+2026-02-08T11:39:30.015Z	
+2026-02-08T11:39:30.016Z	Attention:
+2026-02-08T11:39:30.016Z	Turborepo now collects completely anonymous telemetry regarding usage.
+2026-02-08T11:39:30.016Z	This information is used to shape the Turborepo roadmap and prioritize features.
+2026-02-08T11:39:30.016Z	You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+2026-02-08T11:39:30.016Z	https://turborepo.com/docs/telemetry
+2026-02-08T11:39:30.016Z	
+2026-02-08T11:39:30.317Z	• Packages in scope: @platejs/ai, @platejs/autoformat, @platejs/basic-nodes, @platejs/basic-styles, @platejs/callout, @platejs/caption, @platejs/code-block, @platejs/code-drawing, @platejs/combobox, @platejs/comment, @platejs/core, @platejs/csv, @platejs/cursor, @platejs/date, @platejs/diff, @platejs/dnd, @platejs/docx, @platejs/docx-io, @platejs/emoji, @platejs/excalidraw, @platejs/find-replace, @platejs/floating, @platejs/indent, @platejs/juice, @platejs/layout, @platejs/link, @platejs/list, @platejs/list-classic, @platejs/markdown, @platejs/math, @platejs/media, @platejs/mention, @platejs/playwright, @platejs/resizable, @platejs/selection, @platejs/slash-command, @platejs/slate, @platejs/suggestion, @platejs/tabbable, @platejs/table, @platejs/tag, @platejs/test-utils, @platejs/toc, @platejs/toggle, @platejs/utils, @platejs/yjs, @udecode/cmdk, @udecode/cn, @udecode/react-hotkeys, @udecode/react-utils, @udecode/utils, depset, platejs
+2026-02-08T11:39:30.317Z	• Running build in 53 packages
+2026-02-08T11:39:30.317Z	• Remote caching disabled
+2026-02-08T11:39:30.515Z	@udecode/utils:build: cache bypass, force executing 92a4433f291361ac
+2026-02-08T11:39:30.518Z	@udecode/cmdk:build: cache bypass, force executing c503dd3c16290455
+2026-02-08T11:39:30.521Z	@udecode/react-hotkeys:build: cache bypass, force executing 34cbf3c06052936a
+2026-02-08T11:39:30.529Z	depset:build: cache bypass, force executing 1c54b4552ca0afe3
+2026-02-08T11:39:37.994Z	@platejs/slate:build: cache bypass, force executing 864c46e34fb6c974
+2026-02-08T11:39:37.999Z	@udecode/react-utils:build: cache bypass, force executing 45970a45db1bfb99
+2026-02-08T11:39:44.842Z	@udecode/cn:build: cache bypass, force executing df6c63b8bda10fbe
+2026-02-08T11:39:46.351Z	@platejs/core:build: cache bypass, force executing 44b9f36e793544a0
+2026-02-08T11:39:46.354Z	@platejs/test-utils:build: cache bypass, force executing 615f1810996a972b
+2026-02-08T11:39:57.999Z	@platejs/utils:build: cache bypass, force executing 528f7414e3207443
+2026-02-08T11:40:03.913Z	platejs:build: cache bypass, force executing d9f01e279cf71d82
+2026-02-08T11:40:08.666Z	@platejs/selection:build: cache bypass, force executing 67398ba7924d84b0
+2026-02-08T11:40:08.669Z	@platejs/diff:build: cache bypass, force executing 79d5c3e0af7a6953
+2026-02-08T11:40:08.671Z	@platejs/juice:build: cache bypass, force executing f6b1dbdd7d25523f
+2026-02-08T11:40:08.674Z	@platejs/code-block:build: cache bypass, force executing 18dbed69f449b1bc
+2026-02-08T11:40:08.679Z	@platejs/comment:build: cache bypass, force executing 58bdcb9605ecfeb7
+2026-02-08T11:40:08.690Z	@platejs/date:build: cache bypass, force executing 82ecd6d16b185954
+2026-02-08T11:40:08.690Z	@platejs/cursor:build: cache bypass, force executing 9861d0503366c9c0
+2026-02-08T11:40:08.695Z	@platejs/resizable:build: cache bypass, force executing 8950c849b0771713
+2026-02-08T11:40:08.701Z	@platejs/find-replace:build: cache bypass, force executing 981811bd7ea1f230
+2026-02-08T11:40:08.705Z	@platejs/media:build: cache bypass, force executing ccc753d116c51163
+2026-02-08T11:40:32.045Z	@platejs/code-block:build: ERROR: command finished with error: command (/opt/buildhome/repo/packages/code-block) /tmp/xfs-f7879562/yarn run build exited (129)
+2026-02-08T11:40:32.143Z	@platejs/playwright:build: cache bypass, force executing b788c751f73adc38
+2026-02-08T11:40:32.146Z	@platejs/basic-nodes:build: cache bypass, force executing f3b9719feaded1ad
+2026-02-08T11:40:32.163Z	@platejs/tag:build: cache bypass, force executing 731677dc6279d530
+2026-02-08T11:40:32.163Z	@platejs/basic-styles:build: cache bypass, force executing c407901b4ad23b70
+2026-02-08T11:40:32.172Z	@platejs/tabbable:build: cache bypass, force executing 8aa123c3bd9a4254
+2026-02-08T11:40:32.172Z	@platejs/docx:build: cache bypass, force executing e5d2dee9fcf51923
+2026-02-08T11:40:32.174Z	@platejs/list-classic:build: cache bypass, force executing 379d21416fb8b52e
+2026-02-08T11:40:32.189Z	@platejs/excalidraw:build: cache bypass, force executing d237065250d95917
+2026-02-08T11:40:32.190Z	@platejs/markdown:build: cache bypass, force executing 023db1ffb2e6db8a
+2026-02-08T11:40:32.201Z	@platejs/layout:build: cache bypass, force executing 612f30ceede8d440
+2026-02-08T11:40:32.212Z	@platejs/toc:build: cache bypass, force executing f20c988cf90185eb
+2026-02-08T11:40:32.222Z	@platejs/caption:build: cache bypass, force executing db8410ad27c7c85f
+2026-02-08T11:40:32.224Z	@platejs/math:build: cache bypass, force executing 8b7d94d7fd5803f2
+2026-02-08T11:40:32.226Z	@platejs/dnd:build: cache bypass, force executing 347361b0b38f0e50
+2026-02-08T11:40:32.238Z	@platejs/callout:build: cache bypass, force executing bef298e2d4a8a39e
+2026-02-08T11:40:32.242Z	@platejs/floating:build: cache bypass, force executing 3aab40438b685a06
+2026-02-08T11:40:32.244Z	@platejs/code-drawing:build: cache bypass, force executing 9a3ff61cb1adf7f9
+2026-02-08T11:40:32.263Z	@platejs/autoformat:build: cache bypass, force executing 2877f9339b1fae7d
+2026-02-08T11:40:32.264Z	@platejs/indent:build: cache bypass, force executing 6be9eb22023e014a
+2026-02-08T11:40:32.271Z	@platejs/combobox:build: cache bypass, force executing a742e33805601c34
+2026-02-08T11:40:32.273Z	@platejs/yjs:build: cache bypass, force executing 3aea2686e5f538ba
+2026-02-08T11:40:32.630Z	@platejs/code-block#build: command (/opt/buildhome/repo/packages/code-block) /tmp/xfs-f7879562/yarn run build exited (129)
+2026-02-08T11:40:32.637Z	
+2026-02-08T11:40:32.638Z	 Tasks:    11 successful, 42 total
+2026-02-08T11:40:32.638Z	Cached:    0 cached, 42 total
+2026-02-08T11:40:32.639Z	  Time:    1m2.558s 
+2026-02-08T11:40:32.639Z	Failed:    @platejs/code-block#build
+2026-02-08T11:40:32.639Z	
+2026-02-08T11:40:32.721Z	 ERROR  run failed: command  exited (129)
+2026-02-08T11:40:33.143Z	error: script "build" exited with code 129
+2026-02-08T11:40:33.169Z	Failed: error occurred while running build command

@@ -3,10 +3,35 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["../../apps/www/src/*"],
-      "www/*": ["../../apps/www/*"]
+      "@/*": [
+        "../../apps/www/src/*"
+      ],
+      "www/*": [
+        "../../apps/www/*"
+      ],
+      "platejs": [
+        "../../packages/plate/src/index.tsx"
+      ],
+      "platejs/react": [
+        "../../packages/plate/src/react/index.tsx"
+      ],
+      "platejs/static": [
+        "../../packages/plate/src/static/index.tsx"
+      ],
+      "@platejs/*": [
+        "../../packages/*/src/index.ts",
+        "../../packages/*/src/index.tsx"
+      ],
+      "@platejs/*/react": [
+        "../../packages/*/src/react/index.ts",
+        "../../packages/*/src/react/index.tsx"
+      ]
     }
   },
-  "include": ["src", "../../tooling/config/global.d.ts"],
+  "include": [
+    "src",
+    "../../tooling/config/global.d.ts",
+    "cli"
+  ],
   "exclude": []
 }
