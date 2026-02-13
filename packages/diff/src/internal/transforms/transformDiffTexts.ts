@@ -272,7 +272,6 @@ function splitTextNodes(
     // the text in the sequence of target nodes.  Once we do this transform,
     // we can then worry about splitting up the resulting source node.
     for (const op of slateTextDiff(nodeText, splitText, options)) {
-      // TODO: maybe path has to be changed if there are multiple OPS?
       operations.push({ path: [0, 0], ...op });
     }
   }

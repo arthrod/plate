@@ -1719,6 +1719,31 @@ const fixtures: Record<string, ComputeDiffFixture> = {
       },
     ],
   },
+  multipleTextOps: {
+    expected: [
+      {
+        children: [
+          { text: 'He' },
+          { text: 'llo', diff: true, diffOperation: { type: 'delete' } },
+          { text: ' World' },
+          { text: '!', diff: true, diffOperation: { type: 'insert' } },
+        ],
+        type: 'paragraph',
+      },
+    ],
+    input1: [
+      {
+        children: [{ text: 'Hello World' }],
+        type: 'paragraph',
+      },
+    ],
+    input2: [
+      {
+        children: [{ text: 'He World!' }],
+        type: 'paragraph',
+      },
+    ],
+  },
 };
 
 describe('computeDiff', () => {
