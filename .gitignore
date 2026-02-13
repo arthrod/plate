@@ -6,7 +6,7 @@ apps/www/public/rd
 **/tsconfig.tsbuildinfo
 templates/my-app
 .cursor/local
-
+.worktrees/
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -79,7 +79,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.cache
-
+specs/
 
 
 # Optional npm cache directory
@@ -130,17 +130,18 @@ packages/plate/docs/
 /playwright/.cache/
 .turbo
 .vercel
+.open-next
 
 CLAUDE.local.md
 .codex
 
 # START Skiller Generated Files
-/.claude/skills
 /.codex/config.toml
 /.cursor/mcp.json
 /.cursor/rules
 /.mcp.json
-/.skillz
 /AGENTS.md
 /CLAUDE.md
 # END Skiller Generated Files
+.worktrees
+tmp/

@@ -1,0 +1,62 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true,
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "ESNext",
+    "types": ["node", "@testing-library/jest-dom", "bun-types"],
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "contentlayer/generated": ["./.contentlayer/generated"],
+      "registry": ["./public/r/registry.json"],
+      "registry-shadcn": ["./registry-shadcn.json"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "next.config.mjs",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.cts",
+    "**/*.ctsx",
+    "**/*.mts",
+    "**/*.mtsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.cjs",
+    "**/*.cjsx",
+    "**/*.mjs",
+    "**/*.mjsx",
+    ".next/types/**/*.ts",
+    ".contentlayer/generated",
+    "./scripts/**/*.ts",
+    "./registry.json",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", "__registry__", "**/blocks/fumadocs"]
+}
