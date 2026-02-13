@@ -917,6 +917,16 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
   }
 
   /**
+   * Manually triggers the stop of a selection
+   *
+   * @param evt A MouseEvent / TouchEvent -like object
+   * @param silent If beforestop should be fired,
+   */
+  stop(evt: MouseEvent | TouchEvent, silent = false): void {
+    this._onTapStop(evt, silent);
+  }
+
+  /**
    * Manually triggers the start of a selection
    *
    * @param evt A MouseEvent / TouchEvent -like object
