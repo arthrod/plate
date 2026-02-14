@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   // or a custom authentication method to be implemented.
   const apiKey =
     key ||
-    (process.env.NODE_ENV === 'development'
+    (typeof process !== 'undefined' && process.env.NODE_ENV === 'development'
       ? process.env.AI_GATEWAY_API_KEY
       : undefined);
 
