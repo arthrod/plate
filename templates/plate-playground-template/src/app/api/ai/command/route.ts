@@ -43,11 +43,9 @@ export async function POST(req: NextRequest) {
   // To ensure security, we only use the environment variable in development.
   // In production, we expect the API key to be passed in the request body
   // or a custom authentication method to be implemented.
-  const apiKey =
-    key ||
-    (typeof process !== 'undefined' && process.env.NODE_ENV === 'development'
-      ? process.env.AI_GATEWAY_API_KEY
-      : undefined);
+  const isProduction =
+    typeof process === 'undefined' || process.env.NODE_ENV === 'production';
+  const apiKey = key || (!isProduction ? process.env.AI_GATEWAY_API_KEY : undefined);
 
   if (!apiKey) {
     return NextResponse.json(
