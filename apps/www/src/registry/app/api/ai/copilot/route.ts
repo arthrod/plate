@@ -11,11 +11,18 @@ export async function POST(req: NextRequest) {
     system,
   } = await req.json();
 
-  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
+  // To ensure security, we only use the environment variable in development.
+  // In production, we expect the API key to be passed in the request body
+  // or a custom authentication method to be implemented.
+  const apiKey =
+    key ||
+    (process.env.NODE_ENV === 'development'
+      ? process.env.AI_GATEWAY_API_KEY
+      : undefined);
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: 'Missing ai gateway API key.' },
+      { error: 'Missing AI Gateway API key.' },
       { status: 401 }
     );
   }
