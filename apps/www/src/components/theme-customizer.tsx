@@ -67,23 +67,31 @@ export function ThemeCustomizer() {
           <ThemesSwitcher />
         </div>
         <div className="space-y-1.5 px-6">
-          <Label className="text-xs">Radius</Label>
-          <div className="grid grid-cols-5 gap-2">
+          <Label id="radius-label" className="text-xs">
+            Radius
+          </Label>
+          <div
+            aria-labelledby="radius-label"
+            className="grid grid-cols-5 gap-2"
+            role="group"
+          >
             {['0', '0.3', '0.5', '0.75', '1.0'].map((value) => (
               <Button
-                key={value}
-                size="sm"
-                variant="outline"
+                aria-label={`Set radius to ${value}`}
+                aria-pressed={config.radius === Number.parseFloat(value)}
                 className={cn(
                   config.radius === Number.parseFloat(value) &&
                     'border-2 border-primary'
                 )}
+                key={value}
                 onClick={() => {
                   setConfig({
                     ...config,
                     radius: Number.parseFloat(value),
                   });
                 }}
+                size="sm"
+                variant="outline"
               >
                 {value}
               </Button>
@@ -91,24 +99,28 @@ export function ThemeCustomizer() {
           </div>
         </div>
         <div className="space-y-1.5 px-6">
-          <Label className="text-xs">Mode</Label>
-          <div className="flex gap-2">
+          <Label id="mode-label" className="text-xs">
+            Mode
+          </Label>
+          <div aria-labelledby="mode-label" className="flex gap-2" role="group">
             {mounted ? (
               <>
                 <Button
-                  size="sm"
-                  variant="outline"
+                  aria-pressed={mode === 'light'}
                   className={cn(mode === 'light' && 'border-2 border-primary')}
                   onClick={() => setMode('light')}
+                  size="sm"
+                  variant="outline"
                 >
                   <SunIcon />
                   Light
                 </Button>
                 <Button
-                  size="sm"
-                  variant="outline"
+                  aria-pressed={mode === 'dark'}
                   className={cn(mode === 'dark' && 'border-2 border-primary')}
                   onClick={() => setMode('dark')}
+                  size="sm"
+                  variant="outline"
                 >
                   <MoonIcon />
                   Dark
