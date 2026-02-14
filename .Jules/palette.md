@@ -7,3 +7,6 @@
 ## 2025-02-15 - Build Failures in Mixed Environments
 **Learning:** `postinstall` scripts that rely on environment-specific tools (like `bunx`) can cause build failures in CI environments that lack those tools (e.g., Cloudflare Pages).
 **Action:** Use environment-agnostic tools (like `npx`) in `package.json` scripts to ensure compatibility across all environments (local, CI, deployment).
+## 2025-02-15 - Optionalizing CI Build Steps
+**Learning:** External tools (like `skiller`) in `postinstall` scripts can be flaky or environment-dependent.
+**Action:** Wrap non-critical build steps in `(command || true)` to prevent them from blocking the entire build pipeline, especially if they are only needed for specific dev workflows (like templates).
