@@ -31,14 +31,14 @@ export const applyDeepToNodes = <N extends TNode>({
   query,
   source,
 }: ApplyDeepToNodesOptions<N>) => {
-  const _recurse = (currentNode: N, currentPath: Path) => {
-    const entry: NodeEntry<N> = [currentNode, currentPath];
+  const _recurse = (currentNode: TNode, currentPath: Path) => {
+    const entry: NodeEntry<TNode> = [currentNode, currentPath];
 
-    if (queryNode<N>(entry, query)) {
+    if (queryNode(entry, query)) {
       if (typeof source === 'function') {
-        apply(currentNode, source());
+        apply(currentNode as any, source());
       } else {
-        apply(currentNode, source);
+        apply(currentNode as any, source);
       }
     }
 
