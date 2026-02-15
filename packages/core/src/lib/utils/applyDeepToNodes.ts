@@ -23,14 +23,17 @@ export type ApplyDeepToNodesOptions<N extends TNode> = {
   query?: QueryNodeOptions;
 };
 
-/** Recursively apply an operation to children nodes with a query. */
-export const applyDeepToNodes = <N extends TNode>({
-  apply,
-  node,
-  path = [],
-  query,
-  source,
-}: ApplyDeepToNodesOptions<N>) => {
+// biome-ignore lint/nursery/useMaxParams: Performance optimization
+const _applyDeepToNodes = <N extends TNode>(
+  node: N,
+  source: (() => Record<string, any>) | Record<string, any>,
+  path: Path,
+  apply: (
+    node: NodeOf<N>,
+    source: (() => Record<string, any>) | Record<string, any>
+  ) => void,
+  query?: QueryNodeOptions
+) => {
   const entry: NodeEntry<N> = [node, path];
 
   if (queryNode<N>(entry, query)) {
@@ -40,15 +43,23 @@ export const applyDeepToNodes = <N extends TNode>({
       apply(node, source);
     }
   }
+
   if (!NodeApi.isAncestor(node)) return;
 
-  node.children.forEach((child, index) => {
-    applyDeepToNodes({
-      apply,
-      node: child as any,
-      path: path.concat([index]),
-      query,
-      source,
-    });
-  });
+  const children = node.children;
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    _applyDeepToNodes(child as any, source, path.concat([i]), apply, query);
+  }
+};
+
+/** Recursively apply an operation to children nodes with a query. */
+export const applyDeepToNodes = <N extends TNode>({
+  apply,
+  node,
+  path = [],
+  query,
+  source,
+}: ApplyDeepToNodesOptions<N>) => {
+  _applyDeepToNodes(node, source, path, apply, query);
 };
