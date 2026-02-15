@@ -1,4 +1,17 @@
 {
+  "name": "www",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "contentlayer2 build && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "build:registry": "tsx scripts/build-registry.mts",
+    "shadcn:build": "yarn build:registry",
+    "r": "yarn build:registry",
+    "rd": "yarn build:registry"
+  },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.0",
     "@ai-sdk/google": "^3.0.0",
