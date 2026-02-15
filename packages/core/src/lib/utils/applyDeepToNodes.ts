@@ -23,40 +23,6 @@ export type ApplyDeepToNodesOptions<N extends TNode> = {
   query?: QueryNodeOptions;
 };
 
-type ApplyDeepToNodesContext<N extends TNode> = {
-  apply: (
-    node: NodeOf<N>,
-    source: (() => Record<string, any>) | Record<string, any>
-  ) => void;
-  source: (() => Record<string, any>) | Record<string, any>;
-  query?: QueryNodeOptions;
-};
-
-const _applyDeepToNodes = <N extends TNode>(
-  node: N,
-  path: Path,
-  context: ApplyDeepToNodesContext<N>
-) => {
-  const { apply, source, query } = context;
-  const entry: NodeEntry<N> = [node, path];
-
-  if (queryNode<N>(entry, query)) {
-    if (typeof source === 'function') {
-      apply(node, source());
-    } else {
-      apply(node, source);
-    }
-  }
-
-  if (!NodeApi.isAncestor(node)) return;
-
-  const children = node.children;
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i];
-    _applyDeepToNodes(child as any, path.concat([i]), context);
-  }
-};
-
 /** Recursively apply an operation to children nodes with a query. */
 export const applyDeepToNodes = <N extends TNode>({
   apply,
@@ -65,10 +31,25 @@ export const applyDeepToNodes = <N extends TNode>({
   query,
   source,
 }: ApplyDeepToNodesOptions<N>) => {
-  const context: ApplyDeepToNodesContext<N> = {
-    apply,
-    source,
-    query,
+  const _recurse = (currentNode: N, currentPath: Path) => {
+    const entry: NodeEntry<N> = [currentNode, currentPath];
+
+    if (queryNode<N>(entry, query)) {
+      if (typeof source === 'function') {
+        apply(currentNode, source());
+      } else {
+        apply(currentNode, source);
+      }
+    }
+
+    if (!NodeApi.isAncestor(currentNode)) return;
+
+    const children = currentNode.children;
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      _recurse(child as any, currentPath.concat([i]));
+    }
   };
-  _applyDeepToNodes(node, path, context);
+
+  _recurse(node, path);
 };
