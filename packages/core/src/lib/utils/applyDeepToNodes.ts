@@ -23,17 +23,21 @@ export type ApplyDeepToNodesOptions<N extends TNode> = {
   query?: QueryNodeOptions;
 };
 
-// biome-ignore lint/nursery/useMaxParams: Performance optimization
-const _applyDeepToNodes = <N extends TNode>(
-  node: N,
-  source: (() => Record<string, any>) | Record<string, any>,
-  path: Path,
+type ApplyDeepToNodesContext<N extends TNode> = {
   apply: (
     node: NodeOf<N>,
     source: (() => Record<string, any>) | Record<string, any>
-  ) => void,
-  query?: QueryNodeOptions
+  ) => void;
+  source: (() => Record<string, any>) | Record<string, any>;
+  query?: QueryNodeOptions;
+};
+
+const _applyDeepToNodes = <N extends TNode>(
+  node: N,
+  path: Path,
+  context: ApplyDeepToNodesContext<N>
 ) => {
+  const { apply, source, query } = context;
   const entry: NodeEntry<N> = [node, path];
 
   if (queryNode<N>(entry, query)) {
@@ -49,7 +53,7 @@ const _applyDeepToNodes = <N extends TNode>(
   const children = node.children;
   for (let i = 0; i < children.length; i++) {
     const child = children[i];
-    _applyDeepToNodes(child as any, source, path.concat([i]), apply, query);
+    _applyDeepToNodes(child as any, path.concat([i]), context);
   }
 };
 
@@ -61,5 +65,10 @@ export const applyDeepToNodes = <N extends TNode>({
   query,
   source,
 }: ApplyDeepToNodesOptions<N>) => {
-  _applyDeepToNodes(node, source, path, apply, query);
+  const context: ApplyDeepToNodesContext<N> = {
+    apply,
+    source,
+    query,
+  };
+  _applyDeepToNodes(node, path, context);
 };
