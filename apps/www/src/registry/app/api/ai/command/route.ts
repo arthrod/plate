@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   const apiKey =
     key ||
-    (typeof process !== 'undefined' && process.env.NODE_ENV === 'development'
+    (process.env.NODE_ENV === 'development'
       ? process.env.AI_GATEWAY_API_KEY
       : undefined);
 
