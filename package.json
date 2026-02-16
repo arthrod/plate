@@ -7,11 +7,6 @@
     "packages/*",
     "packages/udecode/*"
   ],
-"dependenciesMeta": {
-"fsevents": {
-"built": false
-}
-}, 
   "scripts": {
     "brl": "yarn g:brl",
     "build": "yarn g:build",
@@ -59,6 +54,7 @@
     "p:tsdown": "cd $INIT_CWD && tsdown --config=${PROJECT_CWD}/tooling/config/tsdown.config.ts --log-level warn",
     "p:typecheck": "cd $INIT_CWD && tsc -p $INIT_CWD/tsconfig.json",
     "r": "yarn workspace www r",
+    "postinstall": "patch-package --patch-dir tooling/patches", 
     "rc": "turbo --filter=www rc",
     "rd": "yarn workspace www rd",
     "release": "yarn build && yarn changeset publish",
