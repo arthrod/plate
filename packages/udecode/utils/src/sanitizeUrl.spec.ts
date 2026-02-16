@@ -42,4 +42,22 @@ describe('sanitizeUrl', () => {
       );
     });
   });
+
+  describe('when options are default', () => {
+    const options = {};
+
+    it('should use default allowed schemes (http, https, mailto, tel)', () => {
+      expect(sanitizeUrl('javascript:alert(1)', options)).toBeNull();
+      expect(sanitizeUrl('http://example.com', options)).toBe(
+        'http://example.com/'
+      );
+      expect(sanitizeUrl('https://example.com', options)).toBe(
+        'https://example.com/'
+      );
+      expect(sanitizeUrl('mailto:test@example.com', options)).toBe(
+        'mailto:test@example.com'
+      );
+      expect(sanitizeUrl('tel:1234567890', options)).toBe('tel:1234567890');
+    });
+  });
 });

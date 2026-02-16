@@ -5,7 +5,10 @@ export type SanitizeUrlOptions = {
 
 export const sanitizeUrl = (
   url: string | undefined,
-  { allowedSchemes, permitInvalid = false }: SanitizeUrlOptions
+  {
+    allowedSchemes = ['http', 'https', 'mailto', 'tel'],
+    permitInvalid = false,
+  }: SanitizeUrlOptions
 ): string | null => {
   if (!url) return null;
 
