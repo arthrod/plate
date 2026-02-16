@@ -1,5 +1,5 @@
 [phases.install]
-cmds = ['YARN_ENABLE_SCRIPTS=false yarn install --mode=skip-build']
+cmds = ['yarn install --mode=skip-build']
 
 [phases.build]
 cmds = ['bun run postinstall', 'turbo build']
