@@ -55,7 +55,6 @@ export function CopyButton({
     <Button
       size="icon"
       variant={variant}
-      title={hasCopied ? 'Copied!' : 'Copy to clipboard'}
       className={cn(
         '[&_svg]:!size-3 relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
         className
