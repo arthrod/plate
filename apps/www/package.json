@@ -1,4 +1,13 @@
 {
+  "name": "www",
+  "private": true,
+  "scripts": {
+    "build": "contentlayer2 build && next build",
+    "dev": "concurrently \"contentlayer2 build --watch\" \"next dev\"",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.0",
     "@ai-sdk/google": "^3.0.0",
