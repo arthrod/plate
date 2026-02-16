@@ -1,5 +1,5 @@
 [phases.install]
-cmds = ['yarn install --mode=skip-build', 'bunx skiller@latest apply && bunx patch-package --patch-dir tooling/patches']
+cmds = ['YARN_PRODUCTION=false yarn install --mode=skip-build', 'bunx skiller@latest apply && bunx patch-package --patch-dir tooling/patches']
 
 [phases.build]
 cmds = ['yarn build']
