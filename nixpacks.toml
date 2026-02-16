@@ -2,7 +2,7 @@
 cmds = ['YARN_ENABLE_SCRIPTS=false yarn install --mode=skip-build']
 
 [phases.build]
-cmds = ['YARN_ENABLE_SCRIPTS=false yarn build']
+cmds = ['turno build']
 
 [start]
 cmd = 'yarn next deploy'
