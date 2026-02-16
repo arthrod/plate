@@ -1,4 +1,8 @@
 {
+  "name": "www",
+  "scripts": {
+    "build": "next build"
+  },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.0",
     "@ai-sdk/google": "^3.0.0",
