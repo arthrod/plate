@@ -1,8 +1,8 @@
 [phases.install]
-cmds = ['yarn install --mode=skip-build', 'bunx skiller@latest apply && patch-package --patch-dir tooling/patches']
+cmds = ['yarn install --mode=skip-build', 'bunx skiller@latest apply && bunx patch-package --patch-dir tooling/patches']
 
 [phases.build]
-cmds = ['turbo build']
+cmds = ['yarn build']
 
 [start]
-cmd = 'yarn next deploy'
+cmd = 'next start'
