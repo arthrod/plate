@@ -1,8 +1,8 @@
 [phases.install]
-cmds = ['YARN_ENABLE_SCRIPTS=false yarn install']
+cmds = ['YARN_ENABLE_SCRIPTS=false yarn install --mode=skip-build']
 
 [phases.build]
-cmds = ['yarn build']
+cmds = ['YARN_ENABLE_SCRIPTS=false yarn build']
 
 [start]
 cmd = 'yarn next deploy'
