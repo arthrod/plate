@@ -1,6 +1,7 @@
 {
   "name": "www",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "contentlayer2 build && next build",
     "dev": "concurrently \"contentlayer2 build --watch\" \"next dev\"",
