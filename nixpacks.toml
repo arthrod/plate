@@ -1,8 +1,8 @@
 [phases.install]
-cmds = ['yarn install --mode=skip-build']
+cmds = ['yarn install --mode=skip-build', 'bun run postinstall']
 
 [phases.build]
-cmds = ['bun run postinstall', 'turbo build']
+cmds = ['turbo build']
 
 [start]
 cmd = 'yarn next deploy'
