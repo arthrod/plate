@@ -75,27 +75,31 @@ export function ThemeCustomizer() {
             role="group"
             aria-labelledby="theme-radius-label"
           >
-            {['0', '0.3', '0.5', '0.75', '1.0'].map((value) => (
-              <Button
-                key={value}
-                size="sm"
-                variant="outline"
-                className={cn(
-                  config.radius === Number.parseFloat(value) &&
-                    'border-2 border-primary'
-                )}
-                onClick={() => {
-                  setConfig({
-                    ...config,
-                    radius: Number.parseFloat(value),
-                  });
-                }}
-                aria-pressed={config.radius === Number.parseFloat(value)}
-                aria-label={`Radius ${value}`}
-              >
-                {value}
-              </Button>
-            ))}
+            {mounted ? (
+              ['0', '0.3', '0.5', '0.75', '1.0'].map((value) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant="outline"
+                  className={cn(
+                    config.radius === Number.parseFloat(value) &&
+                      'border-2 border-primary'
+                  )}
+                  onClick={() => {
+                    setConfig({
+                      ...config,
+                      radius: Number.parseFloat(value),
+                    });
+                  }}
+                  aria-pressed={config.radius === Number.parseFloat(value)}
+                  aria-label={`Radius ${value}`}
+                >
+                  {value}
+                </Button>
+              ))
+            ) : (
+              <Skeleton className="col-span-5 h-8 w-full" />
+            )}
           </div>
         </div>
         <div className="space-y-1.5 px-6">
