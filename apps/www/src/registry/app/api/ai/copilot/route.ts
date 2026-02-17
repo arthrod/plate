@@ -11,12 +11,16 @@ export async function POST(req: NextRequest) {
     system,
   } = await req.json();
 
-  // Only allow server-side key usage in development to prevent open proxy abuse
-  const apiKey =
-    key ||
-    (process.env.NODE_ENV === 'development'
-      ? process.env.AI_GATEWAY_API_KEY
-      : null);
+  let apiKey = key;
+
+  try {
+    // Only allow server-side key usage in development to prevent open proxy abuse
+    if (!apiKey && process.env.NODE_ENV === 'development') {
+      apiKey = process.env.AI_GATEWAY_API_KEY;
+    }
+  } catch {
+    // ignore
+  }
 
   if (!apiKey) {
     return NextResponse.json(
