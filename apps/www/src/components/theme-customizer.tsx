@@ -14,7 +14,7 @@ import { THEMES } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { useMounted } from '@/registry/hooks/use-mounted';
 
-import { Label } from '../components/ui/label';
+import { Label } from '@/components/ui/label';
 import { CopyCodeButton, getThemeCode } from './copy-code-button';
 import { ThemesSwitcher } from './themes-selector-mini';
 import { Skeleton } from './ui/skeleton';
