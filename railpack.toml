@@ -1,7 +1,9 @@
+
 [build]
 builder = "RAILPACK"
+buildCommand = "yarn install --refresh-lockfile && yarn postinstall && yarn turbo run build --filter=www"
 
 [deploy]
-startCommand = "yarn start"
+startCommand = "cd apps/www && yarn start"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
