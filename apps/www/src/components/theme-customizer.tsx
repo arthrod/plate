@@ -25,6 +25,7 @@ export function ThemeCustomizer() {
   const { setThemesConfig, themesConfig } = useThemesConfig();
   const activeTheme = themesConfig.activeTheme ?? THEMES['default-shadcn'];
   const { resolvedTheme: mode, setTheme: setMode } = useTheme();
+  const id = React.useId();
 
   const themeCode = React.useMemo(
     () => getThemeCode(activeTheme, config.radius),
@@ -67,13 +68,13 @@ export function ThemeCustomizer() {
           <ThemesSwitcher />
         </div>
         <div className="space-y-1.5 px-6">
-          <Label id="theme-radius-label" className="text-xs">
+          <Label id={`${id}-radius`} className="text-xs">
             Radius
           </Label>
           <div
             className="grid grid-cols-5 gap-2"
             role="group"
-            aria-labelledby="theme-radius-label"
+            aria-labelledby={`${id}-radius`}
           >
             {mounted ? (
               ['0', '0.3', '0.5', '0.75', '1.0'].map((value) => (
@@ -103,13 +104,13 @@ export function ThemeCustomizer() {
           </div>
         </div>
         <div className="space-y-1.5 px-6">
-          <Label id="theme-mode-label" className="text-xs">
+          <Label id={`${id}-mode`} className="text-xs">
             Mode
           </Label>
           <div
             className="flex gap-2"
             role="group"
-            aria-labelledby="theme-mode-label"
+            aria-labelledby={`${id}-mode`}
           >
             {mounted ? (
               <>
