@@ -1,5 +1,5 @@
 [phases.install]
-cmds = ['yarn install --mode=skip-build', 'yarn postinstall', 'bunx skiller@latest apply']
+cmds = ['yarn install --refresh-lockfile --mode=skip-build', 'yarn postinstall', 'bunx skiller@latest apply']
 
 [phases.build]
 cmds = ['yarn build']
