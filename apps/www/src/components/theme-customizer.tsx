@@ -67,8 +67,14 @@ export function ThemeCustomizer() {
           <ThemesSwitcher />
         </div>
         <div className="space-y-1.5 px-6">
-          <Label className="text-xs">Radius</Label>
-          <div className="grid grid-cols-5 gap-2">
+          <Label id="theme-radius-label" className="text-xs">
+            Radius
+          </Label>
+          <div
+            className="grid grid-cols-5 gap-2"
+            role="group"
+            aria-labelledby="theme-radius-label"
+          >
             {['0', '0.3', '0.5', '0.75', '1.0'].map((value) => (
               <Button
                 key={value}
@@ -84,6 +90,8 @@ export function ThemeCustomizer() {
                     radius: Number.parseFloat(value),
                   });
                 }}
+                aria-pressed={config.radius === Number.parseFloat(value)}
+                aria-label={`Radius ${value}`}
               >
                 {value}
               </Button>
@@ -91,8 +99,14 @@ export function ThemeCustomizer() {
           </div>
         </div>
         <div className="space-y-1.5 px-6">
-          <Label className="text-xs">Mode</Label>
-          <div className="flex gap-2">
+          <Label id="theme-mode-label" className="text-xs">
+            Mode
+          </Label>
+          <div
+            className="flex gap-2"
+            role="group"
+            aria-labelledby="theme-mode-label"
+          >
             {mounted ? (
               <>
                 <Button
@@ -100,6 +114,7 @@ export function ThemeCustomizer() {
                   variant="outline"
                   className={cn(mode === 'light' && 'border-2 border-primary')}
                   onClick={() => setMode('light')}
+                  aria-pressed={mode === 'light'}
                 >
                   <SunIcon />
                   Light
@@ -109,6 +124,7 @@ export function ThemeCustomizer() {
                   variant="outline"
                   className={cn(mode === 'dark' && 'border-2 border-primary')}
                   onClick={() => setMode('dark')}
+                  aria-pressed={mode === 'dark'}
                 >
                   <MoonIcon />
                   Dark
