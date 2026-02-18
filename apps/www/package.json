@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "prebuild": "yarn build:contentlayer",
-    "build": "yarn prebuild && yarn r && NODE_OPTIONS='--max-old-space-size=8192' next build",
+    "build": "yarn prebuild && yarn r && NEXT_PRIVATE_DISABLE_WEBPACK_WORKER=true NODE_OPTIONS='--max-old-space-size=3072' next build --webpack",
     "build:contentlayer": "contentlayer2 build",
     "build:registry": "NODE_ENV=production tsx --tsconfig ./scripts/tsconfig.scripts.json scripts/build-registry.mts",
     "build:tw": "yarn tailwindcss -i ./src/app/globals.css -o ./public/tailwind.css --minify",
