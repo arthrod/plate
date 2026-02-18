@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "prebuild": "yarn build:contentlayer",
-    "build": "yarn prebuild && yarn r && NEXT_PRIVATE_DISABLE_WEBPACK_WORKER=true NODE_OPTIONS='--max-old-space-size=3072' next build --webpack",
+    "build": "yarn prebuild && yarn r && NODE_OPTIONS='--max-old-space-size=8192' next build",
     "build:contentlayer": "contentlayer2 build",
     "build:registry": "NODE_ENV=production tsx --tsconfig ./scripts/tsconfig.scripts.json scripts/build-registry.mts",
     "build:tw": "yarn tailwindcss -i ./src/app/globals.css -o ./public/tailwind.css --minify",
@@ -152,7 +152,7 @@
     "react-dnd-html5-backend": "16.0.1",
     "react-dom": "19.2.3",
     "react-hook-form": "7.57.0",
-    "react-lite-youtube-embed": "3.5.0",
+    "react-lite-youtube-embed": "2.5.1",
     "react-markdown": "10.1.0",
     "react-player": "2.16.0",
     "react-resizable-panels": "3.0.2",
