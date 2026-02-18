@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plate Editor</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preload" href="/fonts/GeistVF.woff" as="font" type="font/woff" crossorigin />
+  <link rel="preload" href="/fonts/GeistMonoVF.woff" as="font" type="font/woff" crossorigin />
+  <style>
+    @font-face { font-family: 'Geist Sans'; src: url('/fonts/GeistVF.woff') format('woff'); font-display: swap; font-weight: 100 900; }
+    @font-face { font-family: 'Geist Mono'; src: url('/fonts/GeistMonoVF.woff') format('woff'); font-display: swap; font-weight: 100 900; }
+    :root { --font-geist-sans: 'Geist Sans', system-ui, sans-serif; --font-geist-mono: 'Geist Mono', ui-monospace, monospace; }
+    body { font-family: var(--font-geist-sans); -webkit-font-smoothing: antialiased; margin: 0; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/client/main.tsx"></script>
+</body>
+</html>

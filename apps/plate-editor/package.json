@@ -1,0 +1,16 @@
+{
+  "name": "plate-editor",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"bun run dev:client\" \"bun run dev:server\"",
+    "dev:client": "vite",
+    "dev:server": "bun --watch src/server/index.ts",
+    "build": "vite build && bun build src/server/index.ts --outdir dist/server --target bun",
+    "start": "bun dist/server/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --fix"
+  }
+}
