@@ -17327,13 +17327,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-lite-youtube-embed@npm:3.5.0":
-  version: 3.5.0
-  resolution: "react-lite-youtube-embed@npm:3.5.0"
+"react-lite-youtube-embed@npm:2.5.1":
+  version: 2.5.1
+  resolution: "react-lite-youtube-embed@npm:2.5.1"
   peerDependencies:
     react: ">=18.2.0"
     react-dom: ">=18.2.0"
-  checksum: 10c0/7cfe601424adf3b00a1dbe2547b84c025a832bc82dfca10bd2a7e6c77921ef373f56929402e178276279ad9d324d75eac92ca18c76f3a0514be73be958928384
+  checksum: 10c0/b4bbb11af1d6b158dd41dbdb457b2da08d8dc71199b62a0ac256a989ed0ac93a61342396b105f1f584974cb0a0c149a08f26ea6bf98b90f650c26101b9616102
   languageName: node
   linkType: hard
 
@@ -21181,7 +21181,7 @@ __metadata:
     react-dnd-html5-backend: "npm:16.0.1"
     react-dom: "npm:19.2.3"
     react-hook-form: "npm:7.57.0"
-    react-lite-youtube-embed: "npm:3.5.0"
+    react-lite-youtube-embed: "npm:2.5.1"
     react-markdown: "npm:10.1.0"
     react-player: "npm:2.16.0"
     react-resizable-panels: "npm:3.0.2"
