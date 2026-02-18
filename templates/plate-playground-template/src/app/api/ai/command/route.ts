@@ -40,11 +40,7 @@ export async function POST(req: NextRequest) {
     value: children,
   });
 
-  const apiKey =
-    key ||
-    (process.env.NODE_ENV === 'development'
-      ? process.env.AI_GATEWAY_API_KEY
-      : undefined);
+  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(

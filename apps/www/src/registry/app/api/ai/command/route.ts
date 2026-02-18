@@ -41,11 +41,7 @@ export async function POST(req: NextRequest) {
     value: children,
   });
 
-  const apiKey =
-    key ||
-    (process.env.NODE_ENV === 'development'
-      ? process.env.AI_GATEWAY_API_KEY
-      : undefined);
+  const apiKey = key;
 
   if (!apiKey) {
     return NextResponse.json(
@@ -280,7 +276,8 @@ const getTableTool = (
 
       const { partialOutputStream } = streamText({
         model,
-        output: Output.array({ element: cellUpdateSchema }),\n        prompt: buildEditTableMultiCellPrompt(editor, messagesRaw),
+        output: Output.array({ element: cellUpdateSchema }),
+        prompt: buildEditTableMultiCellPrompt(editor, messagesRaw),
       });
 
       let lastLength = 0;

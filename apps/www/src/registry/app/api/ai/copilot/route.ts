@@ -11,11 +11,7 @@ export async function POST(req: NextRequest) {
     system,
   } = await req.json();
 
-  const apiKey =
-    key ||
-    (process.env.NODE_ENV === 'development'
-      ? process.env.AI_GATEWAY_API_KEY
-      : undefined);
+  const apiKey = key;
 
   if (!apiKey) {
     return NextResponse.json(
