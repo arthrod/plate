@@ -134,9 +134,9 @@ const PlateContent = React.forwardRef(
           editor={editor}
         />
 
-        {beforeEditable}
+        <>{beforeEditable}</>
         {aboveEditable}
-        {afterEditable}
+        <>{afterEditable}</>
       </PlateSlate>
     );
   }
