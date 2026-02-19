@@ -3,7 +3,7 @@ var assertThat = hamjest.assertThat;
 var contains = hamjest.contains;
 var hasProperties = hamjest.hasProperties;
 
-var tokenise = require("../../../lib/styles/parser/tokeniser").tokenise;
+var tokenise = require("../../../lib/styles/parser/tokeniser.ts").tokenise;
 var test = require("../../test.ts")(module);
 
 

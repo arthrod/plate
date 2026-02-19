@@ -52,7 +52,7 @@ Probe: bundle only `convertToHtml` via esbuild.
 
 - bundle size: `407,313` bytes
 - markdown modules included: `false`
-- CLI module (`lib/main.js`) included: `false`
+- CLI module (`lib/main.ts`) included: `false`
 - `embedStyleMap` symbol present: `true` (same source module as `convertToHtml`)
 
 ## Build/Tooling Notes
@@ -60,6 +60,7 @@ Probe: bundle only `convertToHtml` via esbuild.
 - `build` script now uses `tsup` to emit:
   - `dist/esm/index.mjs` (Node ESM via `exports.import`)
   - `dist/cjs/index.cjs` (Node CJS via `exports.require`)
+  - `dist/cjs/main.cjs` (Node CLI entry consumed by `bin/mammoth`)
   - `dist/esm/index.browser.js` (browser ESM condition)
   - `dist/mammoth.browser.js` + `dist/mammoth.browser.min.js` (IIFE globals)
 - For in-repo consumer compatibility, `build` also copies `dist/esm/index.browser.js` to top-level `mammoth.browser.js`.

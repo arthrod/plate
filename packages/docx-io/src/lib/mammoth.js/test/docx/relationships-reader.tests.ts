@@ -1,7 +1,7 @@
 var assert = require("assert");
 
-var readRelationships = require("../../lib/docx/relationships-reader").readRelationships;
-var xml = require("../../lib/xml");
+var readRelationships = require("../../lib/docx/relationships-reader.ts").readRelationships;
+var xml = require("../../lib/xml/index.ts");
 var test = require("../test.ts")(module);
 
 

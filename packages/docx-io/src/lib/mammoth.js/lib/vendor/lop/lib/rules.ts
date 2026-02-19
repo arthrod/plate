@@ -1,7 +1,7 @@
-var options = require("./option");
-var results = require("./parsing-results");
-var errors = require("./errors");
-var lazyIterators = require("./lazy-iterators");
+var options = require("./option.ts");
+var results = require("./parsing-results.ts");
+var errors = require("./errors.ts");
+var lazyIterators = require("./lazy-iterators.ts");
 
 exports.token = function(tokenType, value) {
     var matchValue = value !== undefined;

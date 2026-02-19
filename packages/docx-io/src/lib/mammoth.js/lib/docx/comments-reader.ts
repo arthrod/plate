@@ -1,5 +1,5 @@
-var documents = require('../documents');
-var Result = require('../results').Result;
+var documents = require('../documents.ts');
+var Result = require('../results.ts').Result;
 
 function createCommentsReader(bodyReader, commentsExtended, dateUtcMap) {
   commentsExtended = commentsExtended || {};

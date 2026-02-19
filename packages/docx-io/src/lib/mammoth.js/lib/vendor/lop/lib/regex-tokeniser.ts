@@ -1,5 +1,5 @@
-var Token = require("./Token");
-var StringSource = require("./StringSource");
+var Token = require("./Token.ts");
+var StringSource = require("./StringSource.ts");
 
 exports.RegexTokeniser = RegexTokeniser;
 

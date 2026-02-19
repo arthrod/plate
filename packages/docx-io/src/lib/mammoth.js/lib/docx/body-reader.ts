@@ -3,12 +3,12 @@ exports._readNumberingProperties = readNumberingProperties;
 
 var dingbatToUnicode = require('dingbat-to-unicode');
 
-var documents = require('../documents');
-var Result = require('../results').Result;
-var warning = require('../results').warning;
-var xml = require('../xml');
-var transforms = require('../transforms');
-var uris = require('./uris');
+var documents = require('../documents.ts');
+var Result = require('../results.ts').Result;
+var warning = require('../results.ts').warning;
+var xml = require('../xml/index.ts');
+var transforms = require('../transforms.ts');
+var uris = require('./uris.ts');
 
 function createBodyReader(options) {
   return {

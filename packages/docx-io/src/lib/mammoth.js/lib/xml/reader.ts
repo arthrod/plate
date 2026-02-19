@@ -1,7 +1,7 @@
-var promises = require('../promises');
+var promises = require('../promises.ts');
 
-var xmldom = require('./xmldom');
-var nodes = require('./nodes');
+var xmldom = require('./xmldom.ts');
+var nodes = require('./nodes.ts');
 var Element = nodes.Element;
 var xmlNamespaceUri = 'http://www.w3.org/2000/xmlns/';
 

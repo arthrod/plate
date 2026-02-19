@@ -1,7 +1,7 @@
 var assert = require("assert");
 
-var documents = require("../lib/documents");
-var transforms = require("../lib/transforms");
+var documents = require("../lib/documents.ts");
+var transforms = require("../lib/transforms.ts");
 var test = require("./test.ts")(module);
 
 

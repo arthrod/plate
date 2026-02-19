@@ -1,7 +1,7 @@
 var fs = require('fs');
 
-var promises = require('./promises');
-var zipfile = require('./zipfile');
+var promises = require('./promises.ts');
+var zipfile = require('./zipfile.ts');
 
 exports.openZip = openZip;
 

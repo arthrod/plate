@@ -20,13 +20,13 @@ var isText = documentMatchers.isText;
 var isTable = documentMatchers.isTable;
 var isRow = documentMatchers.isRow;
 
-var _readNumberingProperties = require("../../lib/docx/body-reader")._readNumberingProperties;
-var documents = require("../../lib/documents");
-var xml = require("../../lib/xml");
+var _readNumberingProperties = require("../../lib/docx/body-reader.ts")._readNumberingProperties;
+var documents = require("../../lib/documents.ts");
+var xml = require("../../lib/xml/index.ts");
 var XmlElement = xml.Element;
-var Relationships = require("../../lib/docx/relationships-reader").Relationships;
-var Styles = require("../../lib/docx/styles-reader").Styles;
-var warning = require("../../lib/results").warning;
+var Relationships = require("../../lib/docx/relationships-reader.ts").Relationships;
+var Styles = require("../../lib/docx/styles-reader.ts").Styles;
+var warning = require("../../lib/results.ts").warning;
 
 var testing = require("../testing.ts");
 var test = require("../test.ts")(module);

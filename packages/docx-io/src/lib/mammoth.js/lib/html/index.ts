@@ -1,4 +1,4 @@
-var ast = require('./ast');
+var ast = require('./ast.ts');
 
 exports.freshElement = ast.freshElement;
 exports.nonFreshElement = ast.nonFreshElement;
@@ -6,7 +6,7 @@ exports.elementWithTag = ast.elementWithTag;
 exports.text = ast.text;
 exports.forceWrite = ast.forceWrite;
 
-exports.simplify = require('./simplify');
+exports.simplify = require('./simplify.ts');
 
 function write(writer, nodes) {
   nodes.forEach((node) => {

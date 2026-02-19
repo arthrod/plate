@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var argparse = require("argparse");
-var main = require("../lib/main");
+var main = require("../dist/cjs/main.cjs");
 
 var parser = new argparse.ArgumentParser({
     addHelp: true,

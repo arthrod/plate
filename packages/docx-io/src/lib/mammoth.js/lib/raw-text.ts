@@ -1,4 +1,4 @@
-var documents = require('./documents');
+var documents = require('./documents.ts');
 
 function convertElementToRawText(element) {
   if (element.type === 'text') {

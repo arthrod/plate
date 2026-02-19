@@ -1,6 +1,6 @@
 var path = require("path");
 var fs = require("fs");
-var promises = require("../lib/promises");
+var promises = require("../lib/promises.ts");
 
 exports.testPath = testPath;
 exports.testData = testData;

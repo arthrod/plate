@@ -1,7 +1,7 @@
 var assert = require("assert");
 var test = require("../test.ts")(module);
 
-var mdWriter = require("../../lib/writers/markdown-writer");
+var mdWriter = require("../../lib/writers/markdown-writer.ts");
 
 test('special markdown characters are escaped', function() {
     var writer = mdWriter.writer();

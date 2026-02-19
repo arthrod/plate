@@ -6,9 +6,9 @@ var contains = hamjest.contains;
 var equalTo = hamjest.equalTo;
 var hasProperties = hamjest.hasProperties;
 
-var mammoth = require("../");
-var documents = require("../lib/documents");
-var promises = require("../lib/promises");
+var mammoth = require("../index.ts");
+var documents = require("../lib/documents.ts");
+var promises = require("../lib/promises.ts");
 
 var test = require("./test.ts")(module);
 

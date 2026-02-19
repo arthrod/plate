@@ -3,9 +3,9 @@
 var fs = require('fs');
 var path = require('path');
 
-var mammoth = require('./');
-var promises = require('./promises');
-var images = require('./images');
+var mammoth = require('./index.ts');
+var promises = require('./promises.ts');
+var images = require('./images.ts');
 
 function main(argv) {
   var docxPath = argv['docx-path'];

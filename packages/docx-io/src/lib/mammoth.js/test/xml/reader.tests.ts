@@ -1,6 +1,6 @@
 var assert = require("assert");
 
-var xmlreader = require("../../lib/xml/reader");
+var xmlreader = require("../../lib/xml/reader.ts");
 var test = require("../test.ts")(module);
 
 

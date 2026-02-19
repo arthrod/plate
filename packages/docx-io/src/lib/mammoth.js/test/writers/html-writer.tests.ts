@@ -1,7 +1,7 @@
 var assert = require("assert");
 var test = require("../test.ts")(module);
 
-var htmlWriter = require("../../lib/writers/html-writer");
+var htmlWriter = require("../../lib/writers/html-writer.ts");
 
 
 test('can generate simple paragraph', function() {

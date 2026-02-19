@@ -2,9 +2,9 @@ var assert = require("assert");
 var path = require("path");
 var fs = require("fs");
 
-var mammoth = require("../");
-var promises = require("../lib/promises");
-var results = require("../lib/results");
+var mammoth = require("../index.ts");
+var promises = require("../lib/promises.ts");
+var results = require("../lib/results.ts");
 
 var testing = require("./testing.ts");
 var test = require("./test.ts")(module);

@@ -1,8 +1,8 @@
 var assert = require("assert");
 
 var test = require("../test.ts")(module);
-var html = require("../../lib/html");
-var writers = require("../../lib/writers");
+var html = require("../../lib/html/index.ts");
+var writers = require("../../lib/writers/index.ts");
 
 
 test("text is HTML escaped", function() {

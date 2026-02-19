@@ -1,5 +1,5 @@
-var promises = require('./promises');
-var Html = require('./html');
+var promises = require('./promises.ts');
+var Html = require('./html/index.ts');
 
 exports.imgElement = imgElement;
 

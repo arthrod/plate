@@ -9,9 +9,9 @@ var __commonJS = (cb, mod) => function __require2() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 
-// lib/promises.js
+// lib/promises.ts
 var require_promises = __commonJS({
-  "lib/promises.js"(exports) {
+  "lib/promises.ts"(exports) {
     "use strict";
     exports.defer = defer;
     exports.when = function(value) {
@@ -105,9 +105,9 @@ var require_promises = __commonJS({
   }
 });
 
-// lib/documents.js
+// lib/documents.ts
 var require_documents = __commonJS({
-  "lib/documents.js"(exports) {
+  "lib/documents.ts"(exports) {
     "use strict";
     var types = exports.types = {
       document: "document",
@@ -381,9 +381,9 @@ var require_documents = __commonJS({
   }
 });
 
-// lib/results.js
+// lib/results.ts
 var require_results = __commonJS({
-  "lib/results.js"(exports) {
+  "lib/results.ts"(exports) {
     "use strict";
     exports.Result = Result;
     exports.success = success;
@@ -444,9 +444,9 @@ var require_results = __commonJS({
   }
 });
 
-// lib/zipfile.js
+// lib/zipfile.ts
 var require_zipfile = __commonJS({
-  "lib/zipfile.js"(exports) {
+  "lib/zipfile.ts"(exports) {
     "use strict";
     var JSZip = __require("jszip");
     exports.openArrayBuffer = openArrayBuffer;
@@ -527,9 +527,9 @@ var require_zipfile = __commonJS({
   }
 });
 
-// lib/xml/nodes.js
+// lib/xml/nodes.ts
 var require_nodes = __commonJS({
-  "lib/xml/nodes.js"(exports) {
+  "lib/xml/nodes.ts"(exports) {
     "use strict";
     exports.Element = Element;
     exports.element = (name, attributes, children) => new Element(name, attributes, children);
@@ -585,9 +585,9 @@ var require_nodes = __commonJS({
   }
 });
 
-// lib/xml/xmldom.js
+// lib/xml/xmldom.ts
 var require_xmldom = __commonJS({
-  "lib/xml/xmldom.js"(exports) {
+  "lib/xml/xmldom.ts"(exports) {
     "use strict";
     var xmldom = __require("@xmldom/xmldom");
     var dom = __require("@xmldom/xmldom/lib/dom");
@@ -610,9 +610,9 @@ var require_xmldom = __commonJS({
   }
 });
 
-// lib/xml/reader.js
+// lib/xml/reader.ts
 var require_reader = __commonJS({
-  "lib/xml/reader.js"(exports) {
+  "lib/xml/reader.ts"(exports) {
     "use strict";
     var promises = require_promises();
     var xmldom = require_xmldom();
@@ -675,9 +675,9 @@ var require_reader = __commonJS({
   }
 });
 
-// lib/xml/writer.js
+// lib/xml/writer.ts
 var require_writer = __commonJS({
-  "lib/xml/writer.js"(exports) {
+  "lib/xml/writer.ts"(exports) {
     "use strict";
     var xmlbuilder = __require("xmlbuilder");
     exports.writeString = writeString;
@@ -749,9 +749,9 @@ var require_writer = __commonJS({
   }
 });
 
-// lib/xml/index.js
+// lib/xml/index.ts
 var require_xml = __commonJS({
-  "lib/xml/index.js"(exports) {
+  "lib/xml/index.ts"(exports) {
     "use strict";
     var nodes = require_nodes();
     exports.Element = nodes.Element;
@@ -763,9 +763,9 @@ var require_xml = __commonJS({
   }
 });
 
-// lib/docx/office-xml-reader.js
+// lib/docx/office-xml-reader.ts
 var require_office_xml_reader = __commonJS({
-  "lib/docx/office-xml-reader.js"(exports) {
+  "lib/docx/office-xml-reader.ts"(exports) {
     "use strict";
     var promises = require_promises();
     var xml = require_xml();
@@ -825,9 +825,9 @@ var require_office_xml_reader = __commonJS({
   }
 });
 
-// lib/transforms.js
+// lib/transforms.ts
 var require_transforms = __commonJS({
-  "lib/transforms.js"(exports) {
+  "lib/transforms.ts"(exports) {
     "use strict";
     exports.paragraph = paragraph;
     exports.run = run;
@@ -881,9 +881,9 @@ var require_transforms = __commonJS({
   }
 });
 
-// lib/docx/uris.js
+// lib/docx/uris.ts
 var require_uris = __commonJS({
-  "lib/docx/uris.js"(exports) {
+  "lib/docx/uris.ts"(exports) {
     "use strict";
     exports.uriToZipEntryName = uriToZipEntryName;
     exports.replaceFragment = replaceFragment;
@@ -903,9 +903,9 @@ var require_uris = __commonJS({
   }
 });
 
-// lib/docx/body-reader.js
+// lib/docx/body-reader.ts
 var require_body_reader = __commonJS({
-  "lib/docx/body-reader.js"(exports) {
+  "lib/docx/body-reader.ts"(exports) {
     "use strict";
     exports.createBodyReader = createBodyReader;
     exports._readNumberingProperties = readNumberingProperties;
@@ -1630,9 +1630,9 @@ var require_body_reader = __commonJS({
   }
 });
 
-// lib/docx/document-xml-reader.js
+// lib/docx/document-xml-reader.ts
 var require_document_xml_reader = __commonJS({
-  "lib/docx/document-xml-reader.js"(exports) {
+  "lib/docx/document-xml-reader.ts"(exports) {
     "use strict";
     exports.DocumentXmlReader = DocumentXmlReader;
     var documents = require_documents();
@@ -1661,9 +1661,9 @@ var require_document_xml_reader = __commonJS({
   }
 });
 
-// lib/docx/relationships-reader.js
+// lib/docx/relationships-reader.ts
 var require_relationships_reader = __commonJS({
-  "lib/docx/relationships-reader.js"(exports) {
+  "lib/docx/relationships-reader.ts"(exports) {
     "use strict";
     exports.readRelationships = readRelationships;
     exports.defaultValue = new Relationships([]);
@@ -1706,9 +1706,9 @@ var require_relationships_reader = __commonJS({
   }
 });
 
-// lib/docx/content-types-reader.js
+// lib/docx/content-types-reader.ts
 var require_content_types_reader = __commonJS({
-  "lib/docx/content-types-reader.js"(exports) {
+  "lib/docx/content-types-reader.ts"(exports) {
     "use strict";
     exports.readContentTypesFromXml = readContentTypesFromXml;
     var fallbackContentTypes = {
@@ -1769,9 +1769,9 @@ var require_content_types_reader = __commonJS({
   }
 });
 
-// lib/docx/numbering-xml.js
+// lib/docx/numbering-xml.ts
 var require_numbering_xml = __commonJS({
-  "lib/docx/numbering-xml.js"(exports) {
+  "lib/docx/numbering-xml.ts"(exports) {
     "use strict";
     exports.readNumberingXml = readNumberingXml;
     exports.Numbering = Numbering;
@@ -1871,9 +1871,9 @@ var require_numbering_xml = __commonJS({
   }
 });
 
-// lib/docx/styles-reader.js
+// lib/docx/styles-reader.ts
 var require_styles_reader = __commonJS({
-  "lib/docx/styles-reader.js"(exports) {
+  "lib/docx/styles-reader.ts"(exports) {
     "use strict";
     exports.readStylesXml = readStylesXml;
     exports.Styles = Styles;
@@ -1944,9 +1944,9 @@ var require_styles_reader = __commonJS({
   }
 });
 
-// lib/docx/notes-reader.js
+// lib/docx/notes-reader.ts
 var require_notes_reader = __commonJS({
-  "lib/docx/notes-reader.js"(exports) {
+  "lib/docx/notes-reader.ts"(exports) {
     "use strict";
     var documents = require_documents();
     var Result = require_results().Result;
@@ -1971,9 +1971,9 @@ var require_notes_reader = __commonJS({
   }
 });
 
-// lib/docx/comments-reader.js
+// lib/docx/comments-reader.ts
 var require_comments_reader = __commonJS({
-  "lib/docx/comments-reader.js"(exports) {
+  "lib/docx/comments-reader.ts"(exports) {
     "use strict";
     var documents = require_documents();
     var Result = require_results().Result;
@@ -2020,9 +2020,9 @@ var require_comments_reader = __commonJS({
   }
 });
 
-// lib/docx/comments-extended-reader.js
+// lib/docx/comments-extended-reader.ts
 var require_comments_extended_reader = __commonJS({
-  "lib/docx/comments-extended-reader.js"(exports) {
+  "lib/docx/comments-extended-reader.ts"(exports) {
     "use strict";
     var documents = require_documents();
     var Result = require_results().Result;
@@ -2068,9 +2068,9 @@ var require_files = __commonJS({
   }
 });
 
-// lib/docx/docx-reader.js
+// lib/docx/docx-reader.ts
 var require_docx_reader = __commonJS({
-  "lib/docx/docx-reader.js"(exports) {
+  "lib/docx/docx-reader.ts"(exports) {
     "use strict";
     exports.read = read;
     exports._findPartPaths = findPartPaths;
@@ -2355,9 +2355,9 @@ var require_docx_reader = __commonJS({
   }
 });
 
-// lib/docx/style-map.js
+// lib/docx/style-map.ts
 var require_style_map = __commonJS({
-  "lib/docx/style-map.js"(exports) {
+  "lib/docx/style-map.ts"(exports) {
     "use strict";
     var promises = require_promises();
     var xml = require_xml();
@@ -2421,9 +2421,9 @@ var require_style_map = __commonJS({
   }
 });
 
-// lib/html/ast.js
+// lib/html/ast.ts
 var require_ast = __commonJS({
-  "lib/html/ast.js"(exports) {
+  "lib/html/ast.ts"(exports) {
     "use strict";
     var htmlPaths = require_html_paths();
     function nonFreshElement(tagName, attributes, children) {
@@ -2470,9 +2470,9 @@ var require_ast = __commonJS({
   }
 });
 
-// lib/html/simplify.js
+// lib/html/simplify.ts
 var require_simplify = __commonJS({
-  "lib/html/simplify.js"(exports, module) {
+  "lib/html/simplify.ts"(exports, module) {
     "use strict";
     var ast = require_ast();
     function simplify(nodes) {
@@ -2543,9 +2543,9 @@ var require_simplify = __commonJS({
   }
 });
 
-// lib/html/index.js
+// lib/html/index.ts
 var require_html = __commonJS({
-  "lib/html/index.js"(exports) {
+  "lib/html/index.ts"(exports) {
     "use strict";
     var ast = require_ast();
     exports.freshElement = ast.freshElement;
@@ -2584,9 +2584,9 @@ var require_html = __commonJS({
   }
 });
 
-// lib/styles/html-paths.js
+// lib/styles/html-paths.ts
 var require_html_paths = __commonJS({
-  "lib/styles/html-paths.js"(exports) {
+  "lib/styles/html-paths.ts"(exports) {
     "use strict";
     var html = require_html();
     exports.topLevelElement = topLevelElement;
@@ -2661,9 +2661,9 @@ var require_html_paths = __commonJS({
   }
 });
 
-// lib/images.js
+// lib/images.ts
 var require_images = __commonJS({
-  "lib/images.js"(exports) {
+  "lib/images.ts"(exports) {
     "use strict";
     var promises = require_promises();
     var Html = require_html();
@@ -2690,9 +2690,9 @@ var require_images = __commonJS({
   }
 });
 
-// lib/writers/html-writer.js
+// lib/writers/html-writer.ts
 var require_html_writer = __commonJS({
-  "lib/writers/html-writer.js"(exports) {
+  "lib/writers/html-writer.ts"(exports) {
     "use strict";
     exports.writer = writer;
     function writer(options) {
@@ -2822,9 +2822,9 @@ var require_html_writer = __commonJS({
   }
 });
 
-// lib/writers/markdown-writer.js
+// lib/writers/markdown-writer.ts
 var require_markdown_writer = __commonJS({
-  "lib/writers/markdown-writer.js"(exports) {
+  "lib/writers/markdown-writer.ts"(exports) {
     "use strict";
     function symmetricMarkdownElement(end) {
       return markdownElement(end, end);
@@ -2958,9 +2958,9 @@ var require_markdown_writer = __commonJS({
   }
 });
 
-// lib/writers/index.js
+// lib/writers/index.ts
 var require_writers = __commonJS({
-  "lib/writers/index.js"(exports) {
+  "lib/writers/index.ts"(exports) {
     "use strict";
     var htmlWriter = require_html_writer();
     var markdownWriter = require_markdown_writer();
@@ -2975,9 +2975,9 @@ var require_writers = __commonJS({
   }
 });
 
-// lib/document-to-html.js
+// lib/document-to-html.ts
 var require_document_to_html = __commonJS({
-  "lib/document-to-html.js"(exports) {
+  "lib/document-to-html.ts"(exports) {
     "use strict";
     var promises = require_promises();
     var documents = require_documents();
@@ -3465,9 +3465,9 @@ var require_document_to_html = __commonJS({
   }
 });
 
-// lib/raw-text.js
+// lib/raw-text.ts
 var require_raw_text = __commonJS({
-  "lib/raw-text.js"(exports) {
+  "lib/raw-text.ts"(exports) {
     "use strict";
     var documents = require_documents();
     function convertElementToRawText(element) {
@@ -3484,9 +3484,9 @@ var require_raw_text = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/TokenIterator.js
+// lib/vendor/lop/lib/TokenIterator.ts
 var require_TokenIterator = __commonJS({
-  "lib/vendor/lop/lib/TokenIterator.js"(exports, module) {
+  "lib/vendor/lop/lib/TokenIterator.ts"(exports, module) {
     "use strict";
     var TokenIterator = module.exports = function(tokens, startIndex) {
       this._tokens = tokens;
@@ -3512,9 +3512,9 @@ var require_TokenIterator = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/parser.js
+// lib/vendor/lop/lib/parser.ts
 var require_parser = __commonJS({
-  "lib/vendor/lop/lib/parser.js"(exports) {
+  "lib/vendor/lop/lib/parser.ts"(exports) {
     "use strict";
     var TokenIterator = require_TokenIterator();
     exports.Parser = function(options) {
@@ -3528,9 +3528,9 @@ var require_parser = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/option.js
+// lib/vendor/lop/lib/option.ts
 var require_option = __commonJS({
-  "lib/vendor/lop/lib/option.js"(exports) {
+  "lib/vendor/lop/lib/option.ts"(exports) {
     "use strict";
     var nonePrototype = {
       value: function() {
@@ -3609,9 +3609,9 @@ var require_option = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/parsing-results.js
+// lib/vendor/lop/lib/parsing-results.ts
 var require_parsing_results = __commonJS({
-  "lib/vendor/lop/lib/parsing-results.js"(exports, module) {
+  "lib/vendor/lop/lib/parsing-results.ts"(exports, module) {
     "use strict";
     module.exports = {
       failure: function(errors, remaining) {
@@ -3708,9 +3708,9 @@ var require_parsing_results = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/errors.js
+// lib/vendor/lop/lib/errors.ts
 var require_errors = __commonJS({
-  "lib/vendor/lop/lib/errors.js"(exports) {
+  "lib/vendor/lop/lib/errors.ts"(exports) {
     "use strict";
     exports.error = function(options) {
       return new Error2(options);
@@ -3733,9 +3733,9 @@ var require_errors = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/lazy-iterators.js
+// lib/vendor/lop/lib/lazy-iterators.ts
 var require_lazy_iterators = __commonJS({
-  "lib/vendor/lop/lib/lazy-iterators.js"(exports) {
+  "lib/vendor/lop/lib/lazy-iterators.ts"(exports) {
     "use strict";
     var fromArray = exports.fromArray = function(array) {
       var index = 0;
@@ -3814,9 +3814,9 @@ var require_lazy_iterators = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/rules.js
+// lib/vendor/lop/lib/rules.ts
 var require_rules = __commonJS({
-  "lib/vendor/lop/lib/rules.js"(exports) {
+  "lib/vendor/lop/lib/rules.ts"(exports) {
     "use strict";
     var options = require_option();
     var results = require_parsing_results();
@@ -4099,9 +4099,9 @@ var require_rules = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/StringSource.js
+// lib/vendor/lop/lib/StringSource.ts
 var require_StringSource = __commonJS({
-  "lib/vendor/lop/lib/StringSource.js"(exports, module) {
+  "lib/vendor/lop/lib/StringSource.ts"(exports, module) {
     "use strict";
     var StringSource = module.exports = function(string, description) {
       var self = {
@@ -4151,9 +4151,9 @@ var require_StringSource = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/Token.js
+// lib/vendor/lop/lib/Token.ts
 var require_Token = __commonJS({
-  "lib/vendor/lop/lib/Token.js"(exports, module) {
+  "lib/vendor/lop/lib/Token.ts"(exports, module) {
     "use strict";
     module.exports = function(name, value, source) {
       this.name = name;
@@ -4165,9 +4165,9 @@ var require_Token = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/bottom-up.js
+// lib/vendor/lop/lib/bottom-up.ts
 var require_bottom_up = __commonJS({
-  "lib/vendor/lop/lib/bottom-up.js"(exports) {
+  "lib/vendor/lop/lib/bottom-up.ts"(exports) {
     "use strict";
     var rules = require_rules();
     var results = require_parsing_results();
@@ -4281,9 +4281,9 @@ var require_bottom_up = __commonJS({
   }
 });
 
-// lib/vendor/lop/lib/regex-tokeniser.js
+// lib/vendor/lop/lib/regex-tokeniser.ts
 var require_regex_tokeniser = __commonJS({
-  "lib/vendor/lop/lib/regex-tokeniser.js"(exports) {
+  "lib/vendor/lop/lib/regex-tokeniser.ts"(exports) {
     "use strict";
     var Token = require_Token();
     var StringSource = require_StringSource();
@@ -4347,9 +4347,9 @@ var require_regex_tokeniser = __commonJS({
   }
 });
 
-// lib/vendor/lop/index.js
+// lib/vendor/lop/index.ts
 var require_lop = __commonJS({
-  "lib/vendor/lop/index.js"(exports) {
+  "lib/vendor/lop/index.ts"(exports) {
     "use strict";
     exports.Parser = require_parser().Parser;
     exports.rules = require_rules();
@@ -4371,9 +4371,9 @@ var require_lop = __commonJS({
   }
 });
 
-// lib/styles/document-matchers.js
+// lib/styles/document-matchers.ts
 var require_document_matchers = __commonJS({
-  "lib/styles/document-matchers.js"(exports) {
+  "lib/styles/document-matchers.ts"(exports) {
     "use strict";
     exports.paragraph = paragraph;
     exports.run = run;
@@ -4461,9 +4461,9 @@ var require_document_matchers = __commonJS({
   }
 });
 
-// lib/styles/parser/tokeniser.js
+// lib/styles/parser/tokeniser.ts
 var require_tokeniser = __commonJS({
-  "lib/styles/parser/tokeniser.js"(exports) {
+  "lib/styles/parser/tokeniser.ts"(exports) {
     "use strict";
     var lop = require_lop();
     var RegexTokeniser = lop.RegexTokeniser;
@@ -4500,9 +4500,9 @@ var require_tokeniser = __commonJS({
   }
 });
 
-// lib/style-reader.js
+// lib/style-reader.ts
 var require_style_reader = __commonJS({
-  "lib/style-reader.js"(exports) {
+  "lib/style-reader.ts"(exports) {
     "use strict";
     var lop = require_lop();
     var documentMatchers = require_document_matchers();
@@ -4833,9 +4833,9 @@ var require_style_reader = __commonJS({
   }
 });
 
-// lib/options-reader.js
+// lib/options-reader.ts
 var require_options_reader = __commonJS({
-  "lib/options-reader.js"(exports) {
+  "lib/options-reader.ts"(exports) {
     "use strict";
     exports.readOptions = readOptions;
     var defaultStyleMap = exports._defaultStyleMap = [
@@ -4941,9 +4941,9 @@ var require_unzip = __commonJS({
   }
 });
 
-// lib/underline.js
+// lib/underline.ts
 var require_underline = __commonJS({
-  "lib/underline.js"(exports) {
+  "lib/underline.ts"(exports) {
     "use strict";
     var htmlPaths = require_html_paths();
     var Html = require_html();
@@ -4954,9 +4954,9 @@ var require_underline = __commonJS({
   }
 });
 
-// lib/index.js
+// lib/index.ts
 var require_lib = __commonJS({
-  "lib/index.js"(exports) {
+  "lib/index.ts"(exports) {
     var docxReader = require_docx_reader();
     var docxStyleMap = require_style_map();
     var DocumentConverter = require_document_to_html().DocumentConverter;

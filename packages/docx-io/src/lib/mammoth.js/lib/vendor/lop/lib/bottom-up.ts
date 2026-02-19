@@ -1,5 +1,5 @@
-var rules = require("./rules");
-var results = require("./parsing-results");
+var rules = require("./rules.ts");
+var results = require("./parsing-results.ts");
 
 exports.parser = function(name, prefixRules, infixRuleBuilders) {
     var self = {

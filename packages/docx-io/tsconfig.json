@@ -8,5 +8,5 @@
     }
   },
   "include": ["src", "../../tooling/config/global.d.ts"],
-  "exclude": ["src/lib/mammoth.js/test/**/*"]
+  "exclude": ["src/lib/mammoth.js/**/*"]
 }

@@ -15,7 +15,7 @@ test("package dependencies do not include removed trivial deps", function() {
 
 test("runtime lib source does not import removed trivial deps", function() {
     var libPath = path.join(__dirname, "..", "lib");
-    var filePaths = listJsFiles(libPath);
+    var filePaths = listTsFiles(libPath);
 
     filePaths.forEach(function(filePath) {
         var contents = fs.readFileSync(filePath, "utf8");
@@ -24,15 +24,15 @@ test("runtime lib source does not import removed trivial deps", function() {
     });
 });
 
-function listJsFiles(rootPath) {
+function listTsFiles(rootPath) {
     var entries = fs.readdirSync(rootPath, {withFileTypes: true});
 
     return entries.reduce(function(result, entry) {
         var entryPath = path.join(rootPath, entry.name);
 
         if (entry.isDirectory()) {
-            return result.concat(listJsFiles(entryPath));
-        } else if (entry.isFile() && path.extname(entry.name) === ".js") {
+            return result.concat(listTsFiles(entryPath));
+        } else if (entry.isFile() && path.extname(entry.name) === ".ts") {
             result.push(entryPath);
         }
 

@@ -1,8 +1,8 @@
 var assert = require("assert");
 
 var test = require("../test.ts")(module);
-var html = require("../../lib/html");
-var htmlPaths = require("../../lib/styles/html-paths");
+var html = require("../../lib/html/index.ts");
+var htmlPaths = require("../../lib/styles/html-paths.ts");
 
 var nonFreshElement = html.nonFreshElement;
 var text = html.text;

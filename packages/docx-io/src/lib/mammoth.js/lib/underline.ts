@@ -1,5 +1,5 @@
-var htmlPaths = require('./styles/html-paths');
-var Html = require('./html');
+var htmlPaths = require('./styles/html-paths.ts');
+var Html = require('./html/index.ts');
 
 exports.element = element;
 

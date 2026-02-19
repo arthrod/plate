@@ -1,5 +1,5 @@
-var htmlWriter = require('./html-writer');
-var markdownWriter = require('./markdown-writer');
+var htmlWriter = require('./html-writer.ts');
+var markdownWriter = require('./markdown-writer.ts');
 
 exports.writer = writer;
 

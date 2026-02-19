@@ -1,8 +1,8 @@
 var assert = require("assert");
-var htmlPaths = require("../lib/styles/html-paths");
-var documentMatchers = require("../lib/styles/document-matchers");
-var styleReader = require("../lib/style-reader");
-var results = require("../lib/results");
+var htmlPaths = require("../lib/styles/html-paths.ts");
+var documentMatchers = require("../lib/styles/document-matchers.ts");
+var styleReader = require("../lib/style-reader.ts");
+var results = require("../lib/results.ts");
 var test = require("./test.ts")(module);
 
 

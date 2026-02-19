@@ -1,4 +1,4 @@
-var TokenIterator = require("./TokenIterator");
+var TokenIterator = require("./TokenIterator.ts");
 
 exports.Parser = function(options) {
     var parseTokens = function(parser, tokens) {

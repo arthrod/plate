@@ -2,9 +2,9 @@ var path = require("path");
 var fs = require("fs");
 var assert = require("assert");
 
-var promises = require("../../lib/promises");
-var Files = require("../../lib/docx/files").Files;
-var uriToPath = require("../../lib/docx/files").uriToPath;
+var promises = require("../../lib/promises.ts");
+var Files = require("../../lib/docx/files.ts").Files;
+var uriToPath = require("../../lib/docx/files.ts").uriToPath;
 
 var testing = require("../testing.ts");
 var test = require("../test.ts")(module);

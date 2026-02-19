@@ -1,7 +1,7 @@
 var assert = require("assert");
 
-var readContentTypesFromXml = require("../../lib/docx/content-types-reader").readContentTypesFromXml;
-var XmlElement = require("../../lib/xml").Element;
+var readContentTypesFromXml = require("../../lib/docx/content-types-reader.ts").readContentTypesFromXml;
+var XmlElement = require("../../lib/xml/index.ts").Element;
 var test = require("../test.ts")(module);
 
 

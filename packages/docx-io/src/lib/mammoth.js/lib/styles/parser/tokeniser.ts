@@ -1,4 +1,4 @@
-var lop = require('../../vendor/lop');
+var lop = require('../../vendor/lop/index.ts');
 var RegexTokeniser = lop.RegexTokeniser;
 
 exports.tokenise = tokenise;

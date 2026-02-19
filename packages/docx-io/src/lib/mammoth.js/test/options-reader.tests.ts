@@ -1,6 +1,6 @@
 var assert = require("assert");
 
-var optionsReader = require("../lib/options-reader");
+var optionsReader = require("../lib/options-reader.ts");
 var standardOptions = optionsReader._standardOptions;
 var readOptions = optionsReader.readOptions;
 var test = require("./test.ts")(module);

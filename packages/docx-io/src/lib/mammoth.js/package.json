@@ -11,7 +11,7 @@
     "markdown",
     "md"
   ],
-  "main": "./lib/index.js",
+  "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
   "types": "./lib/index.d.ts",
   "exports": {
@@ -50,13 +50,15 @@
   },
   "browser": {
     "./lib/unzip.js": "./browser/unzip.js",
-    "./lib/docx/files.js": "./browser/docx/files.js"
+    "./lib/docx/files.js": "./browser/docx/files.js",
+    "./lib/unzip.ts": "./browser/unzip.js",
+    "./lib/docx/files.ts": "./browser/docx/files.js"
   },
   "bin": {
     "mammoth": "bin/mammoth"
   },
   "scripts": {
-    "test": "bun x vitest run --globals",
+    "test": "bun run build && bun x vitest run --globals",
     "check-typescript": "tsc -p tsconfig.check.json",
     "build": "tsup --config tsup.config.ts && cp dist/esm/index.browser.js mammoth.browser.js && cp dist/mammoth.browser.min.js mammoth.browser.min.js"
   },

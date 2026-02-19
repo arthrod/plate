@@ -5,7 +5,7 @@ var dirname = path.dirname;
 var resolvePath = path.resolve;
 var isAbsolutePath = path.isAbsolute;
 
-var promises = require('../promises');
+var promises = require('../promises.ts');
 
 exports.Files = Files;
 exports.uriToPath = uriToPath;

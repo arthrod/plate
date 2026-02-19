@@ -3,8 +3,8 @@ var assert = require("assert");
 var path = require("path");
 
 var test = require("./test.ts")(module);
-var unzip = require("../lib/unzip");
-var promises = require("../lib/promises");
+var unzip = require("../lib/unzip.ts");
+var promises = require("../lib/promises.ts");
 
 test("unzip fails if given empty object", function() {
     return unzip.openZip({}).then(function() {

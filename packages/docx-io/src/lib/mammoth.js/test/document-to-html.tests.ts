@@ -1,16 +1,16 @@
 var assert = require("assert");
-var promises = require("../lib/promises");
+var promises = require("../lib/promises.ts");
 
-var documents = require("../lib/documents");
-var documentToHtml = require("../lib/document-to-html");
+var documents = require("../lib/documents.ts");
+var documentToHtml = require("../lib/document-to-html.ts");
 var DocumentConverter = documentToHtml.DocumentConverter;
 var commentAuthorLabel = documentToHtml.commentAuthorLabel;
 var test = require("./test.ts")(module);
-var htmlPaths = require("../lib/styles/html-paths");
-var xml = require("../lib/xml");
-var results = require("../lib/results");
-var documentMatchers = require("../lib/styles/document-matchers");
-var Html = require("../lib/html");
+var htmlPaths = require("../lib/styles/html-paths.ts");
+var xml = require("../lib/xml/index.ts");
+var results = require("../lib/results.ts");
+var documentMatchers = require("../lib/styles/document-matchers.ts");
+var Html = require("../lib/html/index.ts");
 
 
 test('should empty document to empty string', function() {

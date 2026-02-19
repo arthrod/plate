@@ -1,5 +1,5 @@
-var documents = require('../documents');
-var Result = require('../results').Result;
+var documents = require('../documents.ts');
+var Result = require('../results.ts').Result;
 
 exports.createFootnotesReader = createReader.bind(this, 'footnote');
 exports.createEndnotesReader = createReader.bind(this, 'endnote');

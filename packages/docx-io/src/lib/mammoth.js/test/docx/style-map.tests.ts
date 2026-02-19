@@ -2,8 +2,8 @@ var assert = require("assert");
 
 var JSZip = require("jszip");
 
-var zipfile = require("../../lib/zipfile");
-var styleMap = require("../../lib/docx/style-map");
+var zipfile = require("../../lib/zipfile.ts");
+var styleMap = require("../../lib/docx/style-map.ts");
 var test = require("../test.ts")(module);
 
 test('reading embedded style map on document without embedded style map returns null', function() {

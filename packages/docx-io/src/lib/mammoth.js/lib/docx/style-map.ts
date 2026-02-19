@@ -1,5 +1,5 @@
-var promises = require('../promises');
-var xml = require('../xml');
+var promises = require('../promises.ts');
+var xml = require('../xml/index.ts');
 
 exports.writeStyleMap = writeStyleMap;
 exports.readStyleMap = readStyleMap;

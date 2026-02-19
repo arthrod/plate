@@ -1,22 +1,22 @@
 exports.read = read;
 exports._findPartPaths = findPartPaths;
 
-var promises = require('../promises');
-var documents = require('../documents');
-var Result = require('../results').Result;
-var zipfile = require('../zipfile');
+var promises = require('../promises.ts');
+var documents = require('../documents.ts');
+var Result = require('../results.ts').Result;
+var zipfile = require('../zipfile.ts');
 
-var readXmlFromZipFile = require('./office-xml-reader').readXmlFromZipFile;
-var createBodyReader = require('./body-reader').createBodyReader;
-var DocumentXmlReader = require('./document-xml-reader').DocumentXmlReader;
-var relationshipsReader = require('./relationships-reader');
-var contentTypesReader = require('./content-types-reader');
-var numberingXml = require('./numbering-xml');
-var stylesReader = require('./styles-reader');
-var notesReader = require('./notes-reader');
-var commentsReader = require('./comments-reader');
-var commentsExtendedReader = require('./comments-extended-reader');
-var Files = require('./files').Files;
+var readXmlFromZipFile = require('./office-xml-reader.ts').readXmlFromZipFile;
+var createBodyReader = require('./body-reader.ts').createBodyReader;
+var DocumentXmlReader = require('./document-xml-reader.ts').DocumentXmlReader;
+var relationshipsReader = require('./relationships-reader.ts');
+var contentTypesReader = require('./content-types-reader.ts');
+var numberingXml = require('./numbering-xml.ts');
+var stylesReader = require('./styles-reader.ts');
+var notesReader = require('./notes-reader.ts');
+var commentsReader = require('./comments-reader.ts');
+var commentsExtendedReader = require('./comments-extended-reader.ts');
+var Files = require('./files.ts').Files;
 
 function read(docxFile, input, options) {
   input = input || {};

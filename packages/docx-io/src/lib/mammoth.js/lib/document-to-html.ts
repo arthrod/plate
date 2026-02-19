@@ -1,10 +1,10 @@
-var promises = require('./promises');
-var documents = require('./documents');
-var htmlPaths = require('./styles/html-paths');
-var results = require('./results');
-var images = require('./images');
-var Html = require('./html');
-var writers = require('./writers');
+var promises = require('./promises.ts');
+var documents = require('./documents.ts');
+var htmlPaths = require('./styles/html-paths.ts');
+var results = require('./results.ts');
+var images = require('./images.ts');
+var Html = require('./html/index.ts');
+var writers = require('./writers/index.ts');
 
 exports.DocumentConverter = DocumentConverter;
 

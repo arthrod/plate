@@ -1,4 +1,4 @@
-var ast = require('./ast');
+var ast = require('./ast.ts');
 
 function simplify(nodes) {
   return collapse(removeEmpty(nodes));

@@ -1,7 +1,7 @@
 exports.DocumentXmlReader = DocumentXmlReader;
 
-var documents = require('../documents');
-var Result = require('../results').Result;
+var documents = require('../documents.ts');
+var Result = require('../results.ts').Result;
 
 function DocumentXmlReader(options) {
   var bodyReader = options.bodyReader;

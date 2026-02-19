@@ -1,6 +1,6 @@
 var assert = require("assert");
 
-var results = require("../lib/results");
+var results = require("../lib/results.ts");
 var Result = results.Result;
 var test = require("./test.ts")(module);
 

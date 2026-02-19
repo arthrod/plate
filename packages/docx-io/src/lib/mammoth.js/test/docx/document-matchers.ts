@@ -1,6 +1,6 @@
 var hamjest = require("hamjest");
 
-var documents = require("../../lib/documents");
+var documents = require("../../lib/documents.ts");
 
 
 exports.isEmptyRun = isRun({children: []});

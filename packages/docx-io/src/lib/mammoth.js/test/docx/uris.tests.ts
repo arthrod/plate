@@ -1,6 +1,6 @@
 var assert = require("assert");
 
-var zipfile = require("../../lib/docx/uris");
+var zipfile = require("../../lib/docx/uris.ts");
 var test = require("../test.ts")(module);
 
 

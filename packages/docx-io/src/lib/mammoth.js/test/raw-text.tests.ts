@@ -1,8 +1,8 @@
 var assert = require("assert");
 
-var documents = require("../lib/documents");
+var documents = require("../lib/documents.ts");
 var test = require("./test.ts")(module);
-var convertElementToRawText = require("../lib/raw-text").convertElementToRawText;
+var convertElementToRawText = require("../lib/raw-text.ts").convertElementToRawText;
 
 
 test('text element is converted to text content', function() {

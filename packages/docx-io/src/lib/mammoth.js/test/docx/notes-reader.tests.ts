@@ -1,10 +1,10 @@
 var assert = require("assert");
 
-var createFootnotesReader = require("../../lib/docx/notes-reader").createFootnotesReader;
-var createBodyReader = require("../../lib/docx/body-reader").createBodyReader;
-var stylesReader = require("../../lib/docx/styles-reader");
-var documents = require("../../lib/documents");
-var XmlElement = require("../../lib/xml").Element;
+var createFootnotesReader = require("../../lib/docx/notes-reader.ts").createFootnotesReader;
+var createBodyReader = require("../../lib/docx/body-reader.ts").createBodyReader;
+var stylesReader = require("../../lib/docx/styles-reader.ts");
+var documents = require("../../lib/documents.ts");
+var XmlElement = require("../../lib/xml/index.ts").Element;
 var test = require("../test.ts")(module);
 
 

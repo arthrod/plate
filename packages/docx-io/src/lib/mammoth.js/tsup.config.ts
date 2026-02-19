@@ -16,7 +16,7 @@ export default defineConfig([
     },
     clean: true,
     entry: {
-      index: 'lib/index.js',
+      index: 'lib/index.ts',
     },
     format: ['esm'],
     outDir: 'dist/esm',
@@ -29,7 +29,8 @@ export default defineConfig([
     ...common,
     clean: false,
     entry: {
-      index: 'lib/index.js',
+      index: 'lib/index.ts',
+      main: 'lib/main.ts',
     },
     format: ['cjs'],
     outDir: 'dist/cjs',
@@ -42,7 +43,7 @@ export default defineConfig([
     ...common,
     clean: false,
     entry: {
-      'index.browser': 'lib/index.js',
+      'index.browser': 'lib/index.ts',
     },
     format: ['esm'],
     outDir: 'dist/esm',
@@ -55,7 +56,7 @@ export default defineConfig([
     ...common,
     clean: false,
     entry: {
-      'mammoth.browser': 'lib/index.js',
+      'mammoth.browser': 'lib/index.ts',
     },
     format: ['iife'],
     globalName: 'mammoth',
@@ -70,7 +71,7 @@ export default defineConfig([
     ...common,
     clean: false,
     entry: {
-      'mammoth.browser.min': 'lib/index.js',
+      'mammoth.browser.min': 'lib/index.ts',
     },
     format: ['iife'],
     globalName: 'mammoth',

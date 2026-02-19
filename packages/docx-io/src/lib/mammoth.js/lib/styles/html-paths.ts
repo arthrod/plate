@@ -1,4 +1,4 @@
-var html = require('../html');
+var html = require('../html/index.ts');
 
 exports.topLevelElement = topLevelElement;
 exports.elements = elements;

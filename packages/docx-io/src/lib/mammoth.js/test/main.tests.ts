@@ -5,7 +5,7 @@ var fs = require("fs");
 
 var temp = require('temp').track();
 
-var promises = require("../lib/promises");
+var promises = require("../lib/promises.ts");
 var test = require("./test.ts")(module);
 var testPath = require("./testing.ts").testPath;
 

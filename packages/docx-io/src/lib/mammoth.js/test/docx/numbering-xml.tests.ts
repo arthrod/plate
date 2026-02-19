@@ -1,9 +1,9 @@
 var assert = require("assert");
 var duck = require("duck");
 
-var readNumberingXml = require("../../lib/docx/numbering-xml").readNumberingXml;
-var stylesReader = require("../../lib/docx/styles-reader");
-var XmlElement = require("../../lib/xml").Element;
+var readNumberingXml = require("../../lib/docx/numbering-xml.ts").readNumberingXml;
+var stylesReader = require("../../lib/docx/styles-reader.ts");
+var XmlElement = require("../../lib/xml/index.ts").Element;
 var test = require("../test.ts")(module);
 
 

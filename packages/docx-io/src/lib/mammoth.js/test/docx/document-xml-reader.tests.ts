@@ -1,8 +1,8 @@
 var assert = require("assert");
 
-var documents = require("../../lib/documents");
-var DocumentXmlReader = require("../../lib/docx/document-xml-reader").DocumentXmlReader;
-var xml = require("../../lib/xml");
+var documents = require("../../lib/documents.ts");
+var DocumentXmlReader = require("../../lib/docx/document-xml-reader.ts").DocumentXmlReader;
+var xml = require("../../lib/xml/index.ts");
 var test = require("../test.ts")(module);
 var createBodyReaderForTests = require("./testing.ts").createBodyReaderForTests;
 

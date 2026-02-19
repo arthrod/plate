@@ -1,7 +1,7 @@
 var assert = require("assert");
 
-var xml = require("../../lib/xml");
-var writer = require("../../lib/xml/writer");
+var xml = require("../../lib/xml/index.ts");
+var writer = require("../../lib/xml/writer.ts");
 var test = require("../test.ts")(module);
 
 

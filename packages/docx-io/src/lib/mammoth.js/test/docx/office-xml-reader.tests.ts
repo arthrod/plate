@@ -1,7 +1,7 @@
 var assert = require("assert");
 
-var xml = require("../../lib/xml");
-var officeXmlReader = require("../../lib/docx/office-xml-reader");
+var xml = require("../../lib/xml/index.ts");
+var officeXmlReader = require("../../lib/docx/office-xml-reader.ts");
 var test = require("../test.ts")(module);
 
 

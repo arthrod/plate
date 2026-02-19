@@ -1,9 +1,9 @@
-var lop = require('./vendor/lop');
+var lop = require('./vendor/lop/index.ts');
 
-var documentMatchers = require('./styles/document-matchers');
-var htmlPaths = require('./styles/html-paths');
-var tokenise = require('./styles/parser/tokeniser').tokenise;
-var results = require('./results');
+var documentMatchers = require('./styles/document-matchers.ts');
+var htmlPaths = require('./styles/html-paths.ts');
+var tokenise = require('./styles/parser/tokeniser.ts').tokenise;
+var results = require('./results.ts');
 
 exports.readHtmlPath = readHtmlPath;
 exports.readDocumentMatcher = readDocumentMatcher;

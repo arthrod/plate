@@ -1,8 +1,8 @@
 var assert = require("assert");
 
 var test = require("../test.ts")(module);
-var documentMatchers = require("../../lib/styles/document-matchers");
-var documents = require("../../lib/documents");
+var documentMatchers = require("../../lib/styles/document-matchers.ts");
+var documents = require("../../lib/documents.ts");
 var Paragraph = documents.Paragraph;
 
 test("paragraph with no options matches any paragraph", function() {
