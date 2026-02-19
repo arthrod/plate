@@ -49,6 +49,6 @@ app.use('/*', serveStatic({ root: './dist/client' }));
 app.use('/*', serveStatic({ path: './dist/client/index.html' }));
 
 export default {
-  port: Number(process.env.PORT) || 3000,
+  port: Number(process.env.PORT) || 8080,
   fetch: app.fetch,
 };

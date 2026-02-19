@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Suspense, lazy } from 'react';
 
-const PlateEditor = lazy(() => import('@/registry/blocks/editor-ai/components/editor/plate-editor'));
+const PlateEditor = lazy(() => import('@/registry/blocks/editor-ai/components/editor/plate-editor').then(m => ({ default: m.PlateEditor })));
 
 export const Route = createFileRoute('/editor/$docId')({
   component: EditorPage,
