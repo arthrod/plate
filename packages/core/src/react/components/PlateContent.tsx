@@ -82,36 +82,29 @@ const PlateContent = React.forwardRef(
 
     const editable = <Editable ref={combinedRef} {...(editableProps as any)} />;
 
-    let afterEditable: React.ReactNode = null;
-    let beforeEditable: React.ReactNode = null;
+    // Optimize rendering by mapping to an array instead of building a deep fragment tree.
+    // This improves reconciliation performance and ensures proper key usage.
+    const beforeEditable = editor.meta.pluginCache.render.beforeEditable.map(
+      (key) => {
+        const plugin = editor.getPlugin({ key });
+        if (isEditOnly(readOnly, plugin, 'render')) return null;
 
-    editor.meta.pluginCache.render.beforeEditable.forEach((key) => {
-      const plugin = editor.getPlugin({ key });
-      if (isEditOnly(readOnly, plugin, 'render')) return;
+        const BeforeEditable = plugin.render.beforeEditable!;
 
-      const BeforeEditable = plugin.render.beforeEditable!;
+        return <BeforeEditable key={key} {...editableProps} />;
+      }
+    );
 
-      beforeEditable = (
-        <>
-          {beforeEditable}
-          <BeforeEditable {...editableProps} />
-        </>
-      );
-    });
+    const afterEditable = editor.meta.pluginCache.render.afterEditable.map(
+      (key) => {
+        const plugin = editor.getPlugin({ key });
+        if (isEditOnly(readOnly, plugin, 'render')) return null;
 
-    editor.meta.pluginCache.render.afterEditable.forEach((key) => {
-      const plugin = editor.getPlugin({ key });
-      if (isEditOnly(readOnly, plugin, 'render')) return;
+        const AfterEditable = plugin.render.afterEditable!;
 
-      const AfterEditable = plugin.render.afterEditable!;
-
-      afterEditable = (
-        <>
-          {afterEditable}
-          <AfterEditable {...editableProps} />
-        </>
-      );
-    });
+        return <AfterEditable key={key} {...editableProps} />;
+      }
+    );
 
     let aboveEditable: React.ReactNode = (
       <>
