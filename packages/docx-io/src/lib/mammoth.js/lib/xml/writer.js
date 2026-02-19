@@ -2,6 +2,8 @@ var xmlbuilder = require('xmlbuilder');
 
 exports.writeString = writeString;
 
+var xmlNamespaceUri = 'http://www.w3.org/2000/xmlns/';
+
 function writeString(root, namespaces) {
   var uriToPrefix = {};
   Object.keys(namespaces).forEach((prefix) => {
@@ -55,6 +57,9 @@ function writeString(root, namespaces) {
 
     // Apply root element attributes
     Object.keys(root.attributes || {}).forEach((key) => {
+      if (isXmlNamespaceAttribute(key)) {
+        return;
+      }
       var value = root.attributes[key];
       builder.attribute(key, value);
     });
@@ -66,6 +71,14 @@ function writeString(root, namespaces) {
   }
 
   return writeDocument(root);
+}
+
+function isXmlNamespaceAttribute(name) {
+  return (
+    name === 'xmlns' ||
+    name.indexOf('xmlns:') === 0 ||
+    name.indexOf('{' + xmlNamespaceUri + '}') === 0
+  );
 }
 
 function writeTextNode(builder, node) {

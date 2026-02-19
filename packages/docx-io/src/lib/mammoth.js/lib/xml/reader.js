@@ -3,6 +3,7 @@ var promises = require('../promises');
 var xmldom = require('./xmldom');
 var nodes = require('./nodes');
 var Element = nodes.Element;
+var xmlNamespaceUri = 'http://www.w3.org/2000/xmlns/';
 
 exports.readString = readString;
 
@@ -43,6 +44,9 @@ function readString(xmlString, namespaceMap) {
 
     var convertedAttributes = {};
     Array.prototype.forEach.call(element.attributes, (attribute) => {
+      if (attribute.namespaceURI === xmlNamespaceUri) {
+        return;
+      }
       convertedAttributes[convertName(attribute)] = attribute.value;
     });
 
