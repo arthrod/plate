@@ -7,7 +7,8 @@
     "dev": "concurrently \"bun run dev:client\" \"bun run dev:server\"",
     "dev:client": "vite",
     "dev:server": "bun --watch src/server/index.ts",
-    "build": "vite build && bun build src/server/index.ts --outdir dist/server --target bun",
+    "build:tw": "yarn tailwindcss -i ./src/app/globals.css -o ./public/tailwind.css --minify",
+    "build": "yarn build:tw && vite build && bun build src/server/index.ts --outdir dist/server --target bun",
     "start": "bun dist/server/index.js",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
@@ -117,6 +118,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.0.0",
+    "@tailwindcss/cli": "4.1.8",
     "@tailwindcss/vite": "^4.0.0",
     "@tanstack/router-plugin": "^1.0.0",
     "@types/react": "^19.0.0",
