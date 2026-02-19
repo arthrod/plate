@@ -46,8 +46,8 @@
   },
   "scripts": {
     "test": "bun x vitest run --globals",
-    "check-typescript": "bun run tsc --noEmit lib/index.d.ts",
-    "build": "bun run make mammoth.browser.min.js"
+    "check-typescript": "tsc -p tsconfig.check.json",
+    "build": "browserify lib/index.js --standalone mammoth -p browserify-prepend-licenses > mammoth.browser.js && uglifyjs mammoth.browser.js -c > mammoth.browser.min.js"
   },
   "license": "BSD-2-Clause",
   "engines": {

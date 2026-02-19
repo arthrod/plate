@@ -18,19 +18,20 @@ exports.embedStyleMap = embedStyleMap;
 exports.readEmbeddedStyleMap = readEmbeddedStyleMap;
 
 function convertToHtml(input, options) {
-  return convert(input, options);
+  return withDone(convert(input, options));
 }
 
 function convertToMarkdown(input, options) {
   var markdownOptions = Object.create(options || {});
   markdownOptions.outputFormat = 'markdown';
-  return convert(input, markdownOptions);
+  return withDone(convert(input, markdownOptions));
 }
 
 function convert(input, options) {
   options = readOptions(options);
 
-  return unzip
+  return withDone(
+    unzip
     .openZip(input)
     .then((docxFile) =>
       docxStyleMap.readStyleMap(docxFile).then((styleMap) => {
@@ -45,11 +46,12 @@ function convert(input, options) {
         .then((documentResult) =>
           convertDocumentToHtml(documentResult, options)
         )
-    );
+    )
+  );
 }
 
 function readEmbeddedStyleMap(input) {
-  return unzip.openZip(input).then(docxStyleMap.readStyleMap);
+  return withDone(unzip.openZip(input).then(docxStyleMap.readStyleMap));
 }
 
 function convertDocumentToHtml(documentResult, options) {
@@ -73,14 +75,17 @@ function parseStyleMap(styleMap) {
 }
 
 function extractRawText(input) {
-  return unzip
+  return withDone(
+    unzip
     .openZip(input)
     .then(docxReader.read)
-    .then((documentResult) => documentResult.map(convertElementToRawText));
+    .then((documentResult) => documentResult.map(convertElementToRawText))
+  );
 }
 
 function embedStyleMap(input, styleMap) {
-  return unzip
+  return withDone(
+    unzip
     .openZip(input)
     .then((docxFile) =>
       Promise.resolve(docxStyleMap.writeStyleMap(docxFile, styleMap)).then(
@@ -95,7 +100,8 @@ function embedStyleMap(input, styleMap) {
       toBuffer() {
         return Buffer.from(arrayBuffer);
       },
-    }));
+    }))
+  );
 }
 
 exports.styleMapping = () => {
@@ -103,3 +109,26 @@ exports.styleMapping = () => {
     'Use a raw string instead of mammoth.styleMapping e.g. "p[style-name=\'Title\'] => h1" instead of mammoth.styleMapping("p[style-name=\'Title\'] => h1")'
   );
 };
+
+function withDone(promise) {
+  if (!promise || typeof promise.done === 'function') {
+    return promise;
+  }
+
+  Object.defineProperty(promise, 'done', {
+    configurable: true,
+    enumerable: false,
+    value: function (onFulfilled, onRejected) {
+      promise
+        .then(onFulfilled, onRejected)
+        .catch(function (error) {
+          setTimeout(function () {
+            throw error;
+          }, 0);
+        });
+    },
+    writable: true,
+  });
+
+  return promise;
+}

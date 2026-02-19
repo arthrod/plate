@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2019"],
+    "moduleResolution": "node",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2019",
+    "types": ["node"]
+  },
+  "files": ["lib/index.d.ts"]
+}
