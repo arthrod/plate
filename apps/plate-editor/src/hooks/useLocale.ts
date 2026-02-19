@@ -1,9 +1,6 @@
-import { useRouterState } from '@tanstack/react-router';
-
 export const useLocale = () => {
-  const pathname = usePathname();
-
-  return pathname?.startsWith('/cn') ? 'cn' : 'en';
+  const hash = window.location.hash || '';
+  return hash.startsWith('#/cn') ? 'cn' : 'en';
 };
 
 export const getLocalizedPath = (locale: string, href: string) =>

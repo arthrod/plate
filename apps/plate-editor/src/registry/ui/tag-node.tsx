@@ -5,7 +5,6 @@ import * as React from 'react';
 import type { TTagElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 
-import Link from 'next/link';
 import {
   PlateElement,
   useFocused,
@@ -36,7 +35,7 @@ export function TagElement(props: PlateElementProps<TTagElement>) {
 
   const content =
     readOnly && element.url ? (
-      <Link href={element.url as string}>{badge}</Link>
+      <a href={element.url as string}>{badge}</a>
     ) : (
       badge
     );

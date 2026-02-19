@@ -1,14 +1,4 @@
-import {
-  JetBrains_Mono as FontMono,
-  Inter as FontSans,
-} from 'next/font/google';
-
-export const fontSans = FontSans({
-  subsets: ['latin'],
-  variable: '--font-sans',
-});
-
-export const fontMono = FontMono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-});
+// Fonts are loaded via index.html <link> preload and @font-face declarations.
+// No next/font needed in Vite.
+export const fontSans = { variable: '--font-geist-sans' };
+export const fontMono = { variable: '--font-geist-mono' };
