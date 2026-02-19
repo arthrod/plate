@@ -12,7 +12,7 @@ import {
   isMultiBlocks,
   isSelectionInTable,
   isSingleCellSelection,
-} from '../utils';
+} from './utils';
 
 import { buildEditTableMultiCellPrompt } from './getEditTablePrompt';
 import { commonEditRules } from './common';

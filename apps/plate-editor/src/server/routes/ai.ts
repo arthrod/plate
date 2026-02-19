@@ -13,7 +13,7 @@ import { createGateway } from '@ai-sdk/gateway';
 import { type SlateEditor, createSlateEditor, nanoid } from 'platejs';
 import { z } from 'zod';
 
-import { markdownJoinerTransform } from '../../client/lib/markdown-joiner-transform';
+import { markdownJoinerTransform } from '../../registry/lib/markdown-joiner-transform';
 import {
   buildEditTableMultiCellPrompt,
   getChooseToolPrompt,
