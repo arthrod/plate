@@ -1,8 +1,8 @@
 
 
+import { KEYS } from 'platejs';
 import type {
   EmptyText,
-  KEYS,
   PlainText,
   TBasicMarks,
   TCaptionProps,
