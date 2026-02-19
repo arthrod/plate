@@ -86,7 +86,14 @@ export function HtmlIframe({
     setContent(getThemedHtml());
   }, [getThemedHtml]);
 
-  return <iframe title="Preview" srcDoc={content} {...props} />;
+  return (
+    <iframe
+      title="Preview"
+      srcDoc={content}
+      sandbox="allow-popups allow-scripts"
+      {...props}
+    />
+  );
 }
 
 export function EditorClient({ value }: { value: any }) {
