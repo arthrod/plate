@@ -130,7 +130,8 @@ aiRoutes.post('/command', async (c) => {
     });
 
     return createUIMessageStreamResponse({ stream });
-  } catch {
+  } catch (error) {
+    console.error('AI command error:', error);
     return c.json({ error: 'Failed to process AI request' }, 500);
   }
 });
@@ -145,11 +146,13 @@ aiRoutes.post('/copilot', async (c) => {
     return c.json({ error: 'Missing AI Gateway API key.' }, 401);
   }
 
+  const gatewayProvider = createGateway({ apiKey });
+
   try {
     const result = await generateText({
       abortSignal: c.req.raw.signal,
       maxOutputTokens: 50,
-      model: `openai/${model}`,
+      model: gatewayProvider(`openai/${model}`),
       prompt,
       system,
       temperature: 0.7,

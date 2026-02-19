@@ -9,22 +9,26 @@ export const store: DocumentStore = {
     return res.json();
   },
   async save(id, doc) {
-    await fetch(`${API_BASE}/api/documents/${id}`, {
+    const res = await fetch(`${API_BASE}/api/documents/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(doc),
     });
+    if (!res.ok) throw new Error(`Failed to save document: ${res.status}`);
   },
   async list() {
     const res = await fetch(`${API_BASE}/api/documents`);
+    if (!res.ok) return [];
     return res.json();
   },
   async create() {
     const res = await fetch(`${API_BASE}/api/documents`, { method: 'POST' });
+    if (!res.ok) throw new Error(`Failed to create document: ${res.status}`);
     return res.json();
   },
   async delete(id) {
-    await fetch(`${API_BASE}/api/documents/${id}`, { method: 'DELETE' });
+    const res = await fetch(`${API_BASE}/api/documents/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`Failed to delete document: ${res.status}`);
   },
 };
 
