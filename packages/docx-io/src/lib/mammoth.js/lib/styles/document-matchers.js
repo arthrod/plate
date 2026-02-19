@@ -88,8 +88,8 @@ BreakMatcher.prototype.matches = function (element) {
 function isList(element, levelIndex, isOrdered) {
   return (
     element.numbering &&
-    element.numbering.level === levelIndex &&
-    element.numbering.isOrdered === isOrdered
+    element.numbering.level == levelIndex &&
+    element.numbering.isOrdered == isOrdered
   );
 }
 

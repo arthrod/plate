@@ -457,31 +457,12 @@ function BodyReader(options) {
       });
     },
 
-    // Tracked changes: wrap content in documents.inserted with author/date/changeId metadata
     'w:ins'(element) {
-      var author = element.attributes['w:author'];
-      var date = element.attributes['w:date'];
-      var changeId = element.attributes['w:id'];
-      return readXmlElements(element.children).map((children) =>
-        documents.inserted(children, {
-          author,
-          date,
-          changeId,
-        })
-      );
+      return readChildElements(element);
     },
-    // Tracked deletions: wrap content in documents.deleted with author/date/changeId metadata
-    'w:del'(element) {
-      var author = element.attributes['w:author'];
-      var date = element.attributes['w:date'];
-      var changeId = element.attributes['w:id'];
-      return readXmlElements(element.children).map((children) =>
-        documents.deleted(children, {
-          author,
-          date,
-          changeId,
-        })
-      );
+    'w:del'() {
+      // Keep baseline mammoth behavior: deleted run content is ignored.
+      return emptyResult();
     },
     // Handle deleted text within w:del elements
     'w:delText'(element) {

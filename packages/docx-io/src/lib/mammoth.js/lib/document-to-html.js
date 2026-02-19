@@ -16,11 +16,6 @@ var DOCX_DELETION_START_TOKEN_PREFIX = '[[DOCX_DEL_START:';
 var DOCX_DELETION_END_TOKEN_PREFIX = '[[DOCX_DEL_END:';
 var DOCX_DELETION_TOKEN_SUFFIX = ']]';
 
-// Token prefixes for comment ranges - parsed by import-toolbar-button.tsx
-var DOCX_COMMENT_START_TOKEN_PREFIX = '[[DOCX_CMT_START:';
-var DOCX_COMMENT_END_TOKEN_PREFIX = '[[DOCX_CMT_END:';
-var DOCX_COMMENT_TOKEN_SUFFIX = ']]';
-
 function DocumentConverter(options) {
   return {
     convertToHtml(element) {
@@ -305,89 +300,50 @@ function DocumentConversion(options, comments) {
       ),
     ];
   }
-  function getReplies(paraId) {
-    if (!paraId) return [];
-    var replies = [];
-    for (var id in comments) {
-      var c = comments[id];
-      if (c.parentParaId === paraId) {
-        replies.push(c);
-      }
-    }
-    replies.sort((a, b) => ((a.date || '') > (b.date || '') ? 1 : -1));
-    return replies;
-  }
-
-  function buildCommentPayload(comment, messages, options) {
-    var payload = {
-      id: comment.commentId,
-      authorName: comment.authorName,
-      authorInitials: comment.authorInitials,
-      date: comment.date,
-      paraId: comment.paraId,
-      parentParaId: comment.parentParaId,
-    };
-
-    if (comment.body && comment.body.length > 0) {
-      payload.text = extractTextFromElements(comment.body);
-      try {
-        var richContent = convertElements(comment.body, messages, options);
-        payload.body = Html.simplify(richContent);
-      } catch (e) {
-        var detail = '';
-        if (e && typeof e.message === 'string') {
-          detail = e.message;
-        } else if (typeof e === 'string') {
-          detail = e;
-        }
-        var message =
-          'Failed to convert comment body for comment ' +
-          comment.commentId +
-          (detail ? ': ' + detail : '');
-        var error = e instanceof Error ? e : new Error(message);
-        if (error) {
-          error.message = message;
-        }
-        messages.push(results.error(error));
-      }
-    }
-
-    // Recursive replies
-    var replies = getReplies(comment.paraId);
-    if (replies.length > 0) {
-      payload.replies = replies.map((r) =>
-        buildCommentPayload(r, messages, options)
-      );
-    }
-
-    return payload;
-  }
-
   function convertCommentReference(reference, messages, options) {
-    var comment = comments[reference.commentId];
-    if (!comment) return [];
-
-    var payload = buildCommentPayload(comment, messages, options);
-    payload.isPoint = true;
-
-    var startToken =
-      DOCX_COMMENT_START_TOKEN_PREFIX +
-      encodeURIComponent(JSON.stringify(payload)) +
-      DOCX_COMMENT_TOKEN_SUFFIX;
-    var endToken =
-      DOCX_COMMENT_END_TOKEN_PREFIX +
-      encodeURIComponent(reference.commentId) +
-      DOCX_COMMENT_TOKEN_SUFFIX;
-
-    return [Html.text(startToken + endToken)];
+    return findHtmlPath(reference, htmlPaths.ignore).wrap(() => {
+      var comment = comments[reference.commentId];
+      if (!comment) {
+        return [];
+      }
+      var count = referencedComments.length + 1;
+      var label = '[' + commentAuthorLabel(comment) + count + ']';
+      referencedComments.push({ label, comment });
+      return [
+        Html.freshElement(
+          'a',
+          {
+            href: '#' + referentHtmlId('comment', reference.commentId),
+            id: referenceHtmlId('comment', reference.commentId),
+          },
+          [Html.text(label)]
+        ),
+      ];
+    });
   }
 
   function convertComment(referencedComment, messages, options) {
-    // Legacy support or ignore. We use inline tokens.
-    void referencedComment;
-    void messages;
-    void options;
-    return [];
+    var label = referencedComment.label;
+    var comment = referencedComment.comment;
+    var body = convertElements(comment.body || [], messages, options).concat([
+      Html.nonFreshElement('p', {}, [
+        Html.text(' '),
+        Html.freshElement(
+          'a',
+          { href: '#' + referenceHtmlId('comment', comment.commentId) },
+          [Html.text('↑')]
+        ),
+      ]),
+    ]);
+
+    return [
+      Html.freshElement(
+        'dt',
+        { id: referentHtmlId('comment', comment.commentId) },
+        [Html.text('Comment ' + label)]
+      ),
+      Html.freshElement('dd', {}, body),
+    ];
   }
 
   function convertBreak(element, messages, options) {
@@ -493,36 +449,18 @@ function DocumentConversion(options, comments) {
     commentReference: convertCommentReference,
     comment: convertComment,
     commentRangeStart(element, messages, options) {
+      // Keep baseline mammoth behavior: range markers are ignored.
+      void element;
+      void messages;
       void options;
-      var comment = comments[element.commentId];
-      if (!comment) {
-        messages.push(
-          results.warning(
-            'Comment with ID ' +
-              element.commentId +
-              ' was referenced by a range but not found in the document'
-          )
-        );
-        // Still emit token to prevent errors if desired?
-        // No, if missing, we can't do much.
-        return [];
-      }
-
-      var payload = buildCommentPayload(comment, messages, options);
-
-      var token =
-        DOCX_COMMENT_START_TOKEN_PREFIX +
-        encodeURIComponent(JSON.stringify(payload)) +
-        DOCX_COMMENT_TOKEN_SUFFIX;
-      return [Html.text(token)];
+      return [];
     },
-    commentRangeEnd(element) {
-      // Emit token for comment range end - will be parsed by import-toolbar-button.tsx
-      var token =
-        DOCX_COMMENT_END_TOKEN_PREFIX +
-        encodeURIComponent(element.commentId) +
-        DOCX_COMMENT_TOKEN_SUFFIX;
-      return [Html.text(token)];
+    commentRangeEnd(element, messages, options) {
+      // Keep baseline mammoth behavior: range markers are ignored.
+      void element;
+      void messages;
+      void options;
+      return [];
     },
     inserted(element, messages, options) {
       var children = convertElements(element.children, messages, options);
@@ -579,21 +517,6 @@ var deferredId = 1;
 
 function encodeTrackedChangePayload(payload) {
   return encodeURIComponent(JSON.stringify(payload));
-}
-
-function extractTextFromElements(elements) {
-  var text = '';
-  for (var i = 0; i < elements.length; i++) {
-    var element = elements[i];
-    if (element.type === 'text') {
-      text += element.value;
-    } else if (element.type === 'paragraph') {
-      text += extractTextFromElements(element.children || []) + '\n';
-    } else if (element.children) {
-      text += extractTextFromElements(element.children);
-    }
-  }
-  return text;
 }
 
 function deferredConversion(func) {
