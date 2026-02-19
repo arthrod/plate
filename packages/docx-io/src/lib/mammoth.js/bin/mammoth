@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+
+var argparse = require("argparse");
+var main = require("../lib/main");
+
+var parser = new argparse.ArgumentParser({
+    addHelp: true,
+    description: "Convert a .docx to HTML."
+});
+
+parser.addArgument(["docx-path"], {
+    help: "Path to DOCX file"
+});
+parser.addArgument(["output-path"], {
+    nargs: "?",
+    help: "Path to output file"
+});
+parser.addArgument(["--output-dir"], {
+    help: "Output directory"
+});
+parser.addArgument(["--style-map"], {
+    help: "Path to style map"
+});
+parser.addArgument(["--output-format"], {
+    choices: ["html", "markdown"],
+    defaultValue: "html",
+    help: "Output format"
+});
+
+main(parser.parseArgs());

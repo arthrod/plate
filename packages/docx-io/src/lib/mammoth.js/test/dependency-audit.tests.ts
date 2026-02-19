@@ -2,7 +2,7 @@ var assert = require("assert");
 var fs = require("fs");
 var path = require("path");
 
-var test = require("./test")(module);
+var test = require("./test.ts")(module);
 
 
 test("package dependencies do not include removed trivial deps", function() {

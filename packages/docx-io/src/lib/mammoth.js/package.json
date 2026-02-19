@@ -34,7 +34,8 @@
     "mocha": "~2.2.5",
     "temp": "^0.9.4",
     "typescript": "^5.0.4",
-    "uglify-js": "^3.19.3"
+    "uglify-js": "^3.19.3",
+    "vitest": "^4.0.18"
   },
   "browser": {
     "./lib/unzip.js": "./browser/unzip.js",
@@ -44,8 +45,7 @@
     "mammoth": "bin/mammoth"
   },
   "scripts": {
-    "pretest": "bun run eslint lib test",
-    "test": "bun run mocha 'test/**/*.tests.js'",
+    "test": "bun x vitest run --globals",
     "check-typescript": "bun run tsc --noEmit lib/index.d.ts",
     "build": "bun run make mammoth.browser.min.js"
   },
