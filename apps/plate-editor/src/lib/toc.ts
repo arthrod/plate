@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { toc } from 'mdast-util-toc';
 import { remark } from 'remark';
 import { visit } from 'unist-util-visit';
@@ -98,7 +99,7 @@ const getToc = () => (node: any, file: any) => {
 export type TocItem = {
   depth: number;
   url: string;
-  title?: React.ReactNode;
+  title?: ReactNode;
 };
 
 export async function getTableOfContents(content: string): Promise<TocItem[]> {
