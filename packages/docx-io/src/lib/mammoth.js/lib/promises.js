@@ -1,5 +1,3 @@
-var util = require('util');
-
 exports.defer = defer;
 exports.when = function (value) {
   return Promise.resolve(value);
@@ -14,15 +12,31 @@ exports.props = props;
 exports.reject = function (reason) {
   return Promise.reject(reason);
 };
-exports.promisify = util.promisify;
+exports.promisify = promisify;
 exports.mapSeries = mapSeries;
 exports.attempt = attempt;
 
 exports.nfcall = function (func) {
   var args = Array.prototype.slice.call(arguments, 1);
-  var promisedFunc = util.promisify(func);
+  var promisedFunc = promisify(func);
   return promisedFunc.apply(null, args);
 };
+
+function promisify(func) {
+  return function () {
+    var args = Array.prototype.slice.call(arguments);
+    var context = this;
+    return new Promise(function (resolve, reject) {
+      func.apply(context, args.concat(function (error, value) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(value);
+        }
+      }));
+    });
+  };
+}
 
 /**
  * Resolve all promise-valued properties of an object concurrently.

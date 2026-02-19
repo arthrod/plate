@@ -57,6 +57,11 @@ Probe: bundle only `convertToHtml` via esbuild.
 
 ## Build/Tooling Notes
 
-- `build` script now calls `browserify` + `uglifyjs` directly (no `make` dependency).
+- `build` script now uses `tsup` to emit:
+  - `dist/esm/index.mjs` (Node ESM via `exports.import`)
+  - `dist/cjs/index.cjs` (Node CJS via `exports.require`)
+  - `dist/esm/index.browser.js` (browser ESM condition)
+  - `dist/mammoth.browser.js` + `dist/mammoth.browser.min.js` (IIFE globals)
+- For in-repo consumer compatibility, `build` also copies `dist/esm/index.browser.js` to top-level `mammoth.browser.js`.
 - `check-typescript` now uses `tsconfig.check.json` to avoid monorepo ambient type collisions.
 - `@platejs/docx-io` typecheck excludes vendored mammoth tests: `src/lib/mammoth.js/test/**/*` (tests still run in Vitest).

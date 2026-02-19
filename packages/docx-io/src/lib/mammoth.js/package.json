@@ -12,6 +12,19 @@
     "md"
   ],
   "main": "./lib/index.js",
+  "module": "./dist/esm/index.mjs",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "browser": "./dist/esm/index.browser.js",
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs",
+      "default": "./dist/cjs/index.cjs"
+    },
+    "./browser": "./dist/mammoth.browser.js",
+    "./package.json": "./package.json"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mwilliamson/mammoth.js.git"
@@ -26,15 +39,13 @@
   },
   "devDependencies": {
     "@types/node": "^20.2.5",
-    "browserify": "~13.0.1",
-    "browserify-prepend-licenses": "~1.0.0",
     "duck": "^0.1.12",
     "eslint": "2.13.1",
     "hamjest": "^4.0.1",
     "mocha": "~2.2.5",
     "temp": "^0.9.4",
+    "tsup": "^8.5.0",
     "typescript": "^5.0.4",
-    "uglify-js": "^3.19.3",
     "vitest": "^4.0.18"
   },
   "browser": {
@@ -47,7 +58,7 @@
   "scripts": {
     "test": "bun x vitest run --globals",
     "check-typescript": "tsc -p tsconfig.check.json",
-    "build": "browserify lib/index.js --standalone mammoth -p browserify-prepend-licenses > mammoth.browser.js && uglifyjs mammoth.browser.js -c > mammoth.browser.min.js"
+    "build": "tsup --config tsup.config.ts && cp dist/esm/index.browser.js mammoth.browser.js && cp dist/mammoth.browser.min.js mammoth.browser.min.js"
   },
   "license": "BSD-2-Clause",
   "engines": {
