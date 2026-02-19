@@ -1,8 +1,9 @@
 var fs = require('fs');
 var os = require('os');
-var dirname = require('path').dirname;
-var resolvePath = require('path').resolve;
-var isAbsolutePath = require('path-is-absolute');
+var path = require('path');
+var dirname = path.dirname;
+var resolvePath = path.resolve;
+var isAbsolutePath = path.isAbsolute;
 
 var promises = require('../promises');
 
@@ -87,7 +88,11 @@ function uriToPath(uriString, platform) {
     return decodeURIComponent(uriString);
   }
 
-  if (isLocalFileUri(uri) || isRelativeUri(uriString, uri)) {
+  if (isRelativeUri(uriString, uri)) {
+    return decodeURIComponent(uriString);
+  }
+
+  if (isLocalFileUri(uri)) {
     var path = decodeURIComponent(uri.pathname);
     if (platform === 'win32' && /^\/[a-z]:/i.test(path)) {
       return path.slice(1);
