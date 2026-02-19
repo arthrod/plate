@@ -1,4 +1,4 @@
-import { usePathname } from 'next/navigation';
+import { useRouterState } from '@tanstack/react-router';
 
 export const useLocale = () => {
   const pathname = usePathname();
