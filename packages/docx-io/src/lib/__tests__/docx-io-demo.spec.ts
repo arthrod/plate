@@ -125,5 +125,50 @@ describe('DOCX Import/Export Demo', () => {
       expect(docXml).toContain('our website');
       expect(docXml).toContain('<w:hyperlink');
     });
+
+    it('should generate demo docx with image, callout, and bordered table', async () => {
+      const html = `
+        <h2>Demo Rich Export</h2>
+        <table style="width: 100%; border-collapse: collapse; border: none; background-color: #f4f4f5;">
+          <tbody>
+            <tr>
+              <td style="width: 30px; vertical-align: top; padding: 8px 4px 8px 8px; border: none;">💡</td>
+              <td style="vertical-align: top; padding: 8px 8px 8px 4px; border: none;">
+                Callout demo content
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <img
+            alt="tiny demo image"
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/aV0AAAAASUVORK5CYII="
+          />
+        </p>
+        <table style="border-collapse: collapse; border: 1px solid #000;">
+          <tbody>
+            <tr>
+              <td style="border: 1px solid #000;">Bordered cell 1</td>
+              <td style="border: 1px solid #000;">Bordered cell 2</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      const blob = await htmlToDocxBlob(html);
+      const zip = await loadZipFromBlob(blob);
+      const docXml = await zip.file('word/document.xml')!.async('string');
+
+      const mediaFiles = Object.keys(zip.files).filter((filePath) =>
+        filePath.startsWith('word/media/')
+      );
+
+      expect(docXml).toContain('Demo Rich Export');
+      expect(docXml).toContain('Callout demo content');
+      expect(docXml).toContain('Bordered cell 1');
+      expect(docXml).toContain('<w:tblBorders');
+      expect(docXml).toContain('<w:drawing');
+      expect(mediaFiles.length).toBeGreaterThan(0);
+    });
   });
 });
