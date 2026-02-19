@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 var docxReader = require('./docx/docx-reader');
 var docxStyleMap = require('./docx/style-map');
 var DocumentConverter = require('./document-to-html').DocumentConverter;
@@ -56,7 +54,7 @@ function readEmbeddedStyleMap(input) {
 
 function convertDocumentToHtml(documentResult, options) {
   var styleMapResult = parseStyleMap(options.readStyleMap());
-  var parsedOptions = _.extend({}, options, {
+  var parsedOptions = Object.assign({}, options, {
     styleMap: styleMapResult.value,
   });
   var documentConverter = new DocumentConverter(parsedOptions);

@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 var types = (exports.types = {
   document: 'document',
   paragraph: 'paragraph',
@@ -120,7 +118,11 @@ function NoteReference(options) {
 }
 
 function Notes(notes) {
-  this._notes = _.indexBy(notes, (note) => noteKey(note.noteType, note.noteId));
+  var noteValues = Array.isArray(notes) ? notes : Object.values(notes || {});
+  this._notes = noteValues.reduce((indexedNotes, note) => {
+    indexedNotes[noteKey(note.noteType, note.noteId)] = note;
+    return indexedNotes;
+  }, {});
 }
 
 Notes.prototype.resolve = function (reference) {

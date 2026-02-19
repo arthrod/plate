@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var lop = require('lop');
 
 var documentMatchers = require('./styles/document-matchers');
@@ -127,7 +126,7 @@ function documentMatcherRule() {
     return lop.rules.then(matcherSuffixes, (suffixes) => {
       var matcherOptions = {};
       suffixes.forEach((suffix) => {
-        _.extend(matcherOptions, suffix);
+        Object.assign(matcherOptions, suffix);
       });
       return matcherOptions;
     });

@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 var html = require('../html');
 
 exports.topLevelElement = topLevelElement;
@@ -13,7 +11,7 @@ function topLevelElement(tagName, attributes) {
 function elements(elementStyles) {
   return new HtmlPath(
     elementStyles.map((elementStyle) => {
-      if (_.isString(elementStyle)) {
+      if (typeof elementStyle === 'string') {
         return element(elementStyle);
       }
       return elementStyle;
@@ -40,7 +38,7 @@ function element(tagName, attributes, options) {
 
 function Element(tagName, attributes, options) {
   var tagNames = {};
-  if (_.isArray(tagName)) {
+  if (Array.isArray(tagName)) {
     tagName.forEach((tagName) => {
       tagNames[tagName] = true;
     });
@@ -59,7 +57,7 @@ function Element(tagName, attributes, options) {
 Element.prototype.matchesElement = function (element) {
   return (
     this.tagNames[element.tagName] &&
-    _.isEqual(this.attributes || {}, element.attributes || {})
+    areEqualAttributes(this.attributes || {}, element.attributes || {})
   );
 };
 
@@ -77,3 +75,14 @@ exports.ignore = {
     return [];
   },
 };
+
+function areEqualAttributes(first, second) {
+  var firstKeys = Object.keys(first);
+  var secondKeys = Object.keys(second);
+
+  if (firstKeys.length !== secondKeys.length) {
+    return false;
+  }
+
+  return firstKeys.every((key) => first[key] === second[key]);
+}

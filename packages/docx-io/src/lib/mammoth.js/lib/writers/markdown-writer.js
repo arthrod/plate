@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 function symmetricMarkdownElement(end) {
   return markdownElement(end, end);
 }
@@ -122,7 +120,7 @@ function markdownWriter() {
   function close(tagName) {
     var element = elementStack.pop();
     list = element.list;
-    var end = _.isFunction(element.end) ? element.end() : element.end;
+    var end = typeof element.end === 'function' ? element.end() : element.end;
     fragments.push(end || '');
   }
 

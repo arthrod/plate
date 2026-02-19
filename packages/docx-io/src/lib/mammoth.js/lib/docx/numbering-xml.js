@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 exports.readNumberingXml = readNumberingXml;
 exports.Numbering = Numbering;
 exports.defaultNumbering = new Numbering(
@@ -13,14 +11,16 @@ exports.defaultNumbering = new Numbering(
 );
 
 function Numbering(nums, abstractNums, styles) {
-  var allLevels = _.flatten(
-    _.values(abstractNums).map((abstractNum) => _.values(abstractNum.levels))
+  var allLevels = Object.values(abstractNums).flatMap((abstractNum) =>
+    Object.values(abstractNum.levels)
   );
 
-  var levelsByParagraphStyleId = _.indexBy(
-    allLevels.filter((level) => level.paragraphStyleId != null),
-    'paragraphStyleId'
-  );
+  var levelsByParagraphStyleId = allLevels
+    .filter((level) => level.paragraphStyleId != null)
+    .reduce((indexedLevels, level) => {
+      indexedLevels[level.paragraphStyleId] = level;
+      return indexedLevels;
+    }, {});
 
   function findLevel(numId, level) {
     var num = nums[numId];

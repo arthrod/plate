@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 exports.Element = Element;
 exports.element = (name, attributes, children) =>
   new Element(name, attributes, children);
@@ -27,7 +25,7 @@ function Element(name, attributes, children) {
 }
 
 Element.prototype.first = function (name) {
-  return _.find(this.children, (child) => child.name === name);
+  return this.children.find((child) => child.name === name);
 };
 
 Element.prototype.firstOrEmpty = function (name) {
@@ -35,7 +33,7 @@ Element.prototype.firstOrEmpty = function (name) {
 };
 
 Element.prototype.getElementsByTagName = function (name) {
-  var elements = _.filter(this.children, (child) => child.name === name);
+  var elements = this.children.filter((child) => child.name === name);
   return toElementList(elements);
 };
 
@@ -52,11 +50,11 @@ Element.prototype.text = function () {
 var elementListPrototype = {
   getElementsByTagName(name) {
     return toElementList(
-      _.flatten(this.map((element) => element.getElementsByTagName(name), true))
+      this.flatMap((element) => element.getElementsByTagName(name))
     );
   },
 };
 
 function toElementList(array) {
-  return _.extend(array, elementListPrototype);
+  return Object.assign(array, elementListPrototype);
 }

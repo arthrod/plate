@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 var promises = require('../promises');
 var xml = require('../xml');
 
@@ -59,8 +57,7 @@ function updateContentTypes(docxFile) {
 }
 
 function addOrUpdateElement(elements, name, identifyingAttribute, attributes) {
-  var existingElement = _.find(
-    elements,
+  var existingElement = elements.find(
     (element) =>
       element.name === name &&
       element.attributes[identifyingAttribute] ===

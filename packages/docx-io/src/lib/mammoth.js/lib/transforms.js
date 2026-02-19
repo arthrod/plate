@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 exports.paragraph = paragraph;
 exports.run = run;
 exports._elements = elements;
@@ -27,8 +25,8 @@ function elementsOfType(elementType, transform) {
 function elements(transform) {
   return function transformElement(element) {
     if (element.children) {
-      var children = _.map(element.children, transformElement);
-      element = _.extend({}, element, { children });
+      var children = element.children.map(transformElement);
+      element = Object.assign({}, element, { children });
     }
     return transform(element);
   };

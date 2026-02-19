@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 var promises = require('../promises');
 var xml = require('../xml');
 
@@ -67,9 +65,7 @@ function collapseAlternateContent(node) {
     if (node.name === 'mc:AlternateContent') {
       return node.firstOrEmpty('mc:Fallback').children;
     }
-    node.children = _.flatten(
-      node.children.map(collapseAlternateContent, true)
-    );
+    node.children = node.children.flatMap(collapseAlternateContent);
     return [node];
   }
   return [node];

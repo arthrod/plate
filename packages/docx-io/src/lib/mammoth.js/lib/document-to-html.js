@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 var promises = require('./promises');
 var documents = require('./documents');
 var htmlPaths = require('./styles/html-paths');
@@ -26,10 +24,12 @@ var DOCX_COMMENT_TOKEN_SUFFIX = ']]';
 function DocumentConverter(options) {
   return {
     convertToHtml(element) {
-      var comments = _.indexBy(
-        element.type === documents.types.document ? element.comments : [],
-        'commentId'
-      );
+      var comments = (
+        element.type === documents.types.document ? element.comments : []
+      ).reduce((indexedComments, comment) => {
+        indexedComments[comment.commentId] = comment;
+        return indexedComments;
+      }, {});
       var conversion = new DocumentConversion(options, comments);
       return conversion.convertToHtml(element);
     },
@@ -45,7 +45,7 @@ function DocumentConversion(options, comments) {
 
   var referencedComments = [];
 
-  options = _.extend({ ignoreEmptyParagraphs: true }, options);
+  options = Object.assign({ ignoreEmptyParagraphs: true }, options);
   var idPrefix = options.idPrefix === undefined ? '' : options.idPrefix;
   var ignoreEmptyParagraphs = options.ignoreEmptyParagraphs;
 
@@ -79,7 +79,7 @@ function DocumentConversion(options, comments) {
             }
             if (node.children) {
               return [
-                _.extend({}, node, {
+                Object.assign({}, node, {
                   children: replaceDeferred(node.children),
                 }),
               ];
@@ -249,8 +249,7 @@ function DocumentConversion(options, comments) {
   }
 
   function convertTableChildren(element, messages, options) {
-    var bodyIndex = _.findIndex(
-      element.children,
+    var bodyIndex = element.children.findIndex(
       (child) => child.type !== documents.types.tableRow || !child.isHeader
     );
     if (bodyIndex === -1) {
@@ -261,18 +260,18 @@ function DocumentConversion(options, comments) {
       children = convertElements(
         element.children,
         messages,
-        _.extend({}, options, { isTableHeader: false })
+        Object.assign({}, options, { isTableHeader: false })
       );
     } else {
       var headRows = convertElements(
         element.children.slice(0, bodyIndex),
         messages,
-        _.extend({}, options, { isTableHeader: true })
+        Object.assign({}, options, { isTableHeader: true })
       );
       var bodyRows = convertElements(
         element.children.slice(bodyIndex),
         messages,
-        _.extend({}, options, { isTableHeader: false })
+        Object.assign({}, options, { isTableHeader: false })
       );
       children = [
         Html.freshElement('thead', {}, headRows),
@@ -623,7 +622,7 @@ function unrecognisedStyleWarning(type, element) {
 }
 
 function flatMap(values, func) {
-  return _.flatten(values.map(func), true);
+  return values.flatMap(func);
 }
 
 function walkHtml(nodes, callback) {

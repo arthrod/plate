@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 var promises = require('./promises');
 var Html = require('./html');
 
@@ -12,7 +10,7 @@ function imgElement(func) {
       if (element.altText) {
         attributes.alt = element.altText;
       }
-      _.extend(attributes, result);
+      Object.assign(attributes, result);
 
       return [Html.freshElement('img', attributes)];
     });

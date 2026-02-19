@@ -2,7 +2,6 @@ exports.createBodyReader = createBodyReader;
 exports._readNumberingProperties = readNumberingProperties;
 
 var dingbatToUnicode = require('dingbat-to-unicode');
-var _ = require('underscore');
 
 var documents = require('../documents');
 var Result = require('../results').Result;
@@ -206,11 +205,10 @@ function BodyReader(options) {
   }
 
   function currentHyperlinkOptions() {
-    var topHyperlink = _.last(
-      complexFieldStack.filter(
-        (complexField) => complexField.type === 'hyperlink'
-      )
+    var hyperlinks = complexFieldStack.filter(
+      (complexField) => complexField.type === 'hyperlink'
     );
+    var topHyperlink = hyperlinks[hyperlinks.length - 1];
     return topHyperlink ? topHyperlink.options : null;
   }
 
@@ -365,7 +363,7 @@ function BodyReader(options) {
 
           return new documents.Hyperlink(
             children,
-            _.extend({ targetFrame }, options)
+            Object.assign({ targetFrame }, options)
           );
         }
 
@@ -581,8 +579,7 @@ function BodyReader(options) {
   }
 
   function calculateRowSpans(rows) {
-    var unexpectedNonRows = _.any(
-      rows,
+    var unexpectedNonRows = rows.some(
       (row) => row.type !== documents.types.tableRow
     );
     if (unexpectedNonRows) {
@@ -593,8 +590,8 @@ function BodyReader(options) {
         ),
       ]);
     }
-    var unexpectedNonCells = _.any(rows, (row) =>
-      _.any(row.children, (cell) => cell.type !== documents.types.tableCell)
+    var unexpectedNonCells = rows.some((row) =>
+      row.children.some((cell) => cell.type !== documents.types.tableCell)
     );
     if (unexpectedNonCells) {
       removeVMergeProperties(rows);
@@ -875,16 +872,19 @@ ReadResult.map = (first, second, func) =>
   );
 
 function combineResults(results) {
-  var result = Result.combine(_.pluck(results, '_result'));
+  var result = Result.combine(results.map((item) => item._result));
   return new ReadResult(
-    _.flatten(_.pluck(result.value, 'element')),
-    _.filter(_.flatten(_.pluck(result.value, 'extra')), identity),
+    result.value.map((item) => item.element).flat(),
+    result.value
+      .map((item) => item.extra)
+      .flat()
+      .filter(identity),
     result.messages
   );
 }
 
 function joinElements(first, second) {
-  return _.flatten([first, second]);
+  return [first, second].flat();
 }
 
 function identity(value) {

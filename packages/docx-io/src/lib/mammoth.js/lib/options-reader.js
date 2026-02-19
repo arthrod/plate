@@ -1,7 +1,5 @@
 exports.readOptions = readOptions;
 
-var _ = require('underscore');
-
 var defaultStyleMap = (exports._defaultStyleMap = [
   'p.Heading1 => h1:fresh',
   'p.Heading2 => h2:fresh',
@@ -70,7 +68,7 @@ var standardOptions = (exports._standardOptions = {
 
 function readOptions(options) {
   options = options || {};
-  return _.extend({}, standardOptions, options, {
+  return Object.assign({}, standardOptions, options, {
     customStyleMap: readStyleMap(options.styleMap),
     readStyleMap() {
       var styleMap = this.customStyleMap;
@@ -89,7 +87,7 @@ function readStyleMap(styleMap) {
   if (!styleMap) {
     return [];
   }
-  if (_.isString(styleMap)) {
+  if (typeof styleMap === 'string') {
     return styleMap
       .split('\n')
       .map((line) => line.trim())

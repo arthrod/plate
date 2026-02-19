@@ -1,10 +1,12 @@
-var _ = require('underscore');
 var xmlbuilder = require('xmlbuilder');
 
 exports.writeString = writeString;
 
 function writeString(root, namespaces) {
-  var uriToPrefix = _.invert(namespaces);
+  var uriToPrefix = {};
+  Object.keys(namespaces).forEach((prefix) => {
+    uriToPrefix[namespaces[prefix]] = prefix;
+  });
 
   var nodeWriters = {
     element: writeElement,
@@ -45,13 +47,15 @@ function writeString(root, namespaces) {
       standalone: true,
     });
 
-    _.forEach(namespaces, (uri, prefix) => {
+    Object.keys(namespaces).forEach((prefix) => {
+      var uri = namespaces[prefix];
       var key = 'xmlns' + (prefix === '' ? '' : ':' + prefix);
       builder.attribute(key, uri);
     });
 
     // Apply root element attributes
-    _.forEach(root.attributes, (value, key) => {
+    Object.keys(root.attributes || {}).forEach((key) => {
+      var value = root.attributes[key];
       builder.attribute(key, value);
     });
 

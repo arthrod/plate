@@ -1,5 +1,4 @@
 var promises = require('../promises');
-var _ = require('underscore');
 
 var xmldom = require('./xmldom');
 var nodes = require('./nodes');
@@ -35,7 +34,7 @@ function readString(xmlString, namespaceMap) {
     var convertedName = convertName(element);
 
     var convertedChildren = [];
-    _.forEach(element.childNodes, (childNode) => {
+    Array.prototype.forEach.call(element.childNodes, (childNode) => {
       var convertedNode = convertNode(childNode);
       if (convertedNode) {
         convertedChildren.push(convertedNode);
@@ -43,7 +42,7 @@ function readString(xmlString, namespaceMap) {
     });
 
     var convertedAttributes = {};
-    _.forEach(element.attributes, (attribute) => {
+    Array.prototype.forEach.call(element.attributes, (attribute) => {
       convertedAttributes[convertName(attribute)] = attribute.value;
     });
 

@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 var ast = require('./ast');
 
 function simplify(nodes) {
@@ -59,7 +57,7 @@ function removeEmpty(nodes) {
 }
 
 function flatMap(values, func) {
-  return _.flatten(_.map(values, func), true);
+  return values.flatMap(func);
 }
 
 var emptiers = {

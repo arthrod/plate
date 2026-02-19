@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 exports.Result = Result;
 exports.success = success;
 exports.warning = warning;
@@ -27,7 +25,7 @@ Result.prototype.flatMapThen = function (func) {
 };
 
 Result.combine = (results) => {
-  var values = _.flatten(_.pluck(results, 'value'));
+  var values = results.map((result) => result.value).flat();
   var messages = combineMessages(results);
   return new Result(values, messages);
 };
@@ -53,16 +51,19 @@ function error(exception) {
 
 function combineMessages(results) {
   var messages = [];
-  _.flatten(_.pluck(results, 'messages'), true).forEach((message) => {
-    if (!containsMessage(messages, message)) {
-      messages.push(message);
-    }
-  });
+  results
+    .map((result) => result.messages)
+    .flat()
+    .forEach((message) => {
+      if (!containsMessage(messages, message)) {
+        messages.push(message);
+      }
+    });
   return messages;
 }
 
 function containsMessage(messages, message) {
-  return _.find(messages, isSameMessage.bind(null, message)) !== undefined;
+  return messages.find(isSameMessage.bind(null, message)) !== undefined;
 }
 
 function isSameMessage(first, second) {

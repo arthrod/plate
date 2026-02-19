@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 exports.writer = writer;
 
 function writer(options) {
@@ -84,7 +82,7 @@ function prettyWriter() {
   }
 
   function isInPre() {
-    return _.some(stack, (tagName) => tagName === 'pre');
+    return stack.some((tagName) => tagName === 'pre');
   }
 
   return {
@@ -114,10 +112,12 @@ function simpleWriter() {
   }
 
   function generateAttributeString(attributes) {
-    return _.map(
-      attributes,
-      (value, key) => ' ' + key + '="' + escapeHtmlAttribute(value) + '"'
-    ).join('');
+    attributes = attributes || {};
+    return Object.keys(attributes)
+      .map(
+        (key) => ' ' + key + '="' + escapeHtmlAttribute(attributes[key]) + '"'
+      )
+      .join('');
   }
 
   function text(value) {
