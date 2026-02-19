@@ -1,4 +1,4 @@
-var lop = require('lop');
+var lop = require('./vendor/lop');
 
 var documentMatchers = require('./styles/document-matchers');
 var htmlPaths = require('./styles/html-paths');

@@ -22,7 +22,6 @@
     "bluebird": "~3.4.0",
     "dingbat-to-unicode": "^1.0.1",
     "jszip": "^3.10.1",
-    "lop": "^0.4.2",
     "xmlbuilder": "^10.0.0"
   },
   "devDependencies": {
