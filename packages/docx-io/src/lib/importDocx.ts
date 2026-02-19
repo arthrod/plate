@@ -15,8 +15,8 @@
  * 3. Deserialize HTML to editor nodes
  * 4. Apply tracked changes and comments to editor
  */
-// Local mammoth.js fork browser build
-import mammothModule from './mammoth.js/mammoth.browser.js';
+// Local mammoth.js fork ESM browser entry (avoid top-level copied bundle artifact)
+import mammothModule from './mammoth.js/dist/esm/index.browser.js';
 
 // ============================================================================
 // Mammoth Types and Export
