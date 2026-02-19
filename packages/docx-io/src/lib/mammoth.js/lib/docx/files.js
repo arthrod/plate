@@ -29,7 +29,7 @@ function Files(options) {
 
   function read(uri, encoding) {
     return resolveUri(uri).then((path) =>
-      readFile(path, encoding).caught((error) => {
+      readFile(path, encoding).catch((error) => {
         var message =
           "could not open external image: '" +
           uri +

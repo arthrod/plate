@@ -34,9 +34,10 @@ function convert(input, options) {
 
   return unzip
     .openZip(input)
-    .tap((docxFile) =>
+    .then((docxFile) =>
       docxStyleMap.readStyleMap(docxFile).then((styleMap) => {
         options.embeddedStyleMap = styleMap;
+        return docxFile;
       })
     )
     .then((docxFile) =>
@@ -83,7 +84,11 @@ function extractRawText(input) {
 function embedStyleMap(input, styleMap) {
   return unzip
     .openZip(input)
-    .tap((docxFile) => docxStyleMap.writeStyleMap(docxFile, styleMap))
+    .then((docxFile) =>
+      Promise.resolve(docxStyleMap.writeStyleMap(docxFile, styleMap)).then(
+        () => docxFile
+      )
+    )
     .then((docxFile) => docxFile.toArrayBuffer())
     .then((arrayBuffer) => ({
       toArrayBuffer() {

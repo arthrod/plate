@@ -212,7 +212,7 @@ function DocumentConversion(options, comments) {
     return (image, messages) =>
       promises
         .attempt(() => convertImage(image, messages))
-        .caught((error) => {
+        .catch((error) => {
           messages.push(results.error(error));
           return [];
         });
