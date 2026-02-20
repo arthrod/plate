@@ -470,11 +470,11 @@ function DocumentConversion(options, comments) {
     }
 
     var trimmed = existingStyle.trim();
-    if (trimmed.endsWith(';')) {
-      return trimmed + ' ' + styleToAppend;
+    if (trimmed && !trimmed.endsWith(';')) {
+      trimmed += ';';
     }
 
-    return trimmed + '; ' + styleToAppend;
+    return trimmed ? trimmed + ' ' + styleToAppend : styleToAppend;
   }
 
   function recoveringConvertImage(convertImage) {
