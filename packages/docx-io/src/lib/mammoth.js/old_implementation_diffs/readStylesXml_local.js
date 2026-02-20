@@ -1,4 +1,5 @@
-// lib/docx/styles-reader.ts:29
+// Found in: /docx/styles-reader.ts:1
+// Lines 2806-2845 in old_implementation.js
 function readStylesXml(root) {
   var paragraphStyles = {};
   var characterStyles = {};

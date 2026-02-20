@@ -1,4 +1,5 @@
-// lib/docx/relationships-reader.ts:5
+// Found in: /docx/relationships-reader.ts:1
+// Lines 2655-2669 in old_implementation.js
 function readRelationships(element) {
   var relationships = [];
   element.children.forEach((child) => {

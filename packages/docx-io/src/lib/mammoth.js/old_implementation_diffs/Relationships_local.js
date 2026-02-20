@@ -1,4 +1,5 @@
-// lib/docx/relationships-reader.ts:20
+// Found in: /docx/relationships-reader.ts:1
+// Lines 2670-2706 in old_implementation.js
 function Relationships(relationships) {
   var targetsByRelationshipId = {};
   relationships.forEach((relationship) => {
@@ -22,3 +23,16 @@ function Relationships(relationships) {
     },
   };
 }
+
+},{}],15:[function(require,module,exports){
+var _ = require('underscore');
+
+var promises = require('../promises');
+var xml = require('../xml');
+
+exports.writeStyleMap = writeStyleMap;
+exports.readStyleMap = readStyleMap;
+
+var schema = 'http://schemas.zwobble.org/mammoth/style-map';
+var styleMapPath = 'mammoth/style-map';
+var styleMapAbsolutePath = '/' + styleMapPath;

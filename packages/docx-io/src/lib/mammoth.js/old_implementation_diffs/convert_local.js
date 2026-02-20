@@ -1,14 +1,13 @@
-// lib/index.ts:30
+// Found in: /raw-text.ts:14
+// Lines 3155-3174 in old_implementation.js
 function convert(input, options) {
   options = readOptions(options);
 
-  return withDone(
-    unzip
+  return unzip
     .openZip(input)
-    .then((docxFile) =>
+    .tap((docxFile) =>
       docxStyleMap.readStyleMap(docxFile).then((styleMap) => {
         options.embeddedStyleMap = styleMap;
-        return docxFile;
       })
     )
     .then((docxFile) =>
@@ -18,6 +17,5 @@ function convert(input, options) {
         .then((documentResult) =>
           convertDocumentToHtml(documentResult, options)
         )
-    )
-  );
+    );
 }

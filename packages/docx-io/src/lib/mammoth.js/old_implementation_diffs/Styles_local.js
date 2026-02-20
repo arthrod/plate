@@ -1,4 +1,5 @@
-// lib/docx/styles-reader.ts:5
+// Found in: /docx/styles-reader.ts:1
+// Lines 2782-2805 in old_implementation.js
 function Styles(
   paragraphStyles,
   characterStyles,
@@ -20,3 +21,5 @@ function Styles(
     },
   };
 }
+
+Styles.EMPTY = new Styles({}, {}, {}, {});

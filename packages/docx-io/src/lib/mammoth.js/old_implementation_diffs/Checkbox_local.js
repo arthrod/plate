@@ -1,4 +1,5 @@
-// lib/documents.ts:95
+// Found in: /schema.ts:134
+// Lines 821-827 in old_implementation.js
 function Checkbox(options) {
   return {
     type: types.checkbox,

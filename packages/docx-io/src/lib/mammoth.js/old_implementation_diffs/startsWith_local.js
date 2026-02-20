@@ -1,4 +1,5 @@
-// lib/styles/document-matchers.ts:103
+// Found in: /styles/document-matchers.ts:20
+// Lines 3975-3981 in old_implementation.js
 function startsWith(value) {
   return {
     operator: operatorStartsWith,

@@ -1,4 +1,5 @@
-// lib/docx/docx-reader.ts:170
+// Found in: /docx/docx-reader.ts:2
+// Lines 2271-2324 in old_implementation.js
 function findPartPaths(docxFile) {
   return readPackageRelationships(docxFile).then((packageRelationships) => {
     var mainDocumentPath = findPartPath({

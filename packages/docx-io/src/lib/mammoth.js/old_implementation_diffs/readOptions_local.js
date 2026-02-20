@@ -1,7 +1,8 @@
-// lib/options-reader.ts:69
+// Found in: /options-reader.ts:1
+// Lines 3299-3315 in old_implementation.js
 function readOptions(options) {
   options = options || {};
-  return Object.assign({}, standardOptions, options, {
+  return _.extend({}, standardOptions, options, {
     customStyleMap: readStyleMap(options.styleMap),
     readStyleMap() {
       var styleMap = this.customStyleMap;

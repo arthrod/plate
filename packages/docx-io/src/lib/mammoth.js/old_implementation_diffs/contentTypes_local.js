@@ -1,4 +1,5 @@
-// lib/docx/content-types-reader.ts:43
+// Found in: /docx/content-types-reader.ts:13
+// Lines 2044-2078 in old_implementation.js
 function contentTypes(overrides, extensionDefaults) {
   return {
     findContentType(path) {
@@ -27,3 +28,9 @@ function contentTypes(overrides, extensionDefaults) {
     },
   };
 }
+
+},{}],9:[function(require,module,exports){
+exports.DocumentXmlReader = DocumentXmlReader;
+
+var documents = require('../documents');
+var Result = require('../results').Result;

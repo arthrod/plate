@@ -1,4 +1,5 @@
-// lib/writers/markdown-writer.ts:86
+// Found in: /writers/markdown-writer.ts:149
+// Lines 4442-4506 in old_implementation.js
 function markdownWriter() {
   var fragments = [];
   var elementStack = [];
@@ -36,7 +37,7 @@ function markdownWriter() {
   function close(tagName) {
     var element = elementStack.pop();
     list = element.list;
-    var end = typeof element.end === 'function' ? element.end() : element.end;
+    var end = _.isFunction(element.end) ? element.end() : element.end;
     fragments.push(end || '');
   }
 
@@ -61,3 +62,5 @@ function markdownWriter() {
     selfClosing,
   };
 }
+
+exports.writer = markdownWriter;

@@ -1,5 +1,6 @@
-// lib/schema.ts:368
-export function warning(message: string): WarningMessage {
+// Found in: /schema.ts:317
+// Lines 3432-3438 in old_implementation.js
+function warning(message) {
   return {
     type: 'warning',
     message,

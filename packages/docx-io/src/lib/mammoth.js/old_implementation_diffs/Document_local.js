@@ -1,13 +1,11 @@
-// lib/schema.ts:411
-export function Document(
-  children: DocumentElement[],
-  options?: DocumentOptions
-): DocumentNode {
-  const opts = options || {};
+// Found in: /schema.ts:64
+// Lines 751-760 in old_implementation.js
+function Document(children, options) {
+  options = options || {};
   return {
-    type: 'document',
+    type: types.document,
     children,
-    notes: opts.notes || new Notes([]),
-    comments: opts.comments || [],
+    notes: options.notes || new Notes({}),
+    comments: options.comments || [],
   };
 }

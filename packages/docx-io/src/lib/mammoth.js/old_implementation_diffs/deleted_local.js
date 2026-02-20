@@ -1,4 +1,5 @@
-// lib/documents.ts:190
+// Found in: /styles/document-matchers.ts:15
+// Lines 912-922 in old_implementation.js
 function deleted(children, options) {
   options = options || {};
   return {

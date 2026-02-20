@@ -1,4 +1,5 @@
-// lib/index.ts:20
+// Found in: /index.ts:10
+// Lines 3145-3148 in old_implementation.js
 function convertToHtml(input, options) {
-  return withDone(convert(input, options));
+  return convert(input, options);
 }

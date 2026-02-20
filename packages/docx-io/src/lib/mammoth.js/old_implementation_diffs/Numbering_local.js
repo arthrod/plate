@@ -1,15 +1,14 @@
-// lib/docx/numbering-xml.ts:13
+// Found in: /schema.ts:70
+// Lines 2465-2500 in old_implementation.js
 function Numbering(nums, abstractNums, styles) {
-  var allLevels = Object.values(abstractNums).flatMap((abstractNum) =>
-    Object.values(abstractNum.levels)
+  var allLevels = _.flatten(
+    _.values(abstractNums).map((abstractNum) => _.values(abstractNum.levels))
   );
 
-  var levelsByParagraphStyleId = allLevels
-    .filter((level) => level.paragraphStyleId != null)
-    .reduce((indexedLevels, level) => {
-      indexedLevels[level.paragraphStyleId] = level;
-      return indexedLevels;
-    }, {});
+  var levelsByParagraphStyleId = _.indexBy(
+    allLevels.filter((level) => level.paragraphStyleId != null),
+    'paragraphStyleId'
+  );
 
   function findLevel(numId, level) {
     var num = nums[numId];

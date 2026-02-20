@@ -1,4 +1,5 @@
-// lib/documents.ts:179
+// Found in: /styles/document-matchers.ts:14
+// Lines 901-911 in old_implementation.js
 function inserted(children, options) {
   options = options || {};
   return {

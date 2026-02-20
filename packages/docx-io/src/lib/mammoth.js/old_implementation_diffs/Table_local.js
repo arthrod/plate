@@ -1,10 +1,5 @@
-// lib/documents.ts:234
-function Table(children, properties) {
-  properties = properties || {};
-  return {
-    type: types.table,
-    children,
-    styleId: properties.styleId || null,
-    styleName: properties.styleName || null,
-  };
+// Found in: /schema.ts:217
+// Lines 3902-3905 in old_implementation.js
+function table(options) {
+  return new Matcher('table', options);
 }

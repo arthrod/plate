@@ -1,23 +1,13 @@
-// lib/schema.ts:286
-export class Notes {
-  _notes: NotesMap;
-
-  constructor(notes: NoteNode[] | Record<string, NoteNode>) {
-    if (Array.isArray(notes)) {
-      this._notes = {};
-      for (const note of notes) {
-        this._notes[noteKey(note.noteType, note.noteId)] = note;
-      }
-    } else {
-      this._notes = notes;
-    }
-  }
-
-  resolve(reference: NoteReference): NoteNode | null {
-    return this.findNoteByKey(noteKey(reference.noteType, reference.noteId));
-  }
-
-  findNoteByKey(key: string): NoteNode | null {
-    return this._notes[key] || null;
-  }
+// Found in: /schema.ts:278
+// Lines 846-857 in old_implementation.js
+function Notes(notes) {
+  this._notes = _.indexBy(notes, (note) => noteKey(note.noteType, note.noteId));
 }
+
+Notes.prototype.resolve = function (reference) {
+  return this.findNoteByKey(noteKey(reference.noteType, reference.noteId));
+};
+
+Notes.prototype.findNoteByKey = function (key) {
+  return this._notes[key] || null;
+};

@@ -1,4 +1,5 @@
-// lib/xml/reader.ts:12
+// Found in: /xml/reader.ts:8
+// Lines 4597-4660 in old_implementation.js
 function readString(xmlString, namespaceMap) {
   namespaceMap = namespaceMap || {};
 
@@ -25,7 +26,7 @@ function readString(xmlString, namespaceMap) {
     var convertedName = convertName(element);
 
     var convertedChildren = [];
-    Array.prototype.forEach.call(element.childNodes, (childNode) => {
+    _.forEach(element.childNodes, (childNode) => {
       var convertedNode = convertNode(childNode);
       if (convertedNode) {
         convertedChildren.push(convertedNode);
@@ -33,10 +34,7 @@ function readString(xmlString, namespaceMap) {
     });
 
     var convertedAttributes = {};
-    Array.prototype.forEach.call(element.attributes, (attribute) => {
-      if (attribute.namespaceURI === xmlNamespaceUri) {
-        return;
-      }
+    _.forEach(element.attributes, (attribute) => {
       convertedAttributes[convertName(attribute)] = attribute.value;
     });
 
@@ -59,3 +57,9 @@ function readString(xmlString, namespaceMap) {
 
   return promises.resolve(convertNode(document.documentElement));
 }
+
+},{"../promises":24,"./nodes":37,"./xmldom":40,"underscore":104}],39:[function(require,module,exports){
+var _ = require('underscore');
+var xmlbuilder = require('xmlbuilder');
+
+exports.writeString = writeString;

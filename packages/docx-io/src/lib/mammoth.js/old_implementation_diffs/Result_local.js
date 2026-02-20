@@ -1,32 +1,28 @@
-// lib/schema.ts:332
-export class Result<T> {
-  value: T;
-  messages: Message[];
-
-  constructor(value: T, messages?: Message[]) {
-    this.value = value;
-    this.messages = messages || [];
-  }
-
-  map<U>(func: (value: T) => U): Result<U> {
-    return new Result(func(this.value), this.messages);
-  }
-
-  flatMap<U>(func: (value: T) => Result<U>): Result<U> {
-    const funcResult = func(this.value);
-    return new Result(funcResult.value, combineMessages([this, funcResult]));
-  }
-
-  flatMapThen<U>(func: (value: T) => Promise<Result<U>>): Promise<Result<U>> {
-    return func(this.value).then(
-      (otherResult) =>
-        new Result(otherResult.value, combineMessages([this, otherResult]))
-    );
-  }
-
-  static combine(results: Result<unknown[]>[]): Result<unknown[]> {
-    const values = results.flatMap((r) => r.value);
-    const messages = combineMessages(results);
-    return new Result(values, messages);
-  }
+// Found in: /schema.ts:332
+// Lines 3401-3427 in old_implementation.js
+function Result(value, messages) {
+  this.value = value;
+  this.messages = messages || [];
 }
+
+Result.prototype.map = function (func) {
+  return new Result(func(this.value), this.messages);
+};
+
+Result.prototype.flatMap = function (func) {
+  var funcResult = func(this.value);
+  return new Result(funcResult.value, combineMessages([this, funcResult]));
+};
+
+Result.prototype.flatMapThen = function (func) {
+  return func(this.value).then(
+    (otherResult) =>
+      new Result(otherResult.value, combineMessages([this, otherResult]))
+  );
+};
+
+Result.combine = (results) => {
+  var values = _.flatten(_.pluck(results, 'value'));
+  var messages = combineMessages(results);
+  return new Result(values, messages);
+};

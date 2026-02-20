@@ -1,4 +1,5 @@
-// lib/docx/numbering-xml.ts:51
+// Found in: /docx/numbering-xml.ts:1
+// Lines 2501-2510 in old_implementation.js
 function readNumberingXml(root, options) {
   if (!options || !options.styles) {
     throw new Error('styles is missing');

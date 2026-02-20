@@ -1,4 +1,5 @@
-// lib/docx/body-reader.ts:736
+// Found in: /docx/body-reader.ts:2
+// Lines 1785-1837 in old_implementation.js
 function readNumberingProperties(styleId, element, numbering) {
   var level = element.firstOrEmpty('w:ilvl').attributes['w:val'];
   var numId = element.firstOrEmpty('w:numId').attributes['w:val'];
@@ -22,3 +23,32 @@ function readNumberingProperties(styleId, element, numbering) {
 
   return null;
 }
+
+var supportedImageTypes = {
+  'image/png': true,
+  'image/gif': true,
+  'image/jpeg': true,
+  'image/svg+xml': true,
+  'image/tiff': true,
+};
+
+var ignoreElements = {
+  'office-word:wrap': true,
+  'v:shadow': true,
+  'v:shapetype': true,
+  'w:annotationRef': true,
+  'w:bookmarkEnd': true,
+  'w:sectPr': true,
+  'w:proofErr': true,
+  'w:lastRenderedPageBreak': true,
+  // w:commentRangeStart, w:commentRangeEnd are now handled by xmlElementReaders
+  // w:del and w:ins are now handled by xmlElementReaders for tracked changes support
+  'w:footnoteRef': true,
+  'w:endnoteRef': true,
+  'w:pPr': true,
+  'w:rPr': true,
+  'w:tblPr': true,
+  'w:tblGrid': true,
+  'w:trPr': true,
+  'w:tcPr': true,
+};

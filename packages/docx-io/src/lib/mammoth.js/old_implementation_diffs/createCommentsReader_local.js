@@ -1,4 +1,5 @@
-// lib/docx/comments-reader.ts:4
+// Found in: /docx/comments-reader.ts:53
+// Lines 1950-2015 in old_implementation.js
 function createCommentsReader(bodyReader, commentsExtended, dateUtcMap) {
   commentsExtended = commentsExtended || {};
   dateUtcMap = dateUtcMap || {};
@@ -47,3 +48,20 @@ function createCommentsReader(bodyReader, commentsExtended, dateUtcMap) {
 
   return readCommentsXml;
 }
+
+exports.createCommentsReader = createCommentsReader;
+
+},{"../documents":4,"../results":26}],8:[function(require,module,exports){
+exports.readContentTypesFromXml = readContentTypesFromXml;
+
+var fallbackContentTypes = {
+  png: 'png',
+  gif: 'gif',
+  jpeg: 'jpeg',
+  jpg: 'jpeg',
+  tif: 'tiff',
+  tiff: 'tiff',
+  bmp: 'bmp',
+};
+
+exports.defaultContentTypes = contentTypes({}, {});

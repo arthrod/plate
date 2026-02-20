@@ -1,4 +1,5 @@
-// lib/xml/xmldom.ts:4
+// Found in: /xml/xmldom.ts:22
+// Lines 4730-4758 in old_implementation.js
 function parseFromString(string) {
   var errors = [];
 
@@ -16,3 +17,14 @@ function parseFromString(string) {
   var errorMessages = errors.map((e) => e.level + ': ' + e.message).join('\n');
   throw new Error(errorMessages);
 }
+
+exports.parseFromString = parseFromString;
+exports.Node = dom.Node;
+
+},{"@xmldom/xmldom":46,"@xmldom/xmldom/lib/dom":44}],41:[function(require,module,exports){
+var base64js = require('base64-js');
+var JSZip = require('jszip');
+
+exports.openArrayBuffer = openArrayBuffer;
+exports.splitPath = splitPath;
+exports.joinPath = joinPath;

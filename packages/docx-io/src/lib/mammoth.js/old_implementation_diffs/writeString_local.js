@@ -1,9 +1,7 @@
-// lib/xml/writer.ts:7
+// Found in: /xml/writer.ts:3
+// Lines 4661-4721 in old_implementation.js
 function writeString(root, namespaces) {
-  var uriToPrefix = {};
-  Object.keys(namespaces).forEach((prefix) => {
-    uriToPrefix[namespaces[prefix]] = prefix;
-  });
+  var uriToPrefix = _.invert(namespaces);
 
   var nodeWriters = {
     element: writeElement,
@@ -44,18 +42,13 @@ function writeString(root, namespaces) {
       standalone: true,
     });
 
-    Object.keys(namespaces).forEach((prefix) => {
-      var uri = namespaces[prefix];
+    _.forEach(namespaces, (uri, prefix) => {
       var key = 'xmlns' + (prefix === '' ? '' : ':' + prefix);
       builder.attribute(key, uri);
     });
 
     // Apply root element attributes
-    Object.keys(root.attributes || {}).forEach((key) => {
-      if (isXmlNamespaceAttribute(key)) {
-        return;
-      }
-      var value = root.attributes[key];
+    _.forEach(root.attributes, (value, key) => {
       builder.attribute(key, value);
     });
 

@@ -1,4 +1,5 @@
-// lib/zipfile.ts:7
+// Found in: /zipfile.ts:3
+// Lines 4759-4798 in old_implementation.js
 function openArrayBuffer(arrayBuffer) {
   return JSZip.loadAsync(arrayBuffer).then((zipFile) => {
     function exists(name) {
@@ -12,7 +13,7 @@ function openArrayBuffer(arrayBuffer) {
       }
       return file.async('uint8array').then((array) => {
         if (encoding === 'base64') {
-          return encodeBase64(array);
+          return base64js.fromByteArray(array);
         }
         if (encoding) {
           var decoder = new TextDecoder(encoding);

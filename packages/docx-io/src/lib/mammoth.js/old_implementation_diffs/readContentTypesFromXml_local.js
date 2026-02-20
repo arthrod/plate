@@ -1,4 +1,5 @@
-// lib/docx/content-types-reader.ts:15
+// Found in: /docx/content-types-reader.ts:1
+// Lines 2016-2043 in old_implementation.js
 function readContentTypesFromXml(element) {
   var extensionDefaults = {};
   var overrides = {};

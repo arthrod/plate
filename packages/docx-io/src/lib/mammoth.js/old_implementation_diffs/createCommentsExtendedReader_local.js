@@ -1,4 +1,5 @@
-// lib/docx/comments-extended-reader.ts:4
+// Found in: /docx/comments-extended-reader.ts:23
+// Lines 1925-1949 in old_implementation.js
 function createCommentsExtendedReader(bodyReader) {
   function readCommentsExtendedXml(element) {
     var mappings = {};
@@ -17,3 +18,9 @@ function createCommentsExtendedReader(bodyReader) {
 
   return readCommentsExtendedXml;
 }
+
+exports.createCommentsExtendedReader = createCommentsExtendedReader;
+
+},{"../documents":4,"../results":26}],7:[function(require,module,exports){
+var documents = require('../documents');
+var Result = require('../results').Result;

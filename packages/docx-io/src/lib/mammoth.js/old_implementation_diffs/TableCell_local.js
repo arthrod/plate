@@ -1,4 +1,5 @@
-// lib/documents.ts:253
+// Found in: /schema.ts:230
+// Lines 975-984 in old_implementation.js
 function TableCell(children, options) {
   options = options || {};
   return {

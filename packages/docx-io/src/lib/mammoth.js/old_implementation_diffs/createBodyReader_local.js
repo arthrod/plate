@@ -1,4 +1,5 @@
-// lib/docx/body-reader.ts:13
+// Found in: /docx/body-reader.ts:1
+// Lines 1041-1051 in old_implementation.js
 function createBodyReader(options) {
   return {
     readXmlElement(element) {

@@ -1,4 +1,5 @@
-// lib/docx/uris.ts:4
+// Found in: /docx/uris.ts:1
+// Lines 2881-2889 in old_implementation.js
 function uriToZipEntryName(base, uri) {
   if (uri.charAt(0) === '/') {
     return uri.substring(1);

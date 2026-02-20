@@ -1,4 +1,5 @@
-// lib/transforms.ts:41
+// Found in: /transforms.ts:5
+// Lines 4151-4160 in old_implementation.js
 function getDescendants(element) {
   var descendants = [];
 

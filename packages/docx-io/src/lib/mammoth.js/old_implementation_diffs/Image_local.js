@@ -1,4 +1,5 @@
-// lib/documents.ts:205
+// Found in: /schema.ts:153
+// Lines 927-955 in old_implementation.js
 function Image(options) {
   return {
     type: types.image,

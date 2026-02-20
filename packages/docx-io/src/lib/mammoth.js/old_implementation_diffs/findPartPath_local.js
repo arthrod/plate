@@ -1,4 +1,5 @@
-// lib/docx/docx-reader.ts:224
+// Found in: /docx/docx-reader.ts:2
+// Lines 2325-2344 in old_implementation.js
 function findPartPath(options) {
   var docxFile = options.docxFile;
   var relationships = options.relationships;

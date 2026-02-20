@@ -16,7 +16,7 @@
  * 4. Apply tracked changes and comments to editor
  */
 // Local mammoth.js fork ESM browser entry (avoid top-level copied bundle artifact)
-import mammothModule from './mammoth.js/dist/esm/index.browser.js';
+import mammoth from './mammoth.js';
 
 // ============================================================================
 // Mammoth Types and Export
@@ -29,7 +29,7 @@ export type MammothMessage = {
 };
 
 /** Mammoth module type */
-type MammothModule = {
+type Mammoth = {
   convertToHtml: (
     input: { arrayBuffer: ArrayBuffer },
     options?: { styleMap?: string[] }
@@ -41,7 +41,7 @@ type MammothModule = {
 };
 
 /** Export mammoth for direct access if needed */
-export const mammoth = mammothModule as unknown as MammothModule;
+export const mammoth = mammoth as unknown as Mammothz;
 
 // ============================================================================
 // Preprocess Types

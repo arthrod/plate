@@ -1,4 +1,5 @@
-// lib/transforms.ts:16
+// Found in: /transforms.ts:4
+// Lines 4126-4134 in old_implementation.js
 function elementsOfType(elementType, transform) {
   return elements((element) => {
     if (element.type === elementType) {
