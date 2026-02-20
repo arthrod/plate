@@ -72,45 +72,31 @@ export function ComponentPreview({
     </div>
   );
 
-  const item = React.useMemo(() => {
-    let item = props.item ?? JSON.parse(props.__item__ ?? '[]');
+  let item = props.item ?? JSON.parse(props.__item__ ?? '[]');
 
-    // Create new object instead of mutating
-    if (name === 'potion-iframe-demo') {
-      item = {
-        ...item,
-        meta: {
-          ...item.meta,
-          isPro: true,
-        },
-      };
-    }
-    return item;
-  }, [name, props.item, props.__item__]);
-
-  const dependencies = React.useMemo(
-    () => props.dependencies ?? JSON.parse(props.__dependencies__ ?? '[]'),
-    [props.dependencies, props.__dependencies__]
-  );
-
-  const highlightedFiles = React.useMemo(
-    () =>
-      props.highlightedFiles ?? JSON.parse(props.__highlightedFiles__ ?? '[]'),
-    [props.highlightedFiles, props.__highlightedFiles__]
-  );
-
-  const tree = React.useMemo(
-    () => props.tree ?? JSON.parse(props.__tree__ ?? '[]'),
-    [props.tree, props.__tree__]
-  );
+  // Create new object instead of mutating
+  if (name === 'potion-iframe-demo') {
+    item = {
+      ...item,
+      meta: {
+        ...item.meta,
+        isPro: true,
+      },
+    };
+  }
 
   return (
     <div className="mt-4 mb-12">
       <BlockViewer
         block={BlockExamples.has(item.name)}
-        dependencies={dependencies}
+        dependencies={
+          props.dependencies ?? JSON.parse(props.__dependencies__ ?? '[]')
+        }
         height={height}
-        highlightedFiles={highlightedFiles}
+        highlightedFiles={
+          props.highlightedFiles ??
+          JSON.parse(props.__highlightedFiles__ ?? '[]')
+        }
         item={item}
         preview={
           <React.Suspense fallback={loadingPreview}>
@@ -133,7 +119,7 @@ export function ComponentPreview({
             )}
           </React.Suspense>
         }
-        tree={tree}
+        tree={props.tree ?? JSON.parse(props.__tree__ ?? '[]')}
       />
     </div>
   );
