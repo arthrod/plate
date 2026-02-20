@@ -1,0 +1,17 @@
+--- mammoth_before_refactoring/lib/html/index.js	2026-02-19 23:58:28
++++ ./lib/html/index.ts	2026-02-19 20:16:37
+@@ -1,4 +1,4 @@
+-var ast = require('./ast');
++var ast = require('./ast.ts');
+ 
+ exports.freshElement = ast.freshElement;
+ exports.nonFreshElement = ast.nonFreshElement;
+@@ -6,7 +6,7 @@
+ exports.text = ast.text;
+ exports.forceWrite = ast.forceWrite;
+ 
+-exports.simplify = require('./simplify');
++exports.simplify = require('./simplify.ts');
+ 
+ function write(writer, nodes) {
+   nodes.forEach((node) => {

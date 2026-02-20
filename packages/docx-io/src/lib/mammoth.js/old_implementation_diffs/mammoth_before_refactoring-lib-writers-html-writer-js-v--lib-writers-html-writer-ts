@@ -1,0 +1,34 @@
+--- mammoth_before_refactoring/lib/writers/html-writer.js	2026-02-19 23:58:28
++++ ./lib/writers/html-writer.ts	2026-02-19 20:16:37
+@@ -1,5 +1,3 @@
+-var _ = require('underscore');
+-
+ exports.writer = writer;
+ 
+ function writer(options) {
+@@ -84,7 +82,7 @@
+   }
+ 
+   function isInPre() {
+-    return _.some(stack, (tagName) => tagName === 'pre');
++    return stack.some((tagName) => tagName === 'pre');
+   }
+ 
+   return {
+@@ -114,10 +112,12 @@
+   }
+ 
+   function generateAttributeString(attributes) {
+-    return _.map(
+-      attributes,
+-      (value, key) => ' ' + key + '="' + escapeHtmlAttribute(value) + '"'
+-    ).join('');
++    attributes = attributes || {};
++    return Object.keys(attributes)
++      .map(
++        (key) => ' ' + key + '="' + escapeHtmlAttribute(attributes[key]) + '"'
++      )
++      .join('');
+   }
+ 
+   function text(value) {

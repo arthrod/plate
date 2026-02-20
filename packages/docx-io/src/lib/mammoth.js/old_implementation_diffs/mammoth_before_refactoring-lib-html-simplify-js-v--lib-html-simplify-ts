@@ -1,0 +1,20 @@
+--- mammoth_before_refactoring/lib/html/simplify.js	2026-02-19 23:58:28
++++ ./lib/html/simplify.ts	2026-02-19 20:16:37
+@@ -1,7 +1,5 @@
+-var _ = require('underscore');
++var ast = require('./ast.ts');
+ 
+-var ast = require('./ast');
+-
+ function simplify(nodes) {
+   return collapse(removeEmpty(nodes));
+ }
+@@ -59,7 +57,7 @@
+ }
+ 
+ function flatMap(values, func) {
+-  return _.flatten(_.map(values, func), true);
++  return values.flatMap(func);
+ }
+ 
+ var emptiers = {

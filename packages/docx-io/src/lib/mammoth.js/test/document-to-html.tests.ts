@@ -730,27 +730,7 @@ test('footnotes are included after the main body', function() {
     });
 });
 
-test('comments are ignored by default', function() {
-    var reference = documents.commentReference({commentId: "4"});
-    var comment = documents.comment({
-        commentId: "4",
-        body: [paragraphOfText("Who's there?")]
-    });
-    var document = documents.document([
-        documents.paragraph([
-            runOfText("Knock knock"),
-            documents.run([reference])
-        ])
-    ], {comments: [comment]});
-
-    var converter = new DocumentConverter({});
-    return converter.convertToHtml(document).then(function(result) {
-        assert.equal(result.value, '<p>Knock knock</p>');
-        assert.deepEqual(result.messages, []);
-    });
-});
-
-test('comment references are linked to comment after main body', function() {
+test('comments are emitted as tokens', function() {
     var reference = documents.commentReference({commentId: "4"});
     var comment = documents.comment({
         commentId: "4",
@@ -765,19 +745,60 @@ test('comment references are linked to comment after main body', function() {
         ])
     ], {comments: [comment]});
 
-    var converter = new DocumentConverter({
-        idPrefix: "doc-42-",
-        styleMap: [
-            {from: documentMatchers.commentReference, to: htmlPaths.element("sup")}
-        ]
-    });
+    var converter = new DocumentConverter({});
     return converter.convertToHtml(document).then(function(result) {
-        var expectedHtml = (
-            '<p>Knock knock<sup><a href="#doc-42-comment-4" id="doc-42-comment-ref-4">[TP1]</a></sup></p>' +
-            '<dl><dt id="doc-42-comment-4">Comment [TP1]</dt><dd><p>Who\'s there? <a href="#doc-42-comment-ref-4">↑</a></p></dd></dl>'
-        );
-        assert.equal(result.value, expectedHtml);
+        var payload = {
+            id: "4",
+            authorName: "The Piemaker",
+            authorInitials: "TP",
+            date: null,
+            paraId: null,
+            parentParaId: null,
+            text: "Who's there?\n",
+            body: "<p>Who's there?</p>",
+            isPoint: true
+        };
+        var token = "[[DOCX_CMT_START:" + encodeURIComponent(JSON.stringify(payload)) + "]]" +
+                    "[[DOCX_CMT_END:" + encodeURIComponent("4") + "]]";
+        
+        assert.equal(result.value, '<p>Knock knock' + token + '</p>');
         assert.deepEqual(result.messages, []);
+    });
+});
+
+test('inserted content is emitted as tokens', function() {
+    var inserted = documents.inserted(
+        [runOfText("Hello")],
+        {author: "Steve", date: "2019-01-01", changeId: "123"}
+    );
+    var converter = new DocumentConverter();
+    return converter.convertToHtml(inserted).then(function(result) {
+        var payload = encodeURIComponent(JSON.stringify({
+            id: "123",
+            author: "Steve",
+            date: "2019-01-01"
+        }));
+        var startToken = "[[DOCX_INS_START:" + payload + "]]";
+        var endToken = "[[DOCX_INS_END:123]]";
+        assert.equal(result.value, startToken + "Hello" + endToken);
+    });
+});
+
+test('deleted content is emitted as tokens', function() {
+    var deleted = documents.deleted(
+        [runOfText("Goodbye")],
+        {author: "Steve", date: "2019-01-01", changeId: "456"}
+    );
+    var converter = new DocumentConverter();
+    return converter.convertToHtml(deleted).then(function(result) {
+        var payload = encodeURIComponent(JSON.stringify({
+            id: "456",
+            author: "Steve",
+            date: "2019-01-01"
+        }));
+        var startToken = "[[DOCX_DEL_START:" + payload + "]]";
+        var endToken = "[[DOCX_DEL_END:456]]";
+        assert.equal(result.value, startToken + "Goodbye" + endToken);
     });
 });
 

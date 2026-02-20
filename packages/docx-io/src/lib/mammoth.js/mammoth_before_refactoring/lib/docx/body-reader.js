@@ -2,13 +2,14 @@ exports.createBodyReader = createBodyReader;
 exports._readNumberingProperties = readNumberingProperties;
 
 var dingbatToUnicode = require('dingbat-to-unicode');
+var _ = require('underscore');
 
-var documents = require('../documents.ts');
-var Result = require('../results.ts').Result;
-var warning = require('../results.ts').warning;
-var xml = require('../xml/index.ts');
-var transforms = require('../transforms.ts');
-var uris = require('./uris.ts');
+var documents = require('../documents');
+var Result = require('../results').Result;
+var warning = require('../results').warning;
+var xml = require('../xml');
+var transforms = require('../transforms');
+var uris = require('./uris');
 
 function createBodyReader(options) {
   return {
@@ -205,10 +206,11 @@ function BodyReader(options) {
   }
 
   function currentHyperlinkOptions() {
-    var hyperlinks = complexFieldStack.filter(
-      (complexField) => complexField.type === 'hyperlink'
+    var topHyperlink = _.last(
+      complexFieldStack.filter(
+        (complexField) => complexField.type === 'hyperlink'
+      )
     );
-    var topHyperlink = hyperlinks[hyperlinks.length - 1];
     return topHyperlink ? topHyperlink.options : null;
   }
 
@@ -363,7 +365,7 @@ function BodyReader(options) {
 
           return new documents.Hyperlink(
             children,
-            Object.assign({ targetFrame }, options)
+            _.extend({ targetFrame }, options)
           );
         }
 
@@ -457,6 +459,7 @@ function BodyReader(options) {
       });
     },
 
+    // Tracked changes: wrap content in documents.inserted with author/date/changeId metadata
     'w:ins'(element) {
       var author = element.attributes['w:author'];
       var date = element.attributes['w:date'];
@@ -469,6 +472,7 @@ function BodyReader(options) {
         })
       );
     },
+    // Tracked deletions: wrap content in documents.deleted with author/date/changeId metadata
     'w:del'(element) {
       var author = element.attributes['w:author'];
       var date = element.attributes['w:date'];
@@ -577,7 +581,8 @@ function BodyReader(options) {
   }
 
   function calculateRowSpans(rows) {
-    var unexpectedNonRows = rows.some(
+    var unexpectedNonRows = _.any(
+      rows,
       (row) => row.type !== documents.types.tableRow
     );
     if (unexpectedNonRows) {
@@ -588,8 +593,8 @@ function BodyReader(options) {
         ),
       ]);
     }
-    var unexpectedNonCells = rows.some((row) =>
-      row.children.some((cell) => cell.type !== documents.types.tableCell)
+    var unexpectedNonCells = _.any(rows, (row) =>
+      _.any(row.children, (cell) => cell.type !== documents.types.tableCell)
     );
     if (unexpectedNonCells) {
       removeVMergeProperties(rows);
@@ -870,19 +875,16 @@ ReadResult.map = (first, second, func) =>
   );
 
 function combineResults(results) {
-  var result = Result.combine(results.map((item) => item._result));
+  var result = Result.combine(_.pluck(results, '_result'));
   return new ReadResult(
-    result.value.map((item) => item.element).flat(),
-    result.value
-      .map((item) => item.extra)
-      .flat()
-      .filter(identity),
+    _.flatten(_.pluck(result.value, 'element')),
+    _.filter(_.flatten(_.pluck(result.value, 'extra')), identity),
     result.messages
   );
 }
 
 function joinElements(first, second) {
-  return [first, second].flat();
+  return _.flatten([first, second]);
 }
 
 function identity(value) {

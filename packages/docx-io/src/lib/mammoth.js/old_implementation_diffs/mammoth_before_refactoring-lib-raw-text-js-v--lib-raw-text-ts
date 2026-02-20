@@ -1,0 +1,8 @@
+--- mammoth_before_refactoring/lib/raw-text.js	2026-02-19 23:58:28
++++ ./lib/raw-text.ts	2026-02-19 20:16:37
+@@ -1,4 +1,4 @@
+-var documents = require('./documents');
++var documents = require('./documents.ts');
+ 
+ function convertElementToRawText(element) {
+   if (element.type === 'text') {

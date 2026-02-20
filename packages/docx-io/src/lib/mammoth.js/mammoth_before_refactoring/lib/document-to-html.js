@@ -1,10 +1,12 @@
-var promises = require('./promises.ts');
-var documents = require('./documents.ts');
-var htmlPaths = require('./styles/html-paths.ts');
-var results = require('./results.ts');
-var images = require('./images.ts');
-var Html = require('./html/index.ts');
-var writers = require('./writers/index.ts');
+var _ = require('underscore');
+
+var promises = require('./promises');
+var documents = require('./documents');
+var htmlPaths = require('./styles/html-paths');
+var results = require('./results');
+var images = require('./images');
+var Html = require('./html');
+var writers = require('./writers');
 
 exports.DocumentConverter = DocumentConverter;
 
@@ -24,12 +26,10 @@ var DOCX_COMMENT_TOKEN_SUFFIX = ']]';
 function DocumentConverter(options) {
   return {
     convertToHtml(element) {
-      var comments = (
-        element.type === documents.types.document ? element.comments : []
-      ).reduce((indexedComments, comment) => {
-        indexedComments[comment.commentId] = comment;
-        return indexedComments;
-      }, {});
+      var comments = _.indexBy(
+        element.type === documents.types.document ? element.comments : [],
+        'commentId'
+      );
       var conversion = new DocumentConversion(options, comments);
       return conversion.convertToHtml(element);
     },
@@ -45,7 +45,7 @@ function DocumentConversion(options, comments) {
 
   var referencedComments = [];
 
-  options = Object.assign({ ignoreEmptyParagraphs: true }, options);
+  options = _.extend({ ignoreEmptyParagraphs: true }, options);
   var idPrefix = options.idPrefix === undefined ? '' : options.idPrefix;
   var ignoreEmptyParagraphs = options.ignoreEmptyParagraphs;
 
@@ -79,7 +79,7 @@ function DocumentConversion(options, comments) {
             }
             if (node.children) {
               return [
-                Object.assign({}, node, {
+                _.extend({}, node, {
                   children: replaceDeferred(node.children),
                 }),
               ];
@@ -212,7 +212,7 @@ function DocumentConversion(options, comments) {
     return (image, messages) =>
       promises
         .attempt(() => convertImage(image, messages))
-        .catch((error) => {
+        .caught((error) => {
           messages.push(results.error(error));
           return [];
         });
@@ -249,7 +249,8 @@ function DocumentConversion(options, comments) {
   }
 
   function convertTableChildren(element, messages, options) {
-    var bodyIndex = element.children.findIndex(
+    var bodyIndex = _.findIndex(
+      element.children,
       (child) => child.type !== documents.types.tableRow || !child.isHeader
     );
     if (bodyIndex === -1) {
@@ -260,18 +261,18 @@ function DocumentConversion(options, comments) {
       children = convertElements(
         element.children,
         messages,
-        Object.assign({}, options, { isTableHeader: false })
+        _.extend({}, options, { isTableHeader: false })
       );
     } else {
       var headRows = convertElements(
         element.children.slice(0, bodyIndex),
         messages,
-        Object.assign({}, options, { isTableHeader: true })
+        _.extend({}, options, { isTableHeader: true })
       );
       var bodyRows = convertElements(
         element.children.slice(bodyIndex),
         messages,
-        Object.assign({}, options, { isTableHeader: false })
+        _.extend({}, options, { isTableHeader: false })
       );
       children = [
         Html.freshElement('thead', {}, headRows),
@@ -332,12 +333,7 @@ function DocumentConversion(options, comments) {
       payload.text = extractTextFromElements(comment.body);
       try {
         var richContent = convertElements(comment.body, messages, options);
-        var writer = writers.writer({
-          prettyPrint: options.prettyPrint,
-          outputFormat: options.outputFormat,
-        });
-        Html.write(writer, Html.simplify(richContent));
-        payload.body = writer.asString();
+        payload.body = Html.simplify(richContent);
       } catch (e) {
         var detail = '';
         if (e && typeof e.message === 'string') {
@@ -627,7 +623,7 @@ function unrecognisedStyleWarning(type, element) {
 }
 
 function flatMap(values, func) {
-  return values.flatMap(func);
+  return _.flatten(values.map(func), true);
 }
 
 function walkHtml(nodes, callback) {

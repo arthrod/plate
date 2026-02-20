@@ -1,0 +1,8 @@
+--- mammoth_before_refactoring/lib/html/ast.js	2026-02-19 23:58:28
++++ ./lib/html/ast.ts	2026-02-19 20:16:37
+@@ -1,4 +1,4 @@
+-var htmlPaths = require('../styles/html-paths');
++var htmlPaths = require('../styles/html-paths.ts');
+ 
+ function nonFreshElement(tagName, attributes, children) {
+   return elementWithTag(

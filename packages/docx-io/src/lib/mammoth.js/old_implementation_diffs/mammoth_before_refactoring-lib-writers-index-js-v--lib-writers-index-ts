@@ -1,0 +1,10 @@
+--- mammoth_before_refactoring/lib/writers/index.js	2026-02-19 23:58:28
++++ ./lib/writers/index.ts	2026-02-19 20:16:37
+@@ -1,5 +1,5 @@
+-var htmlWriter = require('./html-writer');
+-var markdownWriter = require('./markdown-writer');
++var htmlWriter = require('./html-writer.ts');
++var markdownWriter = require('./markdown-writer.ts');
+ 
+ exports.writer = writer;
+ 

@@ -1,0 +1,13 @@
+--- mammoth_before_refactoring/lib/styles/document-matchers.js	2026-02-19 23:58:28
++++ ./lib/styles/document-matchers.ts	2026-02-19 20:16:37
+@@ -88,8 +88,8 @@
+ function isList(element, levelIndex, isOrdered) {
+   return (
+     element.numbering &&
+-    element.numbering.level === levelIndex &&
+-    element.numbering.isOrdered === isOrdered
++    element.numbering.level == levelIndex &&
++    element.numbering.isOrdered == isOrdered
+   );
+ }
+ 

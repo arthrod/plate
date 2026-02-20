@@ -1,0 +1,43 @@
+--- mammoth_before_refactoring/lib/zipfile.js	2026-02-19 23:58:28
++++ ./lib/zipfile.ts	2026-02-19 22:23:40
+@@ -1,4 +1,3 @@
+-var base64js = require('base64-js');
+ var JSZip = require('jszip');
+ 
+ exports.openArrayBuffer = openArrayBuffer;
+@@ -18,7 +17,7 @@
+       }
+       return file.async('uint8array').then((array) => {
+         if (encoding === 'base64') {
+-          return base64js.fromByteArray(array);
++          return encodeBase64(array);
+         }
+         if (encoding) {
+           var decoder = new TextDecoder(encoding);
+@@ -45,6 +44,26 @@
+   });
+ }
+ 
++function encodeBase64(array) {
++  if (typeof Buffer !== 'undefined') {
++    return Buffer.from(array).toString('base64');
++  }
++
++  if (typeof btoa === 'function') {
++    var chunkSize = 0x8000;
++    var binary = '';
++
++    for (var index = 0; index < array.length; index += chunkSize) {
++      var chunk = array.subarray(index, index + chunkSize);
++      binary += String.fromCharCode.apply(null, chunk);
++    }
++
++    return btoa(binary);
++  }
++
++  throw new Error('base64 encoding is unavailable in this environment');
++}
++
+ function splitPath(path) {
+   var lastIndex = path.lastIndexOf('/');
+   if (lastIndex === -1) {

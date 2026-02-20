@@ -1671,8 +1671,26 @@ test("can read pictures with hyperlink specified in document properties", functi
     )));
 });
 
-test("children of w:ins are converted normally", function() {
-    assertChildrenAreConvertedNormally("w:ins");
+test("w:ins is converted to inserted", function() {
+    var runXml = new XmlElement("w:r", {}, []);
+    var insXml = new XmlElement("w:ins", {"w:author": "Steve", "w:date": "2019-01-01T12:00:00Z", "w:id": "42"}, [runXml]);
+    var result = readXmlElement(insXml);
+    assert.deepEqual(result.value[0].type, "inserted");
+    assert.deepEqual(result.value[0].author, "Steve");
+    assert.deepEqual(result.value[0].date, "2019-01-01T12:00:00Z");
+    assert.deepEqual(result.value[0].changeId, "42");
+    assert.deepEqual(result.value[0].children[0].type, "run");
+});
+
+test("w:del is converted to deleted", function() {
+    var runXml = new XmlElement("w:r", {}, []);
+    var delXml = new XmlElement("w:del", {"w:author": "Steve", "w:date": "2019-01-01T12:00:00Z", "w:id": "42"}, [runXml]);
+    var result = readXmlElement(delXml);
+    assert.deepEqual(result.value[0].type, "deleted");
+    assert.deepEqual(result.value[0].author, "Steve");
+    assert.deepEqual(result.value[0].date, "2019-01-01T12:00:00Z");
+    assert.deepEqual(result.value[0].changeId, "42");
+    assert.deepEqual(result.value[0].children[0].type, "run");
 });
 
 test("children of w:object are converted normally", function() {

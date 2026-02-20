@@ -1,0 +1,148 @@
+--- mammoth_before_refactoring/lib/index.js	2026-02-19 23:58:28
++++ ./lib/index.ts	2026-02-19 20:16:37
+@@ -1,42 +1,42 @@
+-var _ = require('underscore');
++var docxReader = require('./docx/docx-reader.ts');
++var docxStyleMap = require('./docx/style-map.ts');
++var DocumentConverter = require('./document-to-html.ts').DocumentConverter;
++var convertElementToRawText = require('./raw-text.ts').convertElementToRawText;
++var readStyle = require('./style-reader.ts').readStyle;
++var readOptions = require('./options-reader.ts').readOptions;
++var unzip = require('./unzip.ts');
++var Result = require('./results.ts').Result;
+ 
+-var docxReader = require('./docx/docx-reader');
+-var docxStyleMap = require('./docx/style-map');
+-var DocumentConverter = require('./document-to-html').DocumentConverter;
+-var convertElementToRawText = require('./raw-text').convertElementToRawText;
+-var readStyle = require('./style-reader').readStyle;
+-var readOptions = require('./options-reader').readOptions;
+-var unzip = require('./unzip');
+-var Result = require('./results').Result;
+-
+ exports.convertToHtml = convertToHtml;
+ exports.convertToMarkdown = convertToMarkdown;
+ exports.convert = convert;
+ exports.extractRawText = extractRawText;
+-exports.images = require('./images');
+-exports.transforms = require('./transforms');
+-exports.underline = require('./underline');
++exports.images = require('./images.ts');
++exports.transforms = require('./transforms.ts');
++exports.underline = require('./underline.ts');
+ exports.embedStyleMap = embedStyleMap;
+ exports.readEmbeddedStyleMap = readEmbeddedStyleMap;
+ 
+ function convertToHtml(input, options) {
+-  return convert(input, options);
++  return withDone(convert(input, options));
+ }
+ 
+ function convertToMarkdown(input, options) {
+   var markdownOptions = Object.create(options || {});
+   markdownOptions.outputFormat = 'markdown';
+-  return convert(input, markdownOptions);
++  return withDone(convert(input, markdownOptions));
+ }
+ 
+ function convert(input, options) {
+   options = readOptions(options);
+ 
+-  return unzip
++  return withDone(
++    unzip
+     .openZip(input)
+-    .tap((docxFile) =>
++    .then((docxFile) =>
+       docxStyleMap.readStyleMap(docxFile).then((styleMap) => {
+         options.embeddedStyleMap = styleMap;
++        return docxFile;
+       })
+     )
+     .then((docxFile) =>
+@@ -46,16 +46,17 @@
+         .then((documentResult) =>
+           convertDocumentToHtml(documentResult, options)
+         )
+-    );
++    )
++  );
+ }
+ 
+ function readEmbeddedStyleMap(input) {
+-  return unzip.openZip(input).then(docxStyleMap.readStyleMap);
++  return withDone(unzip.openZip(input).then(docxStyleMap.readStyleMap));
+ }
+ 
+ function convertDocumentToHtml(documentResult, options) {
+   var styleMapResult = parseStyleMap(options.readStyleMap());
+-  var parsedOptions = _.extend({}, options, {
++  var parsedOptions = Object.assign({}, options, {
+     styleMap: styleMapResult.value,
+   });
+   var documentConverter = new DocumentConverter(parsedOptions);
+@@ -74,16 +75,23 @@
+ }
+ 
+ function extractRawText(input) {
+-  return unzip
++  return withDone(
++    unzip
+     .openZip(input)
+     .then(docxReader.read)
+-    .then((documentResult) => documentResult.map(convertElementToRawText));
++    .then((documentResult) => documentResult.map(convertElementToRawText))
++  );
+ }
+ 
+ function embedStyleMap(input, styleMap) {
+-  return unzip
++  return withDone(
++    unzip
+     .openZip(input)
+-    .tap((docxFile) => docxStyleMap.writeStyleMap(docxFile, styleMap))
++    .then((docxFile) =>
++      Promise.resolve(docxStyleMap.writeStyleMap(docxFile, styleMap)).then(
++        () => docxFile
++      )
++    )
+     .then((docxFile) => docxFile.toArrayBuffer())
+     .then((arrayBuffer) => ({
+       toArrayBuffer() {
+@@ -92,7 +100,8 @@
+       toBuffer() {
+         return Buffer.from(arrayBuffer);
+       },
+-    }));
++    }))
++  );
+ }
+ 
+ exports.styleMapping = () => {
+@@ -100,3 +109,26 @@
+     'Use a raw string instead of mammoth.styleMapping e.g. "p[style-name=\'Title\'] => h1" instead of mammoth.styleMapping("p[style-name=\'Title\'] => h1")'
+   );
+ };
++
++function withDone(promise) {
++  if (!promise || typeof promise.done === 'function') {
++    return promise;
++  }
++
++  Object.defineProperty(promise, 'done', {
++    configurable: true,
++    enumerable: false,
++    value: function (onFulfilled, onRejected) {
++      promise
++        .then(onFulfilled, onRejected)
++        .catch(function (error) {
++          setTimeout(function () {
++            throw error;
++          }, 0);
++        });
++    },
++    writable: true,
++  });
++
++  return promise;
++}
