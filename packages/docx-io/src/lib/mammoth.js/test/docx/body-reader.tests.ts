@@ -156,6 +156,49 @@ function paragraphWithIndent(indentAttributes) {
     return new XmlElement("w:p", {}, [propertiesXml]);
 }
 
+test("paragraph has spacing read from paragraph properties if present", function() {
+    var spacingXml = new XmlElement("w:spacing", {"w:before": "240", "w:after": "120"}, []);
+    var propertiesXml = new XmlElement("w:pPr", {}, [spacingXml]);
+    var paragraphXml = new XmlElement("w:p", {}, [propertiesXml]);
+
+    var paragraph = readXmlElementValue(paragraphXml);
+    assert.deepEqual(paragraph.spacing, {before: "240", after: "120"});
+});
+
+test("paragraph has null spacing when spacing attributes are missing", function() {
+    var spacingXml = new XmlElement("w:spacing", {}, []);
+    var propertiesXml = new XmlElement("w:pPr", {}, [spacingXml]);
+    var paragraphXml = new XmlElement("w:p", {}, [propertiesXml]);
+
+    var paragraph = readXmlElementValue(paragraphXml);
+    assert.deepEqual(paragraph.spacing, {before: null, after: null});
+});
+
+test("paragraph has border sides read from paragraph properties if present", function() {
+    var borderXml = new XmlElement("w:pBdr", {}, [
+        new XmlElement("w:left", {"w:val": "single", "w:sz": "8", "w:space": "3", "w:color": "FF0000"}, []),
+        new XmlElement("w:top", {"w:val": "dashed", "w:sz": "4", "w:space": "2", "w:color": "00FF00"}, [])
+    ]);
+    var propertiesXml = new XmlElement("w:pPr", {}, [borderXml]);
+    var paragraphXml = new XmlElement("w:p", {}, [propertiesXml]);
+
+    var paragraph = readXmlElementValue(paragraphXml);
+    assert.deepEqual(paragraph.border.left, {
+        size: "8",
+        color: "FF0000",
+        style: "single",
+        space: "3"
+    });
+    assert.deepEqual(paragraph.border.top, {
+        size: "4",
+        color: "00FF00",
+        style: "dashed",
+        space: "2"
+    });
+    assert.equal(paragraph.border.right, null);
+    assert.equal(paragraph.border.bottom, null);
+});
+
 test("paragraph has numbering properties from paragraph properties if present", function() {
     var numberingPropertiesXml = new XmlElement("w:numPr", {}, [
         new XmlElement("w:ilvl", {"w:val": "1"}),
@@ -1033,6 +1076,29 @@ test("run has null fontSize by default", function() {
 
     var run = readXmlElementValue(runXml);
     assert.deepEqual(run.fontSize, null);
+});
+
+test("run has null color by default", function() {
+    var runXml = runWithProperties([]);
+
+    var run = readXmlElementValue(runXml);
+    assert.deepEqual(run.color, null);
+});
+
+test("run has color read from properties", function() {
+    var colorXml = new XmlElement("w:color", {"w:val": "345A8A"});
+    var runXml = runWithProperties([colorXml]);
+
+    var run = readXmlElementValue(runXml);
+    assert.deepEqual(run.color, "345A8A");
+});
+
+test("when run color is auto then run has no color", function() {
+    var colorXml = new XmlElement("w:color", {"w:val": "auto"});
+    var runXml = runWithProperties([colorXml]);
+
+    var run = readXmlElementValue(runXml);
+    assert.deepEqual(run.color, null);
 });
 
 test("run has fontSize read from properties", function() {

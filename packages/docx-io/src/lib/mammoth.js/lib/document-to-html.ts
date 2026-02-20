@@ -115,7 +115,11 @@ function DocumentConversion(options, comments) {
   }
 
   function convertParagraph(element, messages, options) {
-    return htmlPathForParagraph(element, messages).wrap(() => {
+    var paragraphPath = htmlPathForParagraph(element, messages);
+    var paragraphStyle = buildParagraphStyleAttribute(element);
+    paragraphPath = appendStyleToHtmlPath(paragraphPath, paragraphStyle);
+
+    return paragraphPath.wrap(() => {
       var content = convertElements(element.children, messages, options);
       if (ignoreEmptyParagraphs) {
         return content;
@@ -176,6 +180,18 @@ function DocumentConversion(options, comments) {
     } else if (run.styleId) {
       messages.push(unrecognisedStyleWarning('run', run));
     }
+
+    var runStyle = buildRunStyleAttribute(run);
+    if (runStyle) {
+      if (isEmptyHtmlPath(stylePath)) {
+        stylePath = htmlPaths.elements([
+          htmlPaths.element('span', { style: runStyle }, { fresh: false }),
+        ]);
+      } else {
+        stylePath = appendStyleToHtmlPath(stylePath, runStyle);
+      }
+    }
+
     paths.push(stylePath);
 
     paths.forEach((path) => {
@@ -207,6 +223,177 @@ function DocumentConversion(options, comments) {
         return styleMap[i];
       }
     }
+  }
+
+  function buildParagraphStyleAttribute(paragraph) {
+    var styles = [];
+    var spacing = paragraph.spacing || {};
+    var indent = paragraph.indent || {};
+    var border = paragraph.border || {};
+
+    appendTwipsStyle(styles, 'margin-top', spacing.before);
+    appendTwipsStyle(styles, 'margin-bottom', spacing.after);
+    appendTwipsStyle(styles, 'margin-left', indent.start);
+    appendTwipsStyle(styles, 'margin-right', indent.end);
+
+    if (indent.firstLine) {
+      appendTwipsStyle(styles, 'text-indent', indent.firstLine);
+    } else if (indent.hanging) {
+      appendTwipsStyle(styles, 'text-indent', '-' + indent.hanging);
+    }
+
+    appendParagraphBorderStyle(styles, 'top', border.top);
+    appendParagraphBorderStyle(styles, 'right', border.right);
+    appendParagraphBorderStyle(styles, 'bottom', border.bottom);
+    appendParagraphBorderStyle(styles, 'left', border.left);
+
+    return styles.join('; ');
+  }
+
+  function buildRunStyleAttribute(run) {
+    var styles = [];
+
+    if (run.color) {
+      styles.push('color: ' + toCssColor(run.color));
+    }
+    if (run.highlight) {
+      styles.push('background-color: ' + run.highlight);
+    }
+    if (run.fontSize) {
+      styles.push('font-size: ' + run.fontSize + 'pt');
+    }
+    if (run.font) {
+      styles.push('font-family: ' + run.font);
+    }
+
+    return styles.join('; ');
+  }
+
+  function appendTwipsStyle(styles, property, twipsValue) {
+    var pointValue = twipsToPoints(twipsValue);
+    if (pointValue !== null) {
+      styles.push(property + ': ' + pointValue + 'pt');
+    }
+  }
+
+  function appendParagraphBorderStyle(styles, side, borderSide) {
+    var borderStyle = toCssBorder(borderSide);
+    if (borderStyle) {
+      styles.push('border-' + side + ': ' + borderStyle);
+    }
+  }
+
+  function toCssBorder(borderSide) {
+    if (!borderSide || !borderSide.size) {
+      return null;
+    }
+
+    var size = Number.parseFloat(borderSide.size);
+    if (!Number.isFinite(size) || size <= 0) {
+      return null;
+    }
+
+    var borderStyle = borderStyleToCss(borderSide.style);
+    if (borderStyle === 'none') {
+      return null;
+    }
+
+    var sizeInPoints = size / 8;
+    return (
+      trimTrailingZeros(sizeInPoints) +
+      'pt ' +
+      borderStyle +
+      ' ' +
+      toCssColor(borderSide.color)
+    );
+  }
+
+  function borderStyleToCss(value) {
+    if (!value || value === 'single') {
+      return 'solid';
+    }
+    if (value === 'nil' || value === 'none') {
+      return 'none';
+    }
+    if (value === 'thick') {
+      return 'solid';
+    }
+    if (value === 'dashed' || value === 'dotted' || value === 'double') {
+      return value;
+    }
+    return 'solid';
+  }
+
+  function twipsToPoints(value) {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    var parsed = Number.parseFloat(value);
+    if (!Number.isFinite(parsed)) {
+      return null;
+    }
+
+    return trimTrailingZeros(parsed / 20);
+  }
+
+  function trimTrailingZeros(value) {
+    return Number.parseFloat(value.toFixed(3)).toString();
+  }
+
+  function toCssColor(value) {
+    if (!value || value === 'auto') {
+      return '#000000';
+    }
+
+    if (value.charAt(0) === '#') {
+      return value;
+    }
+
+    if (/^[0-9a-f]{6}$/i.test(value)) {
+      return '#' + value;
+    }
+
+    return value;
+  }
+
+  function isEmptyHtmlPath(path) {
+    return !!(path && Array.isArray(path._elements) && path._elements.length === 0);
+  }
+
+  function appendStyleToHtmlPath(path, style) {
+    if (!style || !path || !Array.isArray(path._elements) || !path._elements.length) {
+      return path;
+    }
+
+    var elements = path._elements.map((elementStyle, index) => {
+      if (index !== 0) {
+        return elementStyle;
+      }
+
+      var attributes = Object.assign({}, elementStyle.attributes);
+      attributes.style = joinStyles(attributes.style, style);
+
+      return htmlPaths.element(elementStyle.tagName, attributes, {
+        fresh: elementStyle.fresh,
+        separator: elementStyle.separator,
+      });
+    });
+
+    return htmlPaths.elements(elements);
+  }
+
+  function joinStyles(existingStyle, styleToAppend) {
+    if (!existingStyle) {
+      return styleToAppend;
+    }
+
+    var trimmed = existingStyle.trim();
+    if (trimmed.endsWith(';')) {
+      return trimmed + ' ' + styleToAppend;
+    }
+
+    return trimmed + '; ' + styleToAppend;
   }
 
   function recoveringConvertImage(convertImage) {

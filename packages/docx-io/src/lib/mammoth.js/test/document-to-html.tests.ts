@@ -113,6 +113,29 @@ test('can use non-default HTML element for unstyled paragraphs', function() {
     });
 });
 
+test('inline paragraph styles are preserved when paragraph style mapping is used', function() {
+    var document = new documents.Document([
+        new documents.Paragraph([
+            runOfText("Hello.")
+        ], {
+            indent: {
+                start: "720"
+            }
+        })
+    ]);
+    var converter = new DocumentConverter({
+        styleMap: [
+            {
+                from: documentMatchers.paragraph(),
+                to: htmlPaths.topLevelElement("h1")
+            }
+        ]
+    });
+    return converter.convertToHtml(document).then(function(result) {
+        assert.equal(result.value, '<h1 style="margin-left: 36pt">Hello.</h1>');
+    });
+});
+
 test('warning is emitted if paragraph style is unrecognised', function() {
     var document = new documents.Document([
         paragraphOfText("Hello.", "Heading1", "Heading 1")
@@ -348,7 +371,7 @@ test('highlighted runs are ignored by default', function() {
     var run = runOfText("Hello.", {highlight: "yellow"});
     var converter = new DocumentConverter();
     return converter.convertToHtml(run).then(function(result) {
-        assert.equal(result.value, "Hello.");
+        assert.equal(result.value, '<span style="background-color: yellow">Hello.</span>');
     });
 });
 
@@ -363,7 +386,7 @@ test('highlighted runs can be configured with style mapping for all highlights',
         ]
     });
     return converter.convertToHtml(run).then(function(result) {
-        assert.equal(result.value, "<mark>Hello.</mark>");
+        assert.equal(result.value, '<span style="background-color: yellow"><mark>Hello.</mark></span>');
     });
 });
 
@@ -385,7 +408,53 @@ test('highlighted runs can be configured with style mapping for specific highlig
         ]
     });
     return converter.convertToHtml(paragraph).then(function(result) {
-        assert.equal(result.value, '<p><mark class="yellow">Yellow</mark><mark>Red</mark></p>');
+        assert.equal(result.value, '<p><span style="background-color: yellow"><mark class="yellow">Yellow</mark></span><span style="background-color: red"><mark>Red</mark></span></p>');
+    });
+});
+
+test('paragraph spacing, indent and borders are converted to inline styles by default', function() {
+    var paragraph = new documents.Paragraph([
+        runOfText("Hello.")
+    ], {
+        spacing: {
+            before: "240",
+            after: "120"
+        },
+        indent: {
+            start: "720",
+            end: "360",
+            hanging: "240"
+        },
+        border: {
+            left: {
+                size: "8",
+                style: "single",
+                color: "FF0000"
+            }
+        }
+    });
+    var converter = new DocumentConverter();
+    return converter.convertToHtml(paragraph).then(function(result) {
+        assert.equal(
+            result.value,
+            '<p style="margin-top: 12pt; margin-bottom: 6pt; margin-left: 36pt; margin-right: 18pt; text-indent: -12pt; border-left: 1pt solid #FF0000">Hello.</p>'
+        );
+    });
+});
+
+test('run color, size and font are converted to inline styles by default', function() {
+    var run = runOfText("Hello.", {
+        color: "345A8A",
+        font: "Calibri",
+        fontSize: 14,
+        highlight: "yellow"
+    });
+    var converter = new DocumentConverter();
+    return converter.convertToHtml(run).then(function(result) {
+        assert.equal(
+            result.value,
+            '<span style="color: #345A8A; background-color: yellow; font-size: 14pt; font-family: Calibri">Hello.</span>'
+        );
     });
 });
 

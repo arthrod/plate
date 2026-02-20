@@ -71,6 +71,8 @@ function BodyReader(options) {
         numbering
       ),
       indent: readParagraphIndent(element.firstOrEmpty('w:ind')),
+      spacing: readParagraphSpacing(element.firstOrEmpty('w:spacing')),
+      border: readParagraphBorder(element.firstOrEmpty('w:pBdr')),
     }));
   }
 
@@ -80,6 +82,41 @@ function BodyReader(options) {
       end: element.attributes['w:end'] || element.attributes['w:right'],
       firstLine: element.attributes['w:firstLine'],
       hanging: element.attributes['w:hanging'],
+    };
+  }
+
+  function readParagraphSpacing(element) {
+    return {
+      before: element.attributes['w:before'],
+      after: element.attributes['w:after'],
+    };
+  }
+
+  function readParagraphBorder(element) {
+    return {
+      top: readParagraphBorderSide(element.firstOrEmpty('w:top')),
+      right: readParagraphBorderSide(element.firstOrEmpty('w:right')),
+      bottom: readParagraphBorderSide(element.firstOrEmpty('w:bottom')),
+      left: readParagraphBorderSide(element.firstOrEmpty('w:left')),
+    };
+  }
+
+  function readParagraphBorderSide(element) {
+    var attributes = element.attributes || {};
+    var size = attributes['w:sz'];
+    var color = attributes['w:color'];
+    var style = attributes['w:val'];
+    var space = attributes['w:space'];
+
+    if (!size && !color && !style && !space) {
+      return null;
+    }
+
+    return {
+      size: size || null,
+      color: color || null,
+      style: style || null,
+      space: space || null,
     };
   }
 
@@ -98,6 +135,9 @@ function BodyReader(options) {
         verticalAlignment:
           element.firstOrEmpty('w:vertAlign').attributes['w:val'],
         font: element.firstOrEmpty('w:rFonts').attributes['w:ascii'],
+        color: readColorValue(
+          element.firstOrEmpty('w:color').attributes['w:val']
+        ),
         fontSize,
         isBold: readBooleanElement(element.first('w:b')),
         isUnderline: readUnderline(element.first('w:u')),
@@ -139,6 +179,13 @@ function BodyReader(options) {
 
   function readHighlightValue(value) {
     if (!value || value === 'none') {
+      return null;
+    }
+    return value;
+  }
+
+  function readColorValue(value) {
+    if (!value || value === 'auto') {
       return null;
     }
     return value;

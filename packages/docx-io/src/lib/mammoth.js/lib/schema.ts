@@ -84,6 +84,25 @@ export interface Indent {
   hanging: string | null;
 }
 
+export interface ParagraphSpacing {
+  before: string | null;
+  after: string | null;
+}
+
+export interface ParagraphBorderSide {
+  size: string | null;
+  color: string | null;
+  style: string | null;
+  space: string | null;
+}
+
+export interface ParagraphBorder {
+  top: ParagraphBorderSide | null;
+  right: ParagraphBorderSide | null;
+  bottom: ParagraphBorderSide | null;
+  left: ParagraphBorderSide | null;
+}
+
 // ---------------------------------------------------------------------------
 // Document Element Interfaces (Discriminated Union Members)
 // ---------------------------------------------------------------------------
@@ -103,6 +122,8 @@ export interface Paragraph {
   numbering: Numbering | null;
   alignment: string | null;
   indent: Indent;
+  spacing: ParagraphSpacing;
+  border: ParagraphBorder;
   paraId: string | null;
 }
 
@@ -119,7 +140,8 @@ export interface Run {
   isSmallCaps: boolean;
   verticalAlignment: VerticalAlignment;
   font: string | null;
-  fontSize: string | null;
+  color: string | null;
+  fontSize: number | null;
   highlight: string | null;
 }
 
@@ -428,6 +450,8 @@ export interface ParagraphProperties {
   numbering?: Numbering | null;
   alignment?: string | null;
   indent?: Partial<Indent>;
+  spacing?: Partial<ParagraphSpacing>;
+  border?: Partial<ParagraphBorder>;
   paraId?: string | null;
 }
 
@@ -437,6 +461,8 @@ export function createParagraph(
 ): Paragraph {
   const props = properties || {};
   const indent = props.indent || {};
+  const spacing = props.spacing || {};
+  const border = props.border || {};
   return {
     type: 'paragraph',
     children,
@@ -449,6 +475,16 @@ export function createParagraph(
       end: indent.end || null,
       firstLine: indent.firstLine || null,
       hanging: indent.hanging || null,
+    },
+    spacing: {
+      before: spacing.before || null,
+      after: spacing.after || null,
+    },
+    border: {
+      top: border.top || null,
+      right: border.right || null,
+      bottom: border.bottom || null,
+      left: border.left || null,
     },
     paraId: props.paraId || null,
   };
@@ -465,7 +501,8 @@ export interface RunProperties {
   isSmallCaps?: boolean;
   verticalAlignment?: VerticalAlignment;
   font?: string | null;
-  fontSize?: string | null;
+  color?: string | null;
+  fontSize?: number | null;
   highlight?: string | null;
 }
 
@@ -487,6 +524,7 @@ export function createRun(
     isSmallCaps: !!props.isSmallCaps,
     verticalAlignment: props.verticalAlignment || verticalAlignment.baseline,
     font: props.font || null,
+    color: props.color || null,
     fontSize: props.fontSize || null,
     highlight: props.highlight || null,
   };

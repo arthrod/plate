@@ -36,6 +36,8 @@ function Document(children, options) {
 function Paragraph(children, properties) {
   properties = properties || {};
   var indent = properties.indent || {};
+  var spacing = properties.spacing || {};
+  var border = properties.border || {};
   return {
     type: types.paragraph,
     children,
@@ -48,6 +50,16 @@ function Paragraph(children, properties) {
       end: indent.end || null,
       firstLine: indent.firstLine || null,
       hanging: indent.hanging || null,
+    },
+    spacing: {
+      before: spacing.before || null,
+      after: spacing.after || null,
+    },
+    border: {
+      top: border.top || null,
+      right: border.right || null,
+      bottom: border.bottom || null,
+      left: border.left || null,
     },
     paraId: properties.paraId || null,
   };
@@ -69,6 +81,7 @@ function Run(children, properties) {
     verticalAlignment:
       properties.verticalAlignment || verticalAlignment.baseline,
     font: properties.font || null,
+    color: properties.color || null,
     fontSize: properties.fontSize || null,
     highlight: properties.highlight || null,
   };
