@@ -414,7 +414,23 @@ function DocumentConversion(options, comments) {
       try {
         var richContent = convertElements(comment.body, messages, options);
         payload.body = Html.simplify(richContent);
-      } catch (e) {}
+      } catch (e) {
+        var detail = '';
+        if (e && typeof e.message === 'string') {
+          detail = e.message;
+        } else if (typeof e === 'string') {
+          detail = e;
+        }
+        var message =
+          'Failed to convert comment body for comment ' +
+          comment.commentId +
+          (detail ? ': ' + detail : '');
+        var error = e instanceof Error ? e : new Error(message);
+        if (error) {
+          error.message = message;
+        }
+        messages.push(results.error(error));
+      }
     }
 
     // Recursive replies
@@ -1333,7 +1349,7 @@ function BodyReader(options) {
         readParagraphProperties(paragraphPropertiesElement),
         readXmlElements(childrenXml),
         (properties, children) => {
-          properties.paraId = element.attributes['w14:paraId'];
+          properties.paraId = element.attributes['wordml:paraId'];
           return new documents.Paragraph(children, properties);
         }
       ).insertExtra();
@@ -1913,6 +1929,7 @@ function createCommentsExtendedReader(bodyReader) {
       if (child.name === 'w15:commentEx') {
         var paraId = child.attributes['w15:paraId'];
         var parentParaId = child.attributes['w15:paraIdParent'];
+        var done = child.attributes['w15:done'];
         if (paraId && parentParaId) {
           mappings[paraId] = parentParaId;
         }
@@ -1930,8 +1947,9 @@ exports.createCommentsExtendedReader = createCommentsExtendedReader;
 var documents = require('../documents');
 var Result = require('../results').Result;
 
-function createCommentsReader(bodyReader, commentsExtended) {
+function createCommentsReader(bodyReader, commentsExtended, dateUtcMap) {
   commentsExtended = commentsExtended || {};
+  dateUtcMap = dateUtcMap || {};
 
   function readCommentsXml(element) {
     return Result.combine(
@@ -1958,12 +1976,17 @@ function createCommentsReader(bodyReader, commentsExtended) {
       }
       var parentParaId = paraId ? commentsExtended[paraId] : null;
 
+      // Prefer dateUtc (real UTC from commentsExtensible.xml) over
+      // w:date (local time with fake Z, Word convention)
+      var dateFromXml = readOptionalAttribute('w:date');
+      var resolvedDate = (paraId && dateUtcMap[paraId]) || dateFromXml;
+
       return documents.comment({
         commentId: id,
         body,
         authorName: readOptionalAttribute('w:author'),
         authorInitials: readOptionalAttribute('w:initials'),
-        date: readOptionalAttribute('w:date'),
+        date: resolvedDate,
         paraId,
         parentParaId,
       });
@@ -2137,6 +2160,51 @@ function read(docxFile, input, options) {
         }
         return new Result({});
       }),
+      // Read commentsIds.xml (paraId → durableId) and
+      // commentsExtensible.xml (durableId → dateUtc) to build
+      // a paraId → dateUtc map for correcting Word's fake-Z dates.
+      dateUtcMap: promises
+        .props({
+          idsXml: readXmlFromZipFile(
+            result.docxFile,
+            result.partPaths.commentsIds || 'word/commentsIds.xml'
+          ),
+          extXml: readXmlFromZipFile(
+            result.docxFile,
+            result.partPaths.commentsExtensible || 'word/commentsExtensible.xml'
+          ),
+        })
+        .then((r) => {
+          var paraIdToDurable = {};
+          if (r.idsXml) {
+            r.idsXml.children.forEach((child) => {
+              if (child.name === 'w16cid:commentId') {
+                var pid = child.attributes['w16cid:paraId'];
+                var did = child.attributes['w16cid:durableId'];
+                if (pid && did) paraIdToDurable[pid] = did;
+              }
+            });
+          }
+          var durableToDateUtc = {};
+          if (r.extXml) {
+            r.extXml.children.forEach((child) => {
+              if (child.name === 'w16cex:commentExtensible') {
+                var did = child.attributes['w16cex:durableId'];
+                var utc = child.attributes['w16cex:dateUtc'];
+                if (did && utc) durableToDateUtc[did] = utc;
+              }
+            });
+          }
+          // Combine: paraId → durableId → dateUtc
+          var map = {};
+          Object.keys(paraIdToDurable).forEach((pid) => {
+            var did = paraIdToDurable[pid];
+            if (durableToDateUtc[did]) {
+              map[pid] = durableToDateUtc[did];
+            }
+          });
+          return new Result(map);
+        }),
     }))
     .also((result) => ({
       footnotes: readXmlFileWithBody(
@@ -2166,7 +2234,8 @@ function read(docxFile, input, options) {
           if (xml) {
             return commentsReader.createCommentsReader(
               bodyReader,
-              result.commentsExtended.value || {}
+              result.commentsExtended.value || {},
+              result.dateUtcMap.value || {}
             )(xml);
           }
           return new Result([]);
@@ -2537,6 +2606,15 @@ var xmlNamespaceMap = {
   // [MS-DOCX]: Word Extensions to the Office Open XML (.docx) File Format
   // https://learn.microsoft.com/en-us/openspecs/office_standards/ms-docx/b839fe1f-e1ca-4fa6-8c26-5954d0abbccd
   'http://schemas.microsoft.com/office/word/2010/wordml': 'wordml',
+
+  // Word 2012 extensions (comments threading via commentsExtended.xml)
+  'http://schemas.microsoft.com/office/word/2012/wordml': 'w15',
+
+  // Word 2016 extensions (commentsIds.xml — durable IDs)
+  'http://schemas.microsoft.com/office/word/2016/wordml/cid': 'w16cid',
+
+  // Word 2018 extensions (commentsExtensible.xml — dateUtc)
+  'http://schemas.microsoft.com/office/word/2018/wordml/cex': 'w16cex',
 };
 
 function read(xmlString) {
