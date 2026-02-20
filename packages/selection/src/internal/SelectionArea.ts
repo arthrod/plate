@@ -727,6 +727,12 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
     const added: Element[] = [];
     const removed: Element[] = [];
 
+    // Optimization: Use Sets for faster lookups
+    const selectedSet = new Set(selected);
+    const storedSet = new Set(stored);
+    const touchedSet = new Set(touched);
+    const newlyTouchedSet = new Set<Element>();
+
     // Find newly selected elements
     for (let i = 0; i < _selectables.length; i++) {
       const node = _selectables[i];
@@ -740,25 +746,27 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
         _areaRect.top <= rect.bottom
       ) {
         // Check if the element wasn't present in the last selection.
-        if (!selected.includes(node)) {
+        if (!selectedSet.has(node)) {
           // Check if user wants to invert the selection for already selected elements
-          if (invert && stored.includes(node)) {
+          if (invert && storedSet.has(node)) {
             removed.push(node);
 
             continue;
           }
           added.push(node);
-        } else if (stored.includes(node) && !touched.includes(node)) {
+        } else if (storedSet.has(node) && !touchedSet.has(node)) {
           touched.push(node);
+          touchedSet.add(node);
         }
 
         newlyTouched.push(node);
+        newlyTouchedSet.add(node);
       }
     }
 
     // Re-select elements which were previously stored
     if (invert) {
-      added.push(...stored.filter((v) => !selected.includes(v)));
+      added.push(...stored.filter((v) => !selectedSet.has(v)));
     }
 
     // Check which elements where removed since last selection
@@ -769,11 +777,11 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
       const node = selected[i];
 
       if (
-        !newlyTouched.includes(node) &&
+        !newlyTouchedSet.has(node) &&
         !(
           // Check if user wants to keep previously selected elements, e.g.
           // not make them part of the current selection as soon as they're touched.
-          (keep && stored.includes(node))
+          (keep && storedSet.has(node))
         )
       ) {
         removed.push(node);
