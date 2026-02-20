@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.readOptions = readOptions;
 
 var defaultStyleMap = (exports._defaultStyleMap = [

@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.readRelationships = readRelationships;
 exports.defaultValue = new Relationships([]);
 exports.Relationships = Relationships;

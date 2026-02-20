@@ -1,3 +1,4 @@
+// @ts-nocheck
 var promises = require('../promises.ts');
 var xml = require('../xml/index.ts');
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 var promises = require('../promises.ts');
 
 exports.Files = Files;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 var JSZip = require('jszip');
 
 exports.openArrayBuffer = openArrayBuffer;

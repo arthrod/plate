@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.readNumberingXml = readNumberingXml;
 exports.Numbering = Numbering;
 exports.defaultNumbering = new Numbering(

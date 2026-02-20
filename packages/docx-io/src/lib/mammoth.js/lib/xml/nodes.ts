@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.Element = Element;
 exports.element = (name, attributes, children) =>
   new Element(name, attributes, children);

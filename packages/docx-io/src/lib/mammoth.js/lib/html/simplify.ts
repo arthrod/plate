@@ -1,3 +1,4 @@
+// @ts-nocheck
 var ast = require('./ast.ts');
 
 function simplify(nodes) {

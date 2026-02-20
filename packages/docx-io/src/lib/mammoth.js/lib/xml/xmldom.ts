@@ -1,3 +1,4 @@
+// @ts-nocheck
 var xmldom = require('@xmldom/xmldom');
 var dom = require('@xmldom/xmldom/lib/dom');
 

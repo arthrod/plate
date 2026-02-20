@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.readContentTypesFromXml = readContentTypesFromXml;
 
 var fallbackContentTypes = {

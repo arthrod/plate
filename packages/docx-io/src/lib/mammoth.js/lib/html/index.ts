@@ -1,3 +1,4 @@
+// @ts-nocheck
 var ast = require('./ast.ts');
 
 exports.freshElement = ast.freshElement;

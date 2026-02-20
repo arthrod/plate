@@ -1,3 +1,4 @@
+// @ts-nocheck
 var fromArray = exports.fromArray = function(array) {
     var index = 0;
     var hasNext = function() {

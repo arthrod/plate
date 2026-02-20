@@ -1,3 +1,4 @@
+// @ts-nocheck
 var nodes = require('./nodes.ts');
 
 exports.Element = nodes.Element;

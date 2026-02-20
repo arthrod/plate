@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.createBodyReader = createBodyReader;
 exports._readNumberingProperties = readNumberingProperties;
 

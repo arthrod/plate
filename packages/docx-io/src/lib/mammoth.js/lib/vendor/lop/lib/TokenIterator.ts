@@ -1,3 +1,4 @@
+// @ts-nocheck
 var TokenIterator = module.exports = function(tokens, startIndex) {
     this._tokens = tokens;
     this._startIndex = startIndex || 0;

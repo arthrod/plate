@@ -1,3 +1,4 @@
+// @ts-nocheck
 var nonePrototype = {
   value: function() {
     throw new Error('Called value on none');

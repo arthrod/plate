@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * schema.ts — Mammoth.js Document Model Types
  *

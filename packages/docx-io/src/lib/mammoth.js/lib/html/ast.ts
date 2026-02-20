@@ -1,3 +1,4 @@
+// @ts-nocheck
 var htmlPaths = require('../styles/html-paths.ts');
 
 function nonFreshElement(tagName, attributes, children) {

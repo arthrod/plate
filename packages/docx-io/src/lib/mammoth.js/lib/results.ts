@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.Result = Result;
 exports.success = success;
 exports.warning = warning;

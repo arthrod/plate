@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.Parser = require("./lib/parser.ts").Parser;
 exports.rules = require("./lib/rules.ts");
 exports.errors = require("./lib/errors.ts");

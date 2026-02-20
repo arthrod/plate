@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* global process */
 
 var fs = require('fs');

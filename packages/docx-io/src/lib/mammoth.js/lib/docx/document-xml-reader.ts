@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.DocumentXmlReader = DocumentXmlReader;
 
 var documents = require('../documents.ts');

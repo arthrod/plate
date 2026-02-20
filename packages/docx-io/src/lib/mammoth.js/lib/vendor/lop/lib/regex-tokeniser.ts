@@ -1,3 +1,4 @@
+// @ts-nocheck
 var Token = require("./Token.ts");
 var StringSource = require("./StringSource.ts");
 

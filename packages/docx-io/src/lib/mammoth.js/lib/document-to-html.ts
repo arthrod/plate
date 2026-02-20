@@ -1,3 +1,4 @@
+// @ts-nocheck
 var promises = require('./promises.ts');
 var documents = require('./documents.ts');
 var htmlPaths = require('./styles/html-paths.ts');

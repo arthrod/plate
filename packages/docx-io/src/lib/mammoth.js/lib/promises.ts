@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.defer = defer;
 exports.when = function (value) {
   return Promise.resolve(value);

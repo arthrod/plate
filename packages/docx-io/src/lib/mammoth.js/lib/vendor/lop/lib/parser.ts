@@ -1,3 +1,4 @@
+// @ts-nocheck
 var TokenIterator = require("./TokenIterator.ts");
 
 exports.Parser = function(options) {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.paragraph = paragraph;
 exports.run = run;
 exports.table = table;

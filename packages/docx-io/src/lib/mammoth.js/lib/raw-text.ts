@@ -1,3 +1,4 @@
+// @ts-nocheck
 var documents = require('./documents.ts');
 
 function convertElementToRawText(element) {

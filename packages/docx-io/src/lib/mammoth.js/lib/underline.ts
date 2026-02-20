@@ -1,3 +1,4 @@
+// @ts-nocheck
 var htmlPaths = require('./styles/html-paths.ts');
 var Html = require('./html/index.ts');
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 var StringSource = module.exports = function(string, description) {
     var self = {
         asString: function() {

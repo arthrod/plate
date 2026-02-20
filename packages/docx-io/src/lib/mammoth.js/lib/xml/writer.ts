@@ -1,3 +1,4 @@
+// @ts-nocheck
 var xmlbuilder = require('xmlbuilder');
 
 exports.writeString = writeString;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 var lop = require('./vendor/lop/index.ts');
 
 var documentMatchers = require('./styles/document-matchers.ts');

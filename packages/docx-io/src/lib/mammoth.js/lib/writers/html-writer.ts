@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.writer = writer;
 
 function writer(options) {

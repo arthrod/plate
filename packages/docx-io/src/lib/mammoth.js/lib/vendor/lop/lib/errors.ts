@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.error = function(options) {
     return new Error(options);
 };

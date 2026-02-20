@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.uriToZipEntryName = uriToZipEntryName;
 exports.replaceFragment = replaceFragment;
 

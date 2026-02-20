@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.readStylesXml = readStylesXml;
 exports.Styles = Styles;
 exports.defaultStyles = new Styles({}, {}, {}, {});

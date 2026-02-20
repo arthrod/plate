@@ -1,3 +1,4 @@
+// @ts-nocheck
 var htmlWriter = require('./html-writer.ts');
 var markdownWriter = require('./markdown-writer.ts');
 

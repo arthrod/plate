@@ -1,3 +1,4 @@
+// @ts-nocheck
 var rules = require("./rules.ts");
 var results = require("./parsing-results.ts");
 

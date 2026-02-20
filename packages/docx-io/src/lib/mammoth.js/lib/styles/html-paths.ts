@@ -1,3 +1,4 @@
+// @ts-nocheck
 var html = require('../html/index.ts');
 
 exports.topLevelElement = topLevelElement;

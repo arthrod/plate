@@ -1,3 +1,4 @@
+// @ts-nocheck
 var promises = require('./promises.ts');
 var zipfile = require('./zipfile.ts');
 

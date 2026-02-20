@@ -1,3 +1,4 @@
+// @ts-nocheck
 module.exports = {
     failure: function(errors, remaining) {
         if (errors.length < 1) {

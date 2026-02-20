@@ -1,3 +1,4 @@
+// @ts-nocheck
 exports.read = read;
 exports._findPartPaths = findPartPaths;
 

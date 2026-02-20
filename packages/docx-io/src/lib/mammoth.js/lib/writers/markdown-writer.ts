@@ -1,3 +1,4 @@
+// @ts-nocheck
 function symmetricMarkdownElement(end) {
   return markdownElement(end, end);
 }

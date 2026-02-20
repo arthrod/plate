@@ -1,3 +1,4 @@
+// @ts-nocheck
 var options = require("./option.ts");
 var results = require("./parsing-results.ts");
 var errors = require("./errors.ts");
