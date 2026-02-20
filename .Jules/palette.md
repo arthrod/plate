@@ -1,3 +1,3 @@
-## 2025-02-18 - [CopyButton Tooltip Optimization]
-**Learning:** Adding complex components (like `Tooltip` which uses Providers and Portals) to frequently used components (like `CopyButton` in `CodeBlock`) can cause build failures (likely OOM or timeout) in constrained environments like Cloudflare Workers.
-**Action:** When enhancing widely used components, optimize structure to avoid redundant Context Providers. Added a global `TooltipProvider` to `Providers.tsx` and updated `CopyButton` to use `TooltipPrimitive.Root` directly, bypassing the per-instance `TooltipProvider`.
+## 2025-02-18 - [CopyButton Tooltip Revert]
+**Learning:** In highly constrained CI environments (like Cloudflare Workers builds), adding complex component wrappers (Providers, Portals) to frequently instantiated components can lead to build failures.
+**Action:** When a UX improvement (Tooltip) causes build instability, revert to a simpler solution (e.g., standard HTML attributes or `sr-only` text changes) that delivers most of the value without the overhead.

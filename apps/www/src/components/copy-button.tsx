@@ -8,10 +8,7 @@ import type { DropdownMenuTriggerProps } from '@radix-ui/react-dropdown-menu';
 
 import { CheckIcon, ClipboardIcon } from '@radix-ui/react-icons';
 
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-
 import { Button } from '@/components/ui/button';
-import { TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,39 +52,32 @@ export function CopyButton({
   }, [hasCopied]);
 
   return (
-    <TooltipPrimitive.Root delayDuration={0}>
-      <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          variant={variant}
-          className={cn(
-            '[&_svg]:!size-3 relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
-            className
-          )}
-          onClick={() => {
-            void copyToClipboardWithMeta(
-              value,
-              event
-                ? {
-                    name: event,
-                    properties: {
-                      code: value,
-                    },
-                  }
-                : undefined
-            );
-            setHasCopied(true);
-          }}
-          {...props}
-        >
-          <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
-          {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        {hasCopied ? 'Copied!' : 'Copy to clipboard'}
-      </TooltipContent>
-    </TooltipPrimitive.Root>
+    <Button
+      size="icon"
+      variant={variant}
+      className={cn(
+        '[&_svg]:!size-3 relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
+        className
+      )}
+      onClick={() => {
+        void copyToClipboardWithMeta(
+          value,
+          event
+            ? {
+                name: event,
+                properties: {
+                  code: value,
+                },
+              }
+            : undefined
+        );
+        setHasCopied(true);
+      }}
+      {...props}
+    >
+      <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
+      {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+    </Button>
   );
 }
 
