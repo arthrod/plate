@@ -22,7 +22,7 @@
   },
   "license": "MIT",
   "type": "module",
-  "bin": "./dist/cli.js",
+  "bin": "./dist/index.js",
   "scripts": {
     "build": "yarn p:build",
     "build:watch": "yarn p:build:watch",
