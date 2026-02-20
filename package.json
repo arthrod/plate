@@ -44,6 +44,7 @@
     "postinstall": "bunx skiller@latest apply && patch-package --patch-dir tooling/patches",
     "lint": "biome check . && eslint",
     "lint:fix": "biome check . --fix",
+    "nuke:all": "rimraf 'dist' '.next' '.turbo' '.tanstack' '*.lock' 'node_modules' '**/dist' '**/.next' '**/*.lock' '**/node_modules' '**/.turbo' '**/.tanstack'",
     "nuke:node_modules": "rimraf '**/node_modules'",
     "p:brl": "sh tooling/scripts/brl.sh",
     "p:build": "cd $INIT_CWD && yarn p:tsdown",

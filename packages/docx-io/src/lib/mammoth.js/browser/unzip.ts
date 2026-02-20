@@ -1,11 +1,9 @@
-import promises from '../lib/promises';
-import * as zipfile from '../lib/zipfile';
+var promises = require('../lib/promises.ts');
+var zipfile = require('../lib/zipfile.ts');
 
-type OpenZipOptions = {
-  arrayBuffer?: ArrayBuffer;
-};
+exports.openZip = browserOpenZip;
 
-export function openZip(options: OpenZipOptions) {
+function browserOpenZip(options) {
   if (options.arrayBuffer) {
     return promises.resolve(zipfile.openArrayBuffer(options.arrayBuffer));
   }

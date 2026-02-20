@@ -56,6 +56,18 @@ function buildCommentToken(
     authorInitials?: string;
     date?: string;
     text?: string;
+    paraId?: string;
+    parentParaId?: string;
+    isPoint?: boolean;
+    replies?: Array<{
+      id: string;
+      authorName?: string;
+      authorInitials?: string;
+      date?: string;
+      text?: string;
+      paraId?: string;
+      parentParaId?: string;
+    }>;
   },
   position: 'start' | 'end'
 ): string {
@@ -290,6 +302,45 @@ describe('parseDocxComments', () => {
       expect(comment.hasEndToken).toBe(true);
     });
 
+    it('should parse comment thread metadata and replies', () => {
+      const payload = {
+        id: 'cmt-root',
+        authorName: 'Alice Walker',
+        authorInitials: 'AW',
+        date: '2024-02-01T08:15:00Z',
+        paraId: 'A1B2C3D4',
+        text: 'Root comment',
+        replies: [
+          {
+            id: 'cmt-reply-1',
+            authorName: 'Bob Stone',
+            authorInitials: 'BS',
+            date: '2024-02-01T09:00:00Z',
+            text: 'Reply comment',
+            paraId: 'D4C3B2A1',
+            parentParaId: 'A1B2C3D4',
+          },
+        ],
+      };
+      const html = `<p>${buildCommentToken(payload, 'start')}thread text${buildCommentToken(payload, 'end')}</p>`;
+
+      const result = parseDocxComments(html);
+      const comment = result.comments[0];
+
+      expect(result.comments).toHaveLength(1);
+      expect(comment?.paraId).toBe('A1B2C3D4');
+      expect(comment?.authorName).toBe('Alice Walker');
+      expect(comment?.authorInitials).toBe('AW');
+      expect(comment?.date).toBe('2024-02-01T08:15:00Z');
+      expect(comment?.replies).toHaveLength(1);
+      expect(comment?.replies?.[0]?.id).toBe('cmt-reply-1');
+      expect(comment?.replies?.[0]?.authorName).toBe('Bob Stone');
+      expect(comment?.replies?.[0]?.authorInitials).toBe('BS');
+      expect(comment?.replies?.[0]?.date).toBe('2024-02-01T09:00:00Z');
+      expect(comment?.replies?.[0]?.paraId).toBe('D4C3B2A1');
+      expect(comment?.replies?.[0]?.parentParaId).toBe('A1B2C3D4');
+    });
+
     it('should parse multiple comments', () => {
       const html = `
         <p>${buildCommentToken({ id: 'cmt-1', text: 'First' }, 'start')}text1${buildCommentToken({ id: 'cmt-1' }, 'end')}</p>
@@ -339,6 +390,34 @@ describe('parseDocxComments', () => {
       expect(result.comments[0].text).toBe('Comment text');
       expect(result.comments[0].hasStartToken).toBe(true);
       expect(result.comments[0].hasEndToken).toBe(true);
+    });
+
+    it('should parse point-comment tokens and retain point metadata', () => {
+      const payload = {
+        id: 'cmt-point-1',
+        authorName: 'Point User',
+        authorInitials: 'PU',
+        date: '2024-02-03T11:25:00Z',
+        isPoint: true,
+        paraId: '1122AABB',
+        text: 'Point note',
+      };
+      const startToken = buildCommentToken(payload, 'start');
+      const endToken = buildCommentToken(payload, 'end');
+      const html = `<p>${startToken}pointed text${endToken}</p>`;
+
+      const result = parseDocxComments(html);
+      const comment = result.comments[0];
+
+      expect(result.comments).toHaveLength(1);
+      expect(comment?.id).toBe('cmt-point-1');
+      expect(comment?.isPoint).toBe(true);
+      expect(comment?.hasPointToken).toBe(true);
+      expect(comment?.pointToken).toBe(`${startToken}${endToken}`);
+      expect(comment?.authorName).toBe('Point User');
+      expect(comment?.authorInitials).toBe('PU');
+      expect(comment?.date).toBe('2024-02-03T11:25:00Z');
+      expect(comment?.paraId).toBe('1122AABB');
     });
   });
 

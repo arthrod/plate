@@ -1671,8 +1671,41 @@ test("can read pictures with hyperlink specified in document properties", functi
     )));
 });
 
-test("children of w:ins are converted normally", function() {
-    assertChildrenAreConvertedNormally("w:ins");
+test("w:ins children are wrapped as inserted with metadata", function() {
+    var runXml = new XmlElement("w:r", {}, []);
+    var result = readXmlElement(new XmlElement("w:ins", {
+        "w:author": "Alice",
+        "w:date": "2024-01-02T03:04:05Z",
+        "w:id": "42"
+    }, [runXml]), {
+        preserveTrackedChanges: true
+    });
+
+    assert.equal(result.value[0].type, "inserted");
+    assert.equal(result.value[0].author, "Alice");
+    assert.equal(result.value[0].date, "2024-01-02T03:04:05Z");
+    assert.equal(result.value[0].changeId, "42");
+    assert.equal(result.value[0].children[0].type, "run");
+});
+
+test("w:del children are wrapped as deleted with metadata", function() {
+    var runXml = new XmlElement("w:r", {}, [
+        new XmlElement("w:delText", {}, [xml.text("removed")])
+    ]);
+    var result = readXmlElement(new XmlElement("w:del", {
+        "w:author": "Bob",
+        "w:date": "2024-02-03T04:05:06Z",
+        "w:id": "99"
+    }, [runXml]), {
+        preserveTrackedChanges: true
+    });
+
+    assert.equal(result.value[0].type, "deleted");
+    assert.equal(result.value[0].author, "Bob");
+    assert.equal(result.value[0].date, "2024-02-03T04:05:06Z");
+    assert.equal(result.value[0].changeId, "99");
+    assert.equal(result.value[0].children[0].type, "run");
+    assert.equal(result.value[0].children[0].children[0].value, "removed");
 });
 
 test("children of w:object are converted normally", function() {

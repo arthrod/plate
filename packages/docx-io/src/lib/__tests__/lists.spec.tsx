@@ -16,13 +16,19 @@ describe(getDocxTestName(name), () => {
       <editor>
         <hh2>Some nested lists</hh2>
         <hp>one</hp>
-        <hp>two</hp>
-        <hp>a</hp>
-        <hp>b</hp>
+        <hp>
+          <hp>two</hp>
+          <hp>a</hp>
+          <hp>b</hp>
+        </hp>
         <hp>one</hp>
-        <hp>two</hp>
-        <hp>three</hp>
-        <hp>four</hp>
+        <hp>
+          <hp>two</hp>
+          <hp>
+            <hp>three</hp>
+            <hp>four</hp>
+          </hp>
+        </hp>
         <hp>Sub paragraph</hp>
         <hp>Same list</hp>
         <hp>Different list adjacent to the one above.</hp>

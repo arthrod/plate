@@ -100,6 +100,60 @@ describe('applyDocxTracking', () => {
       expect(editor.tf.setNodes).toHaveBeenCalled();
     });
 
+    it('applies suggestion with normalized location and author/time metadata', () => {
+      const editor = createMockEditor();
+      const tokenMap = new Map<string, TRange | null>();
+      tokenMap.set('[[START:meta-1]]', {
+        anchor: { path: [0, 0], offset: 14 },
+        focus: { path: [0, 0], offset: 20 },
+      });
+      tokenMap.set('[[END:meta-1]]', {
+        anchor: { path: [0, 0], offset: 6 },
+        focus: { path: [0, 0], offset: 12 },
+      });
+
+      const date = '2024-01-15T12:00:00Z';
+      const result = applyTrackedChangeSuggestions({
+        editor,
+        changes: [
+          {
+            id: 'meta-1',
+            type: 'insert',
+            author: 'John Doe',
+            date,
+            startToken: '[[START:meta-1]]',
+            endToken: '[[END:meta-1]]',
+          },
+        ],
+        searchRange: createMockSearchRange(tokenMap),
+        suggestionKey: 'suggestion',
+        getSuggestionKey: (id) => `suggestion_${id}`,
+        isText: () => true,
+      });
+
+      expect(result.total).toBe(1);
+      expect(result.users).toEqual([{ id: 'John Doe', name: 'John Doe' }]);
+      expect(editor.tf.setNodes).toHaveBeenCalledWith(
+        {
+          suggestion: true,
+          'suggestion_meta-1': {
+            id: 'meta-1',
+            type: 'insert',
+            userId: 'John Doe',
+            createdAt: Date.parse(date),
+          },
+        },
+        {
+          at: {
+            anchor: { path: [0, 0], offset: 6 },
+            focus: { path: [0, 0], offset: 20 },
+          },
+          match: expect.any(Function),
+          split: true,
+        }
+      );
+    });
+
     it('applies deletion suggestion', () => {
       const editor = createMockEditor();
       const changes: DocxTrackedChange[] = [
@@ -1035,6 +1089,116 @@ describe('applyDocxTracking', () => {
       expect(result.discussions).toEqual([]);
       expect(result.errors).toEqual([]);
       expect(editor.tf.setNodes).not.toHaveBeenCalled();
+      expect(editor.tf.delete).toHaveBeenCalledTimes(2);
+    });
+
+    it('creates discussion with location, author, initials, time and thread metadata', () => {
+      const tokenMap = new Map<string, TRange | null>();
+      tokenMap.set('[[CMT_START:root]]', {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 5 },
+      });
+      tokenMap.set('[[CMT_END:root]]', {
+        anchor: { path: [0, 0], offset: 16 },
+        focus: { path: [0, 0], offset: 20 },
+      });
+
+      const editor: TrackingEditor = {
+        api: {
+          string: mock(() => 'Tracked selection text'),
+          rangeRef: (range: TRange) => ({
+            current: range,
+            unref: mock(() => range),
+          }),
+        },
+        tf: {
+          setNodes: mock(() => {}),
+          delete: mock(() => {}),
+          withMerging: mock((fn: () => void) => fn()),
+        },
+      };
+
+      const rootDate = '2024-03-01T09:30:00Z';
+      const replyDate = '2024-03-01T10:00:00Z';
+      const result = applyTrackedCommentsLocal({
+        editor,
+        comments: [
+          {
+            id: 'cmt-root',
+            authorName: 'Ana Maria',
+            authorInitials: 'AM',
+            date: rootDate,
+            text: 'Root comment text',
+            paraId: 'A1B2C3D4',
+            startToken: '[[CMT_START:root]]',
+            endToken: '[[CMT_END:root]]',
+            hasStartToken: true,
+            hasEndToken: true,
+            replies: [
+              {
+                id: 'cmt-reply-1',
+                authorName: 'Bob Lee',
+                authorInitials: 'BL',
+                date: replyDate,
+                text: 'Reply body',
+                paraId: 'D4C3B2A1',
+                parentParaId: 'A1B2C3D4',
+              },
+            ],
+          },
+        ],
+        searchRange: createMockSearchRange(tokenMap),
+        commentKey: 'comment',
+        getCommentKey: (id) => `comment_${id}`,
+        isText: () => true,
+        generateId: () => 'discussion-1',
+      });
+
+      expect(result.applied).toBe(1);
+      expect(result.errors).toEqual([]);
+      expect(result.discussions).toHaveLength(1);
+      expect(result.discussions[0]).toEqual({
+        id: 'discussion-1',
+        comments: [
+          {
+            id: 'cmt-root',
+            contentRich: [{ type: 'p', children: [{ text: 'Root comment text' }] }],
+            createdAt: new Date(rootDate),
+            paraId: 'A1B2C3D4',
+            parentParaId: undefined,
+            userId: 'Ana Maria',
+            user: { id: 'Ana Maria', name: 'Ana Maria' },
+          },
+          {
+            id: 'cmt-reply-1',
+            contentRich: [{ type: 'p', children: [{ text: 'Reply body' }] }],
+            createdAt: new Date(replyDate),
+            paraId: 'D4C3B2A1',
+            parentParaId: 'A1B2C3D4',
+            userId: 'Bob Lee',
+            user: { id: 'Bob Lee', name: 'Bob Lee' },
+          },
+        ],
+        createdAt: new Date(rootDate),
+        documentContent: 'Tracked selection text',
+        paraId: 'A1B2C3D4',
+        userId: 'Ana Maria',
+        user: { id: 'Ana Maria', name: 'Ana Maria' },
+      });
+      expect(editor.tf.setNodes).toHaveBeenCalledWith(
+        {
+          comment: true,
+          'comment_discussion-1': true,
+        },
+        {
+          at: {
+            anchor: { path: [0, 0], offset: 5 },
+            focus: { path: [0, 0], offset: 16 },
+          },
+          match: expect.any(Function),
+          split: true,
+        }
+      );
       expect(editor.tf.delete).toHaveBeenCalledTimes(2);
     });
   });

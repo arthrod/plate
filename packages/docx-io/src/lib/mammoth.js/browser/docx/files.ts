@@ -1,7 +1,9 @@
-import promises from '../../lib/promises';
+var promises = require('../../lib/promises.ts');
 
-export function Files() {
-  function read(uri: string) {
+exports.Files = createFiles;
+
+function createFiles() {
+  function read(uri) {
     return promises.reject(
       new Error(
         "could not open external image: '" +

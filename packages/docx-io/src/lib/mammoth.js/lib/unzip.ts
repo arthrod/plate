@@ -11,6 +11,9 @@ function openZip(options) {
   if (options.path) {
     return readFile(options.path).then(zipfile.openArrayBuffer);
   }
+  if (options.arrayBuffer) {
+    return promises.resolve(zipfile.openArrayBuffer(options.arrayBuffer));
+  }
   if (options.buffer) {
     return promises.resolve(zipfile.openArrayBuffer(options.buffer));
   }

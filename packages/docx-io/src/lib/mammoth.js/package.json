@@ -1,0 +1,8 @@
+{
+  "name": "@platejs/docx-io-vendored-mammoth",
+  "private": true,
+  "version": "0.0.0-vendored",
+  "license": "BSD-2-Clause",
+  "type": "commonjs",
+  "dependencies": {}
+}

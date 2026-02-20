@@ -36,6 +36,8 @@ function BodyReader(options) {
   var files = options.files;
   var numbering = options.numbering;
   var styles = options.styles;
+  var preserveTrackedChanges =
+    !!options.preserveTrackedChanges || !!options.emitDocxTrackedChangeTokens;
 
   function readXmlElements(elements) {
     var results = elements.map(readXmlElement);
@@ -458,13 +460,35 @@ function BodyReader(options) {
     },
 
     'w:ins'(element) {
-      return readChildElements(element);
+      if (!preserveTrackedChanges) {
+        return readChildElements(element);
+      }
+      var author = element.attributes['w:author'];
+      var date = element.attributes['w:date'];
+      var changeId = element.attributes['w:id'];
+      return readXmlElements(element.children).map((children) => [
+        documents.inserted(children, {
+          author,
+          date,
+          changeId,
+        }),
+      ]);
     },
-    'w:del'() {
-      // Keep baseline mammoth behavior: deleted run content is ignored.
-      return emptyResult();
+    'w:del'(element) {
+      if (!preserveTrackedChanges) {
+        return emptyResult();
+      }
+      var author = element.attributes['w:author'];
+      var date = element.attributes['w:date'];
+      var changeId = element.attributes['w:id'];
+      return readXmlElements(element.children).map((children) => [
+        documents.deleted(children, {
+          author,
+          date,
+          changeId,
+        }),
+      ]);
     },
-    // Handle deleted text within w:del elements
     'w:delText'(element) {
       return elementResult(new documents.Text(element.text()));
     },

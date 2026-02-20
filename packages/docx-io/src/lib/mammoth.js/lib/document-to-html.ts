@@ -15,6 +15,9 @@ var DOCX_INSERTION_TOKEN_SUFFIX = ']]';
 var DOCX_DELETION_START_TOKEN_PREFIX = '[[DOCX_DEL_START:';
 var DOCX_DELETION_END_TOKEN_PREFIX = '[[DOCX_DEL_END:';
 var DOCX_DELETION_TOKEN_SUFFIX = ']]';
+var DOCX_COMMENT_START_TOKEN_PREFIX = '[[DOCX_CMT_START:';
+var DOCX_COMMENT_END_TOKEN_PREFIX = '[[DOCX_CMT_END:';
+var DOCX_COMMENT_TOKEN_SUFFIX = ']]';
 
 function DocumentConverter(options) {
   return {
@@ -306,6 +309,22 @@ function DocumentConversion(options, comments) {
       if (!comment) {
         return [];
       }
+
+      if (options.emitDocxCommentTokens) {
+        var payload = buildCommentPayload(comment, messages, options);
+        payload.isPoint = true;
+
+        var startToken =
+          DOCX_COMMENT_START_TOKEN_PREFIX +
+          encodeURIComponent(JSON.stringify(payload)) +
+          DOCX_COMMENT_TOKEN_SUFFIX;
+        var endToken =
+          DOCX_COMMENT_END_TOKEN_PREFIX +
+          encodeURIComponent(reference.commentId) +
+          DOCX_COMMENT_TOKEN_SUFFIX;
+        return [Html.text(startToken + endToken)];
+      }
+
       var count = referencedComments.length + 1;
       var label = '[' + commentAuthorLabel(comment) + count + ']';
       referencedComments.push({ label, comment });
@@ -344,6 +363,83 @@ function DocumentConversion(options, comments) {
       ),
       Html.freshElement('dd', {}, body),
     ];
+  }
+
+  function getReplies(paraId) {
+    if (!paraId) return [];
+
+    var replies = [];
+    Object.keys(comments).forEach((id) => {
+      var comment = comments[id];
+      if (comment.parentParaId === paraId) {
+        replies.push(comment);
+      }
+    });
+
+    replies.sort((a, b) => ((a.date || '') > (b.date || '') ? 1 : -1));
+    return replies;
+  }
+
+  function buildCommentPayload(comment, messages, options) {
+    var payload = {
+      id: comment.commentId,
+      authorName: comment.authorName,
+      authorInitials: comment.authorInitials,
+      date: comment.date,
+      paraId: comment.paraId,
+      parentParaId: comment.parentParaId,
+    };
+
+    if (comment.body && comment.body.length > 0) {
+      payload.text = extractTextFromElements(comment.body);
+      try {
+        var richContent = convertElements(comment.body, messages, options);
+        payload.body = Html.simplify(richContent);
+      } catch (error) {
+        var detail =
+          error && typeof error.message === 'string' ? error.message : '';
+        messages.push(
+          results.error(
+            new Error(
+              'Failed to convert comment body for comment ' +
+                comment.commentId +
+                (detail ? ': ' + detail : '')
+            )
+          )
+        );
+      }
+    }
+
+    var replies = getReplies(comment.paraId);
+    if (replies.length > 0) {
+      payload.replies = replies.map((reply) =>
+        buildCommentPayload(reply, messages, options)
+      );
+    }
+
+    return payload;
+  }
+
+  function extractTextFromElements(elements) {
+    var text = '';
+
+    elements.forEach((element) => {
+      if (element.type === documents.types.text) {
+        text += element.value;
+        return;
+      }
+
+      if (element.type === documents.types.paragraph) {
+        text += extractTextFromElements(element.children || []) + '\n';
+        return;
+      }
+
+      if (element.children) {
+        text += extractTextFromElements(element.children);
+      }
+    });
+
+    return text;
   }
 
   function convertBreak(element, messages, options) {
@@ -449,20 +545,44 @@ function DocumentConversion(options, comments) {
     commentReference: convertCommentReference,
     comment: convertComment,
     commentRangeStart(element, messages, options) {
-      // Keep baseline mammoth behavior: range markers are ignored.
-      void element;
-      void messages;
-      void options;
-      return [];
+      if (!options.emitDocxCommentTokens) {
+        return [];
+      }
+
+      var comment = comments[element.commentId];
+      if (!comment) {
+        messages.push(
+          results.warning(
+            'Comment with ID ' +
+              element.commentId +
+              ' was referenced by a range but not found in the document'
+          )
+        );
+        return [];
+      }
+
+      var payload = buildCommentPayload(comment, messages, options);
+      var token =
+        DOCX_COMMENT_START_TOKEN_PREFIX +
+        encodeURIComponent(JSON.stringify(payload)) +
+        DOCX_COMMENT_TOKEN_SUFFIX;
+      return [Html.text(token)];
     },
     commentRangeEnd(element, messages, options) {
-      // Keep baseline mammoth behavior: range markers are ignored.
-      void element;
-      void messages;
-      void options;
-      return [];
+      if (!options.emitDocxCommentTokens) {
+        return [];
+      }
+
+      var token =
+        DOCX_COMMENT_END_TOKEN_PREFIX +
+        encodeURIComponent(element.commentId) +
+        DOCX_COMMENT_TOKEN_SUFFIX;
+      return [Html.text(token)];
     },
     inserted(element, messages, options) {
+      if (!options.emitDocxTrackedChangeTokens) {
+        return convertElements(element.children, messages, options);
+      }
       var children = convertElements(element.children, messages, options);
       // Use Word's original changeId if available, otherwise generate one
       var changeId = element.changeId || 'ins-' + trackedChangeIdCounter++;
@@ -484,6 +604,9 @@ function DocumentConversion(options, comments) {
         .concat([Html.text(endToken)]);
     },
     deleted(element, messages, options) {
+      if (!options.emitDocxTrackedChangeTokens) {
+        return [];
+      }
       var children = convertElements(element.children, messages, options);
       // Use Word's original changeId if available, otherwise generate one
       var changeId = element.changeId || 'del-' + trackedChangeIdCounter++;

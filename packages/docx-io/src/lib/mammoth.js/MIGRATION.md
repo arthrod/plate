@@ -66,3 +66,12 @@ Probe: bundle only `convertToHtml` via esbuild.
 - For in-repo consumer compatibility, `build` also copies `dist/esm/index.browser.js` to top-level `mammoth.browser.js`.
 - `check-typescript` now uses `tsconfig.check.json` to avoid monorepo ambient type collisions.
 - `@platejs/docx-io` typecheck excludes vendored mammoth tests: `src/lib/mammoth.js/test/**/*` (tests still run in Vitest).
+
+## Current Rebuild Flow (single dependency graph)
+
+- Do **not** run `npm install` inside `src/lib/mammoth.js`.
+- Dependencies are declared in `packages/docx-io/package.json` and installed once.
+- Rebuild from `packages/docx-io`:
+  - `bun run mammoth:bundle:all`
+  - `bun run html-to-docx:bundle:all`
+  - `bun run build`

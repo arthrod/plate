@@ -21,6 +21,8 @@ var Files = require('./files.ts').Files;
 function read(docxFile, input, options) {
   input = input || {};
   options = options || {};
+  var preserveTrackedChanges =
+    !!options.preserveTrackedChanges || !!options.emitDocxTrackedChangeTokens;
 
   var files = new Files({
     externalFileAccess: options.externalFileAccess,
@@ -32,6 +34,7 @@ function read(docxFile, input, options) {
     partPaths: findPartPaths(docxFile),
     docxFile,
     files,
+    preserveTrackedChanges,
   });
 
   var withStyles = promises.also(initial, (result) => ({
@@ -271,6 +274,7 @@ function readXmlFileWithBody(filename, options, func) {
         numbering: options.numbering,
         styles: options.styles,
         files: options.files,
+        preserveTrackedChanges: options.preserveTrackedChanges,
       });
       return readXmlFromZipFile(options.docxFile, filename).then((xml) =>
         func(bodyReader, xml)

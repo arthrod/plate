@@ -15,9 +15,6 @@
  * 3. Deserialize HTML to editor nodes
  * 4. Apply tracked changes and comments to editor
  */
-// Local mammoth.js fork ESM browser entry (avoid top-level copied bundle artifact)
-import mammothModule from './mammoth.js/dist/esm/index.browser.js';
-
 // ============================================================================
 // Mammoth Types and Export
 // ============================================================================
@@ -32,7 +29,11 @@ export type MammothMessage = {
 type MammothModule = {
   convertToHtml: (
     input: { arrayBuffer: ArrayBuffer },
-    options?: { styleMap?: string[] }
+    options?: {
+      styleMap?: string[];
+      emitDocxCommentTokens?: boolean;
+      emitDocxTrackedChangeTokens?: boolean;
+    }
   ) => Promise<{
     value: string;
     messages: MammothMessage[];
@@ -40,8 +41,54 @@ type MammothModule = {
   MammothMessage: unknown;
 };
 
+type MammothImport = {
+  default?: MammothModule;
+} & Partial<MammothModule>;
+
+let mammothModulePromise: Promise<MammothModule> | null = null;
+
+async function loadMammothModule(): Promise<MammothModule> {
+  if (!mammothModulePromise) {
+    mammothModulePromise = (async () => {
+      const candidates = [
+        './mammoth.js/dist/esm/index.browser.js',
+        './mammoth.js/lib/index.ts',
+        './mammoth.js/mammoth.browser.js',
+      ] as const;
+      let lastError: unknown;
+
+      for (const candidate of candidates) {
+        try {
+          const imported = (await import(candidate)) as MammothImport;
+          const module = (imported.default ?? imported) as Partial<MammothModule>;
+          if (typeof module.convertToHtml === 'function') {
+            return module as MammothModule;
+          }
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw new Error(
+        'Unable to load vendored mammoth module from dist or source fallbacks.',
+        {
+          cause: lastError,
+        }
+      );
+    })();
+  }
+
+  return mammothModulePromise;
+}
+
 /** Export mammoth for direct access if needed */
-export const mammoth = mammothModule as unknown as MammothModule;
+export const mammoth: MammothModule = {
+  async convertToHtml(input, options) {
+    const module = await loadMammothModule();
+    return module.convertToHtml(input, options);
+  },
+  MammothMessage: undefined,
+};
 
 // ============================================================================
 // Preprocess Types
@@ -221,7 +268,11 @@ export async function convertToHtmlWithTracking(
   // The mammoth fork natively emits tracking tokens during conversion
   const result = await mammoth.convertToHtml(
     { arrayBuffer },
-    { styleMap: options.styleMap ?? ['comment-reference => sup'] }
+    {
+      emitDocxCommentTokens: true,
+      emitDocxTrackedChangeTokens: true,
+      styleMap: options.styleMap ?? ['comment-reference => sup'],
+    }
   );
 
   return {
