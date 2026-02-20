@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Remote Cursor Overlay",
   "description": "A cursor overlay to display multiplayer cursors in the yjs plugin.",
-  "dependencies": [
-    "@slate-yjs/react"
-  ],
+  "dependencies": ["@slate-yjs/react"],
   "registryDependencies": [],
   "files": [
     {

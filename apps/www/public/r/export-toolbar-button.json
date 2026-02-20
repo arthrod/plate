@@ -29,9 +29,7 @@
         "title": "Export"
       }
     ],
-    "examples": [
-      "basic-nodes-demo"
-    ],
+    "examples": ["basic-nodes-demo"],
     "label": "New"
   }
 }

@@ -23,9 +23,6 @@
         "route": "https://pro.platejs.org/docs/components/turn-into-toolbar-button"
       }
     ],
-    "examples": [
-      "basic-nodes-demo",
-      "basic-nodes-pro"
-    ]
+    "examples": ["basic-nodes-demo", "basic-nodes-pro"]
   }
 }

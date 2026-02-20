@@ -19,7 +19,5 @@
   "meta": {
     "descriptionSrc": "/docs/multi-select"
   },
-  "categories": [
-    "Editors"
-  ]
+  "categories": ["Editors"]
 }

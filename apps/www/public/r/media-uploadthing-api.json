@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "media-uploadthing-api",
   "type": "registry:file",
-  "dependencies": [
-    "uploadthing@7.7.4"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/uploadthing"
-  ],
+  "dependencies": ["uploadthing@7.7.4"],
+  "registryDependencies": ["https://platejs.org/r/uploadthing"],
   "files": [
     {
       "path": "src/registry/app/api/uploadthing/route.ts",

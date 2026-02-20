@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Media Upload Toast",
   "description": "Show toast notifications for media uploads.",
-  "dependencies": [
-    "@platejs/media",
-    "sonner"
-  ],
+  "dependencies": ["@platejs/media", "sonner"],
   "registryDependencies": [],
   "files": [
     {
@@ -22,9 +19,6 @@
         "route": "/docs/media"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

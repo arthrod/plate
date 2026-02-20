@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "TOC Element",
   "description": "A table of contents component with links to document headings.",
-  "dependencies": [
-    "@platejs/toc"
-  ],
+  "dependencies": ["@platejs/toc"],
   "registryDependencies": [],
   "files": [
     {
@@ -29,9 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/toc-node"
       }
     ],
-    "examples": [
-      "toc-demo",
-      "toc-pro"
-    ]
+    "examples": ["toc-demo", "toc-pro"]
   }
 }

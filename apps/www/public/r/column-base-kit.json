@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "column-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/layout"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/column-node"
-  ],
+  "dependencies": ["@platejs/layout"],
+  "registryDependencies": ["https://platejs.org/r/column-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/column-base-kit.tsx",

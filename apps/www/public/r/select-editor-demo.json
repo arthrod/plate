@@ -4,9 +4,7 @@
   "type": "registry:example",
   "title": "Select Editor Form",
   "description": "A form with a select editor component for managing labels.",
-  "dependencies": [
-    "@platejs/tag"
-  ],
+  "dependencies": ["@platejs/tag"],
   "registryDependencies": [
     "form",
     "button",

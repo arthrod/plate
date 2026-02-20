@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "slash-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/slash-command"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/slash-node"
-  ],
+  "dependencies": ["@platejs/slash-command"],
+  "registryDependencies": ["https://platejs.org/r/slash-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/slash-kit.tsx",

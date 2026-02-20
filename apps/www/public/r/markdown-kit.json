@@ -2,11 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "markdown-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/markdown",
-    "remark-gfm",
-    "remark-math"
-  ],
+  "dependencies": ["@platejs/markdown", "remark-gfm", "remark-math"],
   "registryDependencies": [],
   "files": [
     {

@@ -4,11 +4,7 @@
   "type": "registry:ui",
   "title": "Font Color Toolbar Button",
   "description": "A color picker toolbar button with text and background color controls.",
-  "dependencies": [
-    "@udecode/cn",
-    "@platejs/basic-styles",
-    "lodash"
-  ],
+  "dependencies": ["@udecode/cn", "@platejs/basic-styles", "lodash"],
   "registryDependencies": [
     "dropdown-menu",
     "separator",
@@ -32,8 +28,6 @@
         "route": "https://pro.platejs.org/docs/components/font-color-toolbar-button"
       }
     ],
-    "examples": [
-      "font-demo"
-    ]
+    "examples": ["font-demo"]
   }
 }

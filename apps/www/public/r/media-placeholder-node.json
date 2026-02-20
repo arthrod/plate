@@ -4,13 +4,8 @@
   "type": "registry:ui",
   "title": "Media Placeholder Element",
   "description": "A placeholder for media upload progress indication.",
-  "dependencies": [
-    "@platejs/media",
-    "use-file-picker@2.1.2"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/uploadthing"
-  ],
+  "dependencies": ["@platejs/media", "use-file-picker@2.1.2"],
+  "registryDependencies": ["https://platejs.org/r/uploadthing"],
   "files": [
     {
       "path": "src/registry/ui/media-placeholder-node.tsx",
@@ -27,9 +22,6 @@
         "route": "https://pro.platejs.org/docs/components/media-placeholder-node"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

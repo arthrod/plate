@@ -3,9 +3,7 @@
   "name": "editor-ai",
   "type": "registry:block",
   "description": "An AI editor",
-  "dependencies": [
-    "sonner"
-  ],
+  "dependencies": ["sonner"],
   "registryDependencies": [
     "https://platejs.org/r/plate-ui",
     "https://platejs.org/r/copilot-kit",
@@ -64,7 +62,5 @@
       "type": "registry:component"
     }
   ],
-  "categories": [
-    "Editors"
-  ]
+  "categories": ["Editors"]
 }

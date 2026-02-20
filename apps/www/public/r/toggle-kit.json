@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "toggle-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/toggle"
-  ],
+  "dependencies": ["@platejs/toggle"],
   "registryDependencies": [
     "https://platejs.org/r/toggle-base-kit",
     "https://platejs.org/r/indent-kit",

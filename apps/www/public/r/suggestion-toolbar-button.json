@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Suggestion Toolbar Button",
   "description": "A toolbar button for toggling suggestion mode in the editor.",
-  "dependencies": [
-    "@platejs/suggestion"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar"
-  ],
+  "dependencies": ["@platejs/suggestion"],
+  "registryDependencies": ["https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/suggestion-toolbar-button.tsx",
@@ -23,9 +19,6 @@
         "route": "/docs/suggestion"
       }
     ],
-    "examples": [
-      "discussion-demo",
-      "discussion-pro"
-    ]
+    "examples": ["discussion-demo", "discussion-pro"]
   }
 }

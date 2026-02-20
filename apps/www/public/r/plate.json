@@ -3,9 +3,7 @@
   "name": "plate",
   "type": "registry:lib",
   "description": "Install Plate package",
-  "dependencies": [
-    "platejs"
-  ],
+  "dependencies": ["platejs"],
   "devDependencies": [],
   "registryDependencies": [],
   "files": []

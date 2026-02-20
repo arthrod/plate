@@ -4,15 +4,8 @@
   "type": "registry:ui",
   "title": "Code Block Nodes",
   "description": "A code block with syntax highlighting and language selection.",
-  "dependencies": [
-    "@platejs/code-block",
-    "lowlight"
-  ],
-  "registryDependencies": [
-    "command",
-    "popover",
-    "button"
-  ],
+  "dependencies": ["@platejs/code-block", "lowlight"],
+  "registryDependencies": ["command", "popover", "button"],
   "files": [
     {
       "path": "src/registry/ui/code-block-node.tsx",
@@ -34,8 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/code-block-node"
       }
     ],
-    "examples": [
-      "code-block-demo"
-    ]
+    "examples": ["code-block-demo"]
   }
 }

@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "docx-export-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/docx-io"
-  ],
+  "dependencies": ["@platejs/docx-io"],
   "registryDependencies": [
     "https://platejs.org/r/callout-node-static",
     "https://platejs.org/r/code-block-node-static",

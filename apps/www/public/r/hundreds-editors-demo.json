@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "hundreds-editors-demo",
   "type": "registry:example",
-  "registryDependencies": [
-    "https://platejs.org/r/editor"
-  ],
+  "registryDependencies": ["https://platejs.org/r/editor"],
   "files": [
     {
       "path": "src/registry/examples/hundreds-editors-demo.tsx",

@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Emoji Input Element",
   "description": "An input component for emoji search and insertion.",
-  "dependencies": [
-    "@platejs/emoji",
-    "@emoji-mart/data@1.2.1"
-  ],
+  "dependencies": ["@platejs/emoji", "@emoji-mart/data@1.2.1"],
   "registryDependencies": [
     "https://platejs.org/r/inline-combobox",
     "https://platejs.org/r/use-debounce"
@@ -28,8 +25,6 @@
         "route": "https://pro.platejs.org/docs/components/emoji-node"
       }
     ],
-    "examples": [
-      "emoji-demo"
-    ]
+    "examples": ["emoji-demo"]
   }
 }

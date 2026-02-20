@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "table-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/table"
-  ],
+  "dependencies": ["@platejs/table"],
   "registryDependencies": [
     "https://platejs.org/r/table-base-kit",
     "https://platejs.org/r/table-node",

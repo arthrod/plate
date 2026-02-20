@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "column-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/layout"
-  ],
+  "dependencies": ["@platejs/layout"],
   "registryDependencies": [
     "https://platejs.org/r/column-base-kit",
     "https://platejs.org/r/column-node"

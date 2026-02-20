@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "List Nodes",
   "description": "List (classic) nodes for ordered and unordered items.",
-  "dependencies": [
-    "@platejs/list-classic"
-  ],
-  "registryDependencies": [
-    "checkbox"
-  ],
+  "dependencies": ["@platejs/list-classic"],
+  "registryDependencies": ["checkbox"],
   "files": [
     {
       "path": "src/registry/ui/list-classic-node.tsx",
@@ -23,8 +19,6 @@
         "route": "/docs/list-classic"
       }
     ],
-    "examples": [
-      "list-classic-demo"
-    ]
+    "examples": ["list-classic-demo"]
   }
 }

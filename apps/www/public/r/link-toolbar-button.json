@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Link Toolbar Button",
   "description": "A toolbar control for link management.",
-  "dependencies": [
-    "@platejs/link"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar"
-  ],
+  "dependencies": ["@platejs/link"],
+  "registryDependencies": ["https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/link-toolbar-button.tsx",
@@ -26,9 +22,6 @@
         "route": "https://pro.platejs.org/docs/components/link-toolbar-button"
       }
     ],
-    "examples": [
-      "link-demo",
-      "link-pro"
-    ]
+    "examples": ["link-demo", "link-pro"]
   }
 }

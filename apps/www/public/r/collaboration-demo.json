@@ -3,10 +3,7 @@
   "name": "collaboration-demo",
   "type": "registry:example",
   "description": "Real-time collaboration with cursors and selections.",
-  "dependencies": [
-    "@platejs/yjs",
-    "nanoid"
-  ],
+  "dependencies": ["@platejs/yjs", "nanoid"],
   "registryDependencies": [
     "https://platejs.org/r/use-mounted",
     "https://platejs.org/r/remote-cursor-overlay",

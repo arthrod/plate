@@ -2,11 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "ai-api",
   "type": "registry:file",
-  "dependencies": [
-    "@ai-sdk/react@2.0.28",
-    "ai@5.0.28",
-    "dedent@1.0.0"
-  ],
+  "dependencies": ["@ai-sdk/react@2.0.28", "ai@5.0.28", "dedent@1.0.0"],
   "registryDependencies": [
     "https://platejs.org/r/copilot-api",
     "https://platejs.org/r/markdown-joiner-transform"

@@ -27,8 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/code-node"
       }
     ],
-    "examples": [
-      "basic-marks-demo"
-    ]
+    "examples": ["basic-marks-demo"]
   }
 }

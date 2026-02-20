@@ -24,10 +24,7 @@
         "title": "AI Leaf"
       }
     ],
-    "examples": [
-      "ai-demo",
-      "ai-pro"
-    ],
+    "examples": ["ai-demo", "ai-pro"],
     "label": "New"
   }
 }

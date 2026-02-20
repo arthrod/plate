@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Slash Input Element",
   "description": "A command input component for inserting various elements.",
-  "dependencies": [
-    "@platejs/ai"
-  ],
+  "dependencies": ["@platejs/ai"],
   "registryDependencies": [
     "https://platejs.org/r/inline-combobox",
     "https://platejs.org/r/transforms"
@@ -28,9 +26,6 @@
         "route": "https://pro.platejs.org/docs/components/slash-node"
       }
     ],
-    "examples": [
-      "slash-command-demo",
-      "slash-command-pro"
-    ]
+    "examples": ["slash-command-demo", "slash-command-pro"]
   }
 }

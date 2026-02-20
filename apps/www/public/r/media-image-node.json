@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Image Element",
   "description": "Image element with lazy loading, resizing capabilities, and optional caption.",
-  "dependencies": [
-    "@platejs/media",
-    "@platejs/resizable"
-  ],
+  "dependencies": ["@platejs/media", "@platejs/resizable"],
   "registryDependencies": [
     "https://platejs.org/r/media-toolbar",
     "https://platejs.org/r/caption",
@@ -37,9 +34,6 @@
         "route": "https://pro.platejs.org/docs/components/image-node"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

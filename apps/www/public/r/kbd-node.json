@@ -25,8 +25,6 @@
         "title": "Keyboard Input"
       }
     ],
-    "examples": [
-      "basic-marks-demo"
-    ]
+    "examples": ["basic-marks-demo"]
   }
 }

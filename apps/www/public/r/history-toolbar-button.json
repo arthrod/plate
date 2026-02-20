@@ -5,9 +5,7 @@
   "title": "History Toolbar Button",
   "description": "Toolbar buttons for undo and redo operations.",
   "dependencies": [],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar"
-  ],
+  "registryDependencies": ["https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/history-toolbar-button.tsx",
@@ -22,8 +20,6 @@
         "title": "Slate History"
       }
     ],
-    "examples": [
-      "basic-nodes-demo"
-    ]
+    "examples": ["basic-nodes-demo"]
   }
 }

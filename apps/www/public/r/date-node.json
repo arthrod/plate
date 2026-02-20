@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Date Element",
   "description": "A date field component with calendar picker.",
-  "dependencies": [
-    "@platejs/date"
-  ],
-  "registryDependencies": [
-    "calendar"
-  ],
+  "dependencies": ["@platejs/date"],
+  "registryDependencies": ["calendar"],
   "files": [
     {
       "path": "src/registry/ui/date-node.tsx",
@@ -31,8 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/date-node"
       }
     ],
-    "examples": [
-      "date-demo"
-    ]
+    "examples": ["date-demo"]
   }
 }

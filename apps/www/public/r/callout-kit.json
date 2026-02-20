@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "callout-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/callout"
-  ],
+  "dependencies": ["@platejs/callout"],
   "registryDependencies": [
     "https://platejs.org/r/callout-base-kit",
     "https://platejs.org/r/callout-node"

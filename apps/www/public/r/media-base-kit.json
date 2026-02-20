@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "media-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/media"
-  ],
+  "dependencies": ["@platejs/media"],
   "registryDependencies": [
     "https://platejs.org/r/media-audio-node",
     "https://platejs.org/r/media-file-node",

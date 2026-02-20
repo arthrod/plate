@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "comment-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/comment"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/comment-node"
-  ],
+  "dependencies": ["@platejs/comment"],
+  "registryDependencies": ["https://platejs.org/r/comment-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/comment-base-kit.tsx",

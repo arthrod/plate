@@ -8,9 +8,7 @@
     "react-dnd",
     "react-dnd-html5-backend"
   ],
-  "registryDependencies": [
-    "https://platejs.org/r/block-draggable"
-  ],
+  "registryDependencies": ["https://platejs.org/r/block-draggable"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/dnd-kit.tsx",

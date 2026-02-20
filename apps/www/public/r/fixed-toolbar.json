@@ -17,8 +17,6 @@
     }
   ],
   "meta": {
-    "examples": [
-      "basic-nodes-demo"
-    ]
+    "examples": ["basic-nodes-demo"]
   }
 }

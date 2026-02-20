@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "copilot-api",
   "type": "registry:file",
-  "dependencies": [
-    "ai@5.0.28"
-  ],
+  "dependencies": ["ai@5.0.28"],
   "registryDependencies": [],
   "files": [
     {

@@ -39,9 +39,6 @@
         "route": "https://pro.platejs.org/docs/components/media-video-node"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

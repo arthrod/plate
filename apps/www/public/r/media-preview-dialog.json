@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Media Preview Dialog",
   "description": "A modal component for previewing and manipulating images.",
-  "dependencies": [
-    "@platejs/media"
-  ],
+  "dependencies": ["@platejs/media"],
   "registryDependencies": [],
   "files": [
     {
@@ -24,9 +22,6 @@
         "route": "https://pro.platejs.org/docs/components/image-preview"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

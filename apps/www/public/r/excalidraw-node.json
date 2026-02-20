@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Excalidraw Element",
   "description": "A drawing component powered by Excalidraw.",
-  "dependencies": [
-    "@platejs/excalidraw"
-  ],
+  "dependencies": ["@platejs/excalidraw"],
   "registryDependencies": [],
   "files": [
     {

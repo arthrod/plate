@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "code-drawing-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/code-drawing"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/code-drawing-node"
-  ],
+  "dependencies": ["@platejs/code-drawing"],
+  "registryDependencies": ["https://platejs.org/r/code-drawing-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/code-drawing-base-kit.tsx",

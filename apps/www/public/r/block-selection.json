@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Block Selection",
   "description": "A visual overlay for selected blocks.",
-  "dependencies": [
-    "@platejs/selection"
-  ],
+  "dependencies": ["@platejs/selection"],
   "registryDependencies": [],
   "files": [
     {
@@ -24,9 +22,6 @@
         "route": "https://pro.platejs.org/docs/components/block-selection"
       }
     ],
-    "examples": [
-      "block-selection-demo",
-      "block-selection-pro"
-    ]
+    "examples": ["block-selection-demo", "block-selection-pro"]
   }
 }

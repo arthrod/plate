@@ -3,10 +3,7 @@
   "name": "media-kit",
   "type": "registry:component",
   "description": "Media kit without API (see media-uploadthing-api for reference)",
-  "dependencies": [
-    "@platejs/caption",
-    "@platejs/media"
-  ],
+  "dependencies": ["@platejs/caption", "@platejs/media"],
   "registryDependencies": [
     "https://platejs.org/r/media-base-kit",
     "https://platejs.org/r/media-audio-node",

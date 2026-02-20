@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "List Toolbar Button",
   "description": "A toolbar control for adjusting list indentation.",
-  "dependencies": [
-    "@platejs/list"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar"
-  ],
+  "dependencies": ["@platejs/list"],
+  "registryDependencies": ["https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/list-toolbar-button.tsx",
@@ -23,8 +19,6 @@
         "route": "/docs/list"
       }
     ],
-    "examples": [
-      "list-demo"
-    ]
+    "examples": ["list-demo"]
   }
 }

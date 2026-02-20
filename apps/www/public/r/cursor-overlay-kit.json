@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "cursor-overlay-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/selection"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/cursor-overlay"
-  ],
+  "dependencies": ["@platejs/selection"],
+  "registryDependencies": ["https://platejs.org/r/cursor-overlay"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/cursor-overlay-kit.tsx",

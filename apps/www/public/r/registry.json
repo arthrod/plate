@@ -6,9 +6,7 @@
       "name": "plate",
       "type": "registry:lib",
       "description": "Install Plate package",
-      "dependencies": [
-        "platejs"
-      ],
+      "dependencies": ["platejs"],
       "devDependencies": [],
       "registryDependencies": [],
       "files": []
@@ -18,9 +16,7 @@
       "type": "registry:style",
       "description": "Install Plate package and styles",
       "devDependencies": [],
-      "registryDependencies": [
-        "https://platejs.org/r/plate"
-      ],
+      "registryDependencies": ["https://platejs.org/r/plate"],
       "files": [],
       "cssVars": {
         "light": {
@@ -71,10 +67,7 @@
             "title": "AI Menu"
           }
         ],
-        "examples": [
-          "ai-demo",
-          "ai-pro"
-        ],
+        "examples": ["ai-demo", "ai-pro"],
         "label": "New"
       }
     },
@@ -83,12 +76,8 @@
       "type": "registry:ui",
       "title": "AI Toolbar Button",
       "description": "A toolbar button for accessing AI features.",
-      "dependencies": [
-        "@platejs/ai"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/ai"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/ai-toolbar-button.tsx",
@@ -105,11 +94,7 @@
             "route": "https://pro.platejs.org/docs/components/ai-toolbar-button"
           }
         ],
-        "examples": [
-          "ai-demo",
-          "floating-toolbar-demo",
-          "ai-pro"
-        ],
+        "examples": ["ai-demo", "floating-toolbar-demo", "ai-pro"],
         "label": "New"
       }
     },
@@ -118,9 +103,7 @@
       "type": "registry:ui",
       "title": "Align Toolbar Button",
       "description": "A dropdown menu for text alignment controls.",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
       "registryDependencies": [
         "dropdown-menu",
         "https://platejs.org/r/toolbar"
@@ -137,9 +120,7 @@
             "route": "/docs/text-align"
           }
         ],
-        "examples": [
-          "align-demo"
-        ]
+        "examples": ["align-demo"]
       }
     },
     {
@@ -147,10 +128,7 @@
       "type": "registry:ui",
       "title": "Block Context Menu",
       "description": "A context menu for block-level operations.",
-      "dependencies": [
-        "@platejs/ai",
-        "@platejs/selection"
-      ],
+      "dependencies": ["@platejs/ai", "@platejs/selection"],
       "registryDependencies": [
         "calendar",
         "context-menu",
@@ -171,10 +149,7 @@
             "route": "https://pro.platejs.org/docs/components/block-context-menu"
           }
         ],
-        "examples": [
-          "block-menu-demo",
-          "block-menu-pro"
-        ]
+        "examples": ["block-menu-demo", "block-menu-pro"]
       }
     },
     {
@@ -182,9 +157,7 @@
       "type": "registry:ui",
       "title": "Block Selection",
       "description": "A visual overlay for selected blocks.",
-      "dependencies": [
-        "@platejs/selection"
-      ],
+      "dependencies": ["@platejs/selection"],
       "registryDependencies": [],
       "files": [
         {
@@ -201,10 +174,7 @@
             "route": "https://pro.platejs.org/docs/components/block-selection"
           }
         ],
-        "examples": [
-          "block-selection-demo",
-          "block-selection-pro"
-        ]
+        "examples": ["block-selection-demo", "block-selection-pro"]
       }
     },
     {
@@ -212,9 +182,7 @@
       "type": "registry:ui",
       "title": "Import Toolbar Button",
       "description": "A toolbar button to import editor content from a file.",
-      "dependencies": [
-        "use-file-picker@2.1.2"
-      ],
+      "dependencies": ["use-file-picker@2.1.2"],
       "registryDependencies": [
         "dropdown-menu",
         "https://platejs.org/r/toolbar"
@@ -232,9 +200,7 @@
             "title": "Import"
           }
         ],
-        "examples": [
-          "basic-nodes-demo"
-        ],
+        "examples": ["basic-nodes-demo"],
         "label": "New"
       }
     },
@@ -267,9 +233,7 @@
             "title": "Export"
           }
         ],
-        "examples": [
-          "basic-nodes-demo"
-        ],
+        "examples": ["basic-nodes-demo"],
         "label": "New"
       }
     },
@@ -278,13 +242,8 @@
       "type": "registry:ui",
       "title": "Caption",
       "description": "A text field for adding captions to media elements.",
-      "dependencies": [
-        "@udecode/cn",
-        "@platejs/caption"
-      ],
-      "registryDependencies": [
-        "button"
-      ],
+      "dependencies": ["@udecode/cn", "@platejs/caption"],
+      "registryDependencies": ["button"],
       "files": [
         {
           "path": "src/registry/ui/caption.tsx",
@@ -300,9 +259,7 @@
             "route": "https://pro.platejs.org/docs/components/caption"
           }
         ],
-        "examples": [
-          "media-demo"
-        ]
+        "examples": ["media-demo"]
       }
     },
     {
@@ -310,11 +267,7 @@
       "type": "registry:ui",
       "title": "Font Color Toolbar Button",
       "description": "A color picker toolbar button with text and background color controls.",
-      "dependencies": [
-        "@udecode/cn",
-        "@platejs/basic-styles",
-        "lodash"
-      ],
+      "dependencies": ["@udecode/cn", "@platejs/basic-styles", "lodash"],
       "registryDependencies": [
         "dropdown-menu",
         "separator",
@@ -337,9 +290,7 @@
             "route": "https://pro.platejs.org/docs/components/font-color-toolbar-button"
           }
         ],
-        "examples": [
-          "font-demo"
-        ]
+        "examples": ["font-demo"]
       }
     },
     {
@@ -347,12 +298,8 @@
       "type": "registry:ui",
       "title": "Comment Toolbar Button",
       "description": "A toolbar button for adding inline comments.",
-      "dependencies": [
-        "@platejs/comment"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/comment-kit"
-      ],
+      "dependencies": ["@platejs/comment"],
+      "registryDependencies": ["https://platejs.org/r/comment-kit"],
       "files": [
         {
           "path": "src/registry/ui/comment-toolbar-button.tsx",
@@ -379,20 +326,14 @@
       "name": "block-suggestion",
       "type": "registry:ui",
       "title": "Block Suggestion",
-      "dependencies": [
-        "@platejs/suggestion"
-      ]
+      "dependencies": ["@platejs/suggestion"]
     },
     {
       "name": "block-discussion",
       "type": "registry:ui",
       "title": "Block Discussion",
       "description": "A popover interface for managing discussions: comments, replies, suggestions.",
-      "dependencies": [
-        "@platejs/comment",
-        "date-fns",
-        "@platejs/suggestion"
-      ],
+      "dependencies": ["@platejs/comment", "date-fns", "@platejs/suggestion"],
       "registryDependencies": [
         "button",
         "popover",
@@ -432,10 +373,7 @@
             "route": "https://pro.platejs.org/docs/components/block-discussion"
           }
         ],
-        "examples": [
-          "discussion-demo",
-          "discussion-pro"
-        ]
+        "examples": ["discussion-demo", "discussion-pro"]
       }
     },
     {
@@ -443,9 +381,7 @@
       "type": "registry:ui",
       "title": "Cursor Overlay",
       "description": "A visual overlay for cursors and selections.",
-      "dependencies": [
-        "@platejs/selection"
-      ],
+      "dependencies": ["@platejs/selection"],
       "registryDependencies": [],
       "files": [
         {
@@ -462,9 +398,7 @@
             "route": "https://pro.platejs.org/docs/components/cursor-overlay"
           }
         ],
-        "examples": [
-          "ai-demo"
-        ]
+        "examples": ["ai-demo"]
       }
     },
     {
@@ -472,14 +406,8 @@
       "type": "registry:ui",
       "title": "Block Draggable",
       "description": "A block wrapper with a drag handle for moving editor blocks.",
-      "dependencies": [
-        "@platejs/dnd",
-        "@platejs/selection"
-      ],
-      "registryDependencies": [
-        "tooltip",
-        "https://platejs.org/r/use-mounted"
-      ],
+      "dependencies": ["@platejs/dnd", "@platejs/selection"],
+      "registryDependencies": ["tooltip", "https://platejs.org/r/use-mounted"],
       "files": [
         {
           "path": "src/registry/ui/block-draggable.tsx",
@@ -496,10 +424,7 @@
             "route": "https://pro.platejs.org/docs/components/block-draggable"
           }
         ],
-        "examples": [
-          "dnd-demo",
-          "dnd-pro"
-        ],
+        "examples": ["dnd-demo", "dnd-pro"],
         "usage": [
           "DndPlugin.configure({\n  render: {\n    aboveNodes: BlockDraggable,\n  },\n})"
         ]
@@ -528,11 +453,7 @@
             "route": "https://pro.platejs.org/docs/components/editor"
           }
         ],
-        "examples": [
-          "editor-default",
-          "editor-disabled",
-          "editor-full-width"
-        ]
+        "examples": ["editor-default", "editor-disabled", "editor-full-width"]
       }
     },
     {
@@ -540,11 +461,7 @@
       "type": "registry:ui",
       "title": "Select Editor",
       "description": "An editor to select tags.",
-      "dependencies": [
-        "fzf@0.5.2",
-        "@platejs/tag",
-        "@udecode/cmdk"
-      ],
+      "dependencies": ["fzf@0.5.2", "@platejs/tag", "@udecode/cmdk"],
       "registryDependencies": [
         "https://platejs.org/r/editor",
         "command",
@@ -563,9 +480,7 @@
             "route": "/docs/multi-select"
           }
         ],
-        "examples": [
-          "select-editor-demo"
-        ],
+        "examples": ["select-editor-demo"],
         "label": "New"
       }
     },
@@ -579,9 +494,7 @@
         "@emoji-mart/data@1.2.1",
         "@radix-ui/react-popover"
       ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/emoji-toolbar-button.tsx",
@@ -597,10 +510,7 @@
             "route": "https://pro.platejs.org/docs/components/emoji-picker"
           }
         ],
-        "examples": [
-          "emoji-demo",
-          "emoji-pro"
-        ]
+        "examples": ["emoji-demo", "emoji-pro"]
       }
     },
     {
@@ -640,9 +550,7 @@
         }
       ],
       "meta": {
-        "examples": [
-          "basic-nodes-demo"
-        ]
+        "examples": ["basic-nodes-demo"]
       }
     },
     {
@@ -694,9 +602,7 @@
         }
       ],
       "meta": {
-        "examples": [
-          "basic-nodes-demo"
-        ]
+        "examples": ["basic-nodes-demo"]
       }
     },
     {
@@ -731,10 +637,7 @@
             "route": "https://pro.platejs.org/docs/components/floating-toolbar-buttons"
           }
         ],
-        "examples": [
-          "floating-toolbar-demo",
-          "floating-toolbar-pro"
-        ]
+        "examples": ["floating-toolbar-demo", "floating-toolbar-pro"]
       }
     },
     {
@@ -761,9 +664,7 @@
         }
       ],
       "meta": {
-        "examples": [
-          "list-classic-demo"
-        ]
+        "examples": ["list-classic-demo"]
       }
     },
     {
@@ -771,10 +672,7 @@
       "type": "registry:ui",
       "title": "Floating Toolbar",
       "description": "A contextual toolbar that appears over selected text.",
-      "dependencies": [
-        "@udecode/cn",
-        "@platejs/floating"
-      ],
+      "dependencies": ["@udecode/cn", "@platejs/floating"],
       "registryDependencies": [
         "https://platejs.org/r/toolbar",
         "https://platejs.org/r/tailwind-scrollbar-hide"
@@ -794,10 +692,7 @@
             "route": "https://pro.platejs.org/docs/components/floating-toolbar"
           }
         ],
-        "examples": [
-          "floating-toolbar-demo",
-          "floating-toolbar-pro"
-        ]
+        "examples": ["floating-toolbar-demo", "floating-toolbar-pro"]
       }
     },
     {
@@ -805,9 +700,7 @@
       "type": "registry:ui",
       "title": "Ghost Text",
       "description": "A text suggestion system that displays AI-generated content after the cursor.",
-      "dependencies": [
-        "@platejs/ai"
-      ],
+      "dependencies": ["@platejs/ai"],
       "registryDependencies": [],
       "files": [
         {
@@ -824,10 +717,7 @@
             "route": "https://pro.platejs.org/docs/components/ghost-text"
           }
         ],
-        "examples": [
-          "copilot-demo",
-          "copilot-pro"
-        ]
+        "examples": ["copilot-demo", "copilot-pro"]
       }
     },
     {
@@ -836,9 +726,7 @@
       "title": "History Toolbar Button",
       "description": "Toolbar buttons for undo and redo operations.",
       "dependencies": [],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/history-toolbar-button.tsx",
@@ -852,9 +740,7 @@
             "title": "Slate History"
           }
         ],
-        "examples": [
-          "basic-nodes-demo"
-        ]
+        "examples": ["basic-nodes-demo"]
       }
     },
     {
@@ -862,12 +748,8 @@
       "type": "registry:ui",
       "title": "List Toolbar Button",
       "description": "A toolbar control for adjusting list indentation.",
-      "dependencies": [
-        "@platejs/list"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/list"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/list-toolbar-button.tsx",
@@ -880,9 +762,7 @@
             "route": "/docs/list"
           }
         ],
-        "examples": [
-          "list-demo"
-        ]
+        "examples": ["list-demo"]
       }
     },
     {
@@ -890,12 +770,8 @@
       "type": "registry:ui",
       "title": "Indent Toolbar Buttons",
       "description": "Toolbar controls for block indentation.",
-      "dependencies": [
-        "@platejs/indent"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/indent"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/indent-toolbar-button.tsx",
@@ -908,9 +784,7 @@
             "route": "/docs/indent"
           }
         ],
-        "examples": [
-          "indent-demo"
-        ]
+        "examples": ["indent-demo"]
       }
     },
     {
@@ -918,10 +792,7 @@
       "type": "registry:ui",
       "title": "Inline Combobox",
       "description": "A combobox for inline suggestions.",
-      "dependencies": [
-        "@platejs/combobox",
-        "@ariakit/react"
-      ],
+      "dependencies": ["@platejs/combobox", "@ariakit/react"],
       "registryDependencies": [],
       "files": [
         {
@@ -938,11 +809,7 @@
             "route": "https://pro.platejs.org/docs/components/inline-combobox"
           }
         ],
-        "examples": [
-          "mention-demo",
-          "slash-command-demo",
-          "emoji-demo"
-        ]
+        "examples": ["mention-demo", "slash-command-demo", "emoji-demo"]
       }
     },
     {
@@ -963,9 +830,7 @@
         }
       ],
       "meta": {
-        "examples": [
-          "basic-nodes-demo"
-        ]
+        "examples": ["basic-nodes-demo"]
       }
     },
     {
@@ -986,9 +851,7 @@
         }
       ],
       "meta": {
-        "examples": [
-          "list-classic-demo"
-        ]
+        "examples": ["list-classic-demo"]
       }
     },
     {
@@ -996,9 +859,7 @@
       "type": "registry:ui",
       "title": "Line Height Toolbar Button",
       "description": "A menu for controlling text line spacing.",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
       "registryDependencies": [
         "https://platejs.org/r/toolbar",
         "dropdown-menu"
@@ -1015,9 +876,7 @@
             "route": "/docs/line-height"
           }
         ],
-        "examples": [
-          "line-height-demo"
-        ]
+        "examples": ["line-height-demo"]
       }
     },
     {
@@ -1025,16 +884,8 @@
       "type": "registry:ui",
       "title": "Link Floating Toolbar",
       "description": "A floating interface for link editing.",
-      "dependencies": [
-        "@platejs/link",
-        "@platejs/floating"
-      ],
-      "registryDependencies": [
-        "button",
-        "input",
-        "popover",
-        "separator"
-      ],
+      "dependencies": ["@platejs/link", "@platejs/floating"],
+      "registryDependencies": ["button", "input", "popover", "separator"],
       "files": [
         {
           "path": "src/registry/ui/link-toolbar.tsx",
@@ -1053,10 +904,7 @@
             "route": "https://pro.platejs.org/docs/components/link-toolbar"
           }
         ],
-        "examples": [
-          "link-demo",
-          "link-pro"
-        ]
+        "examples": ["link-demo", "link-pro"]
       }
     },
     {
@@ -1064,12 +912,8 @@
       "type": "registry:ui",
       "title": "Link Toolbar Button",
       "description": "A toolbar control for link management.",
-      "dependencies": [
-        "@platejs/link"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/link"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/link-toolbar-button.tsx",
@@ -1085,10 +929,7 @@
             "route": "https://pro.platejs.org/docs/components/link-toolbar-button"
           }
         ],
-        "examples": [
-          "link-demo",
-          "link-pro"
-        ]
+        "examples": ["link-demo", "link-pro"]
       }
     },
     {
@@ -1096,12 +937,8 @@
       "type": "registry:ui",
       "title": "List Toolbar Buttons",
       "description": "Toolbar controls for list creation and management.",
-      "dependencies": [
-        "@platejs/list-classic"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/list-classic"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/list-classic-toolbar-button.tsx",
@@ -1114,9 +951,7 @@
             "route": "/docs/list-classic"
           }
         ],
-        "examples": [
-          "list-classic-demo"
-        ]
+        "examples": ["list-classic-demo"]
       }
     },
     {
@@ -1124,12 +959,8 @@
       "type": "registry:ui",
       "title": "Mark Toolbar Button",
       "description": "A toolbar control for basic text formatting.",
-      "dependencies": [
-        "@platejs/basic-nodes"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/basic-nodes"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/mark-toolbar-button.tsx",
@@ -1142,10 +973,7 @@
             "route": "/docs/basic-marks"
           }
         ],
-        "examples": [
-          "basic-marks-demo",
-          "basic-nodes-pro"
-        ]
+        "examples": ["basic-marks-demo", "basic-nodes-pro"]
       }
     },
     {
@@ -1153,15 +981,8 @@
       "type": "registry:ui",
       "title": "Media Toolbar",
       "description": "A toolbar interface for media settings.",
-      "dependencies": [
-        "@platejs/media"
-      ],
-      "registryDependencies": [
-        "button",
-        "input",
-        "popover",
-        "separator"
-      ],
+      "dependencies": ["@platejs/media"],
+      "registryDependencies": ["button", "input", "popover", "separator"],
       "files": [
         {
           "path": "src/registry/ui/media-toolbar.tsx",
@@ -1174,10 +995,7 @@
             "route": "/docs/media"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -1185,11 +1003,7 @@
       "type": "registry:ui",
       "title": "Media Toolbar Button",
       "description": "Toolbar button for inserting and managing media.",
-      "dependencies": [
-        "@platejs/media",
-        "use-file-picker@2.1.2",
-        "sonner"
-      ],
+      "dependencies": ["@platejs/media", "use-file-picker@2.1.2", "sonner"],
       "registryDependencies": [
         "https://platejs.org/r/toolbar",
         "input",
@@ -1208,10 +1022,7 @@
             "route": "/docs/media"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -1219,10 +1030,7 @@
       "type": "registry:ui",
       "title": "Media Upload Toast",
       "description": "Show toast notifications for media uploads.",
-      "dependencies": [
-        "@platejs/media",
-        "sonner"
-      ],
+      "dependencies": ["@platejs/media", "sonner"],
       "registryDependencies": [],
       "files": [
         {
@@ -1236,10 +1044,7 @@
             "route": "/docs/media"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -1259,9 +1064,7 @@
         }
       ],
       "meta": {
-        "examples": [
-          "basic-nodes-demo"
-        ]
+        "examples": ["basic-nodes-demo"]
       }
     },
     {
@@ -1286,10 +1089,7 @@
             "route": "https://pro.platejs.org/docs/components/more-toolbar-button"
           }
         ],
-        "examples": [
-          "basic-marks-demo",
-          "basic-nodes-pro"
-        ]
+        "examples": ["basic-marks-demo", "basic-nodes-pro"]
       }
     },
     {
@@ -1297,9 +1097,7 @@
       "type": "registry:ui",
       "title": "Resize Handle",
       "description": "A resizable wrapper with resize handles.",
-      "dependencies": [
-        "@platejs/resizable"
-      ],
+      "dependencies": ["@platejs/resizable"],
       "registryDependencies": [],
       "files": [
         {
@@ -1316,10 +1114,7 @@
             "route": "https://pro.platejs.org/docs/components/resizable"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -1327,9 +1122,7 @@
       "type": "registry:ui",
       "title": "Table Toolbar Button",
       "description": "A menu for table manipulation and formatting.",
-      "dependencies": [
-        "@platejs/table"
-      ],
+      "dependencies": ["@platejs/table"],
       "registryDependencies": [
         "dropdown-menu",
         "https://platejs.org/r/toolbar"
@@ -1350,9 +1143,7 @@
             "route": "/docs/table"
           }
         ],
-        "examples": [
-          "table-demo"
-        ]
+        "examples": ["table-demo"]
       }
     },
     {
@@ -1360,12 +1151,8 @@
       "type": "registry:ui",
       "title": "Toggle Toolbar Button",
       "description": "A toolbar button for expanding and collapsing blocks.",
-      "dependencies": [
-        "@platejs/toggle"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/toggle"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/toggle-toolbar-button.tsx",
@@ -1378,9 +1165,7 @@
             "route": "/docs/toggle"
           }
         ],
-        "examples": [
-          "toggle-demo"
-        ]
+        "examples": ["toggle-demo"]
       }
     },
     {
@@ -1406,10 +1191,7 @@
             "route": "https://pro.platejs.org/docs/components/turn-into-toolbar-button"
           }
         ],
-        "examples": [
-          "basic-nodes-demo",
-          "basic-nodes-pro"
-        ]
+        "examples": ["basic-nodes-demo", "basic-nodes-pro"]
       }
     },
     {
@@ -1430,9 +1212,7 @@
         }
       ],
       "meta": {
-        "examples": [
-          "list-classic-demo"
-        ]
+        "examples": ["list-classic-demo"]
       }
     },
     {
@@ -1440,9 +1220,7 @@
       "type": "registry:ui",
       "title": "Remote Cursor Overlay",
       "description": "A cursor overlay to display multiplayer cursors in the yjs plugin.",
-      "dependencies": [
-        "@slate-yjs/react"
-      ],
+      "dependencies": ["@slate-yjs/react"],
       "registryDependencies": [],
       "files": [
         {
@@ -1464,14 +1242,8 @@
       "type": "registry:ui",
       "title": "Toolbar",
       "description": "A customizable toolbar component with various button styles and group",
-      "dependencies": [
-        "@radix-ui/react-toolbar"
-      ],
-      "registryDependencies": [
-        "tooltip",
-        "separator",
-        "dropdown-menu"
-      ],
+      "dependencies": ["@radix-ui/react-toolbar"],
+      "registryDependencies": ["tooltip", "separator", "dropdown-menu"],
       "files": [
         {
           "path": "src/registry/ui/toolbar.tsx",
@@ -1485,12 +1257,8 @@
       "type": "registry:ui",
       "title": "Suggestion Toolbar Button",
       "description": "A toolbar button for toggling suggestion mode in the editor.",
-      "dependencies": [
-        "@platejs/suggestion"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/suggestion"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/suggestion-toolbar-button.tsx",
@@ -1503,10 +1271,7 @@
             "route": "/docs/suggestion"
           }
         ],
-        "examples": [
-          "discussion-demo",
-          "discussion-pro"
-        ]
+        "examples": ["discussion-demo", "discussion-pro"]
       }
     },
     {
@@ -1533,10 +1298,7 @@
             "title": "AI Leaf"
           }
         ],
-        "examples": [
-          "ai-demo",
-          "ai-pro"
-        ],
+        "examples": ["ai-demo", "ai-pro"],
         "label": "New"
       }
     },
@@ -1545,12 +1307,8 @@
       "type": "registry:ui",
       "title": "List",
       "description": "List components.",
-      "dependencies": [
-        "@platejs/list"
-      ],
-      "registryDependencies": [
-        "checkbox"
-      ],
+      "dependencies": ["@platejs/list"],
+      "registryDependencies": ["checkbox"],
       "files": [
         {
           "path": "src/registry/ui/block-list.tsx",
@@ -1567,9 +1325,7 @@
             "route": "/docs/list"
           }
         ],
-        "examples": [
-          "list-demo"
-        ]
+        "examples": ["list-demo"]
       }
     },
     {
@@ -1598,22 +1354,15 @@
             "route": "https://pro.platejs.org/docs/components/blockquote-node"
           }
         ],
-        "examples": [
-          "basic-blocks-demo",
-          "basic-nodes-pro"
-        ]
+        "examples": ["basic-blocks-demo", "basic-nodes-pro"]
       }
     },
     {
       "name": "callout-node",
       "type": "registry:ui",
       "description": "A callout component for highlighting important information with customizable icons and styles.",
-      "dependencies": [
-        "@platejs/callout"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/emoji-toolbar-button"
-      ],
+      "dependencies": ["@platejs/callout"],
+      "registryDependencies": ["https://platejs.org/r/emoji-toolbar-button"],
       "files": [
         {
           "path": "src/registry/ui/callout-node.tsx",
@@ -1633,9 +1382,7 @@
             "route": "https://pro.platejs.org/docs/components/callout-node"
           }
         ],
-        "examples": [
-          "callout-demo"
-        ]
+        "examples": ["callout-demo"]
       }
     },
     {
@@ -1643,15 +1390,8 @@
       "type": "registry:ui",
       "title": "Code Block Nodes",
       "description": "A code block with syntax highlighting and language selection.",
-      "dependencies": [
-        "@platejs/code-block",
-        "lowlight"
-      ],
-      "registryDependencies": [
-        "command",
-        "popover",
-        "button"
-      ],
+      "dependencies": ["@platejs/code-block", "lowlight"],
+      "registryDependencies": ["command", "popover", "button"],
       "files": [
         {
           "path": "src/registry/ui/code-block-node.tsx",
@@ -1671,9 +1411,7 @@
             "route": "https://pro.platejs.org/docs/components/code-block-node"
           }
         ],
-        "examples": [
-          "code-block-demo"
-        ]
+        "examples": ["code-block-demo"]
       }
     },
     {
@@ -1681,14 +1419,8 @@
       "type": "registry:ui",
       "title": "Code Drawing Node",
       "description": "Create diagrams from code using PlantUML, Graphviz, Flowchart, or Mermaid.",
-      "dependencies": [
-        "@platejs/code-drawing"
-      ],
-      "registryDependencies": [
-        "popover",
-        "button",
-        "select"
-      ],
+      "dependencies": ["@platejs/code-drawing"],
+      "registryDependencies": ["popover", "button", "select"],
       "files": [
         {
           "path": "src/registry/ui/code-drawing-node.tsx",
@@ -1708,9 +1440,7 @@
             "route": "https://pro.platejs.org/docs/components/code-drawing-node"
           }
         ],
-        "examples": [
-          "code-drawing-demo"
-        ]
+        "examples": ["code-drawing-demo"]
       }
     },
     {
@@ -1739,9 +1469,7 @@
             "route": "https://pro.platejs.org/docs/components/code-node"
           }
         ],
-        "examples": [
-          "basic-marks-demo"
-        ]
+        "examples": ["basic-marks-demo"]
       }
     },
     {
@@ -1749,13 +1477,8 @@
       "type": "registry:ui",
       "title": "Column Nodes",
       "description": "Resizable column components for layout.",
-      "dependencies": [
-        "@udecode/cn",
-        "@platejs/layout"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/resize-handle"
-      ],
+      "dependencies": ["@udecode/cn", "@platejs/layout"],
+      "registryDependencies": ["https://platejs.org/r/resize-handle"],
       "files": [
         {
           "path": "src/registry/ui/column-node.tsx",
@@ -1775,9 +1498,7 @@
             "route": "https://pro.platejs.org/docs/components/column-node"
           }
         ],
-        "examples": [
-          "column-demo"
-        ]
+        "examples": ["column-demo"]
       }
     },
     {
@@ -1785,12 +1506,8 @@
       "type": "registry:ui",
       "title": "Comment Leaf",
       "description": "A text component for displaying comments with visual indicators.",
-      "dependencies": [
-        "@platejs/comment"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/highlight-style"
-      ],
+      "dependencies": ["@platejs/comment"],
+      "registryDependencies": ["https://platejs.org/r/highlight-style"],
       "files": [
         {
           "path": "src/registry/ui/comment-node.tsx",
@@ -1810,10 +1527,7 @@
             "route": "https://pro.platejs.org/docs/components/comment-node"
           }
         ],
-        "examples": [
-          "discussion-demo",
-          "discussion-pro"
-        ]
+        "examples": ["discussion-demo", "discussion-pro"]
       }
     },
     {
@@ -1821,12 +1535,8 @@
       "type": "registry:ui",
       "title": "Suggestion Leaf",
       "description": "A text component for suggestion.",
-      "dependencies": [
-        "@platejs/suggestion"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/suggestion-kit"
-      ],
+      "dependencies": ["@platejs/suggestion"],
+      "registryDependencies": ["https://platejs.org/r/suggestion-kit"],
       "files": [
         {
           "path": "src/registry/ui/suggestion-node.tsx",
@@ -1843,10 +1553,7 @@
             "route": "/docs/suggestion"
           }
         ],
-        "examples": [
-          "discussion-demo",
-          "discussion-pro"
-        ]
+        "examples": ["discussion-demo", "discussion-pro"]
       }
     },
     {
@@ -1854,12 +1561,8 @@
       "type": "registry:ui",
       "title": "Date Element",
       "description": "A date field component with calendar picker.",
-      "dependencies": [
-        "@platejs/date"
-      ],
-      "registryDependencies": [
-        "calendar"
-      ],
+      "dependencies": ["@platejs/date"],
+      "registryDependencies": ["calendar"],
       "files": [
         {
           "path": "src/registry/ui/date-node.tsx",
@@ -1879,9 +1582,7 @@
             "route": "https://pro.platejs.org/docs/components/date-node"
           }
         ],
-        "examples": [
-          "date-demo"
-        ]
+        "examples": ["date-demo"]
       }
     },
     {
@@ -1889,13 +1590,8 @@
       "type": "registry:ui",
       "title": "Equation Element",
       "description": "Displays a LaTeX equation element with an editable popover for inputting and rendering mathematical expressions.",
-      "dependencies": [
-        "@platejs/math",
-        "react-textarea-autosize"
-      ],
-      "registryDependencies": [
-        "popover"
-      ],
+      "dependencies": ["@platejs/math", "react-textarea-autosize"],
+      "registryDependencies": ["popover"],
       "files": [
         {
           "path": "src/registry/ui/equation-node.tsx",
@@ -1913,9 +1609,7 @@
             "title": "Equation"
           }
         ],
-        "examples": [
-          "equation-demo"
-        ]
+        "examples": ["equation-demo"]
       }
     },
     {
@@ -1923,12 +1617,8 @@
       "type": "registry:ui",
       "title": "Equation Toolbar Button",
       "description": "A toolbar button for inserting and editing equations.",
-      "dependencies": [
-        "@platejs/math"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/math"],
+      "registryDependencies": ["https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/equation-toolbar-button.tsx",
@@ -1942,10 +1632,7 @@
             "title": "Equation"
           }
         ],
-        "examples": [
-          "equation-demo",
-          "floating-toolbar-demo"
-        ]
+        "examples": ["equation-demo", "floating-toolbar-demo"]
       }
     },
     {
@@ -1953,10 +1640,7 @@
       "type": "registry:ui",
       "title": "Emoji Input Element",
       "description": "An input component for emoji search and insertion.",
-      "dependencies": [
-        "@platejs/emoji",
-        "@emoji-mart/data@1.2.1"
-      ],
+      "dependencies": ["@platejs/emoji", "@emoji-mart/data@1.2.1"],
       "registryDependencies": [
         "https://platejs.org/r/inline-combobox",
         "https://platejs.org/r/use-debounce"
@@ -1976,9 +1660,7 @@
             "route": "https://pro.platejs.org/docs/components/emoji-node"
           }
         ],
-        "examples": [
-          "emoji-demo"
-        ]
+        "examples": ["emoji-demo"]
       }
     },
     {
@@ -1986,9 +1668,7 @@
       "type": "registry:ui",
       "title": "Excalidraw Element",
       "description": "A drawing component powered by Excalidraw.",
-      "dependencies": [
-        "@platejs/excalidraw"
-      ],
+      "dependencies": ["@platejs/excalidraw"],
       "registryDependencies": [],
       "files": [
         {
@@ -2009,13 +1689,8 @@
       "type": "registry:ui",
       "title": "Font Size Toolbar Button",
       "description": "A toolbar control for adjusting font size.",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
-      "registryDependencies": [
-        "popover",
-        "https://platejs.org/r/toolbar"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
+      "registryDependencies": ["popover", "https://platejs.org/r/toolbar"],
       "files": [
         {
           "path": "src/registry/ui/font-size-toolbar-button.tsx",
@@ -2028,9 +1703,7 @@
             "route": "/docs/font"
           }
         ],
-        "examples": [
-          "font-demo"
-        ]
+        "examples": ["font-demo"]
       }
     },
     {
@@ -2059,10 +1732,7 @@
             "route": "https://pro.platejs.org/docs/components/heading-node"
           }
         ],
-        "examples": [
-          "basic-blocks-demo",
-          "basic-nodes-pro"
-        ]
+        "examples": ["basic-blocks-demo", "basic-nodes-pro"]
       }
     },
     {
@@ -2071,9 +1741,7 @@
       "title": "Highlight Leaf",
       "description": "A text highlighter with customizable colors.",
       "dependencies": [],
-      "registryDependencies": [
-        "https://platejs.org/r/highlight-style"
-      ],
+      "registryDependencies": ["https://platejs.org/r/highlight-style"],
       "files": [
         {
           "path": "src/registry/ui/highlight-node.tsx",
@@ -2090,9 +1758,7 @@
             "route": "/docs/highlight"
           }
         ],
-        "examples": [
-          "basic-marks-demo"
-        ]
+        "examples": ["basic-marks-demo"]
       }
     },
     {
@@ -2121,9 +1787,7 @@
             "route": "https://pro.platejs.org/docs/components/hr-node"
           }
         ],
-        "examples": [
-          "basic-blocks-demo"
-        ]
+        "examples": ["basic-blocks-demo"]
       }
     },
     {
@@ -2131,10 +1795,7 @@
       "type": "registry:ui",
       "title": "Image Element",
       "description": "Image element with lazy loading, resizing capabilities, and optional caption.",
-      "dependencies": [
-        "@platejs/media",
-        "@platejs/resizable"
-      ],
+      "dependencies": ["@platejs/media", "@platejs/resizable"],
       "registryDependencies": [
         "https://platejs.org/r/media-toolbar",
         "https://platejs.org/r/caption",
@@ -2162,10 +1823,7 @@
             "route": "https://pro.platejs.org/docs/components/image-node"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -2173,9 +1831,7 @@
       "type": "registry:ui",
       "title": "Media Preview Dialog",
       "description": "A modal component for previewing and manipulating images.",
-      "dependencies": [
-        "@platejs/media"
-      ],
+      "dependencies": ["@platejs/media"],
       "registryDependencies": [],
       "files": [
         {
@@ -2192,10 +1848,7 @@
             "route": "https://pro.platejs.org/docs/components/image-preview"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -2222,9 +1875,7 @@
             "title": "Keyboard Input"
           }
         ],
-        "examples": [
-          "basic-marks-demo"
-        ]
+        "examples": ["basic-marks-demo"]
       }
     },
     {
@@ -2232,9 +1883,7 @@
       "type": "registry:ui",
       "title": "Link Element",
       "description": "A component for rendering hyperlinks with hover states.",
-      "dependencies": [
-        "@platejs/link"
-      ],
+      "dependencies": ["@platejs/link"],
       "registryDependencies": [],
       "files": [
         {
@@ -2255,9 +1904,7 @@
             "route": "https://pro.platejs.org/docs/components/link-node"
           }
         ],
-        "examples": [
-          "link-demo"
-        ]
+        "examples": ["link-demo"]
       }
     },
     {
@@ -2265,12 +1912,8 @@
       "type": "registry:ui",
       "title": "List Nodes",
       "description": "List (classic) nodes for ordered and unordered items.",
-      "dependencies": [
-        "@platejs/list-classic"
-      ],
-      "registryDependencies": [
-        "checkbox"
-      ],
+      "dependencies": ["@platejs/list-classic"],
+      "registryDependencies": ["checkbox"],
       "files": [
         {
           "path": "src/registry/ui/list-classic-node.tsx",
@@ -2283,9 +1926,7 @@
             "route": "/docs/list-classic"
           }
         ],
-        "examples": [
-          "list-classic-demo"
-        ]
+        "examples": ["list-classic-demo"]
       }
     },
     {
@@ -2293,13 +1934,8 @@
       "type": "registry:ui",
       "title": "Media Audio Element",
       "description": "An audio player component with caption support.",
-      "dependencies": [
-        "@platejs/media",
-        "@platejs/resizable"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/caption"
-      ],
+      "dependencies": ["@platejs/media", "@platejs/resizable"],
+      "registryDependencies": ["https://platejs.org/r/caption"],
       "files": [
         {
           "path": "src/registry/ui/media-audio-node.tsx",
@@ -2319,10 +1955,7 @@
             "route": "https://pro.platejs.org/docs/components/media-audio-node"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -2359,10 +1992,7 @@
             "route": "https://pro.platejs.org/docs/components/media-embed-node"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -2370,13 +2000,8 @@
       "type": "registry:ui",
       "title": "Media File Element",
       "description": "A file attachment component with download capability and caption.",
-      "dependencies": [
-        "@platejs/media",
-        "@platejs/resizable"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/caption"
-      ],
+      "dependencies": ["@platejs/media", "@platejs/resizable"],
+      "registryDependencies": ["https://platejs.org/r/caption"],
       "files": [
         {
           "path": "src/registry/ui/media-file-node.tsx",
@@ -2396,10 +2021,7 @@
             "route": "https://pro.platejs.org/docs/components/media-file-node"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -2407,13 +2029,8 @@
       "type": "registry:ui",
       "title": "Media Placeholder Element",
       "description": "A placeholder for media upload progress indication.",
-      "dependencies": [
-        "@platejs/media",
-        "use-file-picker@2.1.2"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/uploadthing"
-      ],
+      "dependencies": ["@platejs/media", "use-file-picker@2.1.2"],
+      "registryDependencies": ["https://platejs.org/r/uploadthing"],
       "files": [
         {
           "path": "src/registry/ui/media-placeholder-node.tsx",
@@ -2429,10 +2046,7 @@
             "route": "https://pro.platejs.org/docs/components/media-placeholder-node"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -2473,10 +2087,7 @@
             "route": "https://pro.platejs.org/docs/components/media-video-node"
           }
         ],
-        "examples": [
-          "media-demo",
-          "media-pro"
-        ]
+        "examples": ["media-demo", "media-pro"]
       }
     },
     {
@@ -2484,9 +2095,7 @@
       "type": "registry:ui",
       "title": "Mention Nodes",
       "description": "A mention element with customizable prefix and label, powered by a combobox.",
-      "dependencies": [
-        "@platejs/mention"
-      ],
+      "dependencies": ["@platejs/mention"],
       "registryDependencies": [
         "https://platejs.org/r/use-mounted",
         "https://platejs.org/r/inline-combobox"
@@ -2510,9 +2119,7 @@
             "route": "https://pro.platejs.org/docs/components/mention-node"
           }
         ],
-        "examples": [
-          "mention-demo"
-        ]
+        "examples": ["mention-demo"]
       }
     },
     {
@@ -2541,10 +2148,7 @@
             "route": "https://pro.platejs.org/docs/components/paragraph-node"
           }
         ],
-        "examples": [
-          "basic-blocks-demo",
-          "basic-nodes-pro"
-        ]
+        "examples": ["basic-blocks-demo", "basic-nodes-pro"]
       }
     },
     {
@@ -2573,9 +2177,7 @@
       "type": "registry:ui",
       "title": "Slash Input Element",
       "description": "A command input component for inserting various elements.",
-      "dependencies": [
-        "@platejs/ai"
-      ],
+      "dependencies": ["@platejs/ai"],
       "registryDependencies": [
         "https://platejs.org/r/inline-combobox",
         "https://platejs.org/r/transforms"
@@ -2596,10 +2198,7 @@
             "route": "https://pro.platejs.org/docs/components/slash-node"
           }
         ],
-        "examples": [
-          "slash-command-demo",
-          "slash-command-pro"
-        ]
+        "examples": ["slash-command-demo", "slash-command-pro"]
       }
     },
     {
@@ -2607,10 +2206,7 @@
       "type": "registry:ui",
       "title": "Table Element",
       "description": "A table component with floating toolbar and border customization.",
-      "dependencies": [
-        "@platejs/table",
-        "@radix-ui/react-popover"
-      ],
+      "dependencies": ["@platejs/table", "@radix-ui/react-popover"],
       "registryDependencies": [
         "dropdown-menu",
         "popover",
@@ -2643,9 +2239,7 @@
             "route": "https://pro.platejs.org/docs/components/table-node"
           }
         ],
-        "examples": [
-          "table-demo"
-        ]
+        "examples": ["table-demo"]
       }
     },
     {
@@ -2667,9 +2261,7 @@
             "route": "/docs/multi-select"
           }
         ],
-        "examples": [
-          "select-editor-demo"
-        ]
+        "examples": ["select-editor-demo"]
       }
     },
     {
@@ -2677,9 +2269,7 @@
       "type": "registry:ui",
       "title": "TOC Element",
       "description": "A table of contents component with links to document headings.",
-      "dependencies": [
-        "@platejs/toc"
-      ],
+      "dependencies": ["@platejs/toc"],
       "registryDependencies": [],
       "files": [
         {
@@ -2700,10 +2290,7 @@
             "route": "https://pro.platejs.org/docs/components/toc-node"
           }
         ],
-        "examples": [
-          "toc-demo",
-          "toc-pro"
-        ]
+        "examples": ["toc-demo", "toc-pro"]
       }
     },
     {
@@ -2711,12 +2298,8 @@
       "type": "registry:ui",
       "title": "Toggle Element",
       "description": "A collapsible component for toggling content visibility.",
-      "dependencies": [
-        "@platejs/toggle"
-      ],
-      "registryDependencies": [
-        "button"
-      ],
+      "dependencies": ["@platejs/toggle"],
+      "registryDependencies": ["button"],
       "files": [
         {
           "path": "src/registry/ui/toggle-node.tsx",
@@ -2733,17 +2316,13 @@
             "route": "/docs/toggle"
           }
         ],
-        "examples": [
-          "toggle-demo"
-        ]
+        "examples": ["toggle-demo"]
       }
     },
     {
       "name": "align-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
       "registryDependencies": [],
       "files": [
         {
@@ -2772,9 +2351,7 @@
     {
       "name": "basic-marks-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/basic-nodes"
-      ],
+      "dependencies": ["@platejs/basic-nodes"],
       "registryDependencies": [
         "https://platejs.org/r/code-node",
         "https://platejs.org/r/highlight-node",
@@ -2790,12 +2367,8 @@
     {
       "name": "callout-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/callout"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/callout-node"
-      ],
+      "dependencies": ["@platejs/callout"],
+      "registryDependencies": ["https://platejs.org/r/callout-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/callout-base-kit.tsx",
@@ -2806,13 +2379,8 @@
     {
       "name": "code-block-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/code-block",
-        "lowlight"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/code-block-node"
-      ],
+      "dependencies": ["@platejs/code-block", "lowlight"],
+      "registryDependencies": ["https://platejs.org/r/code-block-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/code-block-base-kit.tsx",
@@ -2823,12 +2391,8 @@
     {
       "name": "code-drawing-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/code-drawing"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/code-drawing-node"
-      ],
+      "dependencies": ["@platejs/code-drawing"],
+      "registryDependencies": ["https://platejs.org/r/code-drawing-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/code-drawing-base-kit.tsx",
@@ -2839,12 +2403,8 @@
     {
       "name": "column-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/layout"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/column-node"
-      ],
+      "dependencies": ["@platejs/layout"],
+      "registryDependencies": ["https://platejs.org/r/column-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/column-base-kit.tsx",
@@ -2855,12 +2415,8 @@
     {
       "name": "comment-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/comment"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/comment-node"
-      ],
+      "dependencies": ["@platejs/comment"],
+      "registryDependencies": ["https://platejs.org/r/comment-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/comment-base-kit.tsx",
@@ -2871,12 +2427,8 @@
     {
       "name": "date-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/date"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/date-node"
-      ],
+      "dependencies": ["@platejs/date"],
+      "registryDependencies": ["https://platejs.org/r/date-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/date-base-kit.tsx",
@@ -2887,13 +2439,8 @@
     {
       "name": "excalidraw-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/excalidraw",
-        "@excalidraw/excalidraw"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/excalidraw-node"
-      ],
+      "dependencies": ["@platejs/excalidraw", "@excalidraw/excalidraw"],
+      "registryDependencies": ["https://platejs.org/r/excalidraw-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/excalidraw-kit.tsx",
@@ -2904,9 +2451,7 @@
     {
       "name": "font-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
       "registryDependencies": [],
       "files": [
         {
@@ -2918,9 +2463,7 @@
     {
       "name": "indent-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/indent"
-      ],
+      "dependencies": ["@platejs/indent"],
       "registryDependencies": [],
       "files": [
         {
@@ -2932,9 +2475,7 @@
     {
       "name": "line-height-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
       "registryDependencies": [],
       "files": [
         {
@@ -2946,12 +2487,8 @@
     {
       "name": "link-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/link"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/link-node"
-      ],
+      "dependencies": ["@platejs/link"],
+      "registryDependencies": ["https://platejs.org/r/link-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/link-base-kit.tsx",
@@ -2962,9 +2499,7 @@
     {
       "name": "list-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/list"
-      ],
+      "dependencies": ["@platejs/list"],
       "registryDependencies": [
         "https://platejs.org/r/block-list",
         "https://platejs.org/r/indent-base-kit"
@@ -2979,12 +2514,8 @@
     {
       "name": "math-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/math"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/equation-node"
-      ],
+      "dependencies": ["@platejs/math"],
+      "registryDependencies": ["https://platejs.org/r/equation-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/math-base-kit.tsx",
@@ -2995,9 +2526,7 @@
     {
       "name": "media-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/media"
-      ],
+      "dependencies": ["@platejs/media"],
       "registryDependencies": [
         "https://platejs.org/r/media-audio-node",
         "https://platejs.org/r/media-file-node",
@@ -3014,12 +2543,8 @@
     {
       "name": "mention-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/mention"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/mention-node"
-      ],
+      "dependencies": ["@platejs/mention"],
+      "registryDependencies": ["https://platejs.org/r/mention-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/mention-base-kit.tsx",
@@ -3030,12 +2555,8 @@
     {
       "name": "suggestion-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/suggestion"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/suggestion-node"
-      ],
+      "dependencies": ["@platejs/suggestion"],
+      "registryDependencies": ["https://platejs.org/r/suggestion-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/suggestion-base-kit.tsx",
@@ -3046,12 +2567,8 @@
     {
       "name": "table-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/table"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/table-node"
-      ],
+      "dependencies": ["@platejs/table"],
+      "registryDependencies": ["https://platejs.org/r/table-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/table-base-kit.tsx",
@@ -3062,12 +2579,8 @@
     {
       "name": "toc-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/toc"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toc-node"
-      ],
+      "dependencies": ["@platejs/toc"],
+      "registryDependencies": ["https://platejs.org/r/toc-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/toc-base-kit.tsx",
@@ -3078,12 +2591,8 @@
     {
       "name": "toggle-base-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/toggle"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/toggle-node"
-      ],
+      "dependencies": ["@platejs/toggle"],
+      "registryDependencies": ["https://platejs.org/r/toggle-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/toggle-base-kit.tsx",
@@ -3128,9 +2637,7 @@
     {
       "name": "ai-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/ai"
-      ],
+      "dependencies": ["@platejs/ai"],
       "registryDependencies": [
         "https://platejs.org/r/markdown-kit",
         "https://platejs.org/r/cursor-overlay-kit",
@@ -3149,9 +2656,7 @@
     {
       "name": "align-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
       "registryDependencies": [
         "https://platejs.org/r/align-base-kit",
         "https://platejs.org/r/align-toolbar-button"
@@ -3218,9 +2723,7 @@
     {
       "name": "basic-marks-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/basic-nodes"
-      ],
+      "dependencies": ["@platejs/basic-nodes"],
       "registryDependencies": [
         "https://platejs.org/r/basic-marks-base-kit",
         "https://platejs.org/r/code-node",
@@ -3252,9 +2755,7 @@
     {
       "name": "block-menu-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/selection"
-      ],
+      "dependencies": ["@platejs/selection"],
       "registryDependencies": [
         "https://platejs.org/r/block-context-menu",
         "https://platejs.org/r/block-selection-kit"
@@ -3281,12 +2782,8 @@
     {
       "name": "block-selection-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/selection"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/block-selection"
-      ],
+      "dependencies": ["@platejs/selection"],
+      "registryDependencies": ["https://platejs.org/r/block-selection"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/block-selection-kit.tsx",
@@ -3297,9 +2794,7 @@
     {
       "name": "callout-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/callout"
-      ],
+      "dependencies": ["@platejs/callout"],
       "registryDependencies": [
         "https://platejs.org/r/callout-base-kit",
         "https://platejs.org/r/callout-node"
@@ -3314,10 +2809,7 @@
     {
       "name": "code-block-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/code-block",
-        "lowlight"
-      ],
+      "dependencies": ["@platejs/code-block", "lowlight"],
       "registryDependencies": [
         "https://platejs.org/r/code-block-base-kit",
         "https://platejs.org/r/code-block-node"
@@ -3332,9 +2824,7 @@
     {
       "name": "code-drawing-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/code-drawing"
-      ],
+      "dependencies": ["@platejs/code-drawing"],
       "registryDependencies": [
         "https://platejs.org/r/code-drawing-base-kit",
         "https://platejs.org/r/code-drawing-node"
@@ -3349,9 +2839,7 @@
     {
       "name": "column-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/layout"
-      ],
+      "dependencies": ["@platejs/layout"],
       "registryDependencies": [
         "https://platejs.org/r/column-base-kit",
         "https://platejs.org/r/column-node"
@@ -3366,9 +2854,7 @@
     {
       "name": "comment-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/comment"
-      ],
+      "dependencies": ["@platejs/comment"],
       "registryDependencies": [
         "https://platejs.org/r/comment-base-kit",
         "https://platejs.org/r/comment-node",
@@ -3385,11 +2871,7 @@
     {
       "name": "copilot-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/ai",
-        "@platejs/markdown",
-        "@faker-js/faker"
-      ],
+      "dependencies": ["@platejs/ai", "@platejs/markdown", "@faker-js/faker"],
       "registryDependencies": [
         "https://platejs.org/r/ghost-text",
         "https://platejs.org/r/markdown-kit"
@@ -3404,12 +2886,8 @@
     {
       "name": "cursor-overlay-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/selection"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/cursor-overlay"
-      ],
+      "dependencies": ["@platejs/selection"],
+      "registryDependencies": ["https://platejs.org/r/cursor-overlay"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/cursor-overlay-kit.tsx",
@@ -3420,9 +2898,7 @@
     {
       "name": "date-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/date"
-      ],
+      "dependencies": ["@platejs/date"],
       "registryDependencies": [
         "https://platejs.org/r/date-base-kit",
         "https://platejs.org/r/date-node"
@@ -3438,9 +2914,7 @@
       "name": "discussion-kit",
       "type": "registry:component",
       "dependencies": [],
-      "registryDependencies": [
-        "https://platejs.org/r/block-discussion"
-      ],
+      "registryDependencies": ["https://platejs.org/r/block-discussion"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/discussion-kit.tsx",
@@ -3457,9 +2931,7 @@
         "react-dnd",
         "react-dnd-html5-backend"
       ],
-      "registryDependencies": [
-        "https://platejs.org/r/block-draggable"
-      ],
+      "registryDependencies": ["https://platejs.org/r/block-draggable"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/dnd-kit.tsx",
@@ -3470,10 +2942,7 @@
     {
       "name": "docx-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/docx",
-        "@platejs/juice"
-      ],
+      "dependencies": ["@platejs/docx", "@platejs/juice"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/docx-kit.tsx",
@@ -3484,9 +2953,7 @@
     {
       "name": "docx-export-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/docx-io"
-      ],
+      "dependencies": ["@platejs/docx-io"],
       "registryDependencies": [
         "https://platejs.org/r/callout-node-static",
         "https://platejs.org/r/code-block-node-static",
@@ -3551,10 +3018,7 @@
     {
       "name": "emoji-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/emoji",
-        "@emoji-mart/data@1.2.1"
-      ],
+      "dependencies": ["@platejs/emoji", "@emoji-mart/data@1.2.1"],
       "registryDependencies": [
         "https://platejs.org/r/emoji-node",
         "https://platejs.org/r/emoji-toolbar-button"
@@ -3640,9 +3104,7 @@
     {
       "name": "font-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
       "registryDependencies": [
         "https://platejs.org/r/font-base-kit",
         "https://platejs.org/r/font-size-toolbar-button",
@@ -3658,12 +3120,8 @@
     {
       "name": "indent-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/indent"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/indent-toolbar-button"
-      ],
+      "dependencies": ["@platejs/indent"],
+      "registryDependencies": ["https://platejs.org/r/indent-toolbar-button"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/indent-kit.tsx",
@@ -3674,9 +3132,7 @@
     {
       "name": "line-height-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/basic-styles"
-      ],
+      "dependencies": ["@platejs/basic-styles"],
       "registryDependencies": [
         "https://platejs.org/r/line-height-base-kit",
         "https://platejs.org/r/line-height-toolbar-button"
@@ -3691,9 +3147,7 @@
     {
       "name": "link-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/link"
-      ],
+      "dependencies": ["@platejs/link"],
       "registryDependencies": [
         "https://platejs.org/r/link-base-kit",
         "https://platejs.org/r/link-node",
@@ -3710,9 +3164,7 @@
     {
       "name": "list-classic-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/list-classic"
-      ],
+      "dependencies": ["@platejs/list-classic"],
       "registryDependencies": [
         "https://platejs.org/r/list-classic-node",
         "https://platejs.org/r/list-classic-toolbar-button",
@@ -3728,9 +3180,7 @@
     {
       "name": "list-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/list"
-      ],
+      "dependencies": ["@platejs/list"],
       "registryDependencies": [
         "https://platejs.org/r/list-base-kit",
         "https://platejs.org/r/block-list",
@@ -3747,11 +3197,7 @@
     {
       "name": "markdown-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/markdown",
-        "remark-gfm",
-        "remark-math"
-      ],
+      "dependencies": ["@platejs/markdown", "remark-gfm", "remark-math"],
       "registryDependencies": [],
       "files": [
         {
@@ -3763,9 +3209,7 @@
     {
       "name": "math-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/math"
-      ],
+      "dependencies": ["@platejs/math"],
       "registryDependencies": [
         "https://platejs.org/r/math-base-kit",
         "https://platejs.org/r/equation-toolbar-button",
@@ -3782,10 +3226,7 @@
       "name": "media-kit",
       "type": "registry:component",
       "description": "Media kit without API (see media-uploadthing-api for reference)",
-      "dependencies": [
-        "@platejs/caption",
-        "@platejs/media"
-      ],
+      "dependencies": ["@platejs/caption", "@platejs/media"],
       "registryDependencies": [
         "https://platejs.org/r/media-base-kit",
         "https://platejs.org/r/media-audio-node",
@@ -3820,9 +3261,7 @@
     {
       "name": "mention-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/mention"
-      ],
+      "dependencies": ["@platejs/mention"],
       "registryDependencies": [
         "https://platejs.org/r/mention-base-kit",
         "https://platejs.org/r/mention-node"
@@ -3837,12 +3276,8 @@
     {
       "name": "slash-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/slash-command"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/slash-node"
-      ],
+      "dependencies": ["@platejs/slash-command"],
+      "registryDependencies": ["https://platejs.org/r/slash-node"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/slash-kit.tsx",
@@ -3853,9 +3288,7 @@
     {
       "name": "suggestion-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/suggestion"
-      ],
+      "dependencies": ["@platejs/suggestion"],
       "registryDependencies": [
         "https://platejs.org/r/suggestion-base-kit",
         "https://platejs.org/r/suggestion-node",
@@ -3872,9 +3305,7 @@
     {
       "name": "tabbable-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/tabbable"
-      ],
+      "dependencies": ["@platejs/tabbable"],
       "files": [
         {
           "path": "src/registry/components/editor/plugins/tabbable-kit.tsx",
@@ -3885,9 +3316,7 @@
     {
       "name": "table-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/table"
-      ],
+      "dependencies": ["@platejs/table"],
       "registryDependencies": [
         "https://platejs.org/r/table-base-kit",
         "https://platejs.org/r/table-node",
@@ -3903,9 +3332,7 @@
     {
       "name": "toc-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/toc"
-      ],
+      "dependencies": ["@platejs/toc"],
       "registryDependencies": [
         "https://platejs.org/r/toc-base-kit",
         "https://platejs.org/r/toc-node"
@@ -3920,9 +3347,7 @@
     {
       "name": "toggle-kit",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/toggle"
-      ],
+      "dependencies": ["@platejs/toggle"],
       "registryDependencies": [
         "https://platejs.org/r/toggle-base-kit",
         "https://platejs.org/r/indent-kit",
@@ -3939,11 +3364,7 @@
     {
       "name": "ai-api",
       "type": "registry:file",
-      "dependencies": [
-        "@ai-sdk/react@2.0.28",
-        "ai@5.0.28",
-        "dedent@1.0.0"
-      ],
+      "dependencies": ["@ai-sdk/react@2.0.28", "ai@5.0.28", "dedent@1.0.0"],
       "registryDependencies": [
         "https://platejs.org/r/copilot-api",
         "https://platejs.org/r/markdown-joiner-transform"
@@ -3999,9 +3420,7 @@
     {
       "name": "copilot-api",
       "type": "registry:file",
-      "dependencies": [
-        "ai@5.0.28"
-      ],
+      "dependencies": ["ai@5.0.28"],
       "registryDependencies": [],
       "files": [
         {
@@ -4014,12 +3433,8 @@
     {
       "name": "media-uploadthing-api",
       "type": "registry:file",
-      "dependencies": [
-        "uploadthing@7.7.4"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/uploadthing"
-      ],
+      "dependencies": ["uploadthing@7.7.4"],
+      "registryDependencies": ["https://platejs.org/r/uploadthing"],
       "files": [
         {
           "path": "src/registry/app/api/uploadthing/route.ts",
@@ -4031,9 +3446,7 @@
     {
       "name": "settings-dialog",
       "type": "registry:component",
-      "dependencies": [
-        "@platejs/ai"
-      ],
+      "dependencies": ["@platejs/ai"],
       "registryDependencies": [
         "https://platejs.org/r/ai-kit",
         "button",
@@ -4052,13 +3465,8 @@
     {
       "name": "use-chat",
       "type": "registry:component",
-      "dependencies": [
-        "@ai-sdk/react@2.0.28",
-        "@faker-js/faker"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/ai-kit"
-      ],
+      "dependencies": ["@ai-sdk/react@2.0.28", "@faker-js/faker"],
+      "registryDependencies": ["https://platejs.org/r/ai-kit"],
       "files": [
         {
           "path": "src/registry/components/editor/use-chat.ts",
@@ -4131,9 +3539,7 @@
       "name": "editor-ai",
       "type": "registry:block",
       "description": "An AI editor",
-      "dependencies": [
-        "sonner"
-      ],
+      "dependencies": ["sonner"],
       "registryDependencies": [
         "https://platejs.org/r/plate-ui",
         "https://platejs.org/r/copilot-kit",
@@ -4189,9 +3595,7 @@
           "type": "registry:component"
         }
       ],
-      "categories": [
-        "Editors"
-      ]
+      "categories": ["Editors"]
     },
     {
       "name": "editor-select",
@@ -4212,18 +3616,13 @@
       "meta": {
         "descriptionSrc": "/docs/multi-select"
       },
-      "categories": [
-        "Editors"
-      ]
+      "categories": ["Editors"]
     },
     {
       "name": "editor-basic",
       "type": "registry:block",
       "description": "A basic editor",
-      "dependencies": [
-        "@platejs/basic-nodes",
-        "@platejs/basic-nodes"
-      ],
+      "dependencies": ["@platejs/basic-nodes", "@platejs/basic-nodes"],
       "registryDependencies": [
         "https://platejs.org/r/plate-ui",
         "https://platejs.org/r/editor",
@@ -4241,16 +3640,12 @@
           "type": "registry:component"
         }
       ],
-      "categories": [
-        "Editors"
-      ]
+      "categories": ["Editors"]
     },
     {
       "name": "slate-to-html",
       "type": "registry:block",
-      "dependencies": [
-        "next-themes"
-      ],
+      "dependencies": ["next-themes"],
       "registryDependencies": [
         "https://platejs.org/r/plate-ui",
         "https://platejs.org/r/editor-base-kit",
@@ -4338,9 +3733,7 @@
       "meta": {
         "rsc": true
       },
-      "categories": [
-        "Serializers"
-      ]
+      "categories": ["Serializers"]
     },
     {
       "name": "uploadthing",
@@ -4365,9 +3758,7 @@
     {
       "name": "markdown-joiner-transform",
       "type": "registry:hook",
-      "dependencies": [
-        "ai@5.0.28"
-      ],
+      "dependencies": ["ai@5.0.28"],
       "files": [
         {
           "path": "src/registry/lib/markdown-joiner-transform.ts",
@@ -4378,15 +3769,11 @@
     {
       "name": "tailwind-scrollbar-hide",
       "type": "registry:style",
-      "dependencies": [
-        "tailwind-scrollbar-hide"
-      ],
+      "dependencies": ["tailwind-scrollbar-hide"],
       "files": [],
       "tailwind": {
         "config": {
-          "plugins": [
-            "tailwind-scrollbar-hide"
-          ]
+          "plugins": ["tailwind-scrollbar-hide"]
         }
       }
     },
@@ -4437,10 +3824,7 @@
       "name": "copilot-demo",
       "type": "registry:example",
       "description": "Renders AI ghost text suggestions at the cursor position.",
-      "dependencies": [
-        "@platejs/ai",
-        "@platejs/markdown"
-      ],
+      "dependencies": ["@platejs/ai", "@platejs/markdown"],
       "registryDependencies": [
         "https://platejs.org/r/copilot-kit",
         "https://platejs.org/r/editor-kit"
@@ -4469,9 +3853,7 @@
       "type": "registry:example",
       "title": "Select Editor Form",
       "description": "A form with a select editor component for managing labels.",
-      "dependencies": [
-        "@platejs/tag"
-      ],
+      "dependencies": ["@platejs/tag"],
       "registryDependencies": [
         "form",
         "button",
@@ -4494,10 +3876,7 @@
     {
       "name": "controlled-demo",
       "type": "registry:example",
-      "registryDependencies": [
-        "https://platejs.org/r/editor",
-        "button"
-      ],
+      "registryDependencies": ["https://platejs.org/r/editor", "button"],
       "files": [
         {
           "path": "src/registry/examples/controlled-demo.tsx",
@@ -4508,13 +3887,8 @@
     {
       "name": "hundreds-blocks-demo",
       "type": "registry:example",
-      "dependencies": [
-        "@platejs/basic-nodes",
-        "@platejs/basic-nodes"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/editor"
-      ],
+      "dependencies": ["@platejs/basic-nodes", "@platejs/basic-nodes"],
+      "registryDependencies": ["https://platejs.org/r/editor"],
       "files": [
         {
           "path": "src/registry/examples/hundreds-blocks-demo.tsx",
@@ -4529,9 +3903,7 @@
     {
       "name": "hundreds-editors-demo",
       "type": "registry:example",
-      "registryDependencies": [
-        "https://platejs.org/r/editor"
-      ],
+      "registryDependencies": ["https://platejs.org/r/editor"],
       "files": [
         {
           "path": "src/registry/examples/hundreds-editors-demo.tsx",
@@ -4581,14 +3953,8 @@
     {
       "name": "version-history-demo",
       "type": "registry:example",
-      "dependencies": [
-        "@platejs/basic-nodes",
-        "@platejs/diff",
-        "lodash"
-      ],
-      "registryDependencies": [
-        "button"
-      ],
+      "dependencies": ["@platejs/basic-nodes", "@platejs/diff", "lodash"],
+      "registryDependencies": ["button"],
       "files": [
         {
           "path": "src/registry/examples/version-history-demo.tsx",
@@ -4599,9 +3965,7 @@
     {
       "name": "preview-markdown-demo",
       "type": "registry:example",
-      "dependencies": [
-        "prismjs"
-      ],
+      "dependencies": ["prismjs"],
       "registryDependencies": [
         "https://platejs.org/r/basic-nodes-kit",
         "https://platejs.org/r/editor"
@@ -4620,9 +3984,7 @@
     {
       "name": "markdown-to-slate-demo",
       "type": "registry:example",
-      "dependencies": [
-        "remark-emoji"
-      ],
+      "dependencies": ["remark-emoji"],
       "registryDependencies": [
         "https://platejs.org/r/editor-kit",
         "https://platejs.org/r/use-debounce"
@@ -4654,10 +4016,7 @@
       "name": "collaboration-demo",
       "type": "registry:example",
       "description": "Real-time collaboration with cursors and selections.",
-      "dependencies": [
-        "@platejs/yjs",
-        "nanoid"
-      ],
+      "dependencies": ["@platejs/yjs", "nanoid"],
       "registryDependencies": [
         "https://platejs.org/r/use-mounted",
         "https://platejs.org/r/remote-cursor-overlay",
@@ -4674,10 +4033,7 @@
     {
       "name": "installation-next-demo",
       "type": "registry:example",
-      "dependencies": [
-        "@platejs/basic-nodes",
-        "@platejs/basic-nodes"
-      ],
+      "dependencies": ["@platejs/basic-nodes", "@platejs/basic-nodes"],
       "registryDependencies": [
         "https://platejs.org/r/editor",
         "https://platejs.org/r/fixed-toolbar",
@@ -4696,12 +4052,8 @@
     {
       "name": "tabbable-demo",
       "type": "registry:example",
-      "dependencies": [
-        "@platejs/tabbable"
-      ],
-      "registryDependencies": [
-        "https://platejs.org/r/editor-kit"
-      ],
+      "dependencies": ["@platejs/tabbable"],
+      "registryDependencies": ["https://platejs.org/r/editor-kit"],
       "files": [
         {
           "path": "src/registry/examples/tabbable-demo.tsx",
@@ -4874,9 +4226,7 @@
         }
       ],
       "name": "fumadocs",
-      "registryDependencies": [
-        "https://platejs.org/r/docs"
-      ],
+      "registryDependencies": ["https://platejs.org/r/docs"],
       "title": "Fumadocs app",
       "type": "registry:file"
     },

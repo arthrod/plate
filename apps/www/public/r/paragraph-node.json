@@ -27,9 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/paragraph-node"
       }
     ],
-    "examples": [
-      "basic-blocks-demo",
-      "basic-nodes-pro"
-    ]
+    "examples": ["basic-blocks-demo", "basic-nodes-pro"]
   }
 }

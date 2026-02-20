@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "date-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/date"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/date-node"
-  ],
+  "dependencies": ["@platejs/date"],
+  "registryDependencies": ["https://platejs.org/r/date-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/date-base-kit.tsx",

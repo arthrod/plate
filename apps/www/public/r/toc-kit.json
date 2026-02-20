@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "toc-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/toc"
-  ],
+  "dependencies": ["@platejs/toc"],
   "registryDependencies": [
     "https://platejs.org/r/toc-base-kit",
     "https://platejs.org/r/toc-node"

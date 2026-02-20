@@ -4,15 +4,8 @@
   "type": "registry:ui",
   "title": "Media Toolbar",
   "description": "A toolbar interface for media settings.",
-  "dependencies": [
-    "@platejs/media"
-  ],
-  "registryDependencies": [
-    "button",
-    "input",
-    "popover",
-    "separator"
-  ],
+  "dependencies": ["@platejs/media"],
+  "registryDependencies": ["button", "input", "popover", "separator"],
   "files": [
     {
       "path": "src/registry/ui/media-toolbar.tsx",
@@ -26,9 +19,6 @@
         "route": "/docs/media"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

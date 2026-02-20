@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "suggestion-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/suggestion"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/suggestion-node"
-  ],
+  "dependencies": ["@platejs/suggestion"],
+  "registryDependencies": ["https://platejs.org/r/suggestion-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/suggestion-base-kit.tsx",

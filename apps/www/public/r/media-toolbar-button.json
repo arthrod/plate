@@ -4,11 +4,7 @@
   "type": "registry:ui",
   "title": "Media Toolbar Button",
   "description": "Toolbar button for inserting and managing media.",
-  "dependencies": [
-    "@platejs/media",
-    "use-file-picker@2.1.2",
-    "sonner"
-  ],
+  "dependencies": ["@platejs/media", "use-file-picker@2.1.2", "sonner"],
   "registryDependencies": [
     "https://platejs.org/r/toolbar",
     "input",
@@ -28,9 +24,6 @@
         "route": "/docs/media"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

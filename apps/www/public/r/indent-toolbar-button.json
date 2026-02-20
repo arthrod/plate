@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Indent Toolbar Buttons",
   "description": "Toolbar controls for block indentation.",
-  "dependencies": [
-    "@platejs/indent"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar"
-  ],
+  "dependencies": ["@platejs/indent"],
+  "registryDependencies": ["https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/indent-toolbar-button.tsx",
@@ -23,8 +19,6 @@
         "route": "/docs/indent"
       }
     ],
-    "examples": [
-      "indent-demo"
-    ]
+    "examples": ["indent-demo"]
   }
 }

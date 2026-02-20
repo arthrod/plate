@@ -34,9 +34,6 @@
         "route": "https://pro.platejs.org/docs/components/media-embed-node"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

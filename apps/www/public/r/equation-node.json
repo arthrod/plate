@@ -4,13 +4,8 @@
   "type": "registry:ui",
   "title": "Equation Element",
   "description": "Displays a LaTeX equation element with an editable popover for inputting and rendering mathematical expressions.",
-  "dependencies": [
-    "@platejs/math",
-    "react-textarea-autosize"
-  ],
-  "registryDependencies": [
-    "popover"
-  ],
+  "dependencies": ["@platejs/math", "react-textarea-autosize"],
+  "registryDependencies": ["popover"],
   "files": [
     {
       "path": "src/registry/ui/equation-node.tsx",
@@ -30,8 +25,6 @@
         "title": "Equation"
       }
     ],
-    "examples": [
-      "equation-demo"
-    ]
+    "examples": ["equation-demo"]
   }
 }

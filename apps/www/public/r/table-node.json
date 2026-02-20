@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Table Element",
   "description": "A table component with floating toolbar and border customization.",
-  "dependencies": [
-    "@platejs/table",
-    "@radix-ui/react-popover"
-  ],
+  "dependencies": ["@platejs/table", "@radix-ui/react-popover"],
   "registryDependencies": [
     "dropdown-menu",
     "popover",
@@ -43,8 +40,6 @@
         "route": "https://pro.platejs.org/docs/components/table-node"
       }
     ],
-    "examples": [
-      "table-demo"
-    ]
+    "examples": ["table-demo"]
   }
 }

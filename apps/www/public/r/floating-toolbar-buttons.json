@@ -32,9 +32,6 @@
         "route": "https://pro.platejs.org/docs/components/floating-toolbar-buttons"
       }
     ],
-    "examples": [
-      "floating-toolbar-demo",
-      "floating-toolbar-pro"
-    ]
+    "examples": ["floating-toolbar-demo", "floating-toolbar-pro"]
   }
 }

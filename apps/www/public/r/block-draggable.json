@@ -4,14 +4,8 @@
   "type": "registry:ui",
   "title": "Block Draggable",
   "description": "A block wrapper with a drag handle for moving editor blocks.",
-  "dependencies": [
-    "@platejs/dnd",
-    "@platejs/selection"
-  ],
-  "registryDependencies": [
-    "tooltip",
-    "https://platejs.org/r/use-mounted"
-  ],
+  "dependencies": ["@platejs/dnd", "@platejs/selection"],
+  "registryDependencies": ["tooltip", "https://platejs.org/r/use-mounted"],
   "files": [
     {
       "path": "src/registry/ui/block-draggable.tsx",
@@ -29,10 +23,7 @@
         "route": "https://pro.platejs.org/docs/components/block-draggable"
       }
     ],
-    "examples": [
-      "dnd-demo",
-      "dnd-pro"
-    ],
+    "examples": ["dnd-demo", "dnd-pro"],
     "usage": [
       "DndPlugin.configure({\n  render: {\n    aboveNodes: BlockDraggable,\n  },\n})"
     ]

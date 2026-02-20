@@ -3,10 +3,7 @@
   "name": "copilot-demo",
   "type": "registry:example",
   "description": "Renders AI ghost text suggestions at the cursor position.",
-  "dependencies": [
-    "@platejs/ai",
-    "@platejs/markdown"
-  ],
+  "dependencies": ["@platejs/ai", "@platejs/markdown"],
   "registryDependencies": [
     "https://platejs.org/r/copilot-kit",
     "https://platejs.org/r/editor-kit"

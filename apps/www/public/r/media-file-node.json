@@ -4,13 +4,8 @@
   "type": "registry:ui",
   "title": "Media File Element",
   "description": "A file attachment component with download capability and caption.",
-  "dependencies": [
-    "@platejs/media",
-    "@platejs/resizable"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/caption"
-  ],
+  "dependencies": ["@platejs/media", "@platejs/resizable"],
+  "registryDependencies": ["https://platejs.org/r/caption"],
   "files": [
     {
       "path": "src/registry/ui/media-file-node.tsx",
@@ -32,9 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/media-file-node"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

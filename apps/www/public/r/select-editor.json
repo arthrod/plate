@@ -4,11 +4,7 @@
   "type": "registry:ui",
   "title": "Select Editor",
   "description": "An editor to select tags.",
-  "dependencies": [
-    "fzf@0.5.2",
-    "@platejs/tag",
-    "@udecode/cmdk"
-  ],
+  "dependencies": ["fzf@0.5.2", "@platejs/tag", "@udecode/cmdk"],
   "registryDependencies": [
     "https://platejs.org/r/editor",
     "command",
@@ -28,9 +24,7 @@
         "route": "/docs/multi-select"
       }
     ],
-    "examples": [
-      "select-editor-demo"
-    ],
+    "examples": ["select-editor-demo"],
     "label": "New"
   }
 }

@@ -9,9 +9,7 @@
     "@emoji-mart/data@1.2.1",
     "@radix-ui/react-popover"
   ],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar"
-  ],
+  "registryDependencies": ["https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/emoji-toolbar-button.tsx",
@@ -28,9 +26,6 @@
         "route": "https://pro.platejs.org/docs/components/emoji-picker"
       }
     ],
-    "examples": [
-      "emoji-demo",
-      "emoji-pro"
-    ]
+    "examples": ["emoji-demo", "emoji-pro"]
   }
 }

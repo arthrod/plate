@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Block Context Menu",
   "description": "A context menu for block-level operations.",
-  "dependencies": [
-    "@platejs/ai",
-    "@platejs/selection"
-  ],
+  "dependencies": ["@platejs/ai", "@platejs/selection"],
   "registryDependencies": [
     "calendar",
     "context-menu",
@@ -29,9 +26,6 @@
         "route": "https://pro.platejs.org/docs/components/block-context-menu"
       }
     ],
-    "examples": [
-      "block-menu-demo",
-      "block-menu-pro"
-    ]
+    "examples": ["block-menu-demo", "block-menu-pro"]
   }
 }

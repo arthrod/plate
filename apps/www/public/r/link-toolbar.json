@@ -4,16 +4,8 @@
   "type": "registry:ui",
   "title": "Link Floating Toolbar",
   "description": "A floating interface for link editing.",
-  "dependencies": [
-    "@platejs/link",
-    "@platejs/floating"
-  ],
-  "registryDependencies": [
-    "button",
-    "input",
-    "popover",
-    "separator"
-  ],
+  "dependencies": ["@platejs/link", "@platejs/floating"],
+  "registryDependencies": ["button", "input", "popover", "separator"],
   "files": [
     {
       "path": "src/registry/ui/link-toolbar.tsx",
@@ -33,9 +25,6 @@
         "route": "https://pro.platejs.org/docs/components/link-toolbar"
       }
     ],
-    "examples": [
-      "link-demo",
-      "link-pro"
-    ]
+    "examples": ["link-demo", "link-pro"]
   }
 }

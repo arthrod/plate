@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "math-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/math"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/equation-node"
-  ],
+  "dependencies": ["@platejs/math"],
+  "registryDependencies": ["https://platejs.org/r/equation-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/math-base-kit.tsx",

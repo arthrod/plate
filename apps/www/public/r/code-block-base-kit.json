@@ -2,13 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "code-block-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/code-block",
-    "lowlight"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/code-block-node"
-  ],
+  "dependencies": ["@platejs/code-block", "lowlight"],
+  "registryDependencies": ["https://platejs.org/r/code-block-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/code-block-base-kit.tsx",

@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Comment Leaf",
   "description": "A text component for displaying comments with visual indicators.",
-  "dependencies": [
-    "@platejs/comment"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/highlight-style"
-  ],
+  "dependencies": ["@platejs/comment"],
+  "registryDependencies": ["https://platejs.org/r/highlight-style"],
   "files": [
     {
       "path": "src/registry/ui/comment-node.tsx",
@@ -31,9 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/comment-node"
       }
     ],
-    "examples": [
-      "discussion-demo",
-      "discussion-pro"
-    ]
+    "examples": ["discussion-demo", "discussion-pro"]
   }
 }

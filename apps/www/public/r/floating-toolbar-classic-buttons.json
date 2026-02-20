@@ -24,8 +24,6 @@
     }
   ],
   "meta": {
-    "examples": [
-      "list-classic-demo"
-    ]
+    "examples": ["list-classic-demo"]
   }
 }

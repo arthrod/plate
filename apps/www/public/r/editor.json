@@ -24,10 +24,6 @@
         "route": "https://pro.platejs.org/docs/components/editor"
       }
     ],
-    "examples": [
-      "editor-default",
-      "editor-disabled",
-      "editor-full-width"
-    ]
+    "examples": ["editor-default", "editor-disabled", "editor-full-width"]
   }
 }

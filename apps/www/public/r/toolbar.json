@@ -4,14 +4,8 @@
   "type": "registry:ui",
   "title": "Toolbar",
   "description": "A customizable toolbar component with various button styles and group",
-  "dependencies": [
-    "@radix-ui/react-toolbar"
-  ],
-  "registryDependencies": [
-    "tooltip",
-    "separator",
-    "dropdown-menu"
-  ],
+  "dependencies": ["@radix-ui/react-toolbar"],
+  "registryDependencies": ["tooltip", "separator", "dropdown-menu"],
   "files": [
     {
       "path": "src/registry/ui/toolbar.tsx",

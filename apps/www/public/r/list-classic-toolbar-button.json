@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "List Toolbar Buttons",
   "description": "Toolbar controls for list creation and management.",
-  "dependencies": [
-    "@platejs/list-classic"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar"
-  ],
+  "dependencies": ["@platejs/list-classic"],
+  "registryDependencies": ["https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/list-classic-toolbar-button.tsx",
@@ -23,8 +19,6 @@
         "route": "/docs/list-classic"
       }
     ],
-    "examples": [
-      "list-classic-demo"
-    ]
+    "examples": ["list-classic-demo"]
   }
 }

@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Cursor Overlay",
   "description": "A visual overlay for cursors and selections.",
-  "dependencies": [
-    "@platejs/selection"
-  ],
+  "dependencies": ["@platejs/selection"],
   "registryDependencies": [],
   "files": [
     {
@@ -24,8 +22,6 @@
         "route": "https://pro.platejs.org/docs/components/cursor-overlay"
       }
     ],
-    "examples": [
-      "ai-demo"
-    ]
+    "examples": ["ai-demo"]
   }
 }

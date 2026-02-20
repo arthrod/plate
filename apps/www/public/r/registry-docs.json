@@ -162,9 +162,7 @@
         }
       ],
       "name": "fumadocs",
-      "registryDependencies": [
-        "https://platejs.org/r/docs"
-      ],
+      "registryDependencies": ["https://platejs.org/r/docs"],
       "title": "Fumadocs app",
       "type": "registry:file"
     },

@@ -4,13 +4,8 @@
   "type": "registry:ui",
   "title": "Font Size Toolbar Button",
   "description": "A toolbar control for adjusting font size.",
-  "dependencies": [
-    "@platejs/basic-styles"
-  ],
-  "registryDependencies": [
-    "popover",
-    "https://platejs.org/r/toolbar"
-  ],
+  "dependencies": ["@platejs/basic-styles"],
+  "registryDependencies": ["popover", "https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/font-size-toolbar-button.tsx",
@@ -24,8 +19,6 @@
         "route": "/docs/font"
       }
     ],
-    "examples": [
-      "font-demo"
-    ]
+    "examples": ["font-demo"]
   }
 }

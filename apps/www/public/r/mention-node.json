@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Mention Nodes",
   "description": "A mention element with customizable prefix and label, powered by a combobox.",
-  "dependencies": [
-    "@platejs/mention"
-  ],
+  "dependencies": ["@platejs/mention"],
   "registryDependencies": [
     "https://platejs.org/r/use-mounted",
     "https://platejs.org/r/inline-combobox"
@@ -32,8 +30,6 @@
         "route": "https://pro.platejs.org/docs/components/mention-node"
       }
     ],
-    "examples": [
-      "mention-demo"
-    ]
+    "examples": ["mention-demo"]
   }
 }

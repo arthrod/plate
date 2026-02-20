@@ -3,10 +3,7 @@
   "name": "editor-basic",
   "type": "registry:block",
   "description": "A basic editor",
-  "dependencies": [
-    "@platejs/basic-nodes",
-    "@platejs/basic-nodes"
-  ],
+  "dependencies": ["@platejs/basic-nodes", "@platejs/basic-nodes"],
   "registryDependencies": [
     "https://platejs.org/r/plate-ui",
     "https://platejs.org/r/editor",
@@ -26,7 +23,5 @@
       "type": "registry:component"
     }
   ],
-  "categories": [
-    "Editors"
-  ]
+  "categories": ["Editors"]
 }

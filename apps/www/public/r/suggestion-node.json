@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Suggestion Leaf",
   "description": "A text component for suggestion.",
-  "dependencies": [
-    "@platejs/suggestion"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/suggestion-kit"
-  ],
+  "dependencies": ["@platejs/suggestion"],
+  "registryDependencies": ["https://platejs.org/r/suggestion-kit"],
   "files": [
     {
       "path": "src/registry/ui/suggestion-node.tsx",
@@ -28,9 +24,6 @@
         "route": "/docs/suggestion"
       }
     ],
-    "examples": [
-      "discussion-demo",
-      "discussion-pro"
-    ]
+    "examples": ["discussion-demo", "discussion-pro"]
   }
 }

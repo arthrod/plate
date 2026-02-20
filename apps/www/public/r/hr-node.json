@@ -27,8 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/hr-node"
       }
     ],
-    "examples": [
-      "basic-blocks-demo"
-    ]
+    "examples": ["basic-blocks-demo"]
   }
 }

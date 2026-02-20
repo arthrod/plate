@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "settings-dialog",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/ai"
-  ],
+  "dependencies": ["@platejs/ai"],
   "registryDependencies": [
     "https://platejs.org/r/ai-kit",
     "button",

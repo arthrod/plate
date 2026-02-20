@@ -2,11 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "copilot-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/ai",
-    "@platejs/markdown",
-    "@faker-js/faker"
-  ],
+  "dependencies": ["@platejs/ai", "@platejs/markdown", "@faker-js/faker"],
   "registryDependencies": [
     "https://platejs.org/r/ghost-text",
     "https://platejs.org/r/markdown-kit"

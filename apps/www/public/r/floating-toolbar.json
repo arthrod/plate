@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Floating Toolbar",
   "description": "A contextual toolbar that appears over selected text.",
-  "dependencies": [
-    "@udecode/cn",
-    "@platejs/floating"
-  ],
+  "dependencies": ["@udecode/cn", "@platejs/floating"],
   "registryDependencies": [
     "https://platejs.org/r/toolbar",
     "https://platejs.org/r/tailwind-scrollbar-hide"
@@ -28,9 +25,6 @@
         "route": "https://pro.platejs.org/docs/components/floating-toolbar"
       }
     ],
-    "examples": [
-      "floating-toolbar-demo",
-      "floating-toolbar-pro"
-    ]
+    "examples": ["floating-toolbar-demo", "floating-toolbar-pro"]
   }
 }

@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "slate-to-html",
   "type": "registry:block",
-  "dependencies": [
-    "next-themes"
-  ],
+  "dependencies": ["next-themes"],
   "registryDependencies": [
     "https://platejs.org/r/plate-ui",
     "https://platejs.org/r/editor-base-kit",
@@ -111,7 +109,5 @@
   "meta": {
     "rsc": true
   },
-  "categories": [
-    "Serializers"
-  ]
+  "categories": ["Serializers"]
 }

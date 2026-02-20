@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "date-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/date"
-  ],
+  "dependencies": ["@platejs/date"],
   "registryDependencies": [
     "https://platejs.org/r/date-base-kit",
     "https://platejs.org/r/date-node"

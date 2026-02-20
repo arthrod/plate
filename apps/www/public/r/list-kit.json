@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "list-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/list"
-  ],
+  "dependencies": ["@platejs/list"],
   "registryDependencies": [
     "https://platejs.org/r/list-base-kit",
     "https://platejs.org/r/block-list",

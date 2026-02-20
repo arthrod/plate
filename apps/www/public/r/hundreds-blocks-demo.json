@@ -2,13 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "hundreds-blocks-demo",
   "type": "registry:example",
-  "dependencies": [
-    "@platejs/basic-nodes",
-    "@platejs/basic-nodes"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/editor"
-  ],
+  "dependencies": ["@platejs/basic-nodes", "@platejs/basic-nodes"],
+  "registryDependencies": ["https://platejs.org/r/editor"],
   "files": [
     {
       "path": "src/registry/examples/hundreds-blocks-demo.tsx",

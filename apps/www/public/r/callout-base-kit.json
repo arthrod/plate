@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "callout-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/callout"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/callout-node"
-  ],
+  "dependencies": ["@platejs/callout"],
+  "registryDependencies": ["https://platejs.org/r/callout-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/callout-base-kit.tsx",

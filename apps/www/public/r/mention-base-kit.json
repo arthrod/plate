@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "mention-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/mention"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/mention-node"
-  ],
+  "dependencies": ["@platejs/mention"],
+  "registryDependencies": ["https://platejs.org/r/mention-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/mention-base-kit.tsx",

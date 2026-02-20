@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "link-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/link"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/link-node"
-  ],
+  "dependencies": ["@platejs/link"],
+  "registryDependencies": ["https://platejs.org/r/link-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/link-base-kit.tsx",

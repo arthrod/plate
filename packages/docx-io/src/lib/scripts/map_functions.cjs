@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 
 const fs = require('fs');
 const path = require('path');
@@ -11,13 +12,17 @@ const { execSync } = require('child_process');
 
 const OLD_IMPL_DIR = path.join(__dirname, '../old_implementation_diffs');
 const LIB_DIR = path.join(__dirname, '../lib');
-const OUTPUT_FILE = path.join(__dirname, '../.ralph/agent/function_mapping.json');
+const OUTPUT_FILE = path.join(
+  __dirname,
+  '../.ralph/agent/function_mapping.json'
+);
 
 // Get all old implementation files
 function getAllOldFiles() {
-  return fs.readdirSync(OLD_IMPL_DIR)
-    .filter(f => f.endsWith('.js'))
-    .map(f => f.replace('.js', ''));
+  return fs
+    .readdirSync(OLD_IMPL_DIR)
+    .filter((f) => f.endsWith('.js'))
+    .map((f) => f.replace('.js', ''));
 }
 
 // Extract function name from file (e.g., _addNamedNode -> _addNamedNode or addNamedNode)
@@ -32,24 +37,27 @@ function searchFunctionInCodebase(functionName) {
   try {
     // Search for function definition patterns
     const patterns = [
-      `function ${functionName}\\s*\\(`,           // function name()
-      `const ${functionName}\\s*=`,                // const name =
+      `function ${functionName}\\s*\\(`, // function name()
+      `const ${functionName}\\s*=`, // const name =
       `export (const|function|default) ${functionName}`, // exports
-      `\\b${functionName}\\s*:`,                   // object method
+      `\\b${functionName}\\s*:`, // object method
     ];
 
     for (const pattern of patterns) {
       try {
         const cmd = `grep -r "${pattern}" "${LIB_DIR}" --include="*.ts" --include="*.js" 2>/dev/null | head -3`;
-        const result = execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+        const result = execSync(cmd, {
+          encoding: 'utf8',
+          stdio: ['pipe', 'pipe', 'ignore'],
+        });
         if (result) {
-          const lines = result.split('\n').filter(l => l);
+          const lines = result.split('\n').filter((l) => l);
           if (lines.length > 0) {
             return {
               found: true,
               type: 'grep_match',
               match: lines[0],
-              pattern: pattern
+              pattern,
             };
           }
         }
@@ -70,7 +78,7 @@ function generateMapping() {
   const mapping = {
     total: oldFiles.length,
     timestamp: new Date().toISOString(),
-    results: {}
+    results: {},
   };
 
   let found = 0;
@@ -78,7 +86,8 @@ function generateMapping() {
 
   console.log(`Mapping ${oldFiles.length} functions...`);
 
-  for (let i = 0; i < Math.min(oldFiles.length, 50); i++) { // Sample first 50
+  for (let i = 0; i < Math.min(oldFiles.length, 50); i++) {
+    // Sample first 50
     const file = oldFiles[i];
     const funcName = extractFunctionName(file);
 
@@ -91,7 +100,7 @@ function generateMapping() {
     mapping.results[file] = {
       oldFile: `${file}.js`,
       searchedName: funcName,
-      ...result
+      ...result,
     };
 
     if (result.found) {
@@ -104,8 +113,9 @@ function generateMapping() {
   mapping.summary = {
     found,
     notFound,
-    percentage: ((found / Math.min(oldFiles.length, 50)) * 100).toFixed(2) + '%',
-    note: 'Sample of first 50 files'
+    percentage:
+      ((found / Math.min(oldFiles.length, 50)) * 100).toFixed(2) + '%',
+    note: 'Sample of first 50 files',
   };
 
   // Ensure output directory exists
@@ -116,7 +126,7 @@ function generateMapping() {
 
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(mapping, null, 2));
 
-  console.log(`\nMapping complete:`);
+  console.log('\nMapping complete:');
   console.log(`  Found: ${found}`);
   console.log(`  Not found: ${notFound}`);
   console.log(`  Percentage: ${mapping.summary.percentage}`);

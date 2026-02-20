@@ -3,9 +3,7 @@
   "name": "discussion-kit",
   "type": "registry:component",
   "dependencies": [],
-  "registryDependencies": [
-    "https://platejs.org/r/block-discussion"
-  ],
+  "registryDependencies": ["https://platejs.org/r/block-discussion"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/discussion-kit.tsx",

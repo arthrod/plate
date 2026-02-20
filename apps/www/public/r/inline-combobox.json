@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Inline Combobox",
   "description": "A combobox for inline suggestions.",
-  "dependencies": [
-    "@platejs/combobox",
-    "@ariakit/react"
-  ],
+  "dependencies": ["@platejs/combobox", "@ariakit/react"],
   "registryDependencies": [],
   "files": [
     {
@@ -25,10 +22,6 @@
         "route": "https://pro.platejs.org/docs/components/inline-combobox"
       }
     ],
-    "examples": [
-      "mention-demo",
-      "slash-command-demo",
-      "emoji-demo"
-    ]
+    "examples": ["mention-demo", "slash-command-demo", "emoji-demo"]
   }
 }

@@ -12,9 +12,7 @@
     "tailwind-merge",
     "clsx"
   ],
-  "registryDependencies": [
-    "https://platejs.org/r/docs"
-  ],
+  "registryDependencies": ["https://platejs.org/r/docs"],
   "files": [
     {
       "path": "src/registry/blocks/fumadocs/content/docs/index.mdx",

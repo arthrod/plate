@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "align-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/basic-styles"
-  ],
+  "dependencies": ["@platejs/basic-styles"],
   "registryDependencies": [
     "https://platejs.org/r/align-base-kit",
     "https://platejs.org/r/align-toolbar-button"

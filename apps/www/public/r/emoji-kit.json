@@ -2,10 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "emoji-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/emoji",
-    "@emoji-mart/data@1.2.1"
-  ],
+  "dependencies": ["@platejs/emoji", "@emoji-mart/data@1.2.1"],
   "registryDependencies": [
     "https://platejs.org/r/emoji-node",
     "https://platejs.org/r/emoji-toolbar-button"

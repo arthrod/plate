@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "comment-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/comment"
-  ],
+  "dependencies": ["@platejs/comment"],
   "registryDependencies": [
     "https://platejs.org/r/comment-base-kit",
     "https://platejs.org/r/comment-node",

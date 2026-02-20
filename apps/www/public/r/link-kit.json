@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "link-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/link"
-  ],
+  "dependencies": ["@platejs/link"],
   "registryDependencies": [
     "https://platejs.org/r/link-base-kit",
     "https://platejs.org/r/link-node",

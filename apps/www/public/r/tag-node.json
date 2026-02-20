@@ -19,8 +19,6 @@
         "route": "/docs/multi-select"
       }
     ],
-    "examples": [
-      "select-editor-demo"
-    ]
+    "examples": ["select-editor-demo"]
   }
 }

@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Toggle Element",
   "description": "A collapsible component for toggling content visibility.",
-  "dependencies": [
-    "@platejs/toggle"
-  ],
-  "registryDependencies": [
-    "button"
-  ],
+  "dependencies": ["@platejs/toggle"],
+  "registryDependencies": ["button"],
   "files": [
     {
       "path": "src/registry/ui/toggle-node.tsx",
@@ -28,8 +24,6 @@
         "route": "/docs/toggle"
       }
     ],
-    "examples": [
-      "toggle-demo"
-    ]
+    "examples": ["toggle-demo"]
   }
 }

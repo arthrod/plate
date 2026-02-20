@@ -2,10 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "installation-next-demo",
   "type": "registry:example",
-  "dependencies": [
-    "@platejs/basic-nodes",
-    "@platejs/basic-nodes"
-  ],
+  "dependencies": ["@platejs/basic-nodes", "@platejs/basic-nodes"],
   "registryDependencies": [
     "https://platejs.org/r/editor",
     "https://platejs.org/r/fixed-toolbar",

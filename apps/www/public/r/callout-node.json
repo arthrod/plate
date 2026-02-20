@@ -3,12 +3,8 @@
   "name": "callout-node",
   "type": "registry:ui",
   "description": "A callout component for highlighting important information with customizable icons and styles.",
-  "dependencies": [
-    "@platejs/callout"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/emoji-toolbar-button"
-  ],
+  "dependencies": ["@platejs/callout"],
+  "registryDependencies": ["https://platejs.org/r/emoji-toolbar-button"],
   "files": [
     {
       "path": "src/registry/ui/callout-node.tsx",
@@ -30,8 +26,6 @@
         "route": "https://pro.platejs.org/docs/components/callout-node"
       }
     ],
-    "examples": [
-      "callout-demo"
-    ]
+    "examples": ["callout-demo"]
   }
 }

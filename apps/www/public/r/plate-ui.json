@@ -4,9 +4,7 @@
   "type": "registry:style",
   "description": "Install Plate package and styles",
   "devDependencies": [],
-  "registryDependencies": [
-    "https://platejs.org/r/plate"
-  ],
+  "registryDependencies": ["https://platejs.org/r/plate"],
   "files": [],
   "cssVars": {
     "light": {

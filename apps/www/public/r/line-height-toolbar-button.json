@@ -4,13 +4,8 @@
   "type": "registry:ui",
   "title": "Line Height Toolbar Button",
   "description": "A menu for controlling text line spacing.",
-  "dependencies": [
-    "@platejs/basic-styles"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar",
-    "dropdown-menu"
-  ],
+  "dependencies": ["@platejs/basic-styles"],
+  "registryDependencies": ["https://platejs.org/r/toolbar", "dropdown-menu"],
   "files": [
     {
       "path": "src/registry/ui/line-height-toolbar-button.tsx",
@@ -24,8 +19,6 @@
         "route": "/docs/line-height"
       }
     ],
-    "examples": [
-      "line-height-demo"
-    ]
+    "examples": ["line-height-demo"]
   }
 }

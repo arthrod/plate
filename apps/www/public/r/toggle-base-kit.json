@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "toggle-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/toggle"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/toggle-node"
-  ],
+  "dependencies": ["@platejs/toggle"],
+  "registryDependencies": ["https://platejs.org/r/toggle-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/toggle-base-kit.tsx",

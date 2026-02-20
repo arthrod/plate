@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "code-drawing-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/code-drawing"
-  ],
+  "dependencies": ["@platejs/code-drawing"],
   "registryDependencies": [
     "https://platejs.org/r/code-drawing-base-kit",
     "https://platejs.org/r/code-drawing-node"

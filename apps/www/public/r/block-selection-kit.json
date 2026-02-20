@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "block-selection-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/selection"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/block-selection"
-  ],
+  "dependencies": ["@platejs/selection"],
+  "registryDependencies": ["https://platejs.org/r/block-selection"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/block-selection-kit.tsx",

@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "block-menu-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/selection"
-  ],
+  "dependencies": ["@platejs/selection"],
   "registryDependencies": [
     "https://platejs.org/r/block-context-menu",
     "https://platejs.org/r/block-selection-kit"

@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "list-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/list"
-  ],
+  "dependencies": ["@platejs/list"],
   "registryDependencies": [
     "https://platejs.org/r/block-list",
     "https://platejs.org/r/indent-base-kit"

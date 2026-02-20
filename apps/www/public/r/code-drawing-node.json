@@ -4,14 +4,8 @@
   "type": "registry:ui",
   "title": "Code Drawing Node",
   "description": "Create diagrams from code using PlantUML, Graphviz, Flowchart, or Mermaid.",
-  "dependencies": [
-    "@platejs/code-drawing"
-  ],
-  "registryDependencies": [
-    "popover",
-    "button",
-    "select"
-  ],
+  "dependencies": ["@platejs/code-drawing"],
+  "registryDependencies": ["popover", "button", "select"],
   "files": [
     {
       "path": "src/registry/ui/code-drawing-node.tsx",
@@ -33,8 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/code-drawing-node"
       }
     ],
-    "examples": [
-      "code-drawing-demo"
-    ]
+    "examples": ["code-drawing-demo"]
   }
 }

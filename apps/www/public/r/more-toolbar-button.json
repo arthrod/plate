@@ -5,10 +5,7 @@
   "title": "More Toolbar Button",
   "description": "A menu for additional text formatting options.",
   "dependencies": [],
-  "registryDependencies": [
-    "dropdown-menu",
-    "https://platejs.org/r/toolbar"
-  ],
+  "registryDependencies": ["dropdown-menu", "https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/more-toolbar-button.tsx",
@@ -22,9 +19,6 @@
         "route": "https://pro.platejs.org/docs/components/more-toolbar-button"
       }
     ],
-    "examples": [
-      "basic-marks-demo",
-      "basic-nodes-pro"
-    ]
+    "examples": ["basic-marks-demo", "basic-nodes-pro"]
   }
 }

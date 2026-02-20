@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "preview-markdown-demo",
   "type": "registry:example",
-  "dependencies": [
-    "prismjs"
-  ],
+  "dependencies": ["prismjs"],
   "registryDependencies": [
     "https://platejs.org/r/basic-nodes-kit",
     "https://platejs.org/r/editor"

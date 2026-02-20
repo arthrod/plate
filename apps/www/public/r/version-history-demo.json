@@ -2,14 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "version-history-demo",
   "type": "registry:example",
-  "dependencies": [
-    "@platejs/basic-nodes",
-    "@platejs/diff",
-    "lodash"
-  ],
-  "registryDependencies": [
-    "button"
-  ],
+  "dependencies": ["@platejs/basic-nodes", "@platejs/diff", "lodash"],
+  "registryDependencies": ["button"],
   "files": [
     {
       "path": "src/registry/examples/version-history-demo.tsx",

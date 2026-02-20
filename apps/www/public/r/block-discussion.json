@@ -4,11 +4,7 @@
   "type": "registry:ui",
   "title": "Block Discussion",
   "description": "A popover interface for managing discussions: comments, replies, suggestions.",
-  "dependencies": [
-    "@platejs/comment",
-    "date-fns",
-    "@platejs/suggestion"
-  ],
+  "dependencies": ["@platejs/comment", "date-fns", "@platejs/suggestion"],
   "registryDependencies": [
     "button",
     "popover",
@@ -51,9 +47,6 @@
         "route": "https://pro.platejs.org/docs/components/block-discussion"
       }
     ],
-    "examples": [
-      "discussion-demo",
-      "discussion-pro"
-    ]
+    "examples": ["discussion-demo", "discussion-pro"]
   }
 }

@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Comment Toolbar Button",
   "description": "A toolbar button for adding inline comments.",
-  "dependencies": [
-    "@platejs/comment"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/comment-kit"
-  ],
+  "dependencies": ["@platejs/comment"],
+  "registryDependencies": ["https://platejs.org/r/comment-kit"],
   "files": [
     {
       "path": "src/registry/ui/comment-toolbar-button.tsx",
@@ -26,10 +22,6 @@
         "route": "https://pro.platejs.org/docs/components/comment-toolbar-button"
       }
     ],
-    "examples": [
-      "discussion-demo",
-      "floating-toolbar-demo",
-      "discussion-pro"
-    ]
+    "examples": ["discussion-demo", "floating-toolbar-demo", "discussion-pro"]
   }
 }

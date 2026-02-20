@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "ai-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/ai"
-  ],
+  "dependencies": ["@platejs/ai"],
   "registryDependencies": [
     "https://platejs.org/r/markdown-kit",
     "https://platejs.org/r/cursor-overlay-kit",

@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Resize Handle",
   "description": "A resizable wrapper with resize handles.",
-  "dependencies": [
-    "@platejs/resizable"
-  ],
+  "dependencies": ["@platejs/resizable"],
   "registryDependencies": [],
   "files": [
     {
@@ -24,9 +22,6 @@
         "route": "https://pro.platejs.org/docs/components/resizable"
       }
     ],
-    "examples": [
-      "media-demo",
-      "media-pro"
-    ]
+    "examples": ["media-demo", "media-pro"]
   }
 }

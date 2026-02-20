@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "basic-marks-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/basic-nodes"
-  ],
+  "dependencies": ["@platejs/basic-nodes"],
   "registryDependencies": [
     "https://platejs.org/r/code-node",
     "https://platejs.org/r/highlight-node",

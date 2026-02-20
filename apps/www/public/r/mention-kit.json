@@ -2,9 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "mention-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/mention"
-  ],
+  "dependencies": ["@platejs/mention"],
   "registryDependencies": [
     "https://platejs.org/r/mention-base-kit",
     "https://platejs.org/r/mention-node"

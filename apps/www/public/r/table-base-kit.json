@@ -2,12 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "table-base-kit",
   "type": "registry:component",
-  "dependencies": [
-    "@platejs/table"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/table-node"
-  ],
+  "dependencies": ["@platejs/table"],
+  "registryDependencies": ["https://platejs.org/r/table-node"],
   "files": [
     {
       "path": "src/registry/components/editor/plugins/table-base-kit.tsx",

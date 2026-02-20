@@ -4,13 +4,8 @@
   "type": "registry:ui",
   "title": "Align Toolbar Button",
   "description": "A dropdown menu for text alignment controls.",
-  "dependencies": [
-    "@platejs/basic-styles"
-  ],
-  "registryDependencies": [
-    "dropdown-menu",
-    "https://platejs.org/r/toolbar"
-  ],
+  "dependencies": ["@platejs/basic-styles"],
+  "registryDependencies": ["dropdown-menu", "https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/align-toolbar-button.tsx",
@@ -24,8 +19,6 @@
         "route": "/docs/text-align"
       }
     ],
-    "examples": [
-      "align-demo"
-    ]
+    "examples": ["align-demo"]
   }
 }

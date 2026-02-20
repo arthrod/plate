@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "List",
   "description": "List components.",
-  "dependencies": [
-    "@platejs/list"
-  ],
-  "registryDependencies": [
-    "checkbox"
-  ],
+  "dependencies": ["@platejs/list"],
+  "registryDependencies": ["checkbox"],
   "files": [
     {
       "path": "src/registry/ui/block-list.tsx",
@@ -28,8 +24,6 @@
         "route": "/docs/list"
       }
     ],
-    "examples": [
-      "list-demo"
-    ]
+    "examples": ["list-demo"]
   }
 }

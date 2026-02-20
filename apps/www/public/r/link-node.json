@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Link Element",
   "description": "A component for rendering hyperlinks with hover states.",
-  "dependencies": [
-    "@platejs/link"
-  ],
+  "dependencies": ["@platejs/link"],
   "registryDependencies": [],
   "files": [
     {
@@ -29,8 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/link-node"
       }
     ],
-    "examples": [
-      "link-demo"
-    ]
+    "examples": ["link-demo"]
   }
 }

@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Mark Toolbar Button",
   "description": "A toolbar control for basic text formatting.",
-  "dependencies": [
-    "@platejs/basic-nodes"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/toolbar"
-  ],
+  "dependencies": ["@platejs/basic-nodes"],
+  "registryDependencies": ["https://platejs.org/r/toolbar"],
   "files": [
     {
       "path": "src/registry/ui/mark-toolbar-button.tsx",
@@ -23,9 +19,6 @@
         "route": "/docs/basic-marks"
       }
     ],
-    "examples": [
-      "basic-marks-demo",
-      "basic-nodes-pro"
-    ]
+    "examples": ["basic-marks-demo", "basic-nodes-pro"]
   }
 }

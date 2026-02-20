@@ -18,12 +18,10 @@
       "!!node_modules/pdf-lib",
       "!!node_modules/fast-check",
       "!!node_modules/puppeteer-core",
-      "!!**/.turbo",
-      "!!**/dist",
-      "!!**/public",
-      "!!**/.contentlayer",
-      "!!**/*otf.json",
-      "!!**/*.html",
+      "!!.turbo",
+      "!!dist",
+      "!!public",
+      "!!.contentlayer",
       "!!tooling/config/global.d.ts",
       "!!templates",
       "!**/__registry__",
@@ -60,8 +58,8 @@
         "noEmptyBlockStatements": "off", // chill
         "useAwait": "off", // chill
         "noDocumentCookie": "off", // shadcn,
-        "noBitwiseOperators": "off", // chill
-        "noConfusingVoidType": "off" // false +
+        "noConfusingVoidType": "off", // false +
+        "noBitwiseOperators": "off" // chill
       },
       "style": {
         "noMagicNumbers": "off", // chill
@@ -69,7 +67,16 @@
         "noNestedTernary": "off", // chill
         "noNonNullAssertion": "off", // ts chill
         "useDefaultSwitchClause": "off", // chill
-        "useBlockStatements": "off" // chill,
+        "useBlockStatements": "off", // chill
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
       },
       "nursery": {
         "noShadow": "off", // chill
@@ -83,10 +90,10 @@
         "noBannedTypes": "off" // chill
       },
       "a11y": {
-        "noNoninteractiveElementInteractions": "off", // region role not supported
         "useKeyWithClickEvents": "off", // shadcn
         "useSemanticElements": "off", // shadcn
-        "useFocusableInteractive": "off" // shadcn
+        "useFocusableInteractive": "off", // shadcn
+        "noNoninteractiveElementInteractions": "off"
       },
       "security": {
         "noDangerouslySetInnerHtml": "off" // shadcn

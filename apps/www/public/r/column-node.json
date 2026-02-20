@@ -4,13 +4,8 @@
   "type": "registry:ui",
   "title": "Column Nodes",
   "description": "Resizable column components for layout.",
-  "dependencies": [
-    "@udecode/cn",
-    "@platejs/layout"
-  ],
-  "registryDependencies": [
-    "https://platejs.org/r/resize-handle"
-  ],
+  "dependencies": ["@udecode/cn", "@platejs/layout"],
+  "registryDependencies": ["https://platejs.org/r/resize-handle"],
   "files": [
     {
       "path": "src/registry/ui/column-node.tsx",
@@ -32,8 +27,6 @@
         "route": "https://pro.platejs.org/docs/components/column-node"
       }
     ],
-    "examples": [
-      "column-demo"
-    ]
+    "examples": ["column-demo"]
   }
 }
