@@ -1,3 +1,4 @@
+// @ts-nocheck
 var docxReader = require('./docx/docx-reader.ts');
 var docxStyleMap = require('./docx/style-map.ts');
 var DocumentConverter = require('./document-to-html.ts').DocumentConverter;

@@ -1,14 +1,19 @@
-var fs = require('fs');
-var os = require('os');
-var path = require('path');
-var dirname = path.dirname;
-var resolvePath = path.resolve;
-var isAbsolutePath = path.isAbsolute;
-
 var promises = require('../promises.ts');
 
 exports.Files = Files;
 exports.uriToPath = uriToPath;
+
+function getFs() {
+  return typeof require !== 'undefined' ? require('fs') : null;
+}
+
+function getPath() {
+  return typeof require !== 'undefined' ? require('path') : null;
+}
+
+function getOs() {
+  return typeof require !== 'undefined' ? require('os') : null;
+}
 
 function Files(options) {
   options = options || {};
@@ -26,11 +31,32 @@ function Files(options) {
     };
   }
 
+  var fs = getFs();
+  var path = getPath();
+  if (!fs || !path) {
+    return {
+      read(uri) {
+        return promises.reject(
+          new Error(
+            "could not read external image '" +
+              uri +
+              "', file system access not available in browser"
+          )
+        );
+      },
+    };
+  }
+
+  var dirname = path.dirname;
+  var resolvePath = path.resolve;
+  var isAbsolutePath = path.isAbsolute;
+
   var base = options.relativeToFile ? dirname(options.relativeToFile) : null;
+  var readFile = promises.promisify(fs.readFile.bind(fs));
 
   function read(uri, encoding) {
-    return resolveUri(uri).then((path) =>
-      readFile(path, encoding).catch((error) => {
+    return resolveUri(uri).then((filePath) =>
+      readFile(filePath, encoding).catch((error) => {
         var message =
           "could not open external image: '" +
           uri +
@@ -44,13 +70,12 @@ function Files(options) {
   }
 
   function resolveUri(uri) {
-    var path = uriToPath(uri);
-    if (isAbsolutePath(path)) {
-      return promises.resolve(path);
+    var filePath = uriToPath(uri);
+    if (isAbsolutePath(filePath)) {
+      return promises.resolve(filePath);
     }
     if (base) {
-      var resolved = resolvePath(base, path);
-      // Prevent path traversal attacks
+      var resolved = resolvePath(base, filePath);
       if (!resolved.startsWith(base)) {
         return promises.reject(
           new Error("path traversal detected in external image: '" + uri + "'")
@@ -72,19 +97,16 @@ function Files(options) {
   };
 }
 
-var readFile = promises.promisify(fs.readFile.bind(fs));
-
-function uriToPath(uriString, platform) {
+function uriToPath(uriString: string, platform?: string) {
   if (!platform) {
-    platform = os.platform();
+    var os = getOs();
+    platform = os ? os.platform() : 'browser';
   }
 
-  // Use URL API with a dummy base for relative URIs
   var uri;
   try {
     uri = new URL(uriString, 'file://localhost/');
   } catch (e) {
-    // Fallback for malformed URIs - treat as relative path
     return decodeURIComponent(uriString);
   }
 
@@ -93,11 +115,11 @@ function uriToPath(uriString, platform) {
   }
 
   if (isLocalFileUri(uri)) {
-    var path = decodeURIComponent(uri.pathname);
-    if (platform === 'win32' && /^\/[a-z]:/i.test(path)) {
-      return path.slice(1);
+    var uriPath = decodeURIComponent(uri.pathname);
+    if (platform === 'win32' && /^\/[a-z]:/i.test(uriPath)) {
+      return uriPath.slice(1);
     }
-    return path;
+    return uriPath;
   }
   throw new Error('Could not convert URI to path: ' + uriString);
 }
