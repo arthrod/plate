@@ -175,21 +175,35 @@ function BlockViewerProvider({
     view,
   ]);
 
+  const contextValue = React.useMemo(
+    () => ({
+      activeFile,
+      dependencies,
+      highlightedFiles,
+      isLoading,
+      item,
+      resizablePanelRef,
+      setActiveFile,
+      setView,
+      tree,
+      view,
+    }),
+    [
+      activeFile,
+      dependencies,
+      highlightedFiles,
+      isLoading,
+      item,
+      resizablePanelRef,
+      setActiveFile,
+      setView,
+      tree,
+      view,
+    ]
+  );
+
   return (
-    <BlockViewerContext.Provider
-      value={{
-        activeFile,
-        dependencies,
-        highlightedFiles,
-        isLoading,
-        item,
-        resizablePanelRef,
-        setActiveFile,
-        setView,
-        tree,
-        view,
-      }}
-    >
+    <BlockViewerContext.Provider value={contextValue}>
       <div
         id={item.name}
         className="group/block-view-wrapper flex min-w-0 flex-col items-stretch gap-4"
