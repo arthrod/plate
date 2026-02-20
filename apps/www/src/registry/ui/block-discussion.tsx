@@ -316,42 +316,36 @@ const useResolvedDiscussion = (
   commentNodes: NodeEntry<TCommentText>[],
   blockPath: Path
 ) => {
-  const { api, getOption, setOption } = useEditorPlugin(commentPlugin);
+  const { api, setOption } = useEditorPlugin(commentPlugin);
+  const uniquePathMap = usePluginOption(commentPlugin, 'uniquePathMap');
 
   const discussions = usePluginOption(discussionPlugin, 'discussions');
 
-  const getLeafCommentIds = (leaf: TCommentText) =>
-    getCommentKeys(leaf)
-      .map(getCommentKeyId)
-      .filter((id): id is string => Boolean(id) && id !== 'draft');
+  React.useEffect(() => {
+    let changed = false;
+    const newMap = new Map(uniquePathMap);
 
-  const map = getOption('uniquePathMap');
-  const nextMap = new Map(map);
-  let mapChanged = false;
+    for (const [node] of commentNodes) {
+      const id = api.comment.nodeId(node);
+      if (!id) continue;
 
-  commentNodes.forEach(([node]) => {
-    const ids = getLeafCommentIds(node);
-    if (ids.length === 0) return;
+      const previousPath = newMap.get(id);
 
-    ids.forEach((id) => {
-      const previousPath = nextMap.get(id);
-
-      // If there are no comment nodes in the corresponding path in the map, then update it.
       if (PathApi.isPath(previousPath)) {
+        if (PathApi.equals(previousPath, blockPath)) continue;
+
         const nodes = api.comment.node({ id, at: previousPath });
-
-        if (!nodes) {
-          nextMap.set(id, blockPath);
-          mapChanged = true;
-        }
-
-        return;
+        if (nodes) continue;
       }
-      // TODO: fix throw error
-      nextMap.set(id, blockPath);
-      mapChanged = true;
-    });
-  });
+
+      newMap.set(id, blockPath);
+      changed = true;
+    }
+
+    if (changed) {
+      setOption('uniquePathMap', newMap);
+    }
+  }, [api.comment, blockPath, commentNodes, setOption, uniquePathMap]);
 
   if (mapChanged) {
     setOption('uniquePathMap', nextMap);
@@ -368,8 +362,7 @@ const useResolvedDiscussion = (
     }))
     .filter((item: TDiscussion) => {
       /** If comment cross blocks just show it in the first block */
-      const commentsPathMap = getOption('uniquePathMap');
-      const firstBlockPath = commentsPathMap.get(item.id);
+      const firstBlockPath = uniquePathMap.get(item.id);
 
       if (!firstBlockPath) return false;
       if (!PathApi.equals(firstBlockPath, blockPath)) return false;
