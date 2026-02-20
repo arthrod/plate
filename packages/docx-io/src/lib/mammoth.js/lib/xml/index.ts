@@ -1,8 +1,10 @@
-var nodes = require('./nodes.ts');
+import * as nodes from './nodes';
+import { readString } from './reader';
+import { writeString } from './writer';
 
-exports.Element = nodes.Element;
-exports.element = nodes.element;
-exports.emptyElement = nodes.emptyElement;
-exports.text = nodes.text;
-exports.readString = require('./reader.ts').readString;
-exports.writeString = require('./writer.ts').writeString;
+export { readString, writeString };
+
+export const Element = nodes.Element;
+export const element = nodes.element;
+export const emptyElement = nodes.emptyElement;
+export const text = nodes.text;

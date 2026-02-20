@@ -1,8 +1,0 @@
-[phases.install]
-cmds = ['yarn install --mode=skip-build']
-
-[phases.build]
-cmds = ['turbo build', 'turbo deploy']
-
-[start]
-cmd = 'node apps/www/.next/standalone/server.js'

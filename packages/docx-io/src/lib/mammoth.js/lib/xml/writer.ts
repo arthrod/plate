@@ -1,6 +1,6 @@
-var xmlbuilder = require('xmlbuilder');
+import xmlbuilder from 'xmlbuilder';
 
-exports.writeString = writeString;
+export { writeString };
 
 var xmlNamespaceUri = 'http://www.w3.org/2000/xmlns/';
 

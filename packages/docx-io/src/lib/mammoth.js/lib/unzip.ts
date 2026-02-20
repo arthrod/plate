@@ -1,9 +1,9 @@
-var fs = require('fs');
+import * as fs from 'fs';
 
-var promises = require('./promises.ts');
-var zipfile = require('./zipfile.ts');
+import * as promises from './promises';
+import * as zipfile from './zipfile';
 
-exports.openZip = openZip;
+export { openZip };
 
 var readFile = promises.promisify(fs.readFile);
 

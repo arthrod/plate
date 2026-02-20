@@ -97,7 +97,28 @@ const BlockCommentContent = ({
 
   const suggestionsCount = resolvedSuggestions.length;
   const discussionsCount = resolvedDiscussions.length;
-  const totalCount = suggestionsCount + discussionsCount;
+
+  const totalCount = React.useMemo(() => {
+    const userIds = new Set<string>();
+
+    for (const suggestion of resolvedSuggestions) {
+      if (suggestion.userId) userIds.add(suggestion.userId);
+
+      for (const comment of suggestion.comments ?? []) {
+        if (comment.userId) userIds.add(comment.userId);
+      }
+    }
+
+    for (const discussion of resolvedDiscussions) {
+      if (discussion.userId) userIds.add(discussion.userId);
+
+      for (const comment of discussion.comments ?? []) {
+        if (comment.userId) userIds.add(comment.userId);
+      }
+    }
+
+    return userIds.size;
+  }, [resolvedSuggestions, resolvedDiscussions]);
 
   const activeSuggestionId = usePluginOption(suggestionPlugin, 'activeId');
   const activeSuggestion =

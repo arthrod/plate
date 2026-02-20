@@ -1,5 +1,8 @@
-var xmldom = require('@xmldom/xmldom');
-var dom = require('@xmldom/xmldom/lib/dom');
+import * as xmldom from '@xmldom/xmldom';
+import * as dom from '@xmldom/xmldom/lib/dom';
+
+export { parseFromString };
+export const Node = dom.Node;
 
 function parseFromString(string) {
   var errors = [];
@@ -18,6 +21,3 @@ function parseFromString(string) {
   var errorMessages = errors.map((e) => e.level + ': ' + e.message).join('\n');
   throw new Error(errorMessages);
 }
-
-exports.parseFromString = parseFromString;
-exports.Node = dom.Node;

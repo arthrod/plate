@@ -58,6 +58,7 @@ export default defineConfig((opts) => [
     sourcemap: enableSourcemaps,
     dts: { sourcemap: enableSourcemaps },
     exports: true,
+    external: ['fs', 'node:fs', 'path', 'node:path', 'os', 'node:os'],
     plugins: [
       pluginBabel({
         babelHelpers: 'bundled',

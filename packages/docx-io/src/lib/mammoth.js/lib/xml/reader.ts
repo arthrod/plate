@@ -1,11 +1,11 @@
-var promises = require('../promises.ts');
+import * as promises from '../promises';
+import * as xmldom from './xmldom';
+import * as nodes from './nodes';
 
-var xmldom = require('./xmldom.ts');
-var nodes = require('./nodes.ts');
 var Element = nodes.Element;
 var xmlNamespaceUri = 'http://www.w3.org/2000/xmlns/';
 
-exports.readString = readString;
+export { readString };
 
 var Node = xmldom.Node;
 

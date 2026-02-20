@@ -1,14 +1,13 @@
-exports.createBodyReader = createBodyReader;
-exports._readNumberingProperties = readNumberingProperties;
+import dingbatToUnicode from 'dingbat-to-unicode';
 
-var dingbatToUnicode = require('dingbat-to-unicode');
+import * as documents from '../documents';
+import { Result, warning } from '../results';
+import * as xml from '../xml/index';
+import * as transforms from '../transforms';
+import * as uris from './uris';
 
-var documents = require('../documents.ts');
-var Result = require('../results.ts').Result;
-var warning = require('../results.ts').warning;
-var xml = require('../xml/index.ts');
-var transforms = require('../transforms.ts');
-var uris = require('./uris.ts');
+export { createBodyReader };
+export const _readNumberingProperties = readNumberingProperties;
 
 function createBodyReader(options) {
   return {

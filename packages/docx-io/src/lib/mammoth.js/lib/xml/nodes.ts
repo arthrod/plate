@@ -1,12 +1,14 @@
-exports.Element = Element;
-exports.element = (name, attributes, children) =>
+export { Element };
+
+export const element = (name, attributes, children) =>
   new Element(name, attributes, children);
-exports.text = (value) => ({
+
+export const text = (value) => ({
   type: 'text',
   value,
 });
 
-var emptyElement = (exports.emptyElement = {
+export var emptyElement = {
   first() {
     return null;
   },
@@ -15,7 +17,7 @@ var emptyElement = (exports.emptyElement = {
   },
   attributes: {},
   children: [],
-});
+};
 
 function Element(name, attributes, children) {
   this.type = 'element';

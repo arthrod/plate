@@ -1,22 +1,25 @@
-exports.defer = defer;
-exports.when = function (value) {
+export {
+  defer,
+  props,
+  promisify,
+  mapSeries,
+  attempt,
+};
+
+export const when = function (value) {
   return Promise.resolve(value);
 };
-exports.resolve = function (value) {
+export const resolve = function (value) {
   return Promise.resolve(value);
 };
-exports.all = function (promises) {
+export const all = function (promises) {
   return Promise.all(promises);
 };
-exports.props = props;
-exports.reject = function (reason) {
+export const reject = function (reason) {
   return Promise.reject(reason);
 };
-exports.promisify = promisify;
-exports.mapSeries = mapSeries;
-exports.attempt = attempt;
 
-exports.nfcall = function (func) {
+export const nfcall = function (func) {
   var args = Array.prototype.slice.call(arguments, 1);
   var promisedFunc = promisify(func);
   return promisedFunc.apply(null, args);
@@ -92,7 +95,7 @@ function attempt(func) {
  * Chain helper: merge new keys (possibly promise-valued) into an accumulated object.
  * Replacement for the bluebird.prototype.also() extension.
  */
-exports.also = function (promise, func) {
+export const also = function (promise, func) {
   return promise.then(function (value) {
     var additions = func(value);
     var merged = Object.assign({}, value, additions);

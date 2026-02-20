@@ -1,9 +1,4 @@
-exports.Result = Result;
-exports.success = success;
-exports.warning = warning;
-exports.error = error;
-
-function Result(value, messages) {
+export function Result(value, messages) {
   this.value = value;
   this.messages = messages || [];
 }
@@ -30,18 +25,18 @@ Result.combine = (results) => {
   return new Result(values, messages);
 };
 
-function success(value) {
+export function success(value) {
   return new Result(value, []);
 }
 
-function warning(message) {
+export function warning(message) {
   return {
     type: 'warning',
     message,
   };
 }
 
-function error(exception) {
+export function error(exception) {
   return {
     type: 'error',
     message: exception.message,

@@ -1,8 +1,6 @@
-var JSZip = require('jszip');
+import JSZip from 'jszip';
 
-exports.openArrayBuffer = openArrayBuffer;
-exports.splitPath = splitPath;
-exports.joinPath = joinPath;
+export { openArrayBuffer, splitPath, joinPath };
 
 function openArrayBuffer(arrayBuffer) {
   return JSZip.loadAsync(arrayBuffer).then((zipFile) => {

@@ -1,14 +1,14 @@
-var fs = require('fs');
-var os = require('os');
-var path = require('path');
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+
+import * as promises from '../promises';
+
 var dirname = path.dirname;
 var resolvePath = path.resolve;
 var isAbsolutePath = path.isAbsolute;
 
-var promises = require('../promises.ts');
-
-exports.Files = Files;
-exports.uriToPath = uriToPath;
+export { Files, uriToPath };
 
 function Files(options) {
   options = options || {};

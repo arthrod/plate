@@ -1,21 +1,26 @@
-var docxReader = require('./docx/docx-reader.ts');
-var docxStyleMap = require('./docx/style-map.ts');
-var DocumentConverter = require('./document-to-html.ts').DocumentConverter;
-var convertElementToRawText = require('./raw-text.ts').convertElementToRawText;
-var readStyle = require('./style-reader.ts').readStyle;
-var readOptions = require('./options-reader.ts').readOptions;
-var unzip = require('./unzip.ts');
-var Result = require('./results.ts').Result;
+import * as docxReader from './docx/docx-reader';
+import * as docxStyleMap from './docx/style-map';
+import { DocumentConverter } from './document-to-html';
+import { convertElementToRawText } from './raw-text';
+import { readStyle } from './style-reader';
+import { readOptions } from './options-reader';
+import * as unzip from './unzip';
+import { Result } from './results';
+import * as images from './images';
+import * as transforms from './transforms';
+import * as underline from './underline';
 
-exports.convertToHtml = convertToHtml;
-exports.convertToMarkdown = convertToMarkdown;
-exports.convert = convert;
-exports.extractRawText = extractRawText;
-exports.images = require('./images.ts');
-exports.transforms = require('./transforms.ts');
-exports.underline = require('./underline.ts');
-exports.embedStyleMap = embedStyleMap;
-exports.readEmbeddedStyleMap = readEmbeddedStyleMap;
+export {
+  convertToHtml,
+  convertToMarkdown,
+  convert,
+  extractRawText,
+  images,
+  transforms,
+  underline,
+  embedStyleMap,
+  readEmbeddedStyleMap,
+};
 
 function convertToHtml(input, options) {
   return withDone(convert(input, options));
@@ -104,7 +109,7 @@ function embedStyleMap(input, styleMap) {
   );
 }
 
-exports.styleMapping = () => {
+export const styleMapping = () => {
   throw new Error(
     'Use a raw string instead of mammoth.styleMapping e.g. "p[style-name=\'Title\'] => h1" instead of mammoth.styleMapping("p[style-name=\'Title\'] => h1")'
   );

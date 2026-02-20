@@ -1,8 +1,7 @@
-var promises = require('../promises.ts');
-var xml = require('../xml/index.ts');
+import * as promises from '../promises';
+import * as xml from '../xml/index';
 
-exports.read = read;
-exports.readXmlFromZipFile = readXmlFromZipFile;
+export { read, readXmlFromZipFile };
 
 var xmlNamespaceMap = {
   // Transitional format
