@@ -8,12 +8,10 @@ import type { DropdownMenuTriggerProps } from '@radix-ui/react-dropdown-menu';
 
 import { CheckIcon, ClipboardIcon } from '@radix-ui/react-icons';
 
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,7 +55,7 @@ export function CopyButton({
   }, [hasCopied]);
 
   return (
-    <Tooltip>
+    <TooltipPrimitive.Root delayDuration={0}>
       <TooltipTrigger asChild>
         <Button
           size="icon"
@@ -89,7 +87,7 @@ export function CopyButton({
       <TooltipContent>
         {hasCopied ? 'Copied!' : 'Copy to clipboard'}
       </TooltipContent>
-    </Tooltip>
+    </TooltipPrimitive.Root>
   );
 }
 
