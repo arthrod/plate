@@ -31,24 +31,25 @@ export const applyDeepToNodes = <N extends TNode>({
   query,
   source,
 }: ApplyDeepToNodesOptions<N>) => {
-  const entry: NodeEntry<N> = [node, path];
+  const _recurse = (currentNode: TNode, currentPath: Path) => {
+    const entry: NodeEntry<TNode> = [currentNode, currentPath];
 
-  if (queryNode<N>(entry, query)) {
-    if (typeof source === 'function') {
-      apply(node, source());
-    } else {
-      apply(node, source);
+    if (queryNode(entry, query)) {
+      if (typeof source === 'function') {
+        apply(currentNode as any, source());
+      } else {
+        apply(currentNode as any, source);
+      }
     }
-  }
-  if (!NodeApi.isAncestor(node)) return;
 
-  node.children.forEach((child, index) => {
-    applyDeepToNodes({
-      apply,
-      node: child as any,
-      path: path.concat([index]),
-      query,
-      source,
-    });
-  });
+    if (!NodeApi.isAncestor(currentNode)) return;
+
+    const children = currentNode.children;
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      _recurse(child as any, currentPath.concat([i]));
+    }
+  };
+
+  _recurse(node, path);
 };

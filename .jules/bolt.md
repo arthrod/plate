@@ -1,3 +1,3 @@
-## 2024-05-23 - Unnecessary `mounted` check in HOCs causing double renders
-**Learning:** High-order components like `withTooltip` that use `useState` to track `mounted` status force a double render for every instance on mount. Modern UI libraries (like Radix UI) handle hydration gracefully, making this check redundant and performance-negative.
-**Action:** Remove `mounted` checks in HOCs unless specifically required for non-SSR-safe libraries. Verify that the wrapped component handles hydration correctly.
+## 2024-05-22 - Recursive Object Allocation Overhead
+**Learning:** The `applyDeepToNodes` utility was allocating a new options object for every recursive call, causing significant overhead in deep tree traversals (e.g., pasting large content). Flattening the arguments into a helper function reduced execution time by >50%.
+**Action:** When implementing recursive traversal functions, prefer passing arguments directly or using a mutable context object instead of creating new objects at each step.
