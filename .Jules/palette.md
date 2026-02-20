@@ -1,3 +1,3 @@
-## 2025-02-18 - [CopyButton Tooltip Revert]
-**Learning:** In highly constrained CI environments (like Cloudflare Workers builds), adding complex component wrappers (Providers, Portals) to frequently instantiated components can lead to build failures.
-**Action:** When a UX improvement (Tooltip) causes build instability, revert to a simpler solution (e.g., standard HTML attributes or `sr-only` text changes) that delivers most of the value without the overhead.
+## 2025-02-18 - [Build Stability vs Features]
+**Learning:** Even minor component changes (like state additions or refactors) can destabilize complex builds in sensitive environments (like Cloudflare Workers with memory limits).
+**Action:** When a feature causes persistent CI failures, prioritize build stability by reverting to a known good state and finding a lower-risk alternative (e.g., purely static HTML attributes like `aria-label`).

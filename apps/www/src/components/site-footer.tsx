@@ -7,6 +7,7 @@ export function SiteFooter() {
         <p className="text-balance text-center text-muted-foreground text-sm leading-loose md:text-left">
           From{' '}
           <a
+            aria-label="Visit Zbeyens on Twitter"
             className="font-medium underline underline-offset-4"
             href={siteConfig.links.twitter}
             rel="noreferrer"
@@ -16,6 +17,7 @@ export function SiteFooter() {
           </a>
           . The source code is available on{' '}
           <a
+            aria-label="View source code on GitHub"
             className="font-medium underline underline-offset-4"
             href={siteConfig.links.github}
             rel="noreferrer"
