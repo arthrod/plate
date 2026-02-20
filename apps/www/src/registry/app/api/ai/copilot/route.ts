@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: 'Missing AI Gateway API key.' },
+      { error: 'Missing ai gateway API key.' },
       { status: 401 }
     );
   }
