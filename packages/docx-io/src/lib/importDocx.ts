@@ -16,7 +16,7 @@
  * 4. Apply tracked changes and comments to editor
  */
 // Local mammoth.js fork ESM browser entry (avoid top-level copied bundle artifact)
-import mammoth from './mammoth.js';
+import mammothLib from './mammoth.js';
 
 // ============================================================================
 // Mammoth Types and Export
@@ -41,7 +41,7 @@ type Mammoth = {
 };
 
 /** Export mammoth for direct access if needed */
-export const mammoth = mammoth as unknown as Mammothz;
+export const mammoth = mammothLib as unknown as Mammoth;
 
 // ============================================================================
 // Preprocess Types
