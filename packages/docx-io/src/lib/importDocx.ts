@@ -51,7 +51,6 @@ async function loadMammothModule(): Promise<MammothModule> {
   if (!mammothModulePromise) {
     mammothModulePromise = (async () => {
       const candidates = [
-        './mammoth.js/dist/esm/index.browser.js',
         './mammoth.js/lib/index.ts',
         './mammoth.js/mammoth.browser.js',
       ] as const;
@@ -60,7 +59,8 @@ async function loadMammothModule(): Promise<MammothModule> {
       for (const candidate of candidates) {
         try {
           const imported = (await import(candidate)) as MammothImport;
-          const module = (imported.default ?? imported) as Partial<MammothModule>;
+          const module = (imported.default ??
+            imported) as Partial<MammothModule>;
           if (typeof module.convertToHtml === 'function') {
             return module as MammothModule;
           }

@@ -1143,6 +1143,10 @@ describe('applyDocxTracking', () => {
                 text: 'Reply body',
                 paraId: 'D4C3B2A1',
                 parentParaId: 'A1B2C3D4',
+                startToken: '',
+                endToken: '',
+                hasStartToken: false,
+                hasEndToken: false,
               },
             ],
           },
@@ -1162,7 +1166,9 @@ describe('applyDocxTracking', () => {
         comments: [
           {
             id: 'cmt-root',
-            contentRich: [{ type: 'p', children: [{ text: 'Root comment text' }] }],
+            contentRich: [
+              { type: 'p', children: [{ text: 'Root comment text' }] },
+            ],
             createdAt: new Date(rootDate),
             paraId: 'A1B2C3D4',
             parentParaId: undefined,
