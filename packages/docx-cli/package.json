@@ -1,0 +1,55 @@
+{
+  "name": "@platejs/docx-cli",
+  "version": "52.2.0",
+  "description": "CLI tool for testing DOCX import/export without deploying the editor",
+  "keywords": [
+    "docx",
+    "export",
+    "html",
+    "import",
+    "plate",
+    "cli",
+    "testing"
+  ],
+  "homepage": "https://platejs.org",
+  "bugs": {
+    "url": "https://github.com/udecode/plate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/udecode/plate.git",
+    "directory": "packages/docx-cli"
+  },
+  "license": "MIT",
+  "type": "module",
+  "bin": "./dist/cli.js",
+  "scripts": {
+    "build": "yarn p:build",
+    "build:watch": "yarn p:build:watch",
+    "clean": "yarn p:clean",
+    "lint": "yarn p:lint",
+    "lint:fix": "yarn p:lint:fix",
+    "typecheck": "yarn p:typecheck",
+    "start": "bun src/cli.ts"
+  },
+  "dependencies": {
+    "@platejs/docx": "workspace:^",
+    "@platejs/docx-io": "workspace:^",
+    "platejs": "workspace:^"
+  },
+  "devDependencies": {
+    "@platejs/basic-nodes": "workspace:^",
+    "@platejs/basic-styles": "workspace:^",
+    "@platejs/test-utils": "workspace:^"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  }
+}
