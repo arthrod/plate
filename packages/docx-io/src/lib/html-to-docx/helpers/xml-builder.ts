@@ -140,8 +140,24 @@ type DocxDocumentInstance = Partial<TrackingDocumentInstance> & {
 
 // Types for attributes and options
 type Indentation = {
+  firstLine?: number;
+  hanging?: number;
   left?: number;
   right?: number;
+};
+
+type ParagraphBorderSide = {
+  color: string;
+  size: number;
+  spacing: number;
+  stroke?: string;
+};
+
+type ParagraphBorder = {
+  bottom?: ParagraphBorderSide;
+  left?: ParagraphBorderSide;
+  right?: ParagraphBorderSide;
+  top?: ParagraphBorderSide;
 };
 
 type NumberingInfo = {
@@ -202,6 +218,7 @@ interface ParagraphAttributes extends RunAttributes {
   numbering?: NumberingInfo;
   originalHeight?: number;
   originalWidth?: number;
+  paragraphBorder?: ParagraphBorder;
   paragraphStyle?: string;
   relationshipId?: number;
   rowSpan?: string;
@@ -749,15 +766,18 @@ const fixupColumnWidth = (
 };
 
 const fixupMargin = (marginString: string): number | undefined => {
-  if (pointRegex.test(marginString)) {
-    const matchedParts = marginString.match(pointRegex);
+  const signedPointRegex = /(-?[\d.]+)pt/i;
+  const signedPixelRegex = /(-?[\d.]+)px/i;
+
+  if (signedPointRegex.test(marginString)) {
+    const matchedParts = marginString.match(signedPointRegex);
     if (matchedParts) {
       // convert point to half point
       return pointToTWIP(Number.parseFloat(matchedParts[1]));
     }
   }
-  if (pixelRegex.test(marginString)) {
-    const matchedParts = marginString.match(pixelRegex);
+  if (signedPixelRegex.test(marginString)) {
+    const matchedParts = marginString.match(signedPixelRegex);
     if (matchedParts) {
       // convert pixels to half point
       return pixelToTWIP(Number.parseFloat(matchedParts[1]));
@@ -786,68 +806,148 @@ const modifiedStyleAttributesBuilder = (
   ) {
     const vn = vNode as VNodeType;
     const style = vn.properties!.style!;
+    const getStyleValue = (propertyName: string, camelCaseName?: string) =>
+      style[propertyName] ??
+      (style as Record<string, string>)[camelCaseName ?? propertyName];
+    const marginLeft = getStyleValue('margin-left', 'marginLeft');
+    const marginRight = getStyleValue('margin-right', 'marginRight');
+    const textIndent = getStyleValue('text-indent', 'textIndent');
 
     if (style.color && !colorlessColors.includes(style.color)) {
       modifiedAttributes.color = fixupColorCode(style.color);
     }
 
-    const backgroundColor =
-      style['background-color'] ??
-      (style as Record<string, string>).backgroundColor;
+    const backgroundColor = getStyleValue(
+      'background-color',
+      'backgroundColor'
+    );
     if (backgroundColor && !colorlessColors.includes(backgroundColor)) {
       modifiedAttributes.backgroundColor = fixupColorCode(backgroundColor);
     }
 
+    const verticalAlign = getStyleValue('vertical-align', 'verticalAlign');
     if (
-      style['vertical-align'] &&
-      verticalAlignValues.includes(
-        style['vertical-align'] as 'top' | 'middle' | 'bottom'
-      )
+      verticalAlign &&
+      verticalAlignValues.includes(verticalAlign as 'top' | 'middle' | 'bottom')
     ) {
-      modifiedAttributes.verticalAlign = style['vertical-align'];
+      modifiedAttributes.verticalAlign = verticalAlign;
     }
 
+    const textAlign = getStyleValue('text-align', 'textAlign');
     if (
-      style['text-align'] &&
-      ['left', 'right', 'center', 'justify'].includes(style['text-align'])
+      textAlign &&
+      ['left', 'right', 'center', 'justify'].includes(textAlign)
     ) {
-      modifiedAttributes.textAlign = style['text-align'];
+      modifiedAttributes.textAlign = textAlign;
     }
 
+    const fontWeight = getStyleValue('font-weight', 'fontWeight');
     // FIXME: remove bold check when other font weights are handled.
-    if (style['font-weight'] && style['font-weight'] === 'bold') {
-      modifiedAttributes.strong = style['font-weight'];
+    if (fontWeight && fontWeight === 'bold') {
+      modifiedAttributes.strong = fontWeight;
     }
-    if (style['font-family'] && docxDocumentInstance) {
-      modifiedAttributes.font = docxDocumentInstance.createFont(
-        style['font-family']
-      );
+    const fontFamily = getStyleValue('font-family', 'fontFamily');
+    if (fontFamily && docxDocumentInstance) {
+      modifiedAttributes.font = docxDocumentInstance.createFont(fontFamily);
     }
-    if (style['font-size']) {
-      modifiedAttributes.fontSize = fixupFontSize(style['font-size']);
+    const fontSize = getStyleValue('font-size', 'fontSize');
+    if (fontSize) {
+      modifiedAttributes.fontSize = fixupFontSize(fontSize);
     }
-    if (style['line-height']) {
+    const lineHeight = getStyleValue('line-height', 'lineHeight');
+    if (lineHeight) {
       modifiedAttributes.lineHeight = fixupLineHeight(
-        Number.parseFloat(style['line-height']),
-        style['font-size'] ? fixupFontSize(style['font-size']) || null : null
+        Number.parseFloat(lineHeight),
+        fontSize ? fixupFontSize(fontSize) || null : null
       );
     }
-    if (style['margin-left'] || style['margin-right']) {
-      const leftMargin = style['margin-left']
-        ? fixupMargin(style['margin-left'])
-        : undefined;
-      const rightMargin = style['margin-right']
-        ? fixupMargin(style['margin-right'])
-        : undefined;
-      const indentation: Indentation = {};
-      if (leftMargin) {
+
+    if (marginLeft || marginRight || textIndent) {
+      const indentation: Indentation = {
+        ...(modifiedAttributes.indentation || {}),
+      };
+
+      const leftMargin = marginLeft ? fixupMargin(marginLeft) : undefined;
+      const rightMargin = marginRight ? fixupMargin(marginRight) : undefined;
+      const textIndentMargin = textIndent ? fixupMargin(textIndent) : undefined;
+
+      if (leftMargin !== undefined) {
         indentation.left = leftMargin;
       }
-      if (rightMargin) {
+      if (rightMargin !== undefined) {
         indentation.right = rightMargin;
       }
-      if (leftMargin || rightMargin) {
+      if (textIndentMargin !== undefined) {
+        if (textIndentMargin < 0) {
+          indentation.hanging = Math.abs(textIndentMargin);
+          indentation.firstLine = undefined;
+        } else {
+          indentation.firstLine = textIndentMargin;
+          indentation.hanging = undefined;
+        }
+      }
+
+      if (Object.keys(indentation).length > 0) {
         modifiedAttributes.indentation = indentation;
+      }
+    }
+
+    if (options?.isParagraph) {
+      const marginTop = getStyleValue('margin-top', 'marginTop');
+      const marginBottom = getStyleValue('margin-bottom', 'marginBottom');
+
+      if (marginTop) {
+        const beforeSpacing = fixupMargin(marginTop);
+        if (beforeSpacing !== undefined) {
+          modifiedAttributes.beforeSpacing = beforeSpacing;
+        }
+      }
+
+      if (marginBottom) {
+        const afterSpacing = fixupMargin(marginBottom);
+        if (afterSpacing !== undefined) {
+          modifiedAttributes.afterSpacing = afterSpacing;
+        }
+      }
+
+      const paragraphBorder: ParagraphBorder = {
+        ...(modifiedAttributes.paragraphBorder || {}),
+      };
+
+      const border = getStyleValue('border');
+      if (border) {
+        const [borderSize, borderStroke, borderColor] = cssBorderParser(border);
+        ['top', 'right', 'bottom', 'left'].forEach((side) => {
+          paragraphBorder[side as keyof ParagraphBorder] = {
+            color: borderColor,
+            size: borderSize,
+            spacing: 3,
+            stroke: borderStroke,
+          };
+        });
+      }
+
+      ['top', 'right', 'bottom', 'left'].forEach((side) => {
+        const borderValue = getStyleValue(
+          `border-${side}`,
+          `border${side.charAt(0).toUpperCase()}${side.slice(1)}`
+        );
+
+        if (!borderValue) return;
+
+        const [borderSize, borderStroke, borderColor] =
+          cssBorderParser(borderValue);
+
+        paragraphBorder[side as keyof ParagraphBorder] = {
+          color: borderColor,
+          size: borderSize,
+          spacing: 3,
+          stroke: borderStroke,
+        };
+      });
+
+      if (Object.keys(paragraphBorder).length > 0) {
+        modifiedAttributes.paragraphBorder = paragraphBorder;
       }
     }
     if (style.display) {
@@ -1383,16 +1483,27 @@ const buildSpacing = (
   return spacingFragment;
 };
 
-const buildIndentation = ({ left, right }: Indentation): XMLBuilderType => {
+const buildIndentation = ({
+  left,
+  right,
+  firstLine,
+  hanging,
+}: Indentation): XMLBuilderType => {
   const indentationFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'ind');
 
-  if (left) {
+  if (left !== undefined) {
     indentationFragment.att('@w', 'left', String(left));
   }
-  if (right) {
+  if (right !== undefined) {
     indentationFragment.att('@w', 'right', String(right));
+  }
+  if (firstLine !== undefined) {
+    indentationFragment.att('@w', 'firstLine', String(firstLine));
+  }
+  if (hanging !== undefined) {
+    indentationFragment.att('@w', 'hanging', String(hanging));
   }
 
   indentationFragment.up();
@@ -1418,18 +1529,47 @@ const buildHorizontalAlignment = (
     .up();
 };
 
-const buildParagraphBorder = (): XMLBuilderType => {
+const buildParagraphBorder = (
+  customBorders?: ParagraphBorder
+): XMLBuilderType => {
   const paragraphBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'pBdr');
   const bordersObject = cloneDeep(paragraphBordersObject);
+  const borderStrokeOverrides: Partial<Record<keyof ParagraphBorder, string>> =
+    {};
+
+  if (customBorders) {
+    Object.entries(customBorders).forEach(([borderName, border]) => {
+      if (!border) return;
+
+      const normalizedBorderName = borderName as keyof typeof bordersObject;
+      bordersObject[normalizedBorderName] = {
+        color: border.color,
+        size: border.size,
+        spacing: border.spacing,
+      };
+
+      if (border.stroke) {
+        borderStrokeOverrides[borderName as keyof ParagraphBorder] =
+          border.stroke;
+      }
+    });
+  }
 
   Object.keys(bordersObject).forEach((borderName) => {
     const border = bordersObject[borderName as keyof typeof bordersObject];
     if (border) {
       const { size, spacing, color } = border;
+      const stroke = borderStrokeOverrides[borderName as keyof ParagraphBorder];
 
-      const borderFragment = buildBorder(borderName, size, spacing, color);
+      const borderFragment = buildBorder(
+        borderName,
+        size,
+        spacing,
+        color,
+        stroke
+      );
       paragraphBorderFragment.import(borderFragment);
     }
   });
@@ -1510,6 +1650,15 @@ const buildParagraphProperties = (
           paragraphPropertiesFragment.import(borderFragment);
 
           attributes.blockquoteBorder = undefined;
+          break;
+        }
+        case 'paragraphBorder': {
+          const borderFragment = buildParagraphBorder(
+            attributes.paragraphBorder
+          );
+          paragraphPropertiesFragment.import(borderFragment);
+
+          attributes.paragraphBorder = undefined;
           break;
         }
       }

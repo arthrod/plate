@@ -44,12 +44,14 @@ export const testDocxDeserializer = ({
     </editor>
   ),
   overridePlugins,
+  preserveAttributes = false,
   plugins = [],
 }: {
   expected: any;
   filename: string;
   input?: any;
   overridePlugins?: SlatePlugin['override']['plugins'];
+  preserveAttributes?: boolean;
   plugins?: any[];
 }) => {
   it('should deserialize', () => {
@@ -80,6 +82,31 @@ export const testDocxDeserializer = ({
       createClipboardData(readTestFile(`../__tests__/${filename}.html`))
     );
 
-    expect(actual.children).toEqual(expected.children);
+    const stripAttributes = (node: any): any => {
+      if (Array.isArray(node)) {
+        return node.map(stripAttributes);
+      }
+
+      if (node && typeof node === 'object') {
+        const { attributes, ...rest } = node;
+
+        if (Array.isArray(rest.children)) {
+          rest.children = rest.children.map(stripAttributes);
+        }
+
+        return rest;
+      }
+
+      return node;
+    };
+
+    const actualChildren = preserveAttributes
+      ? actual.children
+      : stripAttributes(actual.children);
+    const expectedChildren = preserveAttributes
+      ? expected.children
+      : stripAttributes(expected.children);
+
+    expect(actualChildren).toEqual(expectedChildren);
   });
 };

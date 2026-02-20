@@ -194,7 +194,11 @@ function DocumentConversion(options, comments) {
   }
 
   function convertParagraph(element, messages, options) {
-    return htmlPathForParagraph(element, messages).wrap(() => {
+    var paragraphPath = htmlPathForParagraph(element, messages);
+    var paragraphStyle = buildParagraphStyleAttribute(element);
+    paragraphPath = appendStyleToHtmlPath(paragraphPath, paragraphStyle);
+
+    return paragraphPath.wrap(() => {
       var content = convertElements(element.children, messages, options);
       if (ignoreEmptyParagraphs) {
         return content;
@@ -255,6 +259,18 @@ function DocumentConversion(options, comments) {
     } else if (run.styleId) {
       messages.push(unrecognisedStyleWarning('run', run));
     }
+
+    var runStyle = buildRunStyleAttribute(run);
+    if (runStyle) {
+      if (isEmptyHtmlPath(stylePath)) {
+        stylePath = htmlPaths.elements([
+          htmlPaths.element('span', { style: runStyle }, { fresh: false }),
+        ]);
+      } else {
+        stylePath = appendStyleToHtmlPath(stylePath, runStyle);
+      }
+    }
+
     paths.push(stylePath);
 
     paths.forEach((path) => {
@@ -286,6 +302,179 @@ function DocumentConversion(options, comments) {
         return styleMap[i];
       }
     }
+  }
+
+  function buildParagraphStyleAttribute(paragraph) {
+    var styles = [];
+    var spacing = paragraph.spacing || {};
+    var indent = paragraph.indent || {};
+    var border = paragraph.border || {};
+
+    appendTwipsStyle(styles, 'margin-top', spacing.before);
+    appendTwipsStyle(styles, 'margin-bottom', spacing.after);
+    appendTwipsStyle(styles, 'margin-left', indent.start);
+    appendTwipsStyle(styles, 'margin-right', indent.end);
+
+    if (indent.firstLine) {
+      appendTwipsStyle(styles, 'text-indent', indent.firstLine);
+    } else if (indent.hanging) {
+      appendTwipsStyle(styles, 'text-indent', '-' + indent.hanging);
+    }
+
+    appendParagraphBorderStyle(styles, 'top', border.top);
+    appendParagraphBorderStyle(styles, 'right', border.right);
+    appendParagraphBorderStyle(styles, 'bottom', border.bottom);
+    appendParagraphBorderStyle(styles, 'left', border.left);
+
+    return styles.join('; ');
+  }
+
+  function buildRunStyleAttribute(run) {
+    var styles = [];
+
+    if (run.color) {
+      styles.push('color: ' + toCssColor(run.color));
+    }
+    if (run.highlight) {
+      styles.push('background-color: ' + run.highlight);
+    }
+    if (run.fontSize) {
+      styles.push('font-size: ' + run.fontSize + 'pt');
+    }
+    if (run.font) {
+      styles.push('font-family: ' + run.font);
+    }
+
+    return styles.join('; ');
+  }
+
+  function appendTwipsStyle(styles, property, twipsValue) {
+    var pointValue = twipsToPoints(twipsValue);
+    if (pointValue !== null) {
+      styles.push(property + ': ' + pointValue + 'pt');
+    }
+  }
+
+  function appendParagraphBorderStyle(styles, side, borderSide) {
+    var borderStyle = toCssBorder(borderSide);
+    if (borderStyle) {
+      styles.push('border-' + side + ': ' + borderStyle);
+    }
+  }
+
+  function toCssBorder(borderSide) {
+    if (!borderSide || !borderSide.size) {
+      return null;
+    }
+
+    var size = Number.parseFloat(borderSide.size);
+    if (!Number.isFinite(size) || size <= 0) {
+      return null;
+    }
+
+    var borderStyle = borderStyleToCss(borderSide.style);
+    if (borderStyle === 'none') {
+      return null;
+    }
+
+    var sizeInPoints = size / 8;
+    return (
+      trimTrailingZeros(sizeInPoints) +
+      'pt ' +
+      borderStyle +
+      ' ' +
+      toCssColor(borderSide.color)
+    );
+  }
+
+  function borderStyleToCss(value) {
+    if (!value || value === 'single') {
+      return 'solid';
+    }
+    if (value === 'nil' || value === 'none') {
+      return 'none';
+    }
+    if (value === 'thick') {
+      return 'solid';
+    }
+    if (value === 'dashed' || value === 'dotted' || value === 'double') {
+      return value;
+    }
+    return 'solid';
+  }
+
+  function twipsToPoints(value) {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    var parsed = Number.parseFloat(value);
+    if (!Number.isFinite(parsed)) {
+      return null;
+    }
+
+    return trimTrailingZeros(parsed / 20);
+  }
+
+  function trimTrailingZeros(value) {
+    return Number.parseFloat(value.toFixed(3)).toString();
+  }
+
+  function toCssColor(value) {
+    if (!value || value === 'auto') {
+      return '#000000';
+    }
+
+    if (value.charAt(0) === '#') {
+      return value;
+    }
+
+    if (/^[0-9a-f]{6}$/i.test(value)) {
+      return '#' + value;
+    }
+
+    return value;
+  }
+
+  function isEmptyHtmlPath(path) {
+    return !!(
+      path && Array.isArray(path._elements) && path._elements.length === 0
+    );
+  }
+
+  function appendStyleToHtmlPath(path, style) {
+    if (!style || !path || !Array.isArray(path._elements) || !path._elements.length) {
+      return path;
+    }
+
+    var elements = path._elements.map((elementStyle, index) => {
+      if (index !== 0) {
+        return elementStyle;
+      }
+
+      var attributes = Object.assign({}, elementStyle.attributes);
+      attributes.style = joinStyles(attributes.style, style);
+
+      return htmlPaths.element(elementStyle.tagName, attributes, {
+        fresh: elementStyle.fresh,
+        separator: elementStyle.separator,
+      });
+    });
+
+    return htmlPaths.elements(elements);
+  }
+
+  function joinStyles(existingStyle, styleToAppend) {
+    if (!existingStyle) {
+      return styleToAppend;
+    }
+
+    var trimmed = existingStyle.trim();
+    if (trimmed.endsWith(';')) {
+      return trimmed + ' ' + styleToAppend;
+    }
+
+    return trimmed + '; ' + styleToAppend;
   }
 
   function recoveringConvertImage(convertImage) {
@@ -761,6 +950,8 @@ function Document(children, options) {
 function Paragraph(children, properties) {
   properties = properties || {};
   var indent = properties.indent || {};
+  var spacing = properties.spacing || {};
+  var border = properties.border || {};
   return {
     type: types.paragraph,
     children,
@@ -773,6 +964,16 @@ function Paragraph(children, properties) {
       end: indent.end || null,
       firstLine: indent.firstLine || null,
       hanging: indent.hanging || null,
+    },
+    spacing: {
+      before: spacing.before || null,
+      after: spacing.after || null,
+    },
+    border: {
+      top: border.top || null,
+      right: border.right || null,
+      bottom: border.bottom || null,
+      left: border.left || null,
     },
     paraId: properties.paraId || null,
   };
@@ -794,6 +995,7 @@ function Run(children, properties) {
     verticalAlignment:
       properties.verticalAlignment || verticalAlignment.baseline,
     font: properties.font || null,
+    color: properties.color || null,
     fontSize: properties.fontSize || null,
     highlight: properties.highlight || null,
   };
@@ -1098,6 +1300,8 @@ function BodyReader(options) {
         numbering
       ),
       indent: readParagraphIndent(element.firstOrEmpty('w:ind')),
+      spacing: readParagraphSpacing(element.firstOrEmpty('w:spacing')),
+      border: readParagraphBorder(element.firstOrEmpty('w:pBdr')),
     }));
   }
 
@@ -1107,6 +1311,41 @@ function BodyReader(options) {
       end: element.attributes['w:end'] || element.attributes['w:right'],
       firstLine: element.attributes['w:firstLine'],
       hanging: element.attributes['w:hanging'],
+    };
+  }
+
+  function readParagraphSpacing(element) {
+    return {
+      before: element.attributes['w:before'],
+      after: element.attributes['w:after'],
+    };
+  }
+
+  function readParagraphBorder(element) {
+    return {
+      top: readParagraphBorderSide(element.firstOrEmpty('w:top')),
+      right: readParagraphBorderSide(element.firstOrEmpty('w:right')),
+      bottom: readParagraphBorderSide(element.firstOrEmpty('w:bottom')),
+      left: readParagraphBorderSide(element.firstOrEmpty('w:left')),
+    };
+  }
+
+  function readParagraphBorderSide(element) {
+    var attributes = element.attributes || {};
+    var size = attributes['w:sz'];
+    var color = attributes['w:color'];
+    var style = attributes['w:val'];
+    var space = attributes['w:space'];
+
+    if (!size && !color && !style && !space) {
+      return null;
+    }
+
+    return {
+      size: size || null,
+      color: color || null,
+      style: style || null,
+      space: space || null,
     };
   }
 
@@ -1125,6 +1364,9 @@ function BodyReader(options) {
         verticalAlignment:
           element.firstOrEmpty('w:vertAlign').attributes['w:val'],
         font: element.firstOrEmpty('w:rFonts').attributes['w:ascii'],
+        color: readColorValue(
+          element.firstOrEmpty('w:color').attributes['w:val']
+        ),
         fontSize,
         isBold: readBooleanElement(element.first('w:b')),
         isUnderline: readUnderline(element.first('w:u')),
@@ -1166,6 +1408,13 @@ function BodyReader(options) {
 
   function readHighlightValue(value) {
     if (!value || value === 'none') {
+      return null;
+    }
+    return value;
+  }
+
+  function readColorValue(value) {
+    if (!value || value === 'auto') {
       return null;
     }
     return value;
