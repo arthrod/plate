@@ -11,11 +11,11 @@ export async function POST(req: NextRequest) {
     system,
   } = await req.json();
 
-  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
+  const apiKey = key;
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: 'Missing ai gateway API key.' },
+      { error: 'Missing AI Gateway API key.' },
       { status: 401 }
     );
   }
