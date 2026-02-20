@@ -14,7 +14,7 @@ import { THEMES } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { useMounted } from '@/registry/hooks/use-mounted';
 
-import { Label } from '../components/ui/label';
+import { Label } from '@/components/ui/label';
 import { CopyCodeButton, getThemeCode } from './copy-code-button';
 import { ThemesSwitcher } from './themes-selector-mini';
 import { Skeleton } from './ui/skeleton';
@@ -25,6 +25,7 @@ export function ThemeCustomizer() {
   const { setThemesConfig, themesConfig } = useThemesConfig();
   const activeTheme = themesConfig.activeTheme ?? THEMES['default-shadcn'];
   const { resolvedTheme: mode, setTheme: setMode } = useTheme();
+  const id = React.useId();
 
   const themeCode = React.useMemo(
     () => getThemeCode(activeTheme, config.radius),
@@ -67,32 +68,50 @@ export function ThemeCustomizer() {
           <ThemesSwitcher />
         </div>
         <div className="space-y-1.5 px-6">
-          <Label className="text-xs">Radius</Label>
-          <div className="grid grid-cols-5 gap-2">
-            {['0', '0.3', '0.5', '0.75', '1.0'].map((value) => (
-              <Button
-                key={value}
-                size="sm"
-                variant="outline"
-                className={cn(
-                  config.radius === Number.parseFloat(value) &&
-                    'border-2 border-primary'
-                )}
-                onClick={() => {
-                  setConfig({
-                    ...config,
-                    radius: Number.parseFloat(value),
-                  });
-                }}
-              >
-                {value}
-              </Button>
-            ))}
+          <Label id={`${id}-radius`} className="text-xs">
+            Radius
+          </Label>
+          <div
+            className="grid grid-cols-5 gap-2"
+            role="group"
+            aria-labelledby={`${id}-radius`}
+          >
+            {mounted ? (
+              ['0', '0.3', '0.5', '0.75', '1.0'].map((value) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant="outline"
+                  className={cn(
+                    config.radius === Number.parseFloat(value) &&
+                      'border-2 border-primary'
+                  )}
+                  onClick={() => {
+                    setConfig({
+                      ...config,
+                      radius: Number.parseFloat(value),
+                    });
+                  }}
+                  aria-pressed={config.radius === Number.parseFloat(value)}
+                  aria-label={`Radius ${value}`}
+                >
+                  {value}
+                </Button>
+              ))
+            ) : (
+              <Skeleton className="col-span-5 h-8 w-full" />
+            )}
           </div>
         </div>
         <div className="space-y-1.5 px-6">
-          <Label className="text-xs">Mode</Label>
-          <div className="flex gap-2">
+          <Label id={`${id}-mode`} className="text-xs">
+            Mode
+          </Label>
+          <div
+            className="flex gap-2"
+            role="group"
+            aria-labelledby={`${id}-mode`}
+          >
             {mounted ? (
               <>
                 <Button
@@ -100,6 +119,7 @@ export function ThemeCustomizer() {
                   variant="outline"
                   className={cn(mode === 'light' && 'border-2 border-primary')}
                   onClick={() => setMode('light')}
+                  aria-pressed={mode === 'light'}
                 >
                   <SunIcon />
                   Light
@@ -109,6 +129,7 @@ export function ThemeCustomizer() {
                   variant="outline"
                   className={cn(mode === 'dark' && 'border-2 border-primary')}
                   onClick={() => setMode('dark')}
+                  aria-pressed={mode === 'dark'}
                 >
                   <MoonIcon />
                   Dark
