@@ -53,8 +53,8 @@ function contentTypes(overrides, extensionDefaults) {
       var extension = pathParts[pathParts.length - 1];
       var extensionLower = extension.toLowerCase();
       if (
-        Object.hasOwn(extensionDefaults, extension) ||
-        Object.hasOwn(extensionDefaults, extensionLower)
+        Object.prototype.hasOwnProperty.call(extensionDefaults, extension) ||
+        Object.prototype.hasOwnProperty.call(extensionDefaults, extensionLower)
       ) {
         return (
           extensionDefaults[extension] || extensionDefaults[extensionLower]

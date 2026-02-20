@@ -4,6 +4,12 @@
 // Module: @xmldom/xmldom@0.8.11
 // License: MIT
 //
+// Module: @xmldom/xmldom@0.8.11
+// License: MIT
+//
+// Module: base64-js@1.5.1
+// License: MIT
+//
 // Module: base64-js@1.5.1
 // License: MIT
 //
@@ -12,6 +18,9 @@
 //
 // Module: buffer@5.2.1
 // License: MIT
+//
+// Module: dingbat-to-unicode@1.0.1
+// License: BSD-2-Clause
 //
 // Module: dingbat-to-unicode@1.0.1
 // License: BSD-2-Clause
@@ -31,7 +40,13 @@
 // Module: process@0.11.10
 // License: MIT
 //
+// Module: process@0.11.10
+// License: MIT
+//
 // Module: timers-browserify@1.4.2
+// License: MIT
+//
+// Module: xmlbuilder@10.1.1
 // License: MIT
 //
 // Module: xmlbuilder@10.1.1
@@ -12782,7 +12797,7 @@ function BodyReader(options) {
       if (handler) {
         return handler(element);
       }
-      if (!Object.hasOwn(ignoreElements, element.name)) {
+      if (!Object.prototype.hasOwnProperty.call(ignoreElements, element.name)) {
         var message = warning('An unrecognised element was ignored: ' + element.name);
         return emptyResultWithMessages([message]);
       }
@@ -13542,7 +13557,7 @@ function contentTypes(overrides, extensionDefaults) {
       var pathParts = path.split('.');
       var extension = pathParts[pathParts.length - 1];
       var extensionLower = extension.toLowerCase();
-      if (Object.hasOwn(extensionDefaults, extension) || Object.hasOwn(extensionDefaults, extensionLower)) {
+      if (Object.prototype.hasOwnProperty.call(extensionDefaults, extension) || Object.prototype.hasOwnProperty.call(extensionDefaults, extensionLower)) {
         return extensionDefaults[extension] || extensionDefaults[extensionLower];
       }
       var fallback = fallbackContentTypes[extensionLower];
@@ -16542,7 +16557,7 @@ exports.parseFromString = parseFromString;
 exports.Node = dom.Node;
 
 },{"@xmldom/xmldom":5,"@xmldom/xmldom/lib/dom":3}],93:[function(require,module,exports){
-(function (Buffer){(function (){
+var base64js = require('base64-js');
 var JSZip = require('jszip');
 exports.openArrayBuffer = openArrayBuffer;
 exports.splitPath = splitPath;
@@ -16559,7 +16574,7 @@ function openArrayBuffer(arrayBuffer) {
       }
       return file.async('uint8array').then(array => {
         if (encoding === 'base64') {
-          return encodeBase64(array);
+          return base64js.fromByteArray(array);
         }
         if (encoding) {
           var decoder = new TextDecoder(encoding);
@@ -16583,21 +16598,6 @@ function openArrayBuffer(arrayBuffer) {
       toArrayBuffer
     };
   });
-}
-function encodeBase64(array) {
-  if (typeof Buffer !== 'undefined') {
-    return Buffer.from(array).toString('base64');
-  }
-  if (typeof btoa === 'function') {
-    var chunkSize = 0x8000;
-    var binary = '';
-    for (var index = 0; index < array.length; index += chunkSize) {
-      var chunk = array.subarray(index, index + chunkSize);
-      binary += String.fromCharCode.apply(null, chunk);
-    }
-    return btoa(binary);
-  }
-  throw new Error('base64 encoding is unavailable in this environment');
 }
 function splitPath(path) {
   var lastIndex = path.lastIndexOf('/');
@@ -16625,6 +16625,5 @@ function joinPath() {
   return relevantPaths.join('/');
 }
 
-}).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":9,"jszip":13}]},{},[61])(61)
+},{"base64-js":7,"jszip":13}]},{},[61])(61)
 });

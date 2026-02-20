@@ -50,7 +50,7 @@ function BodyReader(options) {
       if (handler) {
         return handler(element);
       }
-      if (!Object.hasOwn(ignoreElements, element.name)) {
+      if (!Object.prototype.hasOwnProperty.call(ignoreElements, element.name)) {
         var message = warning(
           'An unrecognised element was ignored: ' + element.name
         );

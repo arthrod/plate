@@ -538,6 +538,7 @@
       "dependencies": {
         "@xmldom/xmldom": "^0.8.11",
         "argparse": "1.0.10",
+        "base64-js": "^1.5.1",
         "color-name": "^2.0.0",
         "dingbat-to-unicode": "^1.0.1",
         "html-entities": "^2.6.0",

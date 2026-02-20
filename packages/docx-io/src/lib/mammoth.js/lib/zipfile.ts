@@ -1,3 +1,4 @@
+var base64js = require('base64-js');
 var JSZip = require('jszip');
 
 exports.openArrayBuffer = openArrayBuffer;
@@ -17,7 +18,7 @@ function openArrayBuffer(arrayBuffer) {
       }
       return file.async('uint8array').then((array) => {
         if (encoding === 'base64') {
-          return encodeBase64(array);
+          return base64js.fromByteArray(array);
         }
         if (encoding) {
           var decoder = new TextDecoder(encoding);
@@ -42,26 +43,6 @@ function openArrayBuffer(arrayBuffer) {
       toArrayBuffer,
     };
   });
-}
-
-function encodeBase64(array) {
-  if (typeof Buffer !== 'undefined') {
-    return Buffer.from(array).toString('base64');
-  }
-
-  if (typeof btoa === 'function') {
-    var chunkSize = 0x8000;
-    var binary = '';
-
-    for (var index = 0; index < array.length; index += chunkSize) {
-      var chunk = array.subarray(index, index + chunkSize);
-      binary += String.fromCharCode.apply(null, chunk);
-    }
-
-    return btoa(binary);
-  }
-
-  throw new Error('base64 encoding is unavailable in this environment');
 }
 
 function splitPath(path) {
