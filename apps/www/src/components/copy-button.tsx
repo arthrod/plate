@@ -19,6 +19,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { type Event, trackEvent } from '@/lib/events';
@@ -56,13 +57,9 @@ export function CopyButton({
   }, []);
 
   React.useEffect(() => {
-    if (!hasCopied) return;
-
-    const timeout = setTimeout(() => {
+    setTimeout(() => {
       setHasCopied(false);
     }, 2000);
-
-    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const button = (
@@ -99,12 +96,14 @@ export function CopyButton({
   }
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
-      <TooltipContent>
-        {hasCopied ? 'Copied!' : 'Copy to clipboard'}
-      </TooltipContent>
-    </Tooltip>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent>
+          {hasCopied ? 'Copied!' : 'Copy to clipboard'}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -127,13 +126,9 @@ export function CopyWithClassNames({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    if (!hasCopied) return;
-
-    const timeout = setTimeout(() => {
+    setTimeout(() => {
       setHasCopied(false);
     }, 2000);
-
-    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const copyToClipboard = React.useCallback((_value: string) => {
@@ -182,13 +177,9 @@ export function CopyNpmCommandButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    if (!hasCopied) return;
-
-    const timeout = setTimeout(() => {
+    setTimeout(() => {
       setHasCopied(false);
     }, 2000);
-
-    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const copyCommand = React.useCallback(
