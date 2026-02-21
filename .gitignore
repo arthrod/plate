@@ -149,3 +149,15 @@ CLAUDE.local.md
 .worktrees/
 .ralph/
 !.claude/skiller.toml
+
+# Artifacts / temp files
+old_implementation_diffs.backup/
+test-docx-unzipped/
+test_document-docx-unzipped/
+.consolidation-*
+check_deserialization.js
+check_html_detailed.js
+test_fix.js
+test_whitespace.js
+output.html
+tables.html
