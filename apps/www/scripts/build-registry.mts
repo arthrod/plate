@@ -2,7 +2,12 @@ import { exec } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
-import { type RegistryItem, type Registry } from 'shadcn/registry';
+import {
+  type RegistryItem,
+  registryItemSchema,
+  type Registry,
+} from 'shadcn/registry';
+import { z } from 'zod';
 
 import { registryBlocks } from '@/registry/registry-blocks';
 import { registryLib } from '@/registry/registry-lib';
@@ -26,29 +31,31 @@ const TARGET = isDev ? 'public/rd/registry.json' : 'public/r/registry.json';
 const registry: Registry = {
   name: NAME,
   homepage: HOMEPAGE,
-  items: [
-    ...registryInit,
-    ...registryUI,
-    ...registryComponents,
-    ...registryBlocks.map((block) => ({
-      ...block,
-      registryDependencies: [
-        'plate-ui',
-        ...(block.registryDependencies ?? []),
-      ],
-    })),
-    ...registryLib,
-    ...registryStyles,
-    ...registryHooks,
-    ...registryExamples,
-  ].map((item) => ({
-    ...item,
-    registryDependencies: item.registryDependencies?.map((dep) =>
-      dep.startsWith('shadcn/')
-        ? dep.split('shadcn/')[1]
-        : `${REGISTRY_URL}/${dep}`
-    ),
-  })),
+  items: z.array(registryItemSchema).parse(
+    [
+      ...registryInit,
+      ...registryUI,
+      ...registryComponents,
+      ...registryBlocks.map((block) => ({
+        ...block,
+        registryDependencies: [
+          'plate-ui',
+          ...(block.registryDependencies ?? []),
+        ],
+      })),
+      ...registryLib,
+      ...registryStyles,
+      ...registryHooks,
+      ...registryExamples,
+    ].map((item) => ({
+      ...item,
+      registryDependencies: item.registryDependencies?.map((dep) =>
+        dep.startsWith('shadcn/')
+          ? dep.split('shadcn/')[1]
+          : `${REGISTRY_URL}/${dep}`
+      ),
+    }))
+  ),
 } satisfies Registry;
 
 async function buildRegistryIndex() {
