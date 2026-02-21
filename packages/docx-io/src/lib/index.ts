@@ -17,7 +17,9 @@ export { DocxIOKit, DocxIOPlugin } from './DocxIOPlugin';
 
 export * from './importDocx';
 
-// Export from importTrackChanges, excluding duplicates that are re-exported from importComments
+// Export from importTrackChanges, excluding hasDocxTrackingTokens & stripDocxTrackingTokens
+// which are re-exported from importComments with COMPLETE implementations (INS|DEL|CMT).
+// The importTrackChanges versions only handle INS|DEL - they're internal building blocks.
 export {
   applyTrackedChangeSuggestions,
   formatAuthorAsUserId,
@@ -33,7 +35,6 @@ export {
   DOCX_INSERTION_TOKEN_SUFFIX,
   type ApplySuggestionsOptions,
   type ApplySuggestionsResult,
-  type ImportedUser,
   type ParseTrackedChangesResult,
   type SearchRangeFn,
   type TPoint,
@@ -73,7 +74,6 @@ export {
   buildUserNameMap,
   injectDocxTrackingTokens,
   normalizeDate,
-  normalizeDateUtc,
   toInitials,
   type DocxExportComment,
   type DocxExportDiscussion,

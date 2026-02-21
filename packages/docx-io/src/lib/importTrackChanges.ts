@@ -105,14 +105,6 @@ export type ApplySuggestionsOptions = {
   isText: (node: unknown) => boolean;
 };
 
-/** Imported user info from tracked changes */
-export type ImportedUser = {
-  /** User ID (derived from author name) */
-  id: string;
-  /** Display name (from w:author in DOCX) */
-  name: string;
-};
-
 /** Result of applying tracked change suggestions */
 export type ApplySuggestionsResult = {
   /** Number of insertions applied */
@@ -123,8 +115,6 @@ export type ApplySuggestionsResult = {
   total: number;
   /** Errors encountered */
   errors: string[];
-  /** Unique users found in imported suggestions */
-  users: ImportedUser[];
 };
 
 // ============================================================================
@@ -333,7 +323,6 @@ export function applyTrackedChangeSuggestions(
   let insertions = 0;
   let deletions = 0;
   const errors: string[] = [];
-  const usersMap = new Map<string, string>();
 
   for (const change of changes) {
     try {
@@ -378,11 +367,6 @@ export function applyTrackedChangeSuggestions(
 
       const createdAt = parseDate(change.date);
       const userId = formatAuthorAsUserId(change.author);
-
-      // Track unique users for registration in app user store
-      if (change.author && !usersMap.has(userId)) {
-        usersMap.set(userId, change.author);
-      }
 
       // Apply suggestion marks
       editor.tf.setNodes(
@@ -430,7 +414,6 @@ export function applyTrackedChangeSuggestions(
     deletions,
     total: insertions + deletions,
     errors,
-    users: Array.from(usersMap.entries()).map(([id, name]) => ({ id, name })),
   };
 }
 
@@ -463,6 +446,6 @@ export function hasDocxTrackingTokens(html: string): boolean {
  * @returns HTML with tokens removed (content preserved)
  */
 export function stripDocxTrackingTokens(html: string): string {
-  const tokenPattern = /\[\[DOCX_(INS|DEL|CMT)_(START|END):[^\]]+\]\]/g;
+  const tokenPattern = /\[\[DOCX_(INS|DEL)_(START|END):[^\]]+\]\]/g;
   return html.replace(tokenPattern, '');
 }

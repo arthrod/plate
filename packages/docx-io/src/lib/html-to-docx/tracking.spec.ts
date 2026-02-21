@@ -5,7 +5,7 @@
  * suggestions and comments to Word's tracked changes and comments format.
  */
 
-import { describe, expect, it, mock } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 import JSZip from 'jszip';
 
 import { htmlToDocxBlob } from '../exportDocx';
@@ -14,6 +14,8 @@ import {
   buildCommentStartToken,
   buildSuggestionEndToken,
   buildSuggestionStartToken,
+  hasTrackingTokens,
+  splitDocxTrackingTokens,
   DOCX_COMMENT_END_TOKEN_PREFIX,
   DOCX_COMMENT_START_TOKEN_PREFIX,
   DOCX_COMMENT_TOKEN_SUFFIX,
@@ -23,8 +25,6 @@ import {
   DOCX_INSERTION_END_TOKEN_PREFIX,
   DOCX_INSERTION_START_TOKEN_PREFIX,
   DOCX_INSERTION_TOKEN_SUFFIX,
-  hasTrackingTokens,
-  splitDocxTrackingTokens,
 } from './tracking';
 
 // Helper to load zip from Blob
@@ -317,6 +317,7 @@ describe('DOCX Export with Tracked Changes', () => {
     expect(docXml).toContain('<w:commentRangeStart');
     expect(docXml).toContain('<w:commentRangeEnd');
     expect(docXml).toContain('<w:commentReference');
+    expect(docXml).toContain('CommentReference');
 
     // Should have comments.xml file
     const commentsFile = zip.file('word/comments.xml');
@@ -340,12 +341,61 @@ describe('DOCX Export with Tracked Changes', () => {
           commentsXml.includes('initials="BW"') ||
           commentsXml.includes(':initials="BW"')
       ).toBe(true);
+      expect(commentsXml).toContain('annotationRef');
+      expect(commentsXml).toContain('CommentReference');
       expect(commentsXml).toContain('This needs review');
     }
 
     // Content types should include comments
     const contentTypes = await zip.file('[Content_Types].xml')!.async('string');
     expect(contentTypes).toContain('comments.xml');
+  });
+
+  it('should export reply comments with parent links', async () => {
+    const parentPayload = encodeURIComponent(
+      JSON.stringify({
+        id: 'thread:parent',
+        authorName: 'Alice',
+        authorInitials: 'A',
+        date: '2024-01-03T10:00:00Z',
+        text: 'Parent',
+      })
+    );
+    const html = `<p>[[DOCX_CMT_START:${parentPayload}]]threaded[[DOCX_CMT_END:thread:parent]]</p>`;
+
+    const result = await htmlToDocxBlob(html, {
+      commentThreads: [
+        {
+          id: 'thread',
+          comments: [
+            {
+              authorInitials: 'A',
+              authorName: 'Alice',
+              id: 'thread:parent',
+              text: 'Parent',
+            },
+            {
+              authorInitials: 'B',
+              authorName: 'Bob',
+              id: 'thread:reply',
+              parentId: 'thread:parent',
+              text: 'Reply',
+            },
+          ],
+        },
+      ],
+    });
+    const zip = await loadZipFromBlob(result);
+    const docXml = await zip.file('word/document.xml')!.async('string');
+
+    expect(docXml.match(/commentRangeStart/g)?.length).toBe(1);
+    expect(docXml.match(/commentRangeEnd/g)?.length).toBe(1);
+    expect(docXml.match(/commentReference/g)?.length).toBe(1);
+
+    const commentsExtendedXml = await zip
+      .file('word/commentsExtended.xml')!
+      .async('string');
+    expect(commentsExtendedXml).toContain('paraIdParent');
   });
 
   it('should handle multiple tracked changes in same paragraph', async () => {
@@ -371,23 +421,6 @@ describe('DOCX Export with Tracked Changes', () => {
 
     const commentsFile = zip.file('word/comments.xml');
     expect(commentsFile).toBeNull();
-  });
-
-  it('warns when dead tracking tokens remain in document.xml', async () => {
-    const warn = mock((..._args: unknown[]) => {});
-    const originalWarn = console.warn;
-    console.warn = warn as typeof console.warn;
-
-    try {
-      const html = '<p>[[DOCX_INS_START:invalid]]text</p>';
-      await htmlToDocxBlob(html);
-    } finally {
-      console.warn = originalWarn;
-    }
-
-    expect(warn).toHaveBeenCalled();
-    const firstCall = warn.mock.calls[0];
-    expect(firstCall?.[0]).toContain('dead tracking tokens in document.xml');
   });
 });
 

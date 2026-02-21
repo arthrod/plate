@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * DOCX Import Main Module
  *
@@ -16,8 +15,9 @@
  * 3. Deserialize HTML to editor nodes
  * 4. Apply tracked changes and comments to editor
  */
-// Local mammoth.js fork ESM browser entry (avoid top-level copied bundle artifact)
-import mammothLib from './mammoth.js';
+
+// Local mammoth.js fork browser build
+import mammothModule from './mammoth.js/mammoth.browser.js';
 
 // ============================================================================
 // Mammoth Types and Export
@@ -30,7 +30,7 @@ export type MammothMessage = {
 };
 
 /** Mammoth module type */
-type Mammoth = {
+type MammothModule = {
   convertToHtml: (
     input: { arrayBuffer: ArrayBuffer },
     options?: { styleMap?: string[] }
@@ -42,7 +42,7 @@ type Mammoth = {
 };
 
 /** Export mammoth for direct access if needed */
-export const mammoth = mammothLib as unknown as Mammoth;
+export const mammoth = mammothModule as unknown as MammothModule;
 
 // ============================================================================
 // Preprocess Types
@@ -84,12 +84,6 @@ export type PreprocessMammothHtmlResult = {
 export function preprocessMammothHtml(
   html: string
 ): PreprocessMammothHtmlResult {
-  if (typeof DOMParser === 'undefined') {
-    throw new Error(
-      'preprocessMammothHtml requires DOMParser (browser-like environment).'
-    );
-  }
-
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const commentById = new Map<string, string>();
 
@@ -220,10 +214,9 @@ export async function convertToHtmlWithTracking(
   options: ConvertToHtmlWithTrackingOptions = {}
 ): Promise<ConvertToHtmlWithTrackingResult> {
   // The mammoth fork natively emits tracking tokens during conversion
-  const result = await mammoth.convertToHtml(
-    { arrayBuffer },
-    { styleMap: options.styleMap ?? ['comment-reference => sup'] }
-  );
+  // Always include comment-reference => sup default, merge with user styleMap
+  const styleMap = ['comment-reference => sup', ...(options.styleMap ?? [])];
+  const result = await mammoth.convertToHtml({ arrayBuffer }, { styleMap });
 
   return {
     value: result.value,
@@ -303,19 +296,114 @@ export async function importDocx(
 }
 
 // ============================================================================
+// Token Cleanup Utilities
+// ============================================================================
+
+/** Regex to match all DOCX tracking tokens */
+const TRACKING_TOKEN_PATTERN = /\[\[DOCX_(INS|DEL|CMT)_(START|END):[^\]]+\]\]/g;
+
+/**
+ * Remove body-level text nodes that contain only tracking tokens.
+ * This prevents the deserialization from wrapping orphan tokens in paragraphs.
+ *
+ * When w:commentRangeStart/End appear between paragraphs in DOCX XML,
+ * mammoth emits them as text nodes at the body level. During deserialization,
+ * these get wrapped in paragraphs due to mixed inline/block normalization,
+ * creating unwanted empty paragraphs after the tokens are cleaned up.
+ */
+function cleanBodyLevelTokenNodes(body: HTMLElement): void {
+  const nodesToRemove: Node[] = [];
+
+  for (const node of Array.from(body.childNodes)) {
+    // Only process text nodes at body level
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent ?? '';
+      // Check if the text is entirely tracking tokens (possibly with whitespace)
+      const withoutTokens = text.replace(TRACKING_TOKEN_PATTERN, '').trim();
+
+      if (withoutTokens === '') {
+        // Text node contains only tokens and whitespace - mark for removal
+        nodesToRemove.push(node);
+      }
+    }
+  }
+
+  // Remove the marked nodes
+  for (const node of nodesToRemove) {
+    node.parentNode?.removeChild(node);
+  }
+}
+
+/**
+ * Recursively clean up any remaining tracking tokens from nodes.
+ * This is a safety net for cases where the rangeRef-based deletion fails.
+ */
+function cleanupTrackingTokens(nodes: unknown[]): void {
+  for (const node of nodes) {
+    if (typeof node !== 'object' || node === null) continue;
+
+    const nodeObj = node as Record<string, unknown>;
+
+    // If it's a text node with tokens, clean them
+    if (typeof nodeObj.text === 'string') {
+      nodeObj.text = nodeObj.text.replace(TRACKING_TOKEN_PATTERN, '');
+    }
+
+    // Recursively process children
+    if (Array.isArray(nodeObj.children)) {
+      cleanupTrackingTokens(nodeObj.children);
+    }
+  }
+}
+
+/**
+ * Check if a node is an empty paragraph (only contains empty text).
+ * A paragraph is empty if all its children are text nodes with empty strings.
+ */
+function isEmptyParagraph(node: unknown): boolean {
+  if (typeof node !== 'object' || node === null) return false;
+
+  const nodeObj = node as Record<string, unknown>;
+
+  // Must be a paragraph-type element
+  if (nodeObj.type !== 'p') return false;
+
+  // Must have children
+  if (!Array.isArray(nodeObj.children)) return false;
+
+  // All children must be empty text nodes
+  return nodeObj.children.every((child) => {
+    if (typeof child !== 'object' || child === null) return false;
+    const childObj = child as Record<string, unknown>;
+    // Must be a text node with empty or whitespace-only content
+    return typeof childObj.text === 'string' && childObj.text.trim() === '';
+  });
+}
+
+/**
+ * Remove empty leading paragraphs from the editor children.
+ * These can occur when tracking tokens are removed from paragraphs
+ * that only contained tokens (e.g., spanning comments/changes).
+ */
+function removeEmptyLeadingParagraphs(nodes: unknown[]): void {
+  while (nodes.length > 0 && isEmptyParagraph(nodes[0])) {
+    nodes.shift();
+  }
+}
+
+// ============================================================================
 // Import With Tracking Support
 // ============================================================================
 
+import {
+  applyTrackedChangeSuggestions,
+  parseDocxTrackedChanges,
+} from './importTrackChanges';
 import {
   applyTrackedCommentsLocal,
   parseDocxComments,
   type DocxImportDiscussion,
 } from './importComments';
-import {
-  applyTrackedChangeSuggestions,
-  parseDocxTrackedChanges,
-  type ImportedUser,
-} from './importTrackChanges';
 import { createSearchRangeFn } from './searchRange';
 
 /** Extended editor interface for tracking imports */
@@ -392,8 +480,6 @@ export type ImportDocxWithTrackingResult = {
   comments: number;
   /** Discussion data for UI (to be stored in discussion plugin) */
   discussions: DocxImportDiscussion[];
-  /** Unique users found in imported content (register in user store for display) */
-  users: ImportedUser[];
   /** Any errors encountered during import */
   errors: string[];
   /** Messages from mammoth (warnings, etc.) */
@@ -478,7 +564,6 @@ export async function importDocxWithTracking(
   let deletions = 0;
   let commentsApplied = 0;
   const discussions: DocxImportDiscussion[] = [];
-  const importedUsersMap = new Map<string, string>();
 
   // Step 1: Convert DOCX to HTML with tracking tokens
   const result = await convertToHtmlWithTracking(arrayBuffer, convertOptions);
@@ -493,32 +578,24 @@ export async function importDocxWithTracking(
   // Step 3: Deserialize HTML to nodes (keep tokens for now)
   const parser = new DOMParser();
   const doc = parser.parseFromString(result.value, 'text/html');
+
+  // Clean up body-level text nodes that contain only tracking tokens.
+  // This prevents unwanted empty paragraphs from being created during normalization.
+  cleanBodyLevelTokenNodes(doc.body);
+
   const nodes = editor.api.html.deserialize({ element: doc.body });
 
-  // Replace editor content with deserialized nodes using transforms when possible.
-  // This keeps Slate internals in sync (node maps, paths) to avoid render issues.
+  // Capture original content for recovery on failure
   const originalChildren = [...editor.children];
-  const setEditorValue = (nextValue: unknown[]) => {
-    const tfAny = editor.tf as unknown as {
-      setValue?: (value: unknown[]) => void;
-      replaceNodes?: (
-        value: unknown[],
-        options: { at: number[]; children: true }
-      ) => void;
-    };
-    if (tfAny?.setValue) {
-      tfAny.setValue(nextValue);
-      return;
-    }
-    if (tfAny?.replaceNodes) {
-      tfAny.replaceNodes(nextValue, { at: [], children: true });
-      return;
-    }
-    (editor.children as unknown[]).length = 0;
-    (editor.children as unknown[]).push(...nextValue);
-  };
-  setEditorValue(nodes as unknown[]);
+
   try {
+    // Replace editor content with deserialized nodes
+    // Direct mutation is used here because transform-based approaches can cause
+    // infinite loops due to Slate's normalization. The caller is responsible for
+    // proper history/collaboration handling if needed.
+    (editor.children as unknown[]).length = 0;
+    (editor.children as unknown[]).push(...nodes);
+
     // Create search function adapter
     // createSearchRangeFn returns (search) => TRange, but SearchRangeFn expects (editor, search) => TRange
     const boundSearchFn = createSearchRangeFn(editor as any);
@@ -539,11 +616,6 @@ export async function importDocxWithTracking(
       insertions = suggestionsResult.insertions;
       deletions = suggestionsResult.deletions;
       errors.push(...suggestionsResult.errors);
-
-      // Collect users from suggestions
-      for (const user of suggestionsResult.users) {
-        importedUsersMap.set(user.id, user.name);
-      }
     }
 
     // Step 5: Apply comments
@@ -561,56 +633,20 @@ export async function importDocxWithTracking(
       commentsApplied = commentsResult.applied;
       discussions.push(...commentsResult.discussions);
       errors.push(...commentsResult.errors);
-
-      // Collect users from comments
-      for (const disc of commentsResult.discussions) {
-        if (disc.user) {
-          importedUsersMap.set(disc.user.id, disc.user.name);
-        }
-        for (const c of disc.comments ?? []) {
-          if (c.user) {
-            importedUsersMap.set(c.user.id, c.user.name);
-          }
-        }
-      }
     }
+
+    // Step 6: Clean up any remaining tokens that weren't deleted
+    // This handles edge cases where rangeRef tracking fails due to direct mutation
+    cleanupTrackingTokens(editor.children);
+
+    // Step 7: Remove empty leading paragraphs that may result from token cleanup
+    // When tokens span multiple paragraphs, the token-only paragraphs become empty
+    removeEmptyLeadingParagraphs(editor.children as unknown[]);
   } catch (error) {
     // Restore original content on failure
-    setEditorValue(originalChildren as unknown[]);
+    (editor.children as unknown[]).length = 0;
+    (editor.children as unknown[]).push(...originalChildren);
     throw error;
-  }
-
-  // Post-processing: strip any remaining tracking tokens from text nodes.
-  // After Slate transforms, nodes may be frozen (Immer), so we rebuild
-  // the tree with new objects instead of mutating in-place.
-  if (hasTracking) {
-    // Use non-greedy .*? with s flag to handle any content between [[ and ]]
-    const tokenPattern = /\[\[DOCX_(?:INS|DEL|CMT)_(?:START|END):[\s\S]*?\]\]/g;
-
-    const stripTokenText = (text: string): string =>
-      text.replace(tokenPattern, '');
-
-    const stripTokensFromNode = (node: any): any => {
-      if (typeof node.text === 'string') {
-        const stripped = stripTokenText(node.text);
-        if (stripped === node.text) return node;
-        return { ...node, text: stripped };
-      }
-      if (Array.isArray(node.children)) {
-        const newChildren = node.children
-          .map(stripTokensFromNode)
-          .filter(
-            (child: any) => typeof child.text !== 'string' || child.text !== ''
-          );
-        // Ensure at least one child in elements
-        const children = newChildren.length > 0 ? newChildren : [{ text: '' }];
-        return { ...node, children };
-      }
-      return node;
-    };
-
-    const stripped = (editor.children as any[]).map(stripTokensFromNode);
-    setEditorValue(stripped);
   }
 
   return {
@@ -618,10 +654,6 @@ export async function importDocxWithTracking(
     deletions,
     comments: commentsApplied,
     discussions,
-    users: Array.from(importedUsersMap.entries()).map(([id, name]) => ({
-      id,
-      name,
-    })),
     errors,
     messages: result.messages,
     hasTracking,

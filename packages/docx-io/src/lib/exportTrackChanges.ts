@@ -13,8 +13,6 @@
 
 import type { TNode, TText } from 'platejs';
 
-import { nanoid } from 'nanoid';
-
 import {
   buildCommentEndToken,
   buildCommentStartToken,
@@ -44,13 +42,12 @@ export type DocxExportUser = {
 
 /** Comment data from discussion thread */
 export type DocxExportComment = {
+  authorInitials?: string | null;
+  authorName?: string | null;
   contentRich?: unknown | null;
   createdAt?: Date | number | string | null;
   id?: string | null;
-  /** OOXML paraId for round-trip threading fidelity */
-  paraId?: string | null;
-  /** OOXML parentParaId for round-trip reply threading */
-  parentParaId?: string | null;
+  parentCommentId?: string | null;
   user?: DocxExportUser | null;
   userId?: string | null;
 };
@@ -61,10 +58,29 @@ export type DocxExportDiscussion = {
   createdAt?: Date | number | string | null;
   documentContent?: string | null;
   id: string;
-  /** OOXML paraId of the first (root) comment for round-trip threading fidelity */
-  paraId?: string | null;
+  isResolved?: boolean | null;
   user?: DocxExportUser | null;
   userId?: string | null;
+};
+
+/** Normalized comment entry for DOCX thread export */
+export type DocxThreadComment = {
+  authorInitials: string;
+  authorName: string;
+  date?: string;
+  durableId?: string;
+  done?: boolean;
+  id: string;
+  parentId?: string;
+  paraId?: string;
+  text: string;
+};
+
+/** Normalized discussion thread for DOCX export */
+export type DocxCommentThread = {
+  comments: DocxThreadComment[];
+  id: string;
+  isResolved?: boolean;
 };
 
 /** Suggestion metadata stored on nodes */
@@ -77,20 +93,16 @@ export type DocxExportSuggestionMeta = {
 
 /** Options for token injection */
 export type InjectDocxTrackingTokensOptions = {
-  /** Default author name for transient comments (default: 'Draft') */
-  defaultTransientAuthor?: string;
   /** Discussion threads for comment metadata */
   discussions?: DocxExportDiscussion[] | null;
+  /** Precomputed comment threads for DOCX export */
+  commentThreads?: DocxCommentThread[] | null;
   /** Function to get comment IDs from a text node */
   getCommentIds?: (node: TText) => string[];
   /** Function to get suggestion metadata from a text node */
   getSuggestions?: (node: TText) => DocxExportSuggestionMeta[];
-  /** Include transient (uncommitted) comment marks in export */
-  includeTransientComments?: boolean;
   /** Function to convert rich content to plain text */
   nodeToString?: (node: unknown) => string;
-  /** Key used for transient comment marks (default: 'commentTransient') */
-  transientCommentKey?: string;
   /** Pre-built user name map (userId -> name) */
   userNameMap?: Map<string, string>;
 };
@@ -236,6 +248,114 @@ export function buildUserNameMap(
 }
 
 /**
+ * Normalize discussions into DOCX comment threads.
+ */
+export function buildCommentThreads(
+  discussions?: DocxExportDiscussion[] | null,
+  userNameMap?: Map<string, string>,
+  nodeToString?: (node: unknown) => string
+): DocxCommentThread[] {
+  const threads: DocxCommentThread[] = [];
+
+  discussions?.forEach((discussion) => {
+    if (!discussion?.id) return;
+
+    const discussionAuthorName =
+      discussion?.user?.name ??
+      userNameMap?.get(discussion?.userId ?? '') ??
+      discussion?.userId ??
+      'unknown';
+
+    const resolveAuthorName = (comment?: DocxExportComment | null) =>
+      comment?.authorName ??
+      comment?.user?.name ??
+      userNameMap?.get(comment?.userId ?? '') ??
+      comment?.userId ??
+      discussionAuthorName ??
+      'unknown';
+
+    const resolveCommentText = (comment?: DocxExportComment | null) => {
+      const commentContent = comment?.contentRich;
+      if (Array.isArray(commentContent) && nodeToString) {
+        try {
+          return nodeToString({
+            children: commentContent,
+            type: 'root',
+          });
+        } catch {
+          return '';
+        }
+      }
+      if (typeof commentContent === 'string') return commentContent;
+      return '';
+    };
+
+    const sourceComments = discussion?.comments ?? [];
+    const makeCommentKey = (commentId: string | undefined, index: number) =>
+      `${discussion.id}:${commentId ?? `comment-${index + 1}`}`;
+    const parentCommentKey = makeCommentKey(sourceComments[0]?.id, 0);
+
+    const comments: DocxThreadComment[] = [];
+
+    if (sourceComments.length === 0) {
+      const text =
+        discussion?.documentContent?.toString?.() ?? 'Imported comment';
+      comments.push({
+        authorInitials: toInitials(discussionAuthorName),
+        authorName: discussionAuthorName,
+        date: normalizeDate(discussion?.createdAt),
+        done: discussion?.isResolved ?? false,
+          id: discussion.id,
+          text,
+        });
+    } else {
+      const commentKeyById = new Map<string, string>();
+
+      sourceComments.forEach((comment, index) => {
+        if (comment?.id) {
+          commentKeyById.set(comment.id, makeCommentKey(comment.id, index));
+        }
+      });
+
+      sourceComments.forEach((comment, index) => {
+        const authorName = resolveAuthorName(comment);
+        const authorInitials =
+          comment?.authorInitials ?? toInitials(authorName);
+        const text =
+          resolveCommentText(comment) ||
+          (index === 0
+            ? discussion?.documentContent?.toString?.()
+            : '') ||
+          'Imported comment';
+        const explicitParentKey = comment?.parentCommentId
+          ? commentKeyById.get(comment.parentCommentId) ?? parentCommentKey
+          : undefined;
+        comments.push({
+          authorInitials,
+          authorName,
+          date: normalizeDate(comment?.createdAt ?? discussion?.createdAt),
+          done: discussion?.isResolved ?? false,
+          id: makeCommentKey(comment?.id, index),
+          parentId:
+            index === 0 ? undefined : explicitParentKey ?? parentCommentKey,
+          text,
+        });
+      });
+    }
+
+    if (comments.length > 0) {
+      threads.push({
+        comments,
+        id: discussion.id,
+        isResolved: discussion?.isResolved ?? false,
+      });
+    }
+  });
+
+  return threads;
+}
+
+/**
  * Convert a name to initials (max 2 characters).
  */
 export function toInitials(name?: null | string): string {
@@ -249,43 +369,9 @@ export function toInitials(name?: null | string): string {
 }
 
 /**
- * Format a Date as the browser's local time with a "Z" suffix.
- * This matches Word's convention: w:date stores the author's local time
- * but always appends "Z" regardless of timezone.
- * e.g. user at 11:51 AM EST → "2024-01-15T11:51:00Z" (NOT real UTC)
- *
- * The real UTC is preserved separately in dateUtc (commentsExtensible.xml).
- */
-function toLocalWithFakeZ(date: Date): string {
-  const Y = date.getFullYear();
-  const M = String(date.getMonth() + 1).padStart(2, '0');
-  const D = String(date.getDate()).padStart(2, '0');
-  const h = String(date.getHours()).padStart(2, '0');
-  const m = String(date.getMinutes()).padStart(2, '0');
-  const s = String(date.getSeconds()).padStart(2, '0');
-
-  return `${Y}-${M}-${D}T${h}:${m}:${s}Z`;
-}
-
-/**
- * Normalize a date to local time with "Z" suffix (Word convention).
- * Used for w:date attributes on comments and track changes.
+ * Normalize a date to ISO string format.
  */
 export function normalizeDate(
-  date?: Date | null | number | string
-): string | undefined {
-  if (!date) return;
-  const parsed = new Date(date);
-  if (Number.isNaN(parsed.getTime())) return;
-
-  return toLocalWithFakeZ(parsed);
-}
-
-/**
- * Normalize a date to ISO string in UTC (suffix "Z").
- * Used for w16cex:dateUtc in commentsExtensible.xml.
- */
-export function normalizeDateUtc(
   date?: Date | null | number | string
 ): string | undefined {
   if (!date) return;
@@ -319,120 +405,47 @@ function resolveSuggestionAuthor(
 /**
  * Resolve comment metadata from discussions.
  */
-/** Extract plain text from Plate node tree without nodeToString. */
-function extractPlainText(nodes: unknown[]): string {
-  const parts: string[] = [];
-
-  for (const node of nodes) {
-    if (!node || typeof node !== 'object') continue;
-    const n = node as Record<string, unknown>;
-
-    if (typeof n.text === 'string') {
-      parts.push(n.text);
-    }
-    if (Array.isArray(n.children)) {
-      parts.push(extractPlainText(n.children));
-    }
-  }
-
-  return parts.join('');
-}
-
-function resolveCommentText(
-  comment: DocxExportComment | null | undefined,
-  fallback: string | null | undefined,
-  nodeToString?: (node: unknown) => string
-): string {
-  const contentRich = comment?.contentRich;
-  let text = '';
-
-  if (Array.isArray(contentRich)) {
-    if (nodeToString) {
-      try {
-        text = nodeToString({
-          children: contentRich,
-          type: 'root',
-        });
-      } catch {
-        text = '';
-      }
-    }
-
-    // Fallback: extract plain text from known Plate node structure
-    if (!text) {
-      text = extractPlainText(contentRich);
-    }
-  }
-
-  return text || fallback || 'Imported comment';
-}
-
-function resolveCommentAuthorName(
-  comment: DocxExportComment | null | undefined,
-  discussion: DocxExportDiscussion | null | undefined,
-  userNameMap?: Map<string, string>
-): string {
-  return (
-    comment?.user?.name ??
-    discussion?.user?.name ??
-    userNameMap?.get(comment?.userId ?? '') ??
-    userNameMap?.get(discussion?.userId ?? '') ??
-    comment?.userId ??
-    discussion?.userId ??
-    'unknown'
-  );
-}
-
 function resolveCommentMeta(
   id: string,
-  discussions?: DocxExportDiscussion[] | null,
-  userNameMap?: Map<string, string>,
-  nodeToString?: (node: unknown) => string
+  options: InjectDocxTrackingTokensOptions,
+  commentThreadMap?: Map<string, DocxCommentThread>
 ): CommentPayload {
-  const discussion = discussions?.find((item) => item?.id === id);
-  const comment = discussion?.comments?.[0];
+  const thread =
+    commentThreadMap?.get(id) ??
+    buildCommentThreads(
+      options.discussions,
+      options.userNameMap,
+      options.nodeToString
+    ).find((item) => item.id === id);
 
-  const text = resolveCommentText(
-    comment,
-    discussion?.documentContent,
-    nodeToString
+  const threadComment =
+    thread?.comments?.find((comment) => comment.id === id) ??
+    thread?.comments?.[0];
+
+  const discussionId = thread?.id ?? id;
+  const discussion = options.discussions?.find(
+    (item) => item?.id === discussionId
   );
-  const authorName = resolveCommentAuthorName(comment, discussion, userNameMap);
-  const date = normalizeDate(comment?.createdAt ?? discussion?.createdAt);
+  const discussionAuthorName =
+    discussion?.user?.name ??
+    options.userNameMap?.get(discussion?.userId ?? '') ??
+    discussion?.userId ??
+    'unknown';
 
-  // Build replies from discussion.comments[1..n]
-  const replyComments = discussion?.comments?.slice(1);
-  const replies: CommentPayload['replies'] =
-    replyComments && replyComments.length > 0
-      ? replyComments.map((reply) => {
-          const replyAuthorName = resolveCommentAuthorName(
-            reply,
-            discussion,
-            userNameMap
-          );
-          const replyText = resolveCommentText(reply, undefined, nodeToString);
-          const replyDate = normalizeDate(reply?.createdAt);
-
-          return {
-            authorInitials: toInitials(replyAuthorName),
-            authorName: replyAuthorName,
-            date: replyDate,
-            id: reply?.id ?? nanoid(),
-            paraId: reply?.paraId ?? undefined,
-            text: replyText,
-          };
-        })
-      : undefined;
+  const authorName =
+    threadComment?.authorName ?? discussionAuthorName ?? 'unknown';
+  const text =
+    threadComment?.text ??
+    discussion?.documentContent?.toString?.() ??
+    'Imported comment';
+  const date =
+    threadComment?.date ?? normalizeDate(discussion?.createdAt);
 
   return {
-    authorInitials: toInitials(authorName),
+    authorInitials: threadComment?.authorInitials ?? toInitials(authorName),
     authorName,
     date,
-    // Must use discussion ID (= `id`) because END tokens are keyed by discussion ID.
-    // Using comment?.id would mismatch START vs END and create duplicate entries.
     id,
-    paraId: comment?.paraId ?? discussion?.paraId ?? undefined,
-    replies,
     text,
   };
 }
@@ -613,188 +626,12 @@ function buildResolvedSuggestionEndToken(
  */
 function buildResolvedCommentStartToken(
   id: string,
-  options: InjectDocxTrackingTokensOptions
+  options: InjectDocxTrackingTokensOptions,
+  commentThreadMap?: Map<string, DocxCommentThread>
 ): string {
-  const payload = resolveCommentMeta(
-    id,
-    options.discussions,
-    options.userNameMap,
-    options.nodeToString
-  );
+  const payload = resolveCommentMeta(id, options, commentThreadMap);
 
   return buildCommentStartToken(payload);
-}
-
-// ============================================================================
-// Transient Comment Preprocessing
-// ============================================================================
-
-/** Default key for transient comment marks */
-const DEFAULT_TRANSIENT_KEY = 'commentTransient';
-
-/** Default author for transient comments */
-const DEFAULT_TRANSIENT_AUTHOR = 'Draft';
-
-/**
- * Internal type for tracking transient text nodes during preprocessing.
- */
-type TransientTextEntry = {
-  node: TText;
-  path: number[];
-};
-
-/**
- * Recursively collect all text nodes with transient comment marks.
- */
-function collectTransientTextNodes(
-  node: Record<string, unknown>,
-  transientKey: string,
-  entries: TransientTextEntry[],
-  currentPath: number[] = []
-): void {
-  if (typeof node.text === 'string') {
-    if (node[transientKey]) {
-      entries.push({
-        node: node as unknown as TText,
-        path: [...currentPath],
-      });
-    }
-    return;
-  }
-
-  if (!Array.isArray(node.children)) return;
-
-  (node.children as Record<string, unknown>[]).forEach((child, index) => {
-    collectTransientTextNodes(child, transientKey, entries, [
-      ...currentPath,
-      index,
-    ]);
-  });
-}
-
-/**
- * Group consecutive transient text entries into ranges.
- * Two entries are consecutive if they are adjacent siblings or in sequence.
- */
-function groupTransientRanges(
-  entries: TransientTextEntry[]
-): TransientTextEntry[][] {
-  if (entries.length === 0) return [];
-
-  const ranges: TransientTextEntry[][] = [];
-  let currentRange: TransientTextEntry[] = [entries[0]!];
-
-  for (let i = 1; i < entries.length; i++) {
-    const prev = entries[i - 1]!;
-    const curr = entries[i]!;
-
-    // Check if consecutive (same parent, adjacent indices)
-    const prevParent = prev.path.slice(0, -1);
-    const currParent = curr.path.slice(0, -1);
-    const prevIndex = prev.path.at(-1) ?? -1;
-    const currIndex = curr.path.at(-1) ?? -1;
-
-    const sameParent =
-      prevParent.length === currParent.length &&
-      prevParent.every((v, i) => v === currParent[i]);
-    const adjacent = currIndex === prevIndex + 1;
-
-    if (sameParent && adjacent) {
-      currentRange.push(curr);
-    } else {
-      ranges.push(currentRange);
-      currentRange = [curr];
-    }
-  }
-
-  ranges.push(currentRange);
-  return ranges;
-}
-
-/**
- * Extract text content from a range of transient text entries.
- */
-function extractRangeText(entries: TransientTextEntry[]): string {
-  return entries.map((e) => e.node.text).join('');
-}
-
-/**
- * Preprocess transient comment marks in cloned editor value.
- *
- * This function:
- * 1. Finds all text nodes with transient comment marks
- * 2. Groups consecutive nodes into ranges
- * 3. Generates a unique ID for each range
- * 4. Mutates nodes to add `comment_<id>` marks
- * 5. Returns DocxExportDiscussion entries for metadata resolution
- *
- * @param clonedValue - The cloned editor value (will be mutated)
- * @param options - Options for transient comment processing
- * @returns Array of generated discussions for transient comments
- */
-export function createDiscussionsForTransientComments(
-  clonedValue: TNode[],
-  options: {
-    /** Default author name (default: 'Draft') */
-    defaultAuthor?: string;
-    /** Key used for transient marks (default: 'commentTransient') */
-    transientKey?: string;
-  } = {}
-): DocxExportDiscussion[] {
-  const {
-    defaultAuthor = DEFAULT_TRANSIENT_AUTHOR,
-    transientKey = DEFAULT_TRANSIENT_KEY,
-  } = options;
-
-  const discussions: DocxExportDiscussion[] = [];
-  const allEntries: TransientTextEntry[] = [];
-
-  // Collect all transient text nodes
-  clonedValue.forEach((node, index) => {
-    collectTransientTextNodes(
-      node as Record<string, unknown>,
-      transientKey,
-      allEntries,
-      [index]
-    );
-  });
-
-  if (allEntries.length === 0) return discussions;
-
-  // Group into contiguous ranges
-  const ranges = groupTransientRanges(allEntries);
-
-  // Process each range
-  for (const range of ranges) {
-    const id = nanoid();
-    const text = extractRangeText(range);
-    const now = new Date();
-
-    // Mutate nodes to add comment_<id> mark
-    for (const entry of range) {
-      (entry.node as Record<string, unknown>)[`${COMMENT_KEY_PREFIX}${id}`] =
-        true;
-    }
-
-    // Create discussion entry
-    discussions.push({
-      id,
-      comments: [
-        {
-          contentRich: [{ type: 'p', children: [{ text }] }],
-          createdAt: now,
-          user: { id: 'draft', name: defaultAuthor },
-          userId: 'draft',
-        },
-      ],
-      createdAt: now,
-      documentContent: text,
-      user: { id: 'draft', name: defaultAuthor },
-      userId: 'draft',
-    });
-  }
-
-  return discussions;
 }
 
 // ============================================================================
@@ -822,54 +659,62 @@ export function injectDocxTrackingTokens(
   options: InjectDocxTrackingTokensOptions = {}
 ): TNode[] {
   const cloned = cloneValue(value);
-
-  // Preprocess transient comments if enabled
-  let mergedDiscussions = options.discussions ?? [];
-  if (options.includeTransientComments) {
-    const transientDiscussions = createDiscussionsForTransientComments(cloned, {
-      defaultAuthor: options.defaultTransientAuthor,
-      transientKey: options.transientCommentKey,
-    });
-    mergedDiscussions = [...mergedDiscussions, ...transientDiscussions];
-  }
-
-  // Create options with merged discussions
-  const resolvedOptions: InjectDocxTrackingTokensOptions = {
-    ...options,
-    discussions: mergedDiscussions,
-  };
-
   const leaves: LeafEntry[] = [];
+  const commentThreads =
+    options.commentThreads ??
+    buildCommentThreads(
+      options.discussions,
+      options.userNameMap,
+      options.nodeToString
+    );
+  const commentThreadMap = new Map<string, DocxCommentThread>();
+  commentThreads.forEach((thread) => {
+    commentThreadMap.set(thread.id, thread);
+    thread.comments.forEach((comment) => {
+      commentThreadMap.set(comment.id, thread);
+    });
+  });
 
   // Collect all leaves from all top-level nodes
   cloned.forEach((node) => {
-    collectLeaves(node as Record<string, unknown>, leaves, resolvedOptions);
+    collectLeaves(node as Record<string, unknown>, leaves, options);
   });
 
   ensureNonEmptyCommentRanges(leaves);
 
-  // Warn about discussions without text marks (can't be exported to DOCX)
-  if (mergedDiscussions.length > 0) {
-    const anchoredIds = new Set<string>();
+  const expandCommentIds = (ids: string[]): string[] => {
+    const expanded: string[] = [];
+    const seen = new Set<string>();
 
-    for (const leaf of leaves) {
-      for (const id of leaf.commentIds) {
-        anchoredIds.add(id);
-      }
-    }
+    const push = (value: string) => {
+      if (seen.has(value)) return;
+      seen.add(value);
+      expanded.push(value);
+    };
 
-    for (const disc of mergedDiscussions) {
-      if (!anchoredIds.has(disc.id) && process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `[DOCX Export] Discussion "${disc.id}" has no comment marks on text - skipping export (comments need text selection to anchor in DOCX)`
-        );
+    ids.forEach((commentId) => {
+      const thread = commentThreadMap.get(commentId);
+      if (thread) {
+        push(thread.id);
+      } else {
+        push(commentId);
       }
-    }
-  }
+    });
+
+    return expanded;
+  };
+
+  leaves.forEach((leaf) => {
+    leaf.commentIds = expandCommentIds(leaf.commentIds);
+  });
 
   // Track when each suggestion/comment first appears
   const suggestionStartOrder = new Map<string, number>();
   const commentStartOrder = new Map<string, number>();
+  const startSequence = new Map<string, number>();
+  let startSequenceCounter = 0;
+  const makeTokenKey = (kind: 'comment' | 'suggestion', id: string) =>
+    `${kind}:${id}`;
 
   // Process each leaf to inject tokens
   leaves.forEach((leaf, index) => {
@@ -901,53 +746,65 @@ export function injectDocxTrackingTokens(
     );
 
     // Record start order for proper nesting
-    startSuggestions.forEach((id) => {
-      if (!suggestionStartOrder.has(id)) {
-        suggestionStartOrder.set(id, index);
-      }
-    });
-
     startComments.forEach((id) => {
       if (!commentStartOrder.has(id)) {
         commentStartOrder.set(id, index);
       }
+      const key = makeTokenKey('comment', id);
+      if (!startSequence.has(key)) {
+        startSequence.set(key, startSequenceCounter++);
+      }
     });
 
-    // Build sorted start tokens (suggestions before comments, earlier starts first)
+    startSuggestions.forEach((id) => {
+      if (!suggestionStartOrder.has(id)) {
+        suggestionStartOrder.set(id, index);
+      }
+      const key = makeTokenKey('suggestion', id);
+      if (!startSequence.has(key)) {
+        startSequence.set(key, startSequenceCounter++);
+      }
+    });
+
+    // Build sorted start tokens (comment ranges should wrap suggestions)
     const startTokens = [
       ...startSuggestions.map((id) => ({
         id,
         kind: 'suggestion' as const,
         order: suggestionStartOrder.get(id) ?? index,
+        sequence: startSequence.get(makeTokenKey('suggestion', id)) ?? 0,
       })),
       ...startComments.map((id) => ({
         id,
         kind: 'comment' as const,
         order: commentStartOrder.get(id) ?? index,
+        sequence: startSequence.get(makeTokenKey('comment', id)) ?? 0,
       })),
-    ].sort((a, b) =>
-      a.order === b.order
-        ? a.kind === 'suggestion'
-          ? -1
-          : 1
-        : a.order - b.order
-    );
+    ].sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      if (a.sequence !== b.sequence) return a.sequence - b.sequence;
+      return a.kind === 'comment' ? -1 : 1;
+    });
 
-    // Build sorted end tokens (comments before suggestions, later ends first)
+    // Build sorted end tokens (later starts close first)
     const endTokens = [
       ...endSuggestions.map((id) => ({
         id,
         kind: 'suggestion' as const,
         order: suggestionStartOrder.get(id) ?? index,
+        sequence: startSequence.get(makeTokenKey('suggestion', id)) ?? 0,
       })),
       ...endComments.map((id) => ({
         id,
         kind: 'comment' as const,
         order: commentStartOrder.get(id) ?? index,
+        sequence: startSequence.get(makeTokenKey('comment', id)) ?? 0,
       })),
-    ].sort((a, b) =>
-      a.order === b.order ? (a.kind === 'comment' ? -1 : 1) : b.order - a.order
-    );
+    ].sort((a, b) => {
+      if (a.order !== b.order) return b.order - a.order;
+      if (a.sequence !== b.sequence) return b.sequence - a.sequence;
+      return a.kind === 'suggestion' ? -1 : 1;
+    });
 
     // Generate token strings
     const prefixTokens = startTokens
@@ -955,9 +812,13 @@ export function injectDocxTrackingTokens(
         token.kind === 'suggestion'
           ? buildResolvedSuggestionStartToken(
               leaf.suggestions.get(token.id) ?? { id: token.id },
-              resolvedOptions.userNameMap
+              options.userNameMap
             )
-          : buildResolvedCommentStartToken(token.id, resolvedOptions)
+          : buildResolvedCommentStartToken(
+              token.id,
+              options,
+              commentThreadMap
+            )
       )
       .join('');
 

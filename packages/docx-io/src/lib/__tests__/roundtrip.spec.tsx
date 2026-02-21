@@ -1,3 +1,4 @@
+/** @jsx jsx */
 /** biome-ignore-all lint/suspicious/noEvolvingTypes: test file */
 /** biome-ignore-all lint/suspicious/noImplicitAnyLet: test file */
 /** biome-ignore-all lint/suspicious/noAssignInExpressions: test file */
@@ -6,46 +7,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import {
-  BaseBlockquotePlugin,
-  BaseBoldPlugin,
-  BaseCodePlugin,
-  BaseH1Plugin,
-  BaseH2Plugin,
-  BaseH3Plugin,
-  BaseH4Plugin,
-  BaseH5Plugin,
-  BaseH6Plugin,
-  BaseHorizontalRulePlugin,
-  BaseItalicPlugin,
-  BaseStrikethroughPlugin,
-  BaseSubscriptPlugin,
-  BaseSuperscriptPlugin,
-  BaseUnderlinePlugin,
-} from '@platejs/basic-nodes';
-import { BaseTextAlignPlugin } from '@platejs/basic-styles';
-import { BaseCommentPlugin, getCommentKey } from '@platejs/comment';
+import { getCommentKey } from '@platejs/comment';
 import { cleanDocx } from '@platejs/docx';
-import { BaseLinkPlugin } from '@platejs/link';
-import { BaseListPlugin } from '@platejs/list';
-import { BaseSuggestionPlugin } from '@platejs/suggestion';
-import {
-  BaseTableCellHeaderPlugin,
-  BaseTableCellPlugin,
-  BaseTablePlugin,
-  BaseTableRowPlugin,
-} from '@platejs/table';
+import { jsx } from '@platejs/test-utils';
 import JSZip from 'jszip';
-import type { TNode, Value } from 'platejs';
-import {
-  BaseParagraphPlugin,
-  createSlateEditor,
-  KEYS,
-  NodeApi,
-  TextApi,
-} from 'platejs';
+import type { SlatePlugin, TNode, Value } from 'platejs';
+import { createSlateEditor, KEYS, NodeApi, TextApi } from 'platejs';
 import { serializeHtml } from 'platejs/static';
-import { DocxExportPlugin } from '../docx-export-plugin';
+import { BaseEditorKit } from 'www/src/registry/components/editor/editor-base-kit';
+import { DocxExportKit } from 'www/src/registry/components/editor/plugins/docx-export-kit';
 import { exportToDocx, htmlToDocxBlob } from '../docx-export-plugin';
 import type { DocxExportDiscussion } from '../exportTrackChanges';
 import {
@@ -55,36 +25,9 @@ import {
 import { mammoth, preprocessMammothHtml } from '../importDocx';
 import { searchRange } from '../searchRange';
 
-/** Minimal editor kit for roundtrip tests (no registry dependency). */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const editorPlugins: any[] = [
-  BaseParagraphPlugin,
-  BaseH1Plugin,
-  BaseH2Plugin,
-  BaseH3Plugin,
-  BaseH4Plugin,
-  BaseH5Plugin,
-  BaseH6Plugin,
-  BaseBlockquotePlugin,
-  BaseHorizontalRulePlugin,
-  BaseBoldPlugin,
-  BaseItalicPlugin,
-  BaseUnderlinePlugin,
-  BaseCodePlugin,
-  BaseStrikethroughPlugin,
-  BaseSubscriptPlugin,
-  BaseSuperscriptPlugin,
-  BaseTablePlugin.configure({ render: { as: 'table' } }),
-  BaseTableRowPlugin.configure({ render: { as: 'tr' } }),
-  BaseTableCellPlugin.configure({ render: { as: 'td' } }),
-  BaseTableCellHeaderPlugin.configure({ render: { as: 'th' } }),
-  BaseLinkPlugin.configure({ render: { as: 'a' } }),
-  BaseListPlugin,
-  BaseTextAlignPlugin,
-  BaseCommentPlugin,
-  BaseSuggestionPlugin,
-  DocxExportPlugin,
-];
+jsx;
+
+const editorPlugins = [...BaseEditorKit, ...DocxExportKit] as SlatePlugin[];
 
 const createTestEditor = (value?: Value) =>
   createSlateEditor({
@@ -103,11 +46,7 @@ const readDocxFixture = (filename: string): Buffer => {
 };
 
 const readMammothFixture = (filename: string): Buffer => {
-  // Mammoth test fixtures live in the mammoth npm package
-  const docxTestDir = path.resolve(
-    require.resolve('mammoth/package.json'),
-    '../test/test-data'
-  );
+  const docxTestDir = path.resolve(__dirname, '../mammoth.js/test/test-data');
   const filepath = path.join(docxTestDir, `${filename}.docx`);
 
   return fs.readFileSync(filepath);
@@ -254,8 +193,7 @@ describe('docx roundtrip', () => {
     // Note: nodesD won't equal nodesB due to mark/linebreak loss
   });
 
-  // NOTE: Skipped - requires mammoth npm package test fixtures not in vendored fork
-  it.skip('should roundtrip comments without ref tokens and with non-empty ranges', async () => {
+  it('should roundtrip comments without ref tokens and with non-empty ranges', async () => {
     const buffer = readMammothFixture('comments');
     const editor = createTestEditor();
 
@@ -355,335 +293,5 @@ describe('docx roundtrip', () => {
       const between = docXml.slice(match.index, endIndex);
       expect(between).toMatch(/<w:t\b|<w:delText\b|<w:ins\b|<w:del\b/);
     }
-  });
-
-  it('should contain all 5 comment XML files in exported DOCX ZIP', async () => {
-    // Create editor value with a comment mark
-    const discussionId = 'disc-1';
-    const value: Value = [
-      {
-        type: 'p',
-        children: [
-          {
-            text: 'Hello commented world',
-            [`comment_${discussionId}`]: true,
-          },
-        ],
-      },
-    ];
-
-    // Discussion with 1 parent comment + 1 reply
-    const docxDiscussions: DocxExportDiscussion[] = [
-      {
-        id: discussionId,
-        comments: [
-          {
-            contentRich: [
-              { type: 'p', children: [{ text: 'Parent comment' }] },
-            ],
-            createdAt: new Date('2025-01-01T00:00:00Z'),
-            userId: 'user-1',
-            user: { id: 'user-1', name: 'Alice' },
-          },
-          {
-            contentRich: [{ type: 'p', children: [{ text: 'Reply comment' }] }],
-            createdAt: new Date('2025-01-01T01:00:00Z'),
-            userId: 'user-2',
-            user: { id: 'user-2', name: 'Bob' },
-          },
-        ],
-        createdAt: new Date('2025-01-01T00:00:00Z'),
-        documentContent: 'Hello commented world',
-        userId: 'user-1',
-        user: { id: 'user-1', name: 'Alice' },
-      },
-    ];
-
-    const exportBlob = await exportToDocx(value, {
-      editorPlugins,
-      tracking: {
-        discussions: docxDiscussions,
-        nodeToString: (node: unknown) => {
-          try {
-            return NodeApi.string(node as Parameters<typeof NodeApi.string>[0]);
-          } catch {
-            return '';
-          }
-        },
-      },
-    });
-
-    const zip = await loadZipFromBlob(exportBlob);
-
-    const expectedFiles = [
-      'word/comments.xml',
-      'word/commentsExtended.xml',
-      'word/commentsIds.xml',
-      'word/commentsExtensible.xml',
-      'word/people.xml',
-    ];
-
-    for (const filePath of expectedFiles) {
-      expect(
-        zip.file(filePath),
-        `Expected ZIP to contain ${filePath}`
-      ).not.toBeNull();
-    }
-  });
-
-  it('should produce people.xml with unique authors only', async () => {
-    // Build a minimal editor value with a comment mark on "Hello"
-    const value: Value = [
-      {
-        type: 'p',
-        children: [{ text: 'Hello', comment_disc1: true }, { text: ' world' }],
-      },
-    ];
-
-    // Discussion: parent by Alice, reply by Bob
-    const docxDiscussions: DocxExportDiscussion[] = [
-      {
-        id: 'disc1',
-        userId: 'alice-id',
-        user: { id: 'alice-id', name: 'Alice' },
-        createdAt: new Date('2026-01-01T00:00:00Z'),
-        documentContent: 'Hello',
-        comments: [
-          {
-            userId: 'alice-id',
-            user: { id: 'alice-id', name: 'Alice' },
-            createdAt: new Date('2026-01-01T00:00:00Z'),
-            contentRich: [
-              { type: 'p', children: [{ text: 'Parent comment' }] },
-            ],
-          },
-          {
-            userId: 'bob-id',
-            user: { id: 'bob-id', name: 'Bob' },
-            createdAt: new Date('2026-01-01T00:01:00Z'),
-            contentRich: [{ type: 'p', children: [{ text: 'Reply comment' }] }],
-          },
-        ],
-      },
-    ];
-
-    const exportBlob = await exportToDocx(value, {
-      editorPlugins,
-      tracking: {
-        discussions: docxDiscussions,
-        nodeToString: (node: unknown) => {
-          try {
-            return NodeApi.string(node as Parameters<typeof NodeApi.string>[0]);
-          } catch {
-            return '';
-          }
-        },
-      },
-    });
-
-    const zip = await loadZipFromBlob(exportBlob);
-    const peopleFile = zip.file('word/people.xml');
-
-    expect(peopleFile).not.toBeNull();
-
-    const peopleXml = await peopleFile!.async('string');
-
-    // Extract all <w15:person> elements with their w15:author attributes
-    const personRegex = /<w15:person\b[^>]*w15:author="([^"]*)"/g;
-    const authors: string[] = [];
-    let personMatch;
-
-    while ((personMatch = personRegex.exec(peopleXml)) !== null) {
-      authors.push(personMatch[1]);
-    }
-
-    // Exactly 2 unique authors: Alice and Bob
-    expect(authors).toHaveLength(2);
-    expect(authors).toContain('Alice');
-    expect(authors).toContain('Bob');
-
-    // Verify uniqueness -- no duplicates
-    const uniqueAuthors = [...new Set(authors)];
-    expect(uniqueAuthors).toHaveLength(authors.length);
-  });
-
-  it('should export commentsExtended.xml with correct paraIdParent linking for replies', async () => {
-    // Create editor value with a comment mark on text
-    const discussionId = 'disc-parent-reply';
-    const value: Value = [
-      {
-        type: 'p',
-        children: [
-          {
-            text: 'Hello world with comment',
-            [`comment_${discussionId}`]: true,
-          },
-        ],
-      },
-    ];
-
-    // Discussion with parent comment (comments[0]) and a reply (comments[1])
-    const discussions: DocxExportDiscussion[] = [
-      {
-        id: discussionId,
-        comments: [
-          {
-            contentRich: [
-              { type: 'p', children: [{ text: 'Parent comment' }] },
-            ],
-            createdAt: new Date('2024-01-01T00:00:00Z'),
-            user: { id: 'user1', name: 'Alice' },
-            userId: 'user1',
-          },
-          {
-            contentRich: [
-              { type: 'p', children: [{ text: 'Reply to parent' }] },
-            ],
-            createdAt: new Date('2024-01-01T01:00:00Z'),
-            user: { id: 'user2', name: 'Bob' },
-            userId: 'user2',
-          },
-        ],
-        createdAt: new Date('2024-01-01T00:00:00Z'),
-        documentContent: 'Hello world with comment',
-        user: { id: 'user1', name: 'Alice' },
-        userId: 'user1',
-      },
-    ];
-
-    const exportBlob = await exportToDocx(value, {
-      editorPlugins,
-      tracking: {
-        discussions,
-        nodeToString: (node: unknown) => {
-          try {
-            return NodeApi.string(node as Parameters<typeof NodeApi.string>[0]);
-          } catch {
-            return '';
-          }
-        },
-      },
-    });
-
-    const zip = await loadZipFromBlob(exportBlob);
-
-    // commentsExtended.xml must exist
-    const commentsExtFile = zip.file('word/commentsExtended.xml');
-    expect(commentsExtFile).not.toBeNull();
-
-    const commentsExtXml = await commentsExtFile!.async('string');
-
-    // Parse all w15:commentEx elements (self-closing or with body)
-    const commentExRegex = /<w15:commentEx[^/>]*\/?>/g;
-    const commentExElements: string[] = [];
-    let ceMatch;
-
-    while ((ceMatch = commentExRegex.exec(commentsExtXml)) !== null) {
-      commentExElements.push(ceMatch[0]);
-    }
-
-    // Should have at least 2 commentEx elements (parent + reply)
-    expect(commentExElements.length).toBeGreaterThanOrEqual(2);
-
-    // Helper: extract an attribute value from an XML element string
-    const parseAttr = (el: string, attr: string): string | null => {
-      const attrRegex = new RegExp(`${attr}="([^"]+)"`);
-      const m = attrRegex.exec(el);
-      return m ? m[1] : null;
-    };
-
-    // Find the parent commentEx (has w15:paraId but NO w15:paraIdParent)
-    const parentElements = commentExElements.filter(
-      (el) => parseAttr(el, 'w15:paraId') && !parseAttr(el, 'w15:paraIdParent')
-    );
-    expect(parentElements.length).toBeGreaterThanOrEqual(1);
-
-    const parentParaId = parseAttr(parentElements[0], 'w15:paraId');
-    expect(parentParaId).toBeTruthy();
-
-    // Find the reply commentEx (has w15:paraIdParent matching parent's w15:paraId)
-    const replyElements = commentExElements.filter(
-      (el) => parseAttr(el, 'w15:paraIdParent') === parentParaId
-    );
-    expect(replyElements.length).toBeGreaterThanOrEqual(1);
-
-    // Reply must also have its own paraId
-    const replyParaId = parseAttr(replyElements[0], 'w15:paraId');
-    expect(replyParaId).toBeTruthy();
-
-    // Parent and reply paraIds must be different
-    expect(replyParaId).not.toBe(parentParaId);
-  });
-
-  it('should round-trip comment date through export', async () => {
-    const inputDate = '2025-01-15T10:30:00Z';
-    const discussionId = 'date-roundtrip-disc';
-
-    const value: Value = [
-      {
-        type: 'p',
-        children: [
-          { text: 'Before ' },
-          { text: 'dated comment', [`comment_${discussionId}`]: true },
-          { text: ' after.' },
-        ],
-      },
-    ];
-
-    const discussions: DocxExportDiscussion[] = [
-      {
-        id: discussionId,
-        comments: [
-          {
-            contentRich: [
-              { type: 'p', children: [{ text: 'Comment with date' }] },
-            ],
-            createdAt: inputDate,
-            user: { id: 'user-1', name: 'Test User' },
-            userId: 'user-1',
-          },
-        ],
-        createdAt: inputDate,
-        documentContent: 'dated comment',
-        user: { id: 'user-1', name: 'Test User' },
-        userId: 'user-1',
-      },
-    ];
-
-    const exportBlob = await exportToDocx(value, {
-      editorPlugins,
-      tracking: {
-        discussions,
-        nodeToString: (node: unknown) => {
-          try {
-            return NodeApi.string(node as Parameters<typeof NodeApi.string>[0]);
-          } catch {
-            return '';
-          }
-        },
-      },
-    });
-
-    const zip = await loadZipFromBlob(exportBlob);
-    const commentsFile = zip.file('word/comments.xml');
-    expect(commentsFile).not.toBeNull();
-
-    const commentsXml = await commentsFile!.async('string');
-
-    // Extract all w:date attributes from w:comment elements
-    const commentDateRegex = /<w:comment[^>]*w:date="([^"]*)"/g;
-    const dates: string[] = [];
-    let dateMatch;
-
-    while ((dateMatch = commentDateRegex.exec(commentsXml)) !== null) {
-      dates.push(dateMatch[1]);
-    }
-
-    expect(dates.length).toBeGreaterThan(0);
-
-    // Verify the exported date represents the same instant as input (may differ in tz offset)
-    const inputMs = new Date(inputDate).getTime();
-    const matchesInstant = dates.some((d) => new Date(d).getTime() === inputMs);
-    expect(matchesInstant).toBe(true);
   });
 });

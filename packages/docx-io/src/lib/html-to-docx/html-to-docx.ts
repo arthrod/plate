@@ -12,13 +12,10 @@ import VText from 'virtual-dom/vnode/vtext';
 import { create } from 'xmlbuilder2';
 
 import {
-  commentsExtendedRelationshipType,
-  commentsExtendedType,
-  commentsExtensibleRelationshipType,
-  commentsExtensibleType,
-  commentsIdsRelationshipType,
-  commentsIdsType,
   commentsType,
+  commentsExtendedType,
+  commentsExtensibleType,
+  commentsIdsType,
   defaultDocumentOptions,
   defaultHTMLString,
   documentFileName,
@@ -27,8 +24,6 @@ import {
   headerFileName,
   headerType,
   internalRelationship,
-  peopleRelationshipType,
-  peopleType,
   relsFolderName,
   themeFileName,
   themeFolder,
@@ -58,6 +53,7 @@ interface VTree {
 }
 
 interface NormalizedDocumentOptions {
+  commentThreads?: DocumentOptions['commentThreads'];
   complexScriptFontSize?: number | null;
   createdAt?: Date;
   creator?: string;
@@ -218,6 +214,8 @@ const normalizeDocumentOptions = (
   const result: NormalizedDocumentOptions = {};
 
   // Copy over non-transformed properties
+  if (documentOptions.commentThreads !== undefined)
+    result.commentThreads = documentOptions.commentThreads;
   if (documentOptions.createdAt !== undefined)
     result.createdAt = documentOptions.createdAt;
   if (documentOptions.creator !== undefined)
@@ -342,6 +340,24 @@ async function addFilesToContainer(
       'comments.xml',
       internalRelationship
     );
+    docxDocument.createDocumentRelationships(
+      documentFileName,
+      commentsExtendedType,
+      'commentsExtended.xml',
+      internalRelationship
+    );
+    docxDocument.createDocumentRelationships(
+      documentFileName,
+      commentsIdsType,
+      'commentsIds.xml',
+      internalRelationship
+    );
+    docxDocument.createDocumentRelationships(
+      documentFileName,
+      commentsExtensibleType,
+      'commentsExtensible.xml',
+      internalRelationship
+    );
   }
 
   zip.folder(relsFolderName)!.file(
@@ -446,59 +462,36 @@ async function addFilesToContainer(
       createFolders: false,
     });
 
-  // Add comment-related XML files if there are comments
+  // Add comments.xml if there are comments
   if (docxDocument.comments.length > 0) {
     zip
       .folder(wordFolder)!
       .file('comments.xml', docxDocument.generateCommentsXML(), {
         createFolders: false,
-      })
+      });
+    zip
+      .folder(wordFolder)!
       .file(
         'commentsExtended.xml',
         docxDocument.generateCommentsExtendedXML(),
         {
           createFolders: false,
         }
-      )
+      );
+    zip
+      .folder(wordFolder)!
       .file('commentsIds.xml', docxDocument.generateCommentsIdsXML(), {
         createFolders: false,
-      })
+      });
+    zip
+      .folder(wordFolder)!
       .file(
         'commentsExtensible.xml',
         docxDocument.generateCommentsExtensibleXML(),
         {
           createFolders: false,
         }
-      )
-      .file('people.xml', docxDocument.generatePeopleXML(), {
-        createFolders: false,
-      });
-
-    // Add relationships for the 4 new comment-related files
-    docxDocument.createDocumentRelationships(
-      documentFileName,
-      commentsExtendedType,
-      'commentsExtended.xml',
-      internalRelationship
-    );
-    docxDocument.createDocumentRelationships(
-      documentFileName,
-      commentsIdsType,
-      'commentsIds.xml',
-      internalRelationship
-    );
-    docxDocument.createDocumentRelationships(
-      documentFileName,
-      commentsExtensibleType,
-      'commentsExtensible.xml',
-      internalRelationship
-    );
-    docxDocument.createDocumentRelationships(
-      documentFileName,
-      peopleType,
-      'people.xml',
-      internalRelationship
-    );
+      );
   }
 
   const relationshipXMLs = docxDocument.generateRelsXML();

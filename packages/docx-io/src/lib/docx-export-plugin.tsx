@@ -33,7 +33,6 @@
 'use client';
 
 import type { SlatePlugin, Value } from 'platejs';
-import juice from 'juice';
 import { createSlateEditor, createSlatePlugin } from 'platejs';
 import type { PlateStaticProps, SerializeHtmlOptions } from 'platejs/static';
 import { serializeHtml } from 'platejs/static';
@@ -42,8 +41,10 @@ import type { DocumentMargins } from './html-to-docx';
 
 import { htmlToDocxBlob } from './exportDocx';
 import {
+  buildCommentThreads,
   buildUserNameMap,
   injectDocxTrackingTokens,
+  type DocxCommentThread,
   type DocxExportDiscussion,
   type InjectDocxTrackingTokensOptions,
 } from './exportTrackChanges';
@@ -187,6 +188,12 @@ export type DocxTrackingExportOptions = {
    * Used for extracting comment text from rich content.
    */
   nodeToString?: InjectDocxTrackingTokensOptions['nodeToString'];
+
+  /**
+   * Optional user name map for resolving suggestion authors.
+   * Merged with discussions-derived names (explicit map wins).
+   */
+  userNameMap?: Map<string, string>;
 };
 
 /**
@@ -456,10 +463,20 @@ async function exportToDocxInternal(
 
   // Process tracking tokens if enabled
   let processedValue: Value = value;
+  let commentThreads: DocxCommentThread[] | undefined;
 
   if (tracking) {
-    const userNameMap = buildUserNameMap(tracking.discussions);
+    const discussionUserMap = buildUserNameMap(tracking.discussions);
+    const userNameMap = tracking.userNameMap
+      ? new Map([...discussionUserMap, ...tracking.userNameMap])
+      : discussionUserMap;
+    commentThreads = buildCommentThreads(
+      tracking.discussions,
+      userNameMap,
+      tracking.nodeToString
+    );
     processedValue = injectDocxTrackingTokens(value, {
+      commentThreads,
       discussions: tracking.discussions,
       getCommentIds: tracking.getCommentIds,
       getSuggestions: tracking.getSuggestions,
@@ -480,17 +497,9 @@ async function exportToDocxInternal(
   // Wrap in complete HTML document
   const fullHtml = wrapHtmlForDocx(bodyHtml, customStyles);
 
-  // Inline CSS styles using juice for DOCX compatibility
-  // html-to-docx only reads inline style="" attributes, so CSS <style> blocks
-  // (e.g. table borders, backgrounds) must be inlined first.
-  const inlinedHtml = juice(fullHtml, {
-    removeStyleTags: false,
-    preserveMediaQueries: false,
-    preserveFontFaces: false,
-  });
-
   // Convert to DOCX using browser-compatible implementation
-  const blob = await htmlToDocxBlob(inlinedHtml, {
+  const blob = await htmlToDocxBlob(fullHtml, {
+    commentThreads: tracking ? commentThreads : undefined,
     margins: {
       ...DEFAULT_DOCX_MARGINS,
       ...margins,

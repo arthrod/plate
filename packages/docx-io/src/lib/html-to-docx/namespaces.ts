@@ -20,6 +20,14 @@ export type OoxmlNamespaces = {
   dcterms: string;
   /** Comments relationship namespace */
   comments: string;
+  /** Comments extended relationship namespace */
+  commentsExtended: string;
+  /** Comments IDs relationship namespace */
+  commentsIds: string;
+  /** Comments extensible relationship namespace */
+  commentsExtensible: string;
+  /** People relationship namespace */
+  people: string;
   /** Font table relationship namespace */
   fontTable: string;
   /** Footer relationship namespace */
@@ -32,6 +40,8 @@ export type OoxmlNamespaces = {
   images: string;
   /** Math namespace */
   m: string;
+  /** Markup compatibility namespace */
+  mc: string;
   /** Numbering relationship namespace */
   numbering: string;
   /** Office namespace */
@@ -66,9 +76,9 @@ export type OoxmlNamespaces = {
   w14: string;
   /** Word 2012 WordML namespace */
   w15: string;
-  /** Word 2016 WordML comment IDs namespace */
+  /** Word 2016 comment ID namespace */
   w16cid: string;
-  /** Word 2018 WordML comment extensible namespace */
+  /** Word 2018 comment extensible namespace */
   w16cex: string;
   /** Web settings relationship namespace */
   webSettingsRelation: string;
@@ -96,6 +106,13 @@ const namespaces: OoxmlNamespaces = {
   dcterms: 'http://purl.org/dc/terms/',
   comments:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments',
+  commentsExtended:
+    'http://schemas.microsoft.com/office/2011/relationships/commentsExtended',
+  commentsIds:
+    'http://schemas.microsoft.com/office/2016/09/relationships/commentsIds',
+  commentsExtensible:
+    'http://schemas.microsoft.com/office/2018/08/relationships/commentsExtensible',
+  people: 'http://schemas.microsoft.com/office/2011/relationships/people',
   fontTable:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
   footers:
@@ -107,6 +124,7 @@ const namespaces: OoxmlNamespaces = {
   images:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
   m: 'http://schemas.openxmlformats.org/officeDocument/2006/math',
+  mc: 'http://schemas.openxmlformats.org/markup-compatibility/2006',
   numbering:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
   o: 'urn:schemas-microsoft-com:office:office',

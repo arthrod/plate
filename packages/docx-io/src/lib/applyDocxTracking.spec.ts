@@ -1,16 +1,15 @@
 import { describe, expect, it, mock } from 'bun:test';
 
 import {
-  applyAllTracking,
-  applyTrackedComments,
-  applyTrackedCommentsLocal,
-  type DocxImportComment,
-} from './importComments';
-import {
   applyTrackedChangeSuggestions,
   type TrackingEditor,
   type TRange,
 } from './importTrackChanges';
+import {
+  applyAllTracking,
+  applyTrackedComments,
+  type DocxImportComment,
+} from './importComments';
 import type { DocxTrackedChange } from './types';
 
 // Mock editor factory
@@ -473,63 +472,6 @@ describe('applyDocxTracking', () => {
       );
     });
 
-    it('handles null ranges during cleanup', async () => {
-      const refs: Array<{
-        current: TRange | null;
-        unref: () => TRange | null;
-      }> = [];
-      const editor: TrackingEditor = {
-        api: {
-          string: mock(() => 'sample text'),
-          rangeRef: (range: TRange) => {
-            const ref = { current: range, unref: mock(() => range) };
-            refs.push(ref);
-            return ref;
-          },
-        },
-        tf: {
-          setNodes: mock(() => {}),
-          delete: mock(() => {}),
-          withMerging: mock((fn: () => void) => {
-            fn();
-            refs.forEach((ref) => {
-              ref.current = null;
-            });
-          }),
-        },
-        setOption: mock(() => {}),
-      };
-
-      const comments: DocxImportComment[] = [
-        {
-          id: 'cmt-1',
-          text: 'Test comment',
-          startToken: '[[CMT_START:1]]',
-          endToken: '[[CMT_END:1]]',
-          hasStartToken: true,
-          hasEndToken: true,
-        },
-      ];
-
-      const result = await applyTrackedComments({
-        editor,
-        comments,
-        searchRange: createMockSearchRange(),
-        documentId: 'doc-1',
-        createDiscussionWithComment: {
-          mutateAsync: mock(async () => ({ id: 'disc-1' })),
-        },
-        commentKey: 'comment',
-        getCommentKey: (id) => `comment_${id}`,
-        isText: () => true,
-      });
-
-      expect(result.created).toBe(1);
-      expect(result.errors).toEqual([]);
-      expect(editor.tf.setNodes).toHaveBeenCalled();
-      expect(editor.tf.delete).not.toHaveBeenCalled();
-    });
-
     it('skips comment with no tokens found', async () => {
       const editor = createMockEditor();
       const tokenMap = new Map<string, TRange | null>();
@@ -874,60 +816,6 @@ describe('applyDocxTracking', () => {
       expect(result.errors[0]).toContain('Comment error');
     });
 
-    it('unrefs rangeRefs when create discussion fails', async () => {
-      const startUnref = mock(() => null);
-      const endUnref = mock(() => null);
-      let rangeRefCalls = 0;
-
-      const editor: TrackingEditor = {
-        api: {
-          string: mock(() => 'sample text'),
-          rangeRef: (range: TRange) => {
-            rangeRefCalls += 1;
-            return {
-              current: range,
-              unref: rangeRefCalls === 1 ? startUnref : endUnref,
-            };
-          },
-        },
-        tf: {
-          setNodes: mock(() => {}),
-          delete: mock(() => {}),
-          withMerging: mock((fn: () => void) => fn()),
-        },
-      };
-
-      const comments: DocxImportComment[] = [
-        {
-          id: 'cmt-1',
-          text: 'Test',
-          startToken: '[[CMT_START:1]]',
-          endToken: '[[CMT_END:1]]',
-          hasStartToken: true,
-          hasEndToken: true,
-        },
-      ];
-
-      const result = await applyTrackedComments({
-        editor,
-        comments,
-        searchRange: createMockSearchRange(),
-        documentId: 'doc-1',
-        createDiscussionWithComment: {
-          mutateAsync: mock(async () => {
-            throw new Error('API fail');
-          }),
-        },
-        commentKey: 'comment',
-        getCommentKey: (id) => `comment_${id}`,
-        isText: () => true,
-      });
-
-      expect(result.errors.length).toBe(1);
-      expect(startUnref).toHaveBeenCalledTimes(1);
-      expect(endUnref).toHaveBeenCalledTimes(1);
-    });
-
     it('handles non-Error exceptions in comments', async () => {
       const editor: TrackingEditor = {
         api: {
@@ -1001,41 +889,6 @@ describe('applyDocxTracking', () => {
           contentRich: undefined,
         })
       );
-    });
-  });
-
-  describe('applyTrackedCommentsLocal', () => {
-    it('removes reply tokens without creating discussions', () => {
-      const editor = createMockEditor();
-
-      const comments: DocxImportComment[] = [
-        {
-          id: 'cmt-reply',
-          text: 'Reply text',
-          startToken: '[[CMT_START:reply]]',
-          endToken: '[[CMT_END:reply]]',
-          hasStartToken: true,
-          hasEndToken: true,
-          parentParaId: 'parent-para-1',
-        },
-      ];
-
-      const result = applyTrackedCommentsLocal({
-        editor,
-        comments,
-        searchRange: createMockSearchRange(),
-        commentKey: 'comment',
-        getCommentKey: (id) => `comment_${id}`,
-        isText: () => true,
-        generateId: () => 'discussion-1',
-        documentDate: new Date(),
-      });
-
-      expect(result.applied).toBe(0);
-      expect(result.discussions).toEqual([]);
-      expect(result.errors).toEqual([]);
-      expect(editor.tf.setNodes).not.toHaveBeenCalled();
-      expect(editor.tf.delete).toHaveBeenCalledTimes(2);
     });
   });
 

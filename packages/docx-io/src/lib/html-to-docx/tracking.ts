@@ -27,29 +27,13 @@ export interface SuggestionPayload {
   date?: string;
 }
 
-/** Payload for a single comment reply */
-export interface CommentReply {
-  id: string;
-  authorName?: string;
-  authorInitials?: string;
-  date?: string;
-  /** OOXML paraId for round-trip threading fidelity */
-  paraId?: string;
-  text?: string;
-}
-
 /** Payload for comment tokens */
 export interface CommentPayload {
   id: string;
   authorName?: string;
   authorInitials?: string;
   date?: string;
-  /** OOXML paraId for round-trip threading fidelity */
-  paraId?: string;
-  /** OOXML parentParaId for round-trip threading fidelity */
-  parentParaId?: string;
   text?: string;
-  replies?: CommentReply[];
 }
 
 /** Parsed token from text */
@@ -78,18 +62,15 @@ export interface StoredComment {
   authorInitials: string;
   date?: string;
   text: string;
-  /** 8-char uppercase hex ID < 0x7FFFFFFF, links comments.xml <-> commentsExtended.xml <-> commentsIds.xml */
-  paraId: string;
-  /** 8-char uppercase hex ID < 0x7FFFFFFF, links commentsIds.xml <-> commentsExtensible.xml */
-  durableId: string;
-  /** paraId of parent comment; present only on replies */
+  paraId?: string;
   parentParaId?: string;
+  durableId?: string;
+  done?: boolean;
 }
 
 /** Tracking state maintained during document generation */
 export interface TrackingState {
   suggestionStack: ActiveSuggestion[];
-  replyIdsByParent: Map<string, string[]>;
 }
 
 /** Interface for document instance with tracking support */
@@ -100,38 +81,9 @@ export interface TrackingDocumentInstance {
   lastCommentId: number;
   revisionIdMap: Map<string, number>;
   lastRevisionId: number;
-  ensureComment: (
-    data: Partial<CommentPayload>,
-    parentParaId?: string
-  ) => number;
+  ensureComment: (data: Partial<CommentPayload>) => number;
   getCommentId: (id: string) => number;
   getRevisionId: (id?: string) => number;
-}
-
-// ============================================================================
-// Hex ID Generation (OOXML spec: 8-char uppercase hex < 0x7FFFFFFF)
-// ============================================================================
-
-/** Document-wide set of allocated hex IDs to ensure uniqueness (per R12). */
-export const allocatedIds = new Set<string>();
-
-/** Reset allocated IDs between documents. */
-export function resetAllocatedIds(): void {
-  allocatedIds.clear();
-}
-
-/** Generate a unique 8-char uppercase hex ID < 0x7FFFFFFF per OOXML spec. */
-export function generateHexId(): string {
-  let id: string;
-
-  do {
-    const val = Math.floor(Math.random() * 0x7f_ff_ff_fe) + 1;
-    id = val.toString(16).toUpperCase().padStart(8, '0');
-  } while (allocatedIds.has(id));
-
-  allocatedIds.add(id);
-
-  return id;
 }
 
 // ============================================================================
@@ -242,24 +194,6 @@ export function hasTrackingTokens(text: string): boolean {
   return tokenRegex.test(text);
 }
 
-/**
- * Collect all tracking token strings from text.
- */
-export function findDocxTrackingTokens(text: string): string[] {
-  const tokens: string[] = [];
-  const tokenRegex = new RegExp(DOCX_TOKEN_REGEX);
-  // biome-ignore lint/suspicious/noEvolvingTypes: regex exec result type
-  // biome-ignore lint/suspicious/noImplicitAnyLet: regex exec result type
-  let match;
-
-  // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex loop
-  while ((match = tokenRegex.exec(text)) !== null) {
-    tokens.push(match[0]);
-  }
-
-  return tokens;
-}
-
 // ============================================================================
 // Tracking State Management
 // ============================================================================
@@ -273,7 +207,6 @@ export function ensureTrackingState(
   if (!docxDocumentInstance._trackingState) {
     docxDocumentInstance._trackingState = {
       suggestionStack: [],
-      replyIdsByParent: new Map(),
     };
   }
   return docxDocumentInstance._trackingState;
@@ -329,12 +262,20 @@ export function buildCommentRangeEnd(id: number): XMLBuilder {
  * Build a comment reference run (appears after commentRangeEnd).
  */
 export function buildCommentReferenceRun(id: number): XMLBuilder {
-  return fragment({ namespaceAlias: { w: namespaces.w } })
-    .ele('@w', 'r')
-    .ele('@w', 'commentReference')
-    .att('@w', 'id', String(id))
+  const root = fragment({ namespaceAlias: { w: namespaces.w } });
+  const run = root.ele('@w', 'r');
+
+  run
+    .ele('@w', 'rPr')
+    .ele('@w', 'rStyle')
+    .att('@w', 'val', 'CommentReference')
     .up()
     .up();
+
+  run.ele('@w', 'commentReference').att('@w', 'id', String(id)).up();
+  run.up();
+
+  return root;
 }
 
 /**

@@ -500,58 +500,14 @@ const buildRunsFromTextWithTokens = (
 
     if (part.type === 'commentStart') {
       const data = part.data;
-      // Register parent comment
-      const parentCommentId = docxDocumentInstance.ensureComment({
+      const commentId = docxDocumentInstance.ensureComment({
         id: data.id,
         authorName: data.authorName,
         authorInitials: data.authorInitials,
         date: data.date,
-        paraId: data.paraId,
         text: data.text,
       });
-      fragments.push(buildCommentRangeStart(parentCommentId));
-
-      // Register and anchor reply comments
-      if (
-        data.replies &&
-        data.replies.length > 0 &&
-        docxDocumentInstance.comments &&
-        docxDocumentInstance.ensureComment
-      ) {
-        // Find parent's paraId for threading
-        const parentComment = docxDocumentInstance.comments.find(
-          (c) => c.id === parentCommentId
-        );
-        const parentParaId = parentComment?.paraId;
-
-        data.replies.forEach((reply, idx) => {
-          const replyId = reply.id
-            ? `${data.id}-reply-${reply.id}`
-            : `${data.id}-reply-${idx}`;
-
-          // Track reply ID associated with this parent
-          const existingReplies =
-            trackingState.replyIdsByParent.get(data.id) ?? [];
-          if (!existingReplies.includes(replyId)) {
-            existingReplies.push(replyId);
-            trackingState.replyIdsByParent.set(data.id, existingReplies);
-          }
-
-          const replyCommentId = docxDocumentInstance.ensureComment!(
-            {
-              id: replyId,
-              authorName: reply.authorName,
-              authorInitials: reply.authorInitials,
-              date: reply.date,
-              paraId: reply.paraId,
-              text: reply.text,
-            },
-            parentParaId
-          );
-          // Reply commentRangeStart anchored after parent's
-          fragments.push(buildCommentRangeStart(replyCommentId));
-        });
-      }
+      fragments.push(buildCommentRangeStart(commentId));
       continue;
     }
 
@@ -559,43 +515,6 @@ const buildRunsFromTextWithTokens = (
       const commentId = docxDocumentInstance.getCommentId(part.id);
       fragments.push(buildCommentRangeEnd(commentId));
       fragments.push(buildCommentReferenceRun(commentId));
-
-      // Emit range end + reference for reply comments
-      const replyIds: number[] = [];
-      const trackedReplies = trackingState.replyIdsByParent.get(part.id) || [];
-
-      if (docxDocumentInstance.commentIdMap) {
-        // First try to use explicitly tracked reply IDs
-        if (trackedReplies.length > 0) {
-          for (const replyKey of trackedReplies) {
-            const numId = docxDocumentInstance.commentIdMap.get(replyKey);
-            if (numId !== undefined) {
-              replyIds.push(numId);
-            }
-          }
-        } else {
-          // Fallback to legacy prefix scan if no tracked replies found (backward compatibility)
-          for (const [
-            key,
-            numId,
-          ] of docxDocumentInstance.commentIdMap.entries()) {
-            if (key.startsWith(`${part.id}-reply-`)) {
-              replyIds.push(numId);
-            }
-          }
-        }
-      }
-      // Sort to preserve insertion order (though trackedReplies order should be preserved)
-      // If we used trackedReplies, they are already in insertion order, but sorting by numeric ID
-      // is usually safe if IDs are allocated sequentially. However, trackedReplies order is more reliable.
-      // If we used trackedReplies, let's trust that order. If we used fallback, we sort.
-      if (trackedReplies.length === 0) {
-        replyIds.sort((a, b) => a - b);
-      }
-      for (const replyNumId of replyIds) {
-        fragments.push(buildCommentRangeEnd(replyNumId));
-        fragments.push(buildCommentReferenceRun(replyNumId));
-      }
       continue;
     }
 
@@ -791,11 +710,13 @@ const modifiedStyleAttributesBuilder = (
       modifiedAttributes.color = fixupColorCode(style.color);
     }
 
-    const backgroundColor =
-      style['background-color'] ??
-      (style as Record<string, string>).backgroundColor;
-    if (backgroundColor && !colorlessColors.includes(backgroundColor)) {
-      modifiedAttributes.backgroundColor = fixupColorCode(backgroundColor);
+    if (
+      style['background-color'] &&
+      !colorlessColors.includes(style['background-color'])
+    ) {
+      modifiedAttributes.backgroundColor = fixupColorCode(
+        style['background-color']
+      );
     }
 
     if (
@@ -2376,11 +2297,10 @@ const buildTableCell = async (
       }
     }
   } else {
-    const paragraphFragment = await buildParagraph(
-      vNode,
-      paragraphAttributes,
-      docxDocumentInstance
-    );
+    // TODO: Figure out why building with buildParagraph() isn't working
+    const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+      .ele('@w', 'p')
+      .up();
     tableCellFragment.import(paragraphFragment);
   }
   tableCellFragment.up();

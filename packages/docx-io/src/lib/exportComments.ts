@@ -19,9 +19,7 @@ export type {
 // Re-export utility functions useful for comments
 export {
   buildUserNameMap,
-  createDiscussionsForTransientComments,
   normalizeDate,
-  normalizeDateUtc,
   toInitials,
 } from './exportTrackChanges';
 
