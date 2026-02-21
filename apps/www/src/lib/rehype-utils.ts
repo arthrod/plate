@@ -343,7 +343,10 @@ async function getAllItemFiles(
       isShadcn || isDependencyShadcn
     );
     if (depFiles.length > 0) {
-      allFiles.push(...depFiles);
+      // Use loop to avoid stack overflow with large dependency trees
+      for (const file of depFiles) {
+        allFiles.push(file);
+      }
     }
   }
 
