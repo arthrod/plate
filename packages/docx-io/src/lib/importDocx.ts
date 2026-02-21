@@ -14,12 +14,11 @@
  * 2. Parse tokens using parseDocxTrackedChanges/parseDocxComments
  * 3. Deserialize HTML to editor nodes
  * 4. Apply tracked changes and comments to editor
+ *
+ * Runtime Compatibility:
+ * - Node.js: Uses mammoth.js CommonJS library (dynamically imported at runtime)
+ * - Browser: Requires mammoth to be provided by the browser environment
  */
-
-// Local mammoth.js fork ESM build
-// Uses ESM wrapper that provides Node.js and browser compatibility
-// @ts-expect-error - mammoth.js/lib/index.js is CommonJS, but works via dynamic import at runtime
-import mammothModule from './mammoth.js/dist/esm/index.browser.js';
 
 // ============================================================================
 // Mammoth Types and Export
@@ -43,8 +42,72 @@ type MammothModule = {
   MammothMessage: unknown;
 };
 
-/** Export mammoth for direct access if needed */
-export const mammoth = mammothModule as unknown as MammothModule;
+/**
+ * Lazy-load mammoth module only in Node.js context.
+ * This avoids bundling CommonJS code into ESM bundles.
+ *
+ * Returns the mammoth module or undefined in non-Node.js environments.
+ * For browser usage, mammoth must be provided separately.
+ */
+async function getMammothModule(): Promise<MammothModule | undefined> {
+  // Check if we're in Node.js (has require or __dirname)
+  const isNode =
+    typeof globalThis !== 'undefined' &&
+    (typeof (globalThis as any).require === 'function' ||
+      typeof (globalThis as any).__dirname === 'string');
+
+  if (!isNode) {
+    // In browser or non-Node.js environment
+    // Check if mammoth is already available globally
+    if (typeof (globalThis as any).mammoth !== 'undefined') {
+      return (globalThis as any).mammoth as MammothModule;
+    }
+    return undefined;
+  }
+
+  // In Node.js: dynamically import mammoth
+  // Use dynamic import to avoid bundling the CommonJS code into ESM bundles
+  try {
+    // eslint-disable-next-line import/no-dynamic-require, global-require
+    const mammoth = await import('./mammoth.js/lib/index.js' as any);
+    return mammoth as unknown as MammothModule;
+  } catch (error) {
+    console.error('Failed to load mammoth module:', error);
+    return undefined;
+  }
+}
+
+// Cache the mammoth module promise to avoid repeated imports
+let mammothModulePromise: Promise<MammothModule | undefined> | undefined;
+
+/**
+ * Get or load the mammoth module.
+ * Uses a cached promise to ensure only one import happens.
+ */
+async function getCachedMammothModule(): Promise<MammothModule> {
+  if (!mammothModulePromise) {
+    mammothModulePromise = getMammothModule();
+  }
+
+  const module = await mammothModulePromise;
+  if (!module) {
+    throw new Error(
+      'Mammoth module not available. ' +
+        'In Node.js, ensure the mammoth.js package is installed. ' +
+        'In browsers, mammoth must be provided separately.'
+    );
+  }
+
+  return module;
+}
+
+/**
+ * Export mammoth getter for direct access if needed.
+ * Note: This is async - use getCachedMammothModule() instead.
+ */
+export async function getMammoth(): Promise<MammothModule> {
+  return getCachedMammothModule();
+}
 
 // ============================================================================
 // Preprocess Types
@@ -194,9 +257,14 @@ export type ConvertToHtmlWithTrackingResult = {
  * (insertions, deletions) and comments. The mammoth fork handles token
  * emission natively during conversion.
  *
+ * Requires mammoth to be available:
+ * - In Node.js: mammoth.js is dynamically imported from the vendored package
+ * - In browsers: mammoth must be provided by the application
+ *
  * @param arrayBuffer - The DOCX file as ArrayBuffer
  * @param options - Conversion options
  * @returns HTML with embedded tracking tokens
+ * @throws {Error} If mammoth is not available in the current environment
  *
  * @example
  * ```ts
@@ -215,6 +283,9 @@ export async function convertToHtmlWithTracking(
   arrayBuffer: ArrayBuffer,
   options: ConvertToHtmlWithTrackingOptions = {}
 ): Promise<ConvertToHtmlWithTrackingResult> {
+  // Load mammoth dynamically (only loads in Node.js, avoids bundling issues)
+  const mammoth = await getCachedMammothModule();
+
   // The mammoth fork natively emits tracking tokens during conversion
   // Always include comment-reference => sup default, merge with user styleMap
   const styleMap = ['comment-reference => sup', ...(options.styleMap ?? [])];
