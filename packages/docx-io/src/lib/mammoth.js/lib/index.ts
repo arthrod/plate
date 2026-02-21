@@ -1,22 +1,12 @@
 // @ts-nocheck
-var docxReader = require('./docx/docx-reader.ts');
-var docxStyleMap = require('./docx/style-map.ts');
-var DocumentConverter = require('./document-to-html.ts').DocumentConverter;
-var convertElementToRawText = require('./raw-text.ts').convertElementToRawText;
-var readStyle = require('./style-reader.ts').readStyle;
-var readOptions = require('./options-reader.ts').readOptions;
-var unzip = require('./unzip.ts');
-var Result = require('./results.ts').Result;
-
-exports.convertToHtml = convertToHtml;
-exports.convertToMarkdown = convertToMarkdown;
-exports.convert = convert;
-exports.extractRawText = extractRawText;
-exports.images = require('./images.ts');
-exports.transforms = require('./transforms.ts');
-exports.underline = require('./underline.ts');
-exports.embedStyleMap = embedStyleMap;
-exports.readEmbeddedStyleMap = readEmbeddedStyleMap;
+import docxReader from './docx/docx-reader.ts';
+import docxStyleMap from './docx/style-map.ts';
+import { DocumentConverter } from './document-to-html.ts';
+import { convertElementToRawText } from './raw-text.ts';
+import { readStyle } from './style-reader.ts';
+import { readOptions } from './options-reader.ts';
+import * as unzip from './unzip.ts';
+import { Result } from './results.ts';
 
 function convertToHtml(input, options) {
   return withDone(convert(input, options));
@@ -105,12 +95,6 @@ function embedStyleMap(input, styleMap) {
   );
 }
 
-exports.styleMapping = () => {
-  throw new Error(
-    'Use a raw string instead of mammoth.styleMapping e.g. "p[style-name=\'Title\'] => h1" instead of mammoth.styleMapping("p[style-name=\'Title\'] => h1")'
-  );
-};
-
 function withDone(promise) {
   if (!promise || typeof promise.done === 'function') {
     return promise;
@@ -133,3 +117,25 @@ function withDone(promise) {
 
   return promise;
 }
+
+import * as images from './images.ts';
+import * as transforms from './transforms.ts';
+import * as underline from './underline.ts';
+
+export {
+  convertToHtml,
+  convertToMarkdown,
+  convert,
+  extractRawText,
+  images,
+  transforms,
+  underline,
+  embedStyleMap,
+  readEmbeddedStyleMap
+};
+
+export const styleMapping = () => {
+  throw new Error(
+    'Use a raw string instead of mammoth.styleMapping e.g. "p[style-name=\'Title\'] => h1" instead of mammoth.styleMapping("p[style-name=\'Title\'] => h1")'
+  );
+};

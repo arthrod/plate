@@ -1,133 +1,226 @@
-# Debug Preset
-#
-# For bug investigation and root cause analysis.
-# Follows scientific method: hypothesize, test, narrow down.
+# Bugfix Workflow
+# Pattern: Scientific Method (Observe → Hypothesize → Test → Fix)
+# Systematic bug reproduction, fix, verification, and commit workflow
 #
 # Usage:
-#   ralph run --config presets/debug.yml --prompt "Tests fail intermittently in CI"
+#   ralph run --config presets/bugfix.yml --prompt "Fix: <bug description or issue link>"
 
 event_loop:
-  prompt_file: "PROMPT.md"
-  completion_promise: "DEBUG_COMPLETE"
-  max_iterations: 30
-  max_runtime_seconds: 7200
-  starting_event: "debug.start"  # Ralph publishes this after coordination
-
-cli:
-  backend: "claude"
-
-core:
-  specs_dir: "./specs/"
+  starting_event: "repro.start"
 
 hats:
-  investigator:
-    name: "Investigator"
-    description: "Finds root cause through systematic investigation."
-    triggers: ["debug.start", "hypothesis.rejected", "hypothesis.confirmed", "fix.verified"]
-    publishes: ["hypothesis.test", "fix.propose"]
+  reproducer:
+    name: "🔍 Reproducer"
+    description: "Analyzes bugs, creates failing tests, and documents reproduction steps."
+    triggers: ["repro.start", "verification.failed"]
+    publishes: ["repro.complete"]
+    default_publishes: "repro.complete"
     instructions: |
-      ## INVESTIGATOR MODE
+      ## REPRODUCER MODE
 
-      Find the root cause through systematic investigation.
-
-      ### Scientific Method
-      1. **Observe** — What exactly is the symptom? Reproduce it.
-      2. **Hypothesize** — What could cause this?
-      3. **Predict** — If hypothesis X is true, then Y should happen.
-      4. **Test** — Run experiment to test prediction.
-      5. **Narrow** — Eliminate hypotheses, focus on survivors.
-
-      ### Dispatch
-      - Publish `hypothesis.test` to test a hypothesis
-      - Publish `fix.propose` when root cause is confirmed
-
-      ### DON'T
-      - ❌ Guess without evidence
-      - ❌ Fix symptoms without understanding cause
-      - ❌ Change code during investigation phase
-
-      ### DONE
-      When bug is fixed and verified, output: DEBUG_COMPLETE
-
-  tester:
-    name: "Hypothesis Tester"
-    description: "Designs and runs experiments to test hypotheses."
-    triggers: ["hypothesis.test"]
-    publishes: ["hypothesis.confirmed", "hypothesis.rejected"]
-    instructions: |
-      ## HYPOTHESIS TESTER MODE
-
-      Design and run an experiment to test a hypothesis.
+      You analyze bugs, create failing tests that demonstrate them, and document reproduction steps.
 
       ### Process
-      1. Read the hypothesis from the event
-      2. Design minimal test that would confirm OR reject it
-      3. Run the test
-      4. Record results with evidence
-      5. Publish result
 
-      ### Good Tests
-      - Isolate the variable
-      - Have clear pass/fail criteria
-      - Are reproducible
+      1. **Understand the bug** - Read the bug description, issue, or error report
+      2. **Locate the relevant code** - Find where the bug likely originates
+      3. **Create a failing test** - Write a test that fails due to the bug (this proves the bug exists)
+      4. **Document repro steps** - Write clear manual reproduction steps
+      5. **Publish completion** with your findings
+
+      ### If Coming From verification.failed
+
+      The previous fix didn't work. Re-analyze:
+      - What did the fix attempt?
+      - Why did it fail?
+      - Is there a deeper root cause?
+      - Update the failing test if needed to better capture the bug
+
+      ### Event Format
+
+      ```
+      <event topic="repro.complete">
+      root_cause: <brief description of the root cause>
+      failing_test: <path to the failing test file>
+      repro_steps: |
+        1. <step one>
+        2. <step two>
+        ...
+      </event>
+      ```
 
       ### DON'T
-      - ❌ Change production code
-      - ❌ Run tests that can't distinguish hypotheses
-      - ❌ Skip recording evidence
+      - Don't attempt to fix the bug - that's the Fixer's job
+      - Don't skip writing a failing test - it's essential for verification
+      - Don't write a test that passes - the test must fail to prove the bug exists
 
   fixer:
-    name: "Bug Fixer"
-    description: "Implements fix for confirmed root cause with regression test."
-    triggers: ["fix.propose", "fix.failed"]
-    publishes: ["fix.applied", "fix.blocked"]
+    name: "🔧 Fixer"
+    description: "Implements minimal fixes for reproduced bugs."
+    triggers: ["repro.complete"]
+    publishes: ["fix.complete"]
+    default_publishes: "fix.complete"
     instructions: |
-      ## BUG FIXER MODE
+      ## FIXER MODE
 
-      Implement the fix for a confirmed root cause.
+      You implement fixes for bugs that have been reproduced and documented.
 
-      ### Process
-      1. Review the proposed fix for the confirmed root cause
-      2. Implement minimal change to fix root cause
-      3. Add regression test that would have caught this
-      4. Run full test suite
-      5. Commit with detailed message
+      ### Process: Explore → Plan → Implement → Verify
 
-      ### Commit Format
+      1. **EXPLORE** — Understand before fixing
+         - Review the reproduction and root cause analysis
+         - Read the failing test to understand expected behavior
+         - Search codebase for related code that might be affected
+         - Identify the minimal scope of the fix
+
+      2. **PLAN** — Think before coding
+         - Design the minimal change that addresses root cause
+         - Identify all files that need modification
+         - Consider if fix could introduce regressions
+
+      3. **IMPLEMENT** — Execute the fix
+         - Make the code changes according to plan
+         - Keep changes minimal — fix only the bug
+
+      4. **VERIFY** — Confirm the fix
+         - Run the failing test — verify it now passes
+         - Publish completion with what you changed
+
+      ### Event Format
+
       ```
-      fix(scope): [what was broken]
-
-      Root cause: [explanation]
-      Fix: [what this change does]
-      Regression test: [test name]
+      <event topic="fix.complete">
+      fix_summary: <one-line description of the fix>
+      files_changed:
+        - <file1>
+        - <file2>
+      </event>
       ```
 
       ### DON'T
-      - ❌ Fix more than the reported bug
-      - ❌ Skip regression test
-      - ❌ Commit without full test pass
+      - Don't refactor unrelated code - fix only the bug
+      - Don't skip the explore step - understand before changing
+      - Don't add features - this is a bugfix, not an enhancement
+
+      ### Confidence-Based Decision Protocol
+
+      When you encounter ambiguity or must choose between approaches:
+
+      1. **Score your confidence** on the decision (0-100):
+         - **>80**: Proceed autonomously.
+         - **50-80**: Proceed, but document the decision in `.ralph/agent/decisions.md`.
+         - **<50**: Choose the safest default and document the decision in `.ralph/agent/decisions.md`.
+
+      2. **Choose the safe default** (when confidence < 50):
+         - Prefer **reversible** over irreversible actions
+         - Prefer **additive** over destructive changes (add new code > modify existing)
+         - Prefer **narrow scope** over broad changes
+         - Prefer **existing patterns** over novel approaches
+         - Prefer **explicit** over implicit behavior
+
+      3. **Document the decision:**
+         - Append a structured entry to `.ralph/agent/decisions.md` with: ID (DEC-NNN, sequential), confidence score, alternatives, reasoning, and reversibility.
+         - Briefly note the decision in your scratchpad for iteration context.
+         - You MUST document decisions when confidence <= 80 or when choosing a safe default.
+
+      4. **Never block on human input** for implementation decisions.
+         - `human.interact` is reserved for scope/direction questions from the Chief of Staff only.
+         - This hat MUST NOT use `human.interact`.
 
   verifier:
-    name: "Fix Verifier"
-    description: "Verifies the fix solves the original problem."
-    triggers: ["fix.applied"]
-    publishes: ["fix.verified", "fix.failed"]
+    name: "✅ Verifier"
+    description: "Verifies fixes through tests and manual QA."
+    triggers: ["fix.complete"]
+    publishes: ["verification.passed", "verification.failed"]
+    default_publishes: "verification.passed"
     instructions: |
-      ## FIX VERIFIER MODE
+      ## VERIFIER MODE
 
-      Verify the fix actually solves the original problem.
+      You verify that the fix works, doesn't break anything, and has proper test coverage.
 
-      ### Checks
-      1. Original reproduction steps no longer trigger bug
-      2. All tests pass
-      3. New regression test exists and is meaningful
-      4. No new issues introduced
+      ### Process
 
-      ### If Verified
-      Publish `fix.verified`
+      1. **Run the full test suite** - All tests must pass
+      2. **Check test coverage** - Ensure the bug scenario has test coverage
+         - The failing test from reproduction should now pass
+         - Add edge case tests if the fix could have edge cases
+      3. **Manual QA** - Manually verify the fix works as expected
+         - Follow the repro steps - they should no longer reproduce the bug
+         - Try variations and edge cases
+      4. **Publish result** - Pass if everything checks out, fail if issues found
 
-      ### If Failed
-      Publish `fix.failed` with:
-      - Which check failed
-      - Observed behavior
-      - Expected behavior
+      ### Event Format - Success
+
+      ```
+      <event topic="verification.passed">
+      tests_passed: true
+      manual_qa: passed
+      coverage_added:
+        - <test file or description>
+      </event>
+      ```
+
+      ### Event Format - Failure
+
+      ```
+      <event topic="verification.failed">
+      reason: <why verification failed>
+      details: |
+        <specifics about what went wrong>
+      </event>
+      ```
+
+      ### DON'T
+      - Don't skip running the full test suite - regressions matter
+      - Don't skip manual QA - automated tests don't catch everything
+      - Don't pass if you have doubts - it's better to loop back
+
+  committer:
+    name: "📝 Committer"
+    description: "Creates conventional commits for verified bugfixes."
+    triggers: ["verification.passed"]
+    publishes: ["LOOP_COMPLETE"]
+    default_publishes: "LOOP_COMPLETE"
+    instructions: |
+      ## COMMITTER MODE
+
+      You create a clean, conventional commit for the verified bugfix.
+
+      ### Process
+
+      1. **Review what changed** - Understand all files modified
+      2. **Stage the changes** - `git add` the relevant files (code + tests)
+      3. **Write commit message** - Use conventional commit format
+      4. **Commit** - Create the commit
+      5. **Publish completion**
+
+      ### Commit Message Format
+
+      Use conventional commits:
+
+      ```
+      fix: <short description>
+
+      <optional body explaining the fix>
+
+      Fixes: <issue reference if applicable>
+      ```
+
+      Examples:
+      - `fix: resolve null pointer when input is empty`
+      - `fix: correct off-by-one error in pagination`
+      - `fix(parser): handle escaped quotes in strings`
+
+      ### Event Format
+
+      ```
+      <event topic="LOOP_COMPLETE">
+      commit_sha: <sha>
+      commit_message: <the commit message>
+      </event>
+      ```
+
+      ### DON'T
+      - Don't commit unrelated changes - only the bugfix
+      - Don't use vague messages like "fix bug" - be specific
+      - Don't forget to include test files in the commit
