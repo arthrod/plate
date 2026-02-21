@@ -26,8 +26,6 @@ const i18n = {
   },
 };
 
-const EMPTY_ARRAY: any[] = [];
-
 export function PotionLazyBlock() {
   const searchParams = useSearchParams();
 
@@ -81,10 +79,10 @@ export function PotionLazyBlock() {
     <div ref={ref}>
       {shouldRender && (
         <BlockViewer
-          dependencies={EMPTY_ARRAY}
-          highlightedFiles={EMPTY_ARRAY}
+          dependencies={[]}
+          highlightedFiles={[]}
           item={block}
-          tree={EMPTY_ARRAY}
+          tree={[]}
         />
       )}
     </div>

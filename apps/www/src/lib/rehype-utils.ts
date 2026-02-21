@@ -318,7 +318,7 @@ async function getAllItemFiles(
 
   if (!item) return [];
 
-  let allFiles = [...(item.files ?? [])].map((file) => {
+  const allFiles = [...(item.files ?? [])].map((file) => {
     const filePath = typeof file === 'string' ? file : file.path;
     // Ensure path starts with src/registry/
     const normalizedPath = filePath.startsWith('src/registry/')
@@ -343,7 +343,7 @@ async function getAllItemFiles(
       isShadcn || isDependencyShadcn
     );
     if (depFiles.length > 0) {
-      allFiles = [...allFiles, ...depFiles];
+      allFiles.push(...depFiles);
     }
   }
 
