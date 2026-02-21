@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 export type Orientation = 'landscape' | 'portrait';
 
@@ -168,6 +168,10 @@ const documentFileName = 'document';
 const headerType = 'header';
 const footerType = 'footer';
 const themeType = 'theme';
+const commentsType = 'comments';
+const commentsExtendedType = 'commentsExtended';
+const commentsIdsType = 'commentsIds';
+const commentsExtensibleType = 'commentsExtensible';
 const hyperlinkType = 'hyperlink';
 const imageType = 'image';
 const internalRelationship = 'Internal';
@@ -201,6 +205,10 @@ const verticalAlignValues: VerticalAlign[] = ['top', 'middle', 'bottom'];
 export {
   applicationName,
   colorlessColors,
+  commentsType,
+  commentsExtendedType,
+  commentsIdsType,
+  commentsExtensibleType,
   defaultDocumentOptions,
   defaultFont,
   defaultFontSize,

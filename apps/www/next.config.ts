@@ -4,6 +4,7 @@ import { globSync } from 'glob';
 
 const nextConfig = async (phase: string) => {
   const config: NextConfig = {
+    output: 'standalone',
     typescript: {
       ignoreBuildErrors: true,
     },
@@ -40,7 +41,7 @@ const nextConfig = async (phase: string) => {
       '/docs/examples/slate-to-html': ['./public/tailwind.css'],
     },
     // slower compilation, so let's disable it in development for now
-    reactCompiler: true,
+    reactCompiler: false,
     // Configure domains to allow for optimized image loading.
     // https://nextjs.org/docs/api-reference/next.config.js/react-strict-mod
     reactStrictMode: true,

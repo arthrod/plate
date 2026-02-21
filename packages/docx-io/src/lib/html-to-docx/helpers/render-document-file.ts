@@ -4,13 +4,13 @@
 // @ts-expect-error - no types available
 import { default as HTMLToVDOM } from 'html-to-vdom';
 // @ts-expect-error - no types available
-import isVNode from 'virtual-dom/vnode/is-vnode';
+import isVNode from 'virtual-dom/vnode/is-vnode.js';
 // @ts-expect-error - no types available
-import isVText from 'virtual-dom/vnode/is-vtext';
+import isVText from 'virtual-dom/vnode/is-vtext.js';
 // @ts-expect-error - no types available
-import VNode from 'virtual-dom/vnode/vnode';
+import VNode from 'virtual-dom/vnode/vnode.js';
 // @ts-expect-error - no types available
-import VText from 'virtual-dom/vnode/vtext';
+import VText from 'virtual-dom/vnode/vtext.js';
 import type { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { fragment } from 'xmlbuilder2';
 
@@ -360,7 +360,9 @@ export const buildList = async (
             isVNode(accumulator.at(-1)!.node) &&
             (
               (accumulator.at(-1)!.node as VNodeType).tagName || ''
-            ).toLowerCase() === 'p'
+            ).toLowerCase() === 'p' &&
+            // Don't append <li> elements to paragraphs - they need separate processing
+            (childNode.tagName || '').toLowerCase() !== 'li'
           ) {
             const lastNode = accumulator.at(-1)!.node as VNodeType;
             if (lastNode.children) {
@@ -927,6 +929,10 @@ export async function convertVTreeToXML(
       xmlFragment
     );
   } else if (isVText(vTree)) {
+    const text = (vTree as VTextType).text;
+    if (!text || !text.trim()) {
+      return xmlFragment;
+    }
     const paragraphFragment = await xmlBuilder.buildParagraph(
       vTree as VTextType,
       {},

@@ -74,64 +74,87 @@ const PlateContent = React.forwardRef(
 
     const editableRef = useRef<HTMLDivElement | null>(null);
     const combinedRef = useComposedRef(ref, editableRef);
+    const isReady = !!editor.children && editor.children.length > 0;
 
-    // Don't render if editor is not ready (e.g., async value still loading)
-    if (!editor.children || editor.children.length === 0) {
-      return null;
-    }
-
-    const editable = <Editable ref={combinedRef} {...(editableProps as any)} />;
-
-    let afterEditable: React.ReactNode = null;
-    let beforeEditable: React.ReactNode = null;
-
-    editor.meta.pluginCache.render.beforeEditable.forEach((key) => {
-      const plugin = editor.getPlugin({ key });
-      if (isEditOnly(readOnly, plugin, 'render')) return;
-
-      const BeforeEditable = plugin.render.beforeEditable!;
-
-      beforeEditable = (
-        <>
-          {beforeEditable}
-          <BeforeEditable {...editableProps} />
-        </>
-      );
-    });
-
-    editor.meta.pluginCache.render.afterEditable.forEach((key) => {
-      const plugin = editor.getPlugin({ key });
-      if (isEditOnly(readOnly, plugin, 'render')) return;
-
-      const AfterEditable = plugin.render.afterEditable!;
-
-      afterEditable = (
-        <>
-          {afterEditable}
-          <AfterEditable {...editableProps} />
-        </>
-      );
-    });
-
-    let aboveEditable: React.ReactNode = (
-      <>
-        {renderEditable ? renderEditable(editable) : editable}
-
-        <EditorMethodsEffect id={id} />
-        <EditorHotkeysEffect id={id} editableRef={editableRef} />
-        <EditorRefEffect id={id} />
-        <PlateControllerEffect id={id} />
-      </>
+    const editable = React.useMemo(
+      () => <Editable ref={combinedRef} {...(editableProps as any)} />,
+      [combinedRef, editableProps]
     );
 
-    editor.meta.pluginCache.render.aboveEditable.forEach((key) => {
-      const plugin = editor.getPlugin({ key });
-      if (isEditOnly(readOnly, plugin, 'render')) return;
+    const beforeEditable = React.useMemo(() => {
+      if (!isReady) return null;
 
-      const AboveEditable = plugin.render.aboveEditable!;
+      let beforeEditable: React.ReactNode = null;
 
-      aboveEditable = <AboveEditable>{aboveEditable}</AboveEditable>;
-    });
+      editor.meta.pluginCache.render.beforeEditable.forEach((key) => {
+        const plugin = editor.getPlugin({ key });
+        if (isEditOnly(readOnly, plugin, 'render')) return;
+
+        const BeforeEditable = plugin.render.beforeEditable!;
+
+        beforeEditable = (
+          <>
+            {beforeEditable}
+            <BeforeEditable {...editableProps} />
+          </>
+        );
+      });
+
+      return beforeEditable;
+    }, [editableProps, editor, isReady, readOnly]);
+
+    const afterEditable = React.useMemo(() => {
+      if (!isReady) return null;
+
+      let afterEditable: React.ReactNode = null;
+
+      editor.meta.pluginCache.render.afterEditable.forEach((key) => {
+        const plugin = editor.getPlugin({ key });
+        if (isEditOnly(readOnly, plugin, 'render')) return;
+
+        const AfterEditable = plugin.render.afterEditable!;
+
+        afterEditable = (
+          <>
+            {afterEditable}
+            <AfterEditable {...editableProps} />
+          </>
+        );
+      });
+
+      return afterEditable;
+    }, [editableProps, editor, isReady, readOnly]);
+
+    const aboveEditable = React.useMemo(() => {
+      if (!isReady) return null;
+
+      let aboveEditable: React.ReactNode = (
+        <>
+          {renderEditable ? renderEditable(editable) : editable}
+
+          <EditorMethodsEffect id={id} />
+          <EditorHotkeysEffect id={id} editableRef={editableRef} />
+          <EditorRefEffect id={id} />
+          <PlateControllerEffect id={id} />
+        </>
+      );
+
+      editor.meta.pluginCache.render.aboveEditable.forEach((key) => {
+        const plugin = editor.getPlugin({ key });
+        if (isEditOnly(readOnly, plugin, 'render')) return;
+
+        const AboveEditable = plugin.render.aboveEditable!;
+
+        aboveEditable = <AboveEditable>{aboveEditable}</AboveEditable>;
+      });
+
+      return aboveEditable;
+    }, [editable, editableRef, editor, id, isReady, readOnly, renderEditable]);
+
+    // Don't render if editor is not ready (e.g., async value still loading)
+    if (!isReady) {
+      return null;
+    }
 
     return (
       <PlateSlate id={id}>
