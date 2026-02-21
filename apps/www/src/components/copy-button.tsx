@@ -16,6 +16,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { type Event, trackEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
 
@@ -46,44 +51,61 @@ export function CopyButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   return (
-    <Button
-      size="icon"
-      variant={variant}
-      className={cn(
-        '[&_svg]:!size-3 relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
-        className
-      )}
-      onClick={() => {
-        void copyToClipboardWithMeta(
-          value,
-          event
-            ? {
-                name: event,
-                properties: {
-                  code: value,
-                },
-              }
-            : undefined
-        );
-        setHasCopied(true);
-      }}
-      {...props}
-    >
-      <span className="sr-only">Copy</span>
-      {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon"
+          variant={variant}
+          className={cn(
+            '[&_svg]:!size-3 relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
+            className
+          )}
+          onClick={() => {
+            void copyToClipboardWithMeta(
+              value,
+              event
+                ? {
+                    name: event,
+                    properties: {
+                      code: value,
+                    },
+                  }
+                : undefined
+            );
+            setHasCopied(true);
+          }}
+          {...props}
+        >
+          <span className="sr-only">Copy</span>
+          {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        {hasCopied ? 'Copied!' : 'Copy to clipboard'}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
 interface CopyNpmCommandButtonProps extends DropdownMenuTriggerProps {
   commands: Required<NpmCommands>;
   icon?: React.ReactNode;
+}
+
+interface CopyWithClassNamesProps extends DropdownMenuTriggerProps {
+  classNames: string;
+  value: string;
+  className?: string;
 }
 
 export function CopyWithClassNames({
@@ -94,9 +116,13 @@ export function CopyWithClassNames({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const copyToClipboard = React.useCallback((_value: string) => {
@@ -137,12 +163,6 @@ export function CopyWithClassNames({
   );
 }
 
-interface CopyWithClassNamesProps extends DropdownMenuTriggerProps {
-  classNames: string;
-  value: string;
-  className?: string;
-}
-
 export function CopyNpmCommandButton({
   className,
   commands,
@@ -151,9 +171,13 @@ export function CopyNpmCommandButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const copyCommand = React.useCallback(
