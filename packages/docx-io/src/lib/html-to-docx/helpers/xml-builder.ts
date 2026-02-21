@@ -3,13 +3,13 @@
 /* biome-ignore-all lint/performance/useTopLevelRegex: legacy code */
 /* biome-ignore-all lint/style/noParameterAssign: legacy code */
 /* biome-ignore-all lint/style/useForOf: legacy code */
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 // @ts-expect-error - no types available
 import mimeTypes from 'mime-types';
 // @ts-expect-error - no types available
-import isVNode from 'virtual-dom/vnode/is-vnode';
+import isVNode from 'virtual-dom/vnode/is-vnode.js';
 // @ts-expect-error - no types available
-import isVText from 'virtual-dom/vnode/is-vtext';
+import isVText from 'virtual-dom/vnode/is-vtext.js';
 import type { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { fragment } from 'xmlbuilder2';
 
