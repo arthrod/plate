@@ -19,7 +19,6 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { type Event, trackEvent } from '@/lib/events';
@@ -96,14 +95,12 @@ export function CopyButton({
   }
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent>
-          {hasCopied ? 'Copied!' : 'Copy to clipboard'}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent>
+        {hasCopied ? 'Copied!' : 'Copy to clipboard'}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
