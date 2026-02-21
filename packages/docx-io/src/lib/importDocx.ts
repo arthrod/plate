@@ -16,8 +16,10 @@
  * 4. Apply tracked changes and comments to editor
  */
 
-// Local mammoth.js fork browser build
-import mammothModule from './mammoth.js/mammoth.browser.js';
+// Local mammoth.js fork ESM build
+// Uses ESM wrapper that provides Node.js and browser compatibility
+// @ts-expect-error - mammoth.js/lib/index.js is CommonJS, but works via dynamic import at runtime
+import mammothModule from './mammoth.js/dist/esm/index.browser.js';
 
 // ============================================================================
 // Mammoth Types and Export
