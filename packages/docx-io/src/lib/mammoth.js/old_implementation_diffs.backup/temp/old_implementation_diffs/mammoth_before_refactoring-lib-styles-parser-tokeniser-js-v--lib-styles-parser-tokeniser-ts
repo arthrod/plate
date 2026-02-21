@@ -1,8 +1,0 @@
---- mammoth_before_refactoring/lib/styles/parser/tokeniser.js	2026-02-19 23:58:28
-+++ ./lib/styles/parser/tokeniser.ts	2026-02-19 20:16:37
-@@ -1,4 +1,4 @@
--var lop = require('lop');
-+var lop = require('../../vendor/lop/index.ts');
- var RegexTokeniser = lop.RegexTokeniser;
- 
- exports.tokenise = tokenise;
