@@ -20994,7 +20994,7 @@ __metadata:
     use-file-picker: "npm:2.1.2"
     vaul: "npm:1.1.2"
     y-webrtc: "npm:10.3.0"
-    zod: "npm:3.25.61"
+    zod: "npm:4.1.12"
   languageName: unknown
   linkType: soft
 
