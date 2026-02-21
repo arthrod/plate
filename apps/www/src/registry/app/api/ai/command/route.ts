@@ -30,33 +30,50 @@ import {
   getGeneratePrompt,
 } from './prompt';
 
+const RequestSchema = z.object({
+  apiKey: z.string().optional(),
+  ctx: z.object({
+    children: z.array(z.any()),
+    selection: z.any().optional(),
+    toolName: z.string().optional(),
+  }),
+  messages: z.array(z.any()),
+  model: z.string().optional(),
+});
+
 export async function POST(req: NextRequest) {
-  const { apiKey: key, ctx, messages: messagesRaw, model } = await req.json();
-
-  const { children, selection, toolName: toolNameParam } = ctx;
-
-  const editor = createSlateEditor({
-    plugins: BaseEditorKit,
-    selection,
-    value: children,
-  });
-
-  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
-
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: 'Missing AI Gateway API key.' },
-      { status: 401 }
-    );
-  }
-
-  const isSelecting = editor.api.isExpanded();
-
-  const gatewayProvider = createGateway({
-    apiKey,
-  });
-
   try {
+    const json = await req.json();
+    const {
+      apiKey: key,
+      ctx,
+      messages: messagesRaw,
+      model,
+    } = RequestSchema.parse(json);
+
+    const { children, selection, toolName: toolNameParam } = ctx;
+
+    const editor = createSlateEditor({
+      plugins: BaseEditorKit,
+      selection,
+      value: children,
+    });
+
+    const apiKey = key || process.env.AI_GATEWAY_API_KEY;
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'Missing AI Gateway API key.' },
+        { status: 401 }
+      );
+    }
+
+    const isSelecting = editor.api.isExpanded();
+
+    const gatewayProvider = createGateway({
+      apiKey,
+    });
+
     const stream = createUIMessageStream<ChatMessage>({
       execute: async ({ writer }) => {
         let toolName = toolNameParam;
@@ -168,7 +185,11 @@ export async function POST(req: NextRequest) {
     });
 
     return createUIMessageStreamResponse({ stream });
-  } catch {
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.issues }, { status: 400 });
+    }
+
     return NextResponse.json(
       { error: 'Failed to process AI request' },
       { status: 500 }
