@@ -49,6 +49,11 @@ export function CopyButton({
   ...props
 }: CopyButtonProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   React.useEffect(() => {
     if (!hasCopied) return;
@@ -60,36 +65,42 @@ export function CopyButton({
     return () => clearTimeout(timeout);
   }, [hasCopied]);
 
+  const button = (
+    <Button
+      size="icon"
+      variant={variant}
+      className={cn(
+        '[&_svg]:!size-3 relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
+        className
+      )}
+      onClick={() => {
+        void copyToClipboardWithMeta(
+          value,
+          event
+            ? {
+                name: event,
+                properties: {
+                  code: value,
+                },
+              }
+            : undefined
+        );
+        setHasCopied(true);
+      }}
+      {...props}
+    >
+      <span className="sr-only">Copy</span>
+      {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+    </Button>
+  );
+
+  if (!isMounted) {
+    return button;
+  }
+
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          variant={variant}
-          className={cn(
-            '[&_svg]:!size-3 relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
-            className
-          )}
-          onClick={() => {
-            void copyToClipboardWithMeta(
-              value,
-              event
-                ? {
-                    name: event,
-                    properties: {
-                      code: value,
-                    },
-                  }
-                : undefined
-            );
-            setHasCopied(true);
-          }}
-          {...props}
-        >
-          <span className="sr-only">Copy</span>
-          {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
-        </Button>
-      </TooltipTrigger>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent>
         {hasCopied ? 'Copied!' : 'Copy to clipboard'}
       </TooltipContent>
