@@ -31,10 +31,9 @@ const TARGET = isDev ? 'public/rd/registry.json' : 'public/r/registry.json';
 const registry: Registry = {
   name: NAME,
   homepage: HOMEPAGE,
-  items: z.array(registryItemSchema).parse(
-    [
-      ...registryInit,
-      ...registryUI,
+  items: [
+    ...registryInit,
+    ...registryUI,
       ...registryComponents,
       ...registryBlocks.map((block) => ({
         ...block,
@@ -55,7 +54,7 @@ const registry: Registry = {
           : `${REGISTRY_URL}/${dep}`
       ),
     }))
-  ),
+  ] as RegistryItem[],
 } satisfies Registry;
 
 async function buildRegistryIndex() {
