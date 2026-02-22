@@ -7811,7 +7811,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ai@npm:^6.0.97":
+"ai@npm:^6.0.0, ai@npm:^6.0.97":
   version: 6.0.97
   resolution: "ai@npm:6.0.97"
   dependencies:
@@ -21785,7 +21785,7 @@ __metadata:
     "@udecode/cmdk": "workspace:^"
     "@udecode/cn": "workspace:^"
     "@uploadthing/react": "npm:7.3.1"
-    ai: "npm:^6.0.97"
+    ai: "npm:^6.0.0"
     autoprefixer: "npm:10.4.21"
     babel-plugin-react-compiler: "npm:1.0.0"
     class-variance-authority: "npm:0.7.1"

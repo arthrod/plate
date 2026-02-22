@@ -29,9 +29,15 @@ export function BlockCopyButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
   }, [hasCopied]);
 
   return (
@@ -54,12 +60,12 @@ export function BlockCopyButton({
             }}
             {...props}
           >
-            <span className="sr-only">Copy</span>
+            <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
             {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
           </Button>
         </TooltipTrigger>
         <TooltipContent className="bg-black text-white">
-          Copy code
+          {hasCopied ? 'Copied!' : 'Copy code'}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
