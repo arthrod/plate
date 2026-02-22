@@ -2,3 +2,7 @@
 **Vulnerability:** Registry template API routes (`apps/www/src/registry/app/api/ai/...`) lacked input validation, potentially causing runtime errors or resource exhaustion if invalid payloads were sent.
 **Learning:** Even "template" code distributed via a registry is critical security infrastructure, as users copy-paste it into their production apps. Validating input at the earliest boundary (API route handler) is essential.
 **Prevention:** Always use a validation library like `zod` to parse and validate `req.json()` before accessing properties, especially in code intended for distribution.
+## 2024-05-23 - [Zod Version Consistency for Edge Runtime]
+**Vulnerability:** Inconsistent `zod` versions between workspace root (v4) and apps (v3) caused Cloudflare Workers build failures due to runtime type mismatches.
+**Learning:** Edge Runtime environments are highly sensitive to dependency version mismatches. Ensuring all workspace packages use aligned versions of core libraries like `zod`, `react`, etc., is critical for successful builds.
+**Prevention:** Regularly audit workspace dependencies to ensure alignment with the root `package.json`, especially for libraries used in shared code or build scripts.
