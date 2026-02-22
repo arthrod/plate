@@ -9,6 +9,8 @@
     "runtime": "V2",
     "numReplicas": 1,
     "startCommand": "HOSTNAME=0.0.0.0 node apps/www/.next/standalone/apps/www/server.js",
+    "overlapSeconds": 300,
+    "drainingSeconds": 0,
     "sleepApplication": false,
     "useLegacyStacker": false,
     "ipv6EgressEnabled": false,
