@@ -6,3 +6,7 @@
 **Vulnerability:** Inconsistent `zod` versions between workspace root (v4) and apps (v3) caused Cloudflare Workers build failures due to runtime type mismatches.
 **Learning:** Edge Runtime environments are highly sensitive to dependency version mismatches. Ensuring all workspace packages use aligned versions of core libraries like `zod`, `react`, etc., is critical for successful builds.
 **Prevention:** Regularly audit workspace dependencies to ensure alignment with the root `package.json`, especially for libraries used in shared code or build scripts.
+## 2024-05-23 - [Incompatible Zod Versions in Shared Code]
+**Vulnerability:** Runtime Zod validation in `rehype-utils.ts` using schemas from `shadcn/registry` (Zod v3) caused CI failures when the application forced Zod v4, likely due to internal incompatibilities or mixed usage.
+**Learning:** When consuming external libraries that export Zod schemas, be wary of version mismatches. If strict runtime validation is not critical for build-time tools, consider falling back to static type assertions to avoid fragility.
+**Prevention:** Avoid calling `.parse()` or `.safeParse()` on schemas imported from dependencies with potential version conflicts. Use `z.infer<>` or manual type assertions instead.
