@@ -31,7 +31,29 @@ import {
 } from './prompt';
 
 export async function POST(req: NextRequest) {
-  const { apiKey: key, ctx, messages: messagesRaw, model } = await req.json();
+  const body = await req.json();
+
+  const parsed = z
+    .object({
+      apiKey: z.string().optional(),
+      ctx: z.object({
+        children: z.array(z.any()),
+        selection: z.any().optional(),
+        toolName: z.string().optional(),
+      }),
+      messages: z.array(z.any()),
+      model: z.string().optional(),
+    })
+    .safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Invalid request body.' },
+      { status: 400 }
+    );
+  }
+
+  const { apiKey: key, ctx, messages: messagesRaw, model } = parsed.data;
 
   const { children, selection, toolName: toolNameParam } = ctx;
 

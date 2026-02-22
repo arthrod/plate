@@ -542,7 +542,7 @@ const loadConfig = (): Config => {
       const validationResult = ConfigSchema.safeParse(parsedConfig);
       if (!validationResult.success) {
         console.warn(kleur.yellow('Invalid config, using defaults'));
-        validationResult.error.errors.forEach((err) => {
+        validationResult.error.issues.forEach((err) => {
           console.warn(kleur.yellow(`${err.path.join('.')}: ${err.message}`));
         });
         return defaultConfig;

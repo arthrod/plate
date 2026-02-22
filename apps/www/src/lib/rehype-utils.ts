@@ -236,26 +236,29 @@ export async function getRegistryItem(
   name: string,
   prefetch = false
 ): Promise<RegistryItem | null> {
-  const item = memoizedIndex[name];
+  const rawItem = memoizedIndex[name];
 
-  if (!item) {
+  if (!rawItem) {
     return null;
   }
 
   // Convert all file paths to object.
   // TODO: remove when we migrate to new registry.
-  item.files = item.files.map((file: unknown) =>
-    typeof file === 'string' ? { path: file } : file
-  );
+  const item: RegistryItem = {
+    ...rawItem,
+    files: (rawItem.files as any[]).map((file: unknown) =>
+      typeof file === 'string' ? { path: file } : file
+    ),
+  } as RegistryItem;
 
   // Fail early before doing expensive file operations.
-  const result = registryItemSchema.safeParse(item);
+  // const result = registryItemSchema.safeParse(item);
 
-  if (!result.success) {
-    return null;
-  }
+  // if (!result.success) {
+  //   return null;
+  // }
 
-  let files: typeof result.data.files = [];
+  let files: RegistryItem['files'] = [];
   const seen = new Set<string>();
 
   // Get all files including dependencies
@@ -265,7 +268,7 @@ export async function getRegistryItem(
     const relativePath = path.relative(process.cwd(), file.path);
 
     const content =
-      !prefetch || file.path === item.files[0].path
+      !prefetch || file.path === item.files?.[0].path
         ? await getFileContent(file as any)
         : undefined;
 
@@ -283,19 +286,22 @@ export async function getRegistryItem(
   // Fix file paths.
   files = fixFilePaths(files);
 
-  const parsed = registryItemSchema.safeParse({
-    ...result.data,
+  // const parsed = registryItemSchema.safeParse({
+  //   ...item,
+  //   files,
+  //   // meta,
+  // });
+
+  // if (!parsed.success) {
+  //   console.error(parsed.error.message);
+
+  //   return null;
+  // }
+
+  return {
+    ...item,
     files,
-    // meta,
-  });
-
-  if (!parsed.success) {
-    console.error(parsed.error.message);
-
-    return null;
-  }
-
-  return parsed.data;
+  } as RegistryItem;
 }
 
 // New helper function to get all files including dependencies
@@ -355,7 +361,7 @@ async function getAllItemFiles(
   return uniqueFiles;
 }
 
-async function getFileContent(file: z.infer<typeof registryItemFileSchema>) {
+async function getFileContent(file: any) {
   // Try different path resolutions
   const possiblePaths = [
     file.path,
@@ -394,7 +400,7 @@ async function getFileContent(file: z.infer<typeof registryItemFileSchema>) {
   return code;
 }
 
-function getFileTarget(file: z.infer<typeof registryItemFileSchema>) {
+function getFileTarget(file: any) {
   let target = file.target;
 
   if (!target || target === '') {
@@ -426,7 +432,7 @@ async function createTempSourceFile(filename: string) {
   return path.join(dir, filename);
 }
 
-function fixFilePaths(files: z.infer<typeof registryItemSchema>['files']) {
+function fixFilePaths(files: any) {
   if (!files?.length) {
     return [];
   }
@@ -435,7 +441,7 @@ function fixFilePaths(files: z.infer<typeof registryItemSchema>['files']) {
   const firstFilePath = files[0].path;
   const firstFilePathDir = path.dirname(firstFilePath);
 
-  return files.map((file) => ({
+  return files.map((file: any) => ({
     ...file,
     path: path.relative(firstFilePathDir, file.path),
     target: getFileTarget(file),
