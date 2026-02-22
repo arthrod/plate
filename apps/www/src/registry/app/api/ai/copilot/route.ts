@@ -2,14 +2,28 @@ import type { NextRequest } from 'next/server';
 
 import { generateText } from 'ai';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export async function POST(req: NextRequest) {
-  const {
-    apiKey: key,
-    model = 'gpt-4o-mini',
-    prompt,
-    system,
-  } = await req.json();
+  const body = await req.json();
+
+  const parsed = z
+    .object({
+      apiKey: z.string().optional(),
+      model: z.string().optional(),
+      prompt: z.string(),
+      system: z.string().optional(),
+    })
+    .safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Invalid request body.' },
+      { status: 400 }
+    );
+  }
+
+  const { apiKey: key, model = 'gpt-4o-mini', prompt, system } = parsed.data;
 
   const apiKey = key || process.env.AI_GATEWAY_API_KEY;
 
