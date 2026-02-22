@@ -1,4 +1,5 @@
 /* biome-ignore-all lint/nursery/useMaxParams: legacy code */
+/** biome-ignore-all lint/style/useAtIndex: legacy code */
 /* biome-ignore-all lint/performance/useTopLevelRegex: legacy code */
 /* biome-ignore-all lint/style/noParameterAssign: legacy code */
 /* biome-ignore-all lint/style/useForOf: legacy code */
@@ -26,6 +27,18 @@ import {
   paragraphBordersObject,
   verticalAlignValues,
 } from '../constants';
+import {
+  buildCommentRangeEnd,
+  buildCommentRangeStart,
+  buildCommentReferenceRun,
+  buildDeletedTextElement,
+  ensureTrackingState,
+  hasTrackingTokens,
+  splitDocxTrackingTokens,
+  wrapRunWithSuggestion,
+  type ActiveSuggestion,
+  type TrackingDocumentInstance,
+} from '../tracking';
 import namespaces from '../namespaces';
 import {
   hex3Regex,
@@ -93,7 +106,7 @@ type MediaFileResponse = {
   id: number;
 };
 
-type DocxDocumentInstance = {
+type DocxDocumentInstance = Partial<TrackingDocumentInstance> & {
   availableDocumentSpace: number;
   createDocumentRelationships: (
     filename: string,
@@ -127,8 +140,24 @@ type DocxDocumentInstance = {
 
 // Types for attributes and options
 type Indentation = {
+  firstLine?: number;
+  hanging?: number;
   left?: number;
   right?: number;
+};
+
+type ParagraphBorderSide = {
+  color: string;
+  size: number;
+  spacing: number;
+  stroke?: string;
+};
+
+type ParagraphBorder = {
+  bottom?: ParagraphBorderSide;
+  left?: ParagraphBorderSide;
+  right?: ParagraphBorderSide;
+  top?: ParagraphBorderSide;
 };
 
 type NumberingInfo = {
@@ -189,6 +218,7 @@ interface ParagraphAttributes extends RunAttributes {
   numbering?: NumberingInfo;
   originalHeight?: number;
   originalWidth?: number;
+  paragraphBorder?: ParagraphBorder;
   paragraphStyle?: string;
   relationshipId?: number;
   rowSpan?: string;
@@ -397,6 +427,225 @@ const buildTextElement = (text: string): XMLBuilderType =>
     .txt(text)
     .up();
 
+/**
+ * Build a text run fragment with run properties.
+ * Used for building runs within tracked changes.
+ */
+const buildTextRunFragment = (
+  text: string,
+  attributes: RunAttributes,
+  options?: { deleted?: boolean }
+): XMLBuilderType => {
+  const runFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'r'
+  );
+  const runPropertiesFragment = buildRunProperties(cloneDeep(attributes));
+
+  runFragment.import(runPropertiesFragment);
+  runFragment.import(
+    options?.deleted ? buildDeletedTextElement(text) : buildTextElement(text)
+  );
+  runFragment.up();
+
+  return runFragment;
+};
+
+/**
+ * Build runs from text that may contain DOCX tracking tokens.
+ * Handles insertions, deletions, and comments by parsing tokens
+ * and generating appropriate XML structures.
+ *
+ * Returns null if text has no tracking tokens (use normal processing).
+ */
+const buildRunsFromTextWithTokens = (
+  text: string,
+  attributes: RunAttributes,
+  docxDocumentInstance: DocxDocumentInstance
+): XMLBuilderType[] | null => {
+  // Check if document instance has tracking support
+  if (
+    !docxDocumentInstance.ensureComment ||
+    !docxDocumentInstance.getCommentId ||
+    !docxDocumentInstance.getRevisionId
+  ) {
+    return null;
+  }
+
+  const parts = splitDocxTrackingTokens(text);
+
+  // If just a single text part, return null to use normal processing
+  if (parts.length === 1 && parts[0].type === 'text') {
+    return null;
+  }
+
+  const fragments: XMLBuilderType[] = [];
+  const trackingState = ensureTrackingState(
+    docxDocumentInstance as Required<
+      Pick<
+        DocxDocumentInstance,
+        | '_trackingState'
+        | 'comments'
+        | 'commentIdMap'
+        | 'lastCommentId'
+        | 'revisionIdMap'
+        | 'lastRevisionId'
+        | 'ensureComment'
+        | 'getCommentId'
+        | 'getRevisionId'
+      >
+    >
+  );
+
+  for (const part of parts) {
+    if (part.type === 'text') {
+      if (!part.value) continue;
+
+      const activeSuggestion: ActiveSuggestion | undefined =
+        trackingState.suggestionStack[trackingState.suggestionStack.length - 1];
+      const runFragment = buildTextRunFragment(part.value, attributes, {
+        deleted: activeSuggestion?.type === 'remove',
+      });
+
+      fragments.push(
+        activeSuggestion
+          ? wrapRunWithSuggestion(runFragment, activeSuggestion)
+          : runFragment
+      );
+      continue;
+    }
+
+    if (part.type === 'commentStart') {
+      const data = part.data;
+      // Register parent comment
+      const parentCommentId = docxDocumentInstance.ensureComment({
+        id: data.id,
+        authorName: data.authorName,
+        authorInitials: data.authorInitials,
+        date: data.date,
+        paraId: data.paraId,
+        text: data.text,
+      });
+      fragments.push(buildCommentRangeStart(parentCommentId));
+
+      // Register and anchor reply comments
+      if (
+        data.replies &&
+        data.replies.length > 0 &&
+        docxDocumentInstance.comments &&
+        docxDocumentInstance.ensureComment
+      ) {
+        // Find parent's paraId for threading
+        const parentComment = docxDocumentInstance.comments.find(
+          (c) => c.id === parentCommentId
+        );
+        const parentParaId = parentComment?.paraId;
+
+        data.replies.forEach((reply, idx) => {
+          const replyId = reply.id
+            ? `${data.id}-reply-${reply.id}`
+            : `${data.id}-reply-${idx}`;
+
+          // Track reply ID associated with this parent
+          const existingReplies =
+            trackingState.replyIdsByParent.get(data.id) ?? [];
+          if (!existingReplies.includes(replyId)) {
+            existingReplies.push(replyId);
+            trackingState.replyIdsByParent.set(data.id, existingReplies);
+          }
+
+          const replyCommentId = docxDocumentInstance.ensureComment!(
+            {
+              id: replyId,
+              authorName: reply.authorName,
+              authorInitials: reply.authorInitials,
+              date: reply.date,
+              paraId: reply.paraId,
+              text: reply.text,
+            },
+            parentParaId
+          );
+          // Reply commentRangeStart anchored after parent's
+          fragments.push(buildCommentRangeStart(replyCommentId));
+        });
+      }
+      continue;
+    }
+
+    if (part.type === 'commentEnd') {
+      const commentId = docxDocumentInstance.getCommentId(part.id);
+      fragments.push(buildCommentRangeEnd(commentId));
+      fragments.push(buildCommentReferenceRun(commentId));
+
+      // Emit range end + reference for reply comments
+      const replyIds: number[] = [];
+      const trackedReplies = trackingState.replyIdsByParent.get(part.id) || [];
+
+      if (docxDocumentInstance.commentIdMap) {
+        // First try to use explicitly tracked reply IDs
+        if (trackedReplies.length > 0) {
+          for (const replyKey of trackedReplies) {
+            const numId = docxDocumentInstance.commentIdMap.get(replyKey);
+            if (numId !== undefined) {
+              replyIds.push(numId);
+            }
+          }
+        } else {
+          // Fallback to legacy prefix scan if no tracked replies found (backward compatibility)
+          for (const [
+            key,
+            numId,
+          ] of docxDocumentInstance.commentIdMap.entries()) {
+            if (key.startsWith(`${part.id}-reply-`)) {
+              replyIds.push(numId);
+            }
+          }
+        }
+      }
+      // Sort to preserve insertion order (though trackedReplies order should be preserved)
+      // If we used trackedReplies, they are already in insertion order, but sorting by numeric ID
+      // is usually safe if IDs are allocated sequentially. However, trackedReplies order is more reliable.
+      // If we used trackedReplies, let's trust that order. If we used fallback, we sort.
+      if (trackedReplies.length === 0) {
+        replyIds.sort((a, b) => a - b);
+      }
+      for (const replyNumId of replyIds) {
+        fragments.push(buildCommentRangeEnd(replyNumId));
+        fragments.push(buildCommentReferenceRun(replyNumId));
+      }
+      continue;
+    }
+
+    if (part.type === 'insStart' || part.type === 'delStart') {
+      const data = part.data;
+      const revisionId = docxDocumentInstance.getRevisionId(data.id);
+      const suggestionId = data.id || `suggestion-${revisionId}`;
+      const suggestion: ActiveSuggestion = {
+        id: suggestionId,
+        type: part.type === 'delStart' ? 'remove' : 'insert',
+        author: data.author,
+        date: data.date,
+        revisionId,
+      };
+
+      // Remove any existing suggestion with same ID before pushing
+      trackingState.suggestionStack = trackingState.suggestionStack.filter(
+        (item) => item.id !== suggestionId
+      );
+      trackingState.suggestionStack.push(suggestion);
+      continue;
+    }
+
+    if (part.type === 'insEnd' || part.type === 'delEnd') {
+      trackingState.suggestionStack = trackingState.suggestionStack.filter(
+        (item) => item.id !== part.id
+      );
+    }
+  }
+
+  return fragments;
+};
+
 const fixupLineHeight = (
   lineHeight: number,
   fontSize: number | null
@@ -517,15 +766,18 @@ const fixupColumnWidth = (
 };
 
 const fixupMargin = (marginString: string): number | undefined => {
-  if (pointRegex.test(marginString)) {
-    const matchedParts = marginString.match(pointRegex);
+  const signedPointRegex = /(-?[\d.]+)pt/i;
+  const signedPixelRegex = /(-?[\d.]+)px/i;
+
+  if (signedPointRegex.test(marginString)) {
+    const matchedParts = marginString.match(signedPointRegex);
     if (matchedParts) {
       // convert point to half point
       return pointToTWIP(Number.parseFloat(matchedParts[1]));
     }
   }
-  if (pixelRegex.test(marginString)) {
-    const matchedParts = marginString.match(pixelRegex);
+  if (signedPixelRegex.test(marginString)) {
+    const matchedParts = marginString.match(signedPixelRegex);
     if (matchedParts) {
       // convert pixels to half point
       return pixelToTWIP(Number.parseFloat(matchedParts[1]));
@@ -554,70 +806,148 @@ const modifiedStyleAttributesBuilder = (
   ) {
     const vn = vNode as VNodeType;
     const style = vn.properties!.style!;
+    const getStyleValue = (propertyName: string, camelCaseName?: string) =>
+      style[propertyName] ??
+      (style as Record<string, string>)[camelCaseName ?? propertyName];
+    const marginLeft = getStyleValue('margin-left', 'marginLeft');
+    const marginRight = getStyleValue('margin-right', 'marginRight');
+    const textIndent = getStyleValue('text-indent', 'textIndent');
 
     if (style.color && !colorlessColors.includes(style.color)) {
       modifiedAttributes.color = fixupColorCode(style.color);
     }
 
-    if (
-      style['background-color'] &&
-      !colorlessColors.includes(style['background-color'])
-    ) {
-      modifiedAttributes.backgroundColor = fixupColorCode(
-        style['background-color']
-      );
+    const backgroundColor = getStyleValue(
+      'background-color',
+      'backgroundColor'
+    );
+    if (backgroundColor && !colorlessColors.includes(backgroundColor)) {
+      modifiedAttributes.backgroundColor = fixupColorCode(backgroundColor);
     }
 
+    const verticalAlign = getStyleValue('vertical-align', 'verticalAlign');
     if (
-      style['vertical-align'] &&
-      verticalAlignValues.includes(
-        style['vertical-align'] as 'top' | 'middle' | 'bottom'
-      )
+      verticalAlign &&
+      verticalAlignValues.includes(verticalAlign as 'top' | 'middle' | 'bottom')
     ) {
-      modifiedAttributes.verticalAlign = style['vertical-align'];
+      modifiedAttributes.verticalAlign = verticalAlign;
     }
 
+    const textAlign = getStyleValue('text-align', 'textAlign');
     if (
-      style['text-align'] &&
-      ['left', 'right', 'center', 'justify'].includes(style['text-align'])
+      textAlign &&
+      ['left', 'right', 'center', 'justify'].includes(textAlign)
     ) {
-      modifiedAttributes.textAlign = style['text-align'];
+      modifiedAttributes.textAlign = textAlign;
     }
 
+    const fontWeight = getStyleValue('font-weight', 'fontWeight');
     // FIXME: remove bold check when other font weights are handled.
-    if (style['font-weight'] && style['font-weight'] === 'bold') {
-      modifiedAttributes.strong = style['font-weight'];
+    if (fontWeight && fontWeight === 'bold') {
+      modifiedAttributes.strong = fontWeight;
     }
-    if (style['font-family'] && docxDocumentInstance) {
-      modifiedAttributes.font = docxDocumentInstance.createFont(
-        style['font-family']
-      );
+    const fontFamily = getStyleValue('font-family', 'fontFamily');
+    if (fontFamily && docxDocumentInstance) {
+      modifiedAttributes.font = docxDocumentInstance.createFont(fontFamily);
     }
-    if (style['font-size']) {
-      modifiedAttributes.fontSize = fixupFontSize(style['font-size']);
+    const fontSize = getStyleValue('font-size', 'fontSize');
+    if (fontSize) {
+      modifiedAttributes.fontSize = fixupFontSize(fontSize);
     }
-    if (style['line-height']) {
+    const lineHeight = getStyleValue('line-height', 'lineHeight');
+    if (lineHeight) {
       modifiedAttributes.lineHeight = fixupLineHeight(
-        Number.parseFloat(style['line-height']),
-        style['font-size'] ? fixupFontSize(style['font-size']) || null : null
+        Number.parseFloat(lineHeight),
+        fontSize ? fixupFontSize(fontSize) || null : null
       );
     }
-    if (style['margin-left'] || style['margin-right']) {
-      const leftMargin = style['margin-left']
-        ? fixupMargin(style['margin-left'])
-        : undefined;
-      const rightMargin = style['margin-right']
-        ? fixupMargin(style['margin-right'])
-        : undefined;
-      const indentation: Indentation = {};
-      if (leftMargin) {
+
+    if (marginLeft || marginRight || textIndent) {
+      const indentation: Indentation = {
+        ...(modifiedAttributes.indentation || {}),
+      };
+
+      const leftMargin = marginLeft ? fixupMargin(marginLeft) : undefined;
+      const rightMargin = marginRight ? fixupMargin(marginRight) : undefined;
+      const textIndentMargin = textIndent ? fixupMargin(textIndent) : undefined;
+
+      if (leftMargin !== undefined) {
         indentation.left = leftMargin;
       }
-      if (rightMargin) {
+      if (rightMargin !== undefined) {
         indentation.right = rightMargin;
       }
-      if (leftMargin || rightMargin) {
+      if (textIndentMargin !== undefined) {
+        if (textIndentMargin < 0) {
+          indentation.hanging = Math.abs(textIndentMargin);
+          indentation.firstLine = undefined;
+        } else {
+          indentation.firstLine = textIndentMargin;
+          indentation.hanging = undefined;
+        }
+      }
+
+      if (Object.keys(indentation).length > 0) {
         modifiedAttributes.indentation = indentation;
+      }
+    }
+
+    if (options?.isParagraph) {
+      const marginTop = getStyleValue('margin-top', 'marginTop');
+      const marginBottom = getStyleValue('margin-bottom', 'marginBottom');
+
+      if (marginTop) {
+        const beforeSpacing = fixupMargin(marginTop);
+        if (beforeSpacing !== undefined) {
+          modifiedAttributes.beforeSpacing = beforeSpacing;
+        }
+      }
+
+      if (marginBottom) {
+        const afterSpacing = fixupMargin(marginBottom);
+        if (afterSpacing !== undefined) {
+          modifiedAttributes.afterSpacing = afterSpacing;
+        }
+      }
+
+      const paragraphBorder: ParagraphBorder = {
+        ...(modifiedAttributes.paragraphBorder || {}),
+      };
+
+      const border = getStyleValue('border');
+      if (border) {
+        const [borderSize, borderStroke, borderColor] = cssBorderParser(border);
+        ['top', 'right', 'bottom', 'left'].forEach((side) => {
+          paragraphBorder[side as keyof ParagraphBorder] = {
+            color: borderColor,
+            size: borderSize,
+            spacing: 3,
+            stroke: borderStroke,
+          };
+        });
+      }
+
+      ['top', 'right', 'bottom', 'left'].forEach((side) => {
+        const borderValue = getStyleValue(
+          `border-${side}`,
+          `border${side.charAt(0).toUpperCase()}${side.slice(1)}`
+        );
+
+        if (!borderValue) return;
+
+        const [borderSize, borderStroke, borderColor] =
+          cssBorderParser(borderValue);
+
+        paragraphBorder[side as keyof ParagraphBorder] = {
+          color: borderColor,
+          size: borderSize,
+          spacing: 3,
+          stroke: borderStroke,
+        };
+      });
+
+      if (Object.keys(paragraphBorder).length > 0) {
+        modifiedAttributes.paragraphBorder = paragraphBorder;
       }
     }
     if (style.display) {
@@ -781,11 +1111,30 @@ const buildRun = async (
     while (vNodes.length) {
       const tempVNode = vNodes.shift()!;
       if (isVText(tempVNode)) {
-        const textFragment = buildTextElement((tempVNode as VTextType).text);
-        const tempRunPropertiesFragment = buildRunProperties({
-          ...attributes,
-          ...tempAttributes,
-        });
+        const textContent = (tempVNode as VTextType).text;
+        const mergedAttributes = { ...attributes, ...tempAttributes };
+
+        // Check for tracking tokens in text
+        if (docxDocumentInstance && hasTrackingTokens(textContent)) {
+          const trackingFragments = buildRunsFromTextWithTokens(
+            textContent,
+            mergedAttributes,
+            docxDocumentInstance
+          );
+          if (trackingFragments) {
+            runFragmentsArray.push(...trackingFragments);
+            // re initialize temp run fragments with new fragment
+            tempAttributes = cloneDeep(attributes);
+            tempRunFragment = fragment({
+              namespaceAlias: { w: namespaces.w },
+            }).ele('@w', 'r');
+            continue;
+          }
+        }
+
+        // Normal text processing
+        const textFragment = buildTextElement(textContent);
+        const tempRunPropertiesFragment = buildRunProperties(mergedAttributes);
         tempRunFragment.import(tempRunPropertiesFragment);
         tempRunFragment.import(textFragment);
         runFragmentsArray.push(tempRunFragment);
@@ -895,7 +1244,22 @@ const buildRun = async (
 
   runFragment.import(runPropertiesFragment);
   if (isVText(vNode)) {
-    const textFragment = buildTextElement((vNode as VTextType).text);
+    const textContent = (vNode as VTextType).text;
+
+    // Check for tracking tokens in text
+    if (docxDocumentInstance && hasTrackingTokens(textContent)) {
+      const trackingFragments = buildRunsFromTextWithTokens(
+        textContent,
+        attributes,
+        docxDocumentInstance
+      );
+      if (trackingFragments) {
+        return trackingFragments;
+      }
+    }
+
+    // Normal text processing
+    const textFragment = buildTextElement(textContent);
     runFragment.import(textFragment);
   } else if (attributes && attributes.type === 'picture') {
     let response: MediaFileResponse | null = null;
@@ -1119,16 +1483,27 @@ const buildSpacing = (
   return spacingFragment;
 };
 
-const buildIndentation = ({ left, right }: Indentation): XMLBuilderType => {
+const buildIndentation = ({
+  left,
+  right,
+  firstLine,
+  hanging,
+}: Indentation): XMLBuilderType => {
   const indentationFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'ind');
 
-  if (left) {
+  if (left !== undefined) {
     indentationFragment.att('@w', 'left', String(left));
   }
-  if (right) {
+  if (right !== undefined) {
     indentationFragment.att('@w', 'right', String(right));
+  }
+  if (firstLine !== undefined) {
+    indentationFragment.att('@w', 'firstLine', String(firstLine));
+  }
+  if (hanging !== undefined) {
+    indentationFragment.att('@w', 'hanging', String(hanging));
   }
 
   indentationFragment.up();
@@ -1154,18 +1529,47 @@ const buildHorizontalAlignment = (
     .up();
 };
 
-const buildParagraphBorder = (): XMLBuilderType => {
+const buildParagraphBorder = (
+  customBorders?: ParagraphBorder
+): XMLBuilderType => {
   const paragraphBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'pBdr');
   const bordersObject = cloneDeep(paragraphBordersObject);
+  const borderStrokeOverrides: Partial<Record<keyof ParagraphBorder, string>> =
+    {};
+
+  if (customBorders) {
+    Object.entries(customBorders).forEach(([borderName, border]) => {
+      if (!border) return;
+
+      const normalizedBorderName = borderName as keyof typeof bordersObject;
+      bordersObject[normalizedBorderName] = {
+        color: border.color,
+        size: border.size,
+        spacing: border.spacing,
+      };
+
+      if (border.stroke) {
+        borderStrokeOverrides[borderName as keyof ParagraphBorder] =
+          border.stroke;
+      }
+    });
+  }
 
   Object.keys(bordersObject).forEach((borderName) => {
     const border = bordersObject[borderName as keyof typeof bordersObject];
     if (border) {
       const { size, spacing, color } = border;
+      const stroke = borderStrokeOverrides[borderName as keyof ParagraphBorder];
 
-      const borderFragment = buildBorder(borderName, size, spacing, color);
+      const borderFragment = buildBorder(
+        borderName,
+        size,
+        spacing,
+        color,
+        stroke
+      );
       paragraphBorderFragment.import(borderFragment);
     }
   });
@@ -1246,6 +1650,15 @@ const buildParagraphProperties = (
           paragraphPropertiesFragment.import(borderFragment);
 
           attributes.blockquoteBorder = undefined;
+          break;
+        }
+        case 'paragraphBorder': {
+          const borderFragment = buildParagraphBorder(
+            attributes.paragraphBorder
+          );
+          paragraphPropertiesFragment.import(borderFragment);
+
+          attributes.paragraphBorder = undefined;
           break;
         }
       }
@@ -3205,4 +3618,7 @@ export {
   buildUnderline,
   buildDrawing,
   fixupLineHeight,
+  // Tracking support exports
+  buildRunsFromTextWithTokens,
+  buildTextRunFragment,
 };
