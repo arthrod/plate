@@ -6,11 +6,6 @@ import * as React from 'react';
 import { CheckIcon, ClipboardIcon } from '@radix-ui/react-icons';
 
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { type Event, trackEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
 
@@ -26,11 +21,6 @@ export function BlockCopyButton({
   name: string;
 } & ComponentProps<typeof Button>) {
   const [hasCopied, setHasCopied] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   React.useEffect(() => {
     if (hasCopied) {
@@ -66,16 +56,53 @@ export function BlockCopyButton({
     </Button>
   );
 
-  if (!mounted) {
-    return trigger;
+  return (
+    <ClientTooltipWrapper content={hasCopied ? 'Copied!' : 'Copy code'}>
+      {trigger}
+    </ClientTooltipWrapper>
+  );
+}
+
+function ClientTooltipWrapper({
+  children,
+  content,
+}: {
+  children: React.ReactNode;
+  content: React.ReactNode;
+}) {
+  const [TooltipComponents, setTooltipComponents] = React.useState<{
+    Tooltip: React.ComponentType<{ children: React.ReactNode }>;
+    TooltipContent: React.ComponentType<{
+      className?: string;
+      children: React.ReactNode;
+    }>;
+    TooltipTrigger: React.ComponentType<{
+      asChild?: boolean;
+      children: React.ReactNode;
+    }>;
+  } | null>(null);
+
+  React.useEffect(() => {
+    // Dynamically import Tooltip components to avoid build issues in Edge Runtime
+    import('@/components/ui/tooltip').then((mod) => {
+      setTooltipComponents({
+        Tooltip: mod.Tooltip,
+        TooltipContent: mod.TooltipContent,
+        TooltipTrigger: mod.TooltipTrigger,
+      });
+    });
+  }, []);
+
+  if (!TooltipComponents) {
+    return <>{children}</>;
   }
+
+  const { Tooltip, TooltipContent, TooltipTrigger } = TooltipComponents;
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-      <TooltipContent className="bg-black text-white">
-        {hasCopied ? 'Copied!' : 'Copy code'}
-      </TooltipContent>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent className="bg-black text-white">{content}</TooltipContent>
     </Tooltip>
   );
 }
