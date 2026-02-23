@@ -14,5 +14,8 @@
       "type": "registry:file",
       "target": "app/api/ai/copilot/route.ts"
     }
-  ]
+  ],
+  "meta": {
+    "rsc": true
+  }
 }

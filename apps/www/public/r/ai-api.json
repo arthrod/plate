@@ -67,5 +67,8 @@
       "type": "registry:file",
       "target": "app/api/ai/command/prompt/getGeneratePrompt.ts"
     }
-  ]
+  ],
+  "meta": {
+    "rsc": true
+  }
 }
