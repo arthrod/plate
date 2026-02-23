@@ -4034,7 +4034,10 @@
           "type": "registry:file",
           "target": "app/api/uploadthing/route.ts"
         }
-      ]
+      ],
+      "meta": {
+        "rsc": true
+      }
     },
     {
       "name": "settings-dialog",

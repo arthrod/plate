@@ -85,6 +85,9 @@ const registryApi: Registry['items'] = [
       },
     ],
     name: 'media-uploadthing-api',
+    meta: {
+      rsc: true,
+    },
     registryDependencies: ['uploadthing'],
     type: 'registry:file',
   },
