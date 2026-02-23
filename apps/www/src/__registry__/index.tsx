@@ -2781,12 +2781,8 @@ export const Index: Record<string, any> = {
       type: "registry:file",
       target: "app/api/ai/command/prompt/getGeneratePrompt.ts"
     }],
-    component: React.lazy(async () => {
-      const mod = await import("@/registry/app/api/ai/command/route.ts")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || item.name
-      return { default: mod.default || mod[exportName] }
-    }),
-    meta: undefined,
+    component: null,
+    meta: {"rsc":true},
   },
   "copilot-api": {
     name: "copilot-api",
@@ -2798,12 +2794,8 @@ export const Index: Record<string, any> = {
       type: "registry:file",
       target: "app/api/ai/copilot/route.ts"
     }],
-    component: React.lazy(async () => {
-      const mod = await import("@/registry/app/api/ai/copilot/route.ts")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || item.name
-      return { default: mod.default || mod[exportName] }
-    }),
-    meta: undefined,
+    component: null,
+    meta: {"rsc":true},
   },
   "media-uploadthing-api": {
     name: "media-uploadthing-api",
@@ -2815,12 +2807,8 @@ export const Index: Record<string, any> = {
       type: "registry:file",
       target: "app/api/uploadthing/route.ts"
     }],
-    component: React.lazy(async () => {
-      const mod = await import("@/registry/app/api/uploadthing/route.ts")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || item.name
-      return { default: mod.default || mod[exportName] }
-    }),
-    meta: undefined,
+    component: null,
+    meta: {"rsc":true},
   },
   "settings-dialog": {
     name: "settings-dialog",
