@@ -73,7 +73,6 @@ export function CopyButton({
         );
         setHasCopied(true);
       }}
-      title={hasCopied ? 'Copied!' : 'Copy code'}
       {...props}
     >
       <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
