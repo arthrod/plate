@@ -9,8 +9,6 @@
  */
 
 const VERSION = '2';
-const NO_PROPERTIES: Record<string, unknown> = {};
-const NO_CHILDREN: (VNode | VText)[] = [];
 
 export interface VNodeProperties {
   attributes?: Record<string, string>;
@@ -24,10 +22,8 @@ function isVHook(x: unknown): boolean {
   const obj = x as Record<string, unknown>;
 
   return (
-    (typeof obj.hook === 'function' &&
-      !Object.prototype.hasOwnProperty.call(obj, 'hook')) ||
-    (typeof obj.unhook === 'function' &&
-      !Object.prototype.hasOwnProperty.call(obj, 'unhook'))
+    (typeof obj.hook === 'function' && !Object.hasOwn(obj, 'hook')) ||
+    (typeof obj.unhook === 'function' && !Object.hasOwn(obj, 'unhook'))
   );
 }
 
@@ -63,14 +59,14 @@ export class VNode {
     namespace?: string | null
   ) {
     this.tagName = tagName;
-    this.properties = properties || NO_PROPERTIES;
-    this.children = children || NO_CHILDREN;
+    this.properties = properties || {};
+    this.children = children || [];
     this.key = key != null ? String(key) : undefined;
     this.namespace = typeof namespace === 'string' ? namespace : null;
     this.version = VERSION;
     this.type = 'VirtualNode';
 
-    const count = (children && children.length) || 0;
+    const count = children?.length || 0;
     let descendants = 0;
     let hasWidgets = false;
     let hasThunks = false;
@@ -78,7 +74,7 @@ export class VNode {
     let hooks: Record<string, unknown> | undefined;
 
     for (const propName in properties) {
-      if (Object.prototype.hasOwnProperty.call(properties, propName)) {
+      if (Object.hasOwn(properties, propName)) {
         const property = properties[propName];
 
         if (isVHook(property) && (property as Record<string, unknown>).unhook) {
@@ -100,10 +96,7 @@ export class VNode {
 
         if (!hasWidgets && vChild.hasWidgets) hasWidgets = true;
         if (!hasThunks && vChild.hasThunks) hasThunks = true;
-        if (
-          !descendantHooks &&
-          (vChild.hooks || vChild.descendantHooks)
-        )
+        if (!descendantHooks && (vChild.hooks || vChild.descendantHooks))
           descendantHooks = true;
       } else if (!hasWidgets && isWidgetNode(child)) {
         if (typeof (child as Record<string, unknown>).destroy === 'function') {

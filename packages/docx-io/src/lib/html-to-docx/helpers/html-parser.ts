@@ -187,10 +187,7 @@ for (const propName of Object.keys(Properties)) {
       propConfig,
       HAS_OVERLOADED_BOOLEAN_VALUE
     ),
-    hasPositiveNumericValue: checkMask(
-      propConfig,
-      HAS_POSITIVE_NUMERIC_VALUE
-    ),
+    hasPositiveNumericValue: checkMask(propConfig, HAS_POSITIVE_NUMERIC_VALUE),
     mustUseAttribute: checkMask(propConfig, MUST_USE_ATTRIBUTE),
     mustUseProperty: checkMask(propConfig, MUST_USE_PROPERTY),
     propertyName: propName,
@@ -200,9 +197,7 @@ for (const propName of Object.keys(Properties)) {
 function getPropertyInfo(attributeName: string): PropertyInfo {
   const lowerCased = attributeName.toLowerCase();
 
-  if (
-    Object.prototype.hasOwnProperty.call(propInfoByAttributeName, lowerCased)
-  ) {
+  if (Object.hasOwn(propInfoByAttributeName, lowerCased)) {
     return propInfoByAttributeName[lowerCased];
   }
 
@@ -359,10 +354,7 @@ function createConverter() {
         node.type === 'script' ||
         node.type === 'style'
       ) {
-        return converter.convertTag(
-          node as HtmlParserTag,
-          getVNodeKey
-        );
+        return converter.convertTag(node as HtmlParserTag, getVNodeKey);
       }
 
       if (node.type === 'text') {
@@ -415,7 +407,12 @@ function convertHTML(
     htmlString = optionsOrHtml;
   } else {
     opts = optionsOrHtml;
-    htmlString = html!;
+
+    if (html === undefined) {
+      return new VText('');
+    }
+
+    htmlString = html;
   }
 
   const converter = createConverter();

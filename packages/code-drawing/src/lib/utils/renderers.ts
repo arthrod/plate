@@ -104,11 +104,14 @@ export async function renderFlowchart(content: string): Promise<string> {
     el.style.display = 'none';
     document.body.appendChild(el);
 
-    chart.drawSVG(el);
-    const svg = el.innerHTML;
-    document.body.removeChild(el);
+    try {
+      chart.drawSVG(el);
+      const svg = el.innerHTML;
 
-    return svgToDataUrl(svg);
+      return svgToDataUrl(svg);
+    } finally {
+      document.body.removeChild(el);
+    }
   } catch (error) {
     console.error('Flowchart rendering error:', error);
     throw error;

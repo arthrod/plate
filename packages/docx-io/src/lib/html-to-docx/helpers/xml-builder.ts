@@ -5,7 +5,7 @@
 import { cloneDeep } from 'lodash';
 // @ts-expect-error - no types available
 import mimeTypes from 'mime-types';
-import { VNode, VText, isVNode, isVText } from '../vdom/index';
+import { type VNode, type VText, isVNode, isVText } from '../vdom/index';
 import type { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { fragment } from 'xmlbuilder2';
 
