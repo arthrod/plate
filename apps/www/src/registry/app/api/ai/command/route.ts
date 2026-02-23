@@ -31,7 +31,25 @@ import {
 } from './prompt';
 
 export async function POST(req: NextRequest) {
-  const { apiKey: key, ctx, messages: messagesRaw, model } = await req.json();
+  const body = await req.json();
+
+  const {
+    apiKey: key,
+    ctx,
+    messages: messagesRaw,
+    model,
+  } = z
+    .object({
+      apiKey: z.string().optional(),
+      ctx: z.object({
+        children: z.any(),
+        selection: z.any(),
+        toolName: z.string().optional(),
+      }),
+      messages: z.array(z.any()),
+      model: z.string().optional(),
+    })
+    .parse(body);
 
   const { children, selection, toolName: toolNameParam } = ctx;
 
@@ -41,7 +59,9 @@ export async function POST(req: NextRequest) {
     value: children,
   });
 
-  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
+  // To use a server-side API key, remove the 'key' parameter and use process.env.AI_GATEWAY_API_KEY directly.
+  // Ensure you have authentication to prevent abuse.
+  const apiKey = key;
 
   if (!apiKey) {
     return NextResponse.json(

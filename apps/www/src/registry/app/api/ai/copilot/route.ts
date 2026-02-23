@@ -2,16 +2,28 @@ import type { NextRequest } from 'next/server';
 
 import { generateText } from 'ai';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export async function POST(req: NextRequest) {
+  const body = await req.json();
+
   const {
     apiKey: key,
     model = 'gpt-4o-mini',
     prompt,
     system,
-  } = await req.json();
+  } = z
+    .object({
+      apiKey: z.string().optional(),
+      model: z.string().optional(),
+      prompt: z.string(),
+      system: z.string().optional(),
+    })
+    .parse(body);
 
-  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
+  // To use a server-side API key, remove the 'key' parameter and use process.env.AI_GATEWAY_API_KEY directly.
+  // Ensure you have authentication to prevent abuse.
+  const apiKey = key;
 
   if (!apiKey) {
     return NextResponse.json(
