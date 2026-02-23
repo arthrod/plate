@@ -47,7 +47,6 @@ function PureMarkdown({
 
             return match ? (
               <CodeBlock
-                key={Math.random()}
                 value={String(children).replace(TRAILING_NEWLINE_REGEX, '')}
                 language={match?.[1] || ''}
                 {...props}
