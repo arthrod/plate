@@ -63,7 +63,7 @@ export function BlockCopyButton({
           </Button>
         </TooltipTrigger>
         <TooltipContent className="bg-black text-white">
-          {hasCopied ? 'Copied' : 'Copy code'}
+          Copy code
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
