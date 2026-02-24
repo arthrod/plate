@@ -58,8 +58,9 @@ export class VNode {
     key?: string | null,
     namespace?: string | null
   ) {
+    const props = properties ?? {};
     this.tagName = tagName;
-    this.properties = properties || {};
+    this.properties = props;
     this.children = children || [];
     this.key = key != null ? String(key) : undefined;
     this.namespace = typeof namespace === 'string' ? namespace : null;
@@ -73,9 +74,9 @@ export class VNode {
     let descendantHooks = false;
     let hooks: Record<string, unknown> | undefined;
 
-    for (const propName in properties) {
-      if (Object.hasOwn(properties, propName)) {
-        const property = properties[propName];
+    for (const propName in props) {
+      if (Object.hasOwn(props, propName)) {
+        const property = props[propName];
 
         if (isVHook(property) && (property as Record<string, unknown>).unhook) {
           if (!hooks) {
