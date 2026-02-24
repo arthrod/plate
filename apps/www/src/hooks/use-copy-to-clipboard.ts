@@ -22,30 +22,48 @@ export const useCopyToClipboard = ({
   timeout?: number;
 } = {}) => {
   const [isCopied, setIsCopied] = React.useState(false);
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const copyToClipboard = (
-    value: string,
-    { data, tooltip }: { data?: ExternalToast; tooltip?: string } = {}
-  ) => {
-    if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
-      return;
-    }
-    if (!value) {
-      return;
-    }
+  const copyToClipboard = React.useCallback(
+    (
+      value: string,
+      { data, tooltip }: { data?: ExternalToast; tooltip?: string } = {}
+    ) => {
+      if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
+        return;
+      }
+      if (!value) {
+        return;
+      }
 
-    void navigator.clipboard.writeText(value).then(() => {
-      setIsCopied(true);
+      void navigator.clipboard.writeText(value).then(() => {
+        setIsCopied(true);
 
-      setTimeout(() => {
-        setIsCopied(false);
-      }, timeout);
-    });
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
 
-    if (tooltip) {
-      toast.success(tooltip, data);
-    }
-  };
+        timeoutRef.current = setTimeout(() => {
+          setIsCopied(false);
+          timeoutRef.current = null;
+        }, timeout);
+      });
+
+      if (tooltip) {
+        toast.success(tooltip, data);
+      }
+    },
+    [timeout]
+  );
+
+  React.useEffect(
+    () => () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    },
+    []
+  );
 
   return { copyToClipboard, isCopied };
 };

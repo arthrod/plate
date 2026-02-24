@@ -46,9 +46,13 @@ export function CopyButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   return (
@@ -94,9 +98,13 @@ export function CopyWithClassNames({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const copyToClipboard = React.useCallback((_value: string) => {
@@ -151,9 +159,13 @@ export function CopyNpmCommandButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const copyCommand = React.useCallback(
