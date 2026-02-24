@@ -30,29 +30,15 @@ import {
   getGeneratePrompt,
 } from './prompt';
 
-const toRequestSchema = z.object({
-  apiKey: z.string().optional(),
-  ctx: z.object({
-    children: z.array(z.any()),
-    selection: z.any().optional(),
-    toolName: z.string().optional(),
-  }),
-  messages: z.array(z.any()),
-  model: z.string().optional(),
-});
-
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const parseResult = toRequestSchema.safeParse(body);
+  const { apiKey: key, ctx, messages: messagesRaw, model } = await req.json();
 
-  if (!parseResult.success) {
+  if (!ctx || !Array.isArray(ctx.children) || !Array.isArray(messagesRaw)) {
     return NextResponse.json(
-      { details: parseResult.error, error: 'Invalid request body' },
+      { error: 'Invalid request body' },
       { status: 400 }
     );
   }
-
-  const { apiKey: key, ctx, messages: messagesRaw, model } = parseResult.data;
 
   const { children, selection, toolName: toolNameParam } = ctx;
 

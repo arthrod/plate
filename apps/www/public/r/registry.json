@@ -4001,8 +4001,7 @@
       "name": "copilot-api",
       "type": "registry:file",
       "dependencies": [
-        "ai@5.0.28",
-        "zod@3.24.1"
+        "ai@5.0.28"
       ],
       "registryDependencies": [],
       "files": [
