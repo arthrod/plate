@@ -4,7 +4,12 @@ import { registryKits } from './registry-kits';
 
 const registryApi: Registry['items'] = [
   {
-    dependencies: ['@ai-sdk/react@2.0.28', 'ai@5.0.28', 'dedent@1.0.0'],
+    dependencies: [
+      '@ai-sdk/react@2.0.28',
+      'ai@5.0.28',
+      'dedent@1.0.0',
+      'zod@3.24.1',
+    ],
     files: [
       {
         path: 'app/api/ai/command/route.ts',
@@ -57,7 +62,7 @@ const registryApi: Registry['items'] = [
     type: 'registry:file',
   },
   {
-    dependencies: ['ai@5.0.28'],
+    dependencies: ['ai@5.0.28', 'zod@3.24.1'],
     files: [
       {
         path: 'app/api/ai/copilot/route.ts',

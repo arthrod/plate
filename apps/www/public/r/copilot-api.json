@@ -3,13 +3,14 @@
   "name": "copilot-api",
   "type": "registry:file",
   "dependencies": [
-    "ai@5.0.28"
+    "ai@5.0.28",
+    "zod@3.24.1"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "src/registry/app/api/ai/copilot/route.ts",
-      "content": "import type { NextRequest } from 'next/server';\n\nimport { generateText } from 'ai';\nimport { NextResponse } from 'next/server';\n\nexport async function POST(req: NextRequest) {\n  const {\n    apiKey: key,\n    model = 'gpt-4o-mini',\n    prompt,\n    system,\n  } = await req.json();\n\n  const apiKey = key || process.env.AI_GATEWAY_API_KEY;\n\n  if (!apiKey) {\n    return NextResponse.json(\n      { error: 'Missing ai gateway API key.' },\n      { status: 401 }\n    );\n  }\n\n  try {\n    const result = await generateText({\n      abortSignal: req.signal,\n      maxOutputTokens: 50,\n      model: `openai/${model}`,\n      prompt,\n      system,\n      temperature: 0.7,\n    });\n\n    return NextResponse.json(result);\n  } catch (error) {\n    if (error instanceof Error && error.name === 'AbortError') {\n      return NextResponse.json(null, { status: 408 });\n    }\n\n    return NextResponse.json(\n      { error: 'Failed to process AI request' },\n      { status: 500 }\n    );\n  }\n}\n",
+      "content": "import type { NextRequest } from 'next/server';\n\nimport { z } from 'zod';\n\nimport { generateText } from 'ai';\nimport { NextResponse } from 'next/server';\n\nconst toRequestSchema = z.object({\n  apiKey: z.string().optional(),\n  model: z.string().optional(),\n  prompt: z.string(),\n  system: z.string().optional(),\n});\n\nexport async function POST(req: NextRequest) {\n  const body = await req.json();\n  const parseResult = toRequestSchema.safeParse(body);\n\n  if (!parseResult.success) {\n    return NextResponse.json(\n      { details: parseResult.error, error: 'Invalid request body' },\n      { status: 400 }\n    );\n  }\n\n  const {\n    apiKey: key,\n    model = 'gpt-4o-mini',\n    prompt,\n    system,\n  } = parseResult.data;\n\n  const apiKey = key;\n\n  if (!apiKey) {\n    return NextResponse.json(\n      { error: 'Missing ai gateway API key.' },\n      { status: 401 }\n    );\n  }\n\n  try {\n    const result = await generateText({\n      abortSignal: req.signal,\n      maxOutputTokens: 50,\n      model: `openai/${model}`,\n      prompt,\n      system,\n      temperature: 0.7,\n    });\n\n    return NextResponse.json(result);\n  } catch (error) {\n    if (error instanceof Error && error.name === 'AbortError') {\n      return NextResponse.json(null, { status: 408 });\n    }\n\n    return NextResponse.json(\n      { error: 'Failed to process AI request' },\n      { status: 500 }\n    );\n  }\n}\n",
       "type": "registry:file",
       "target": "app/api/ai/copilot/route.ts"
     }
