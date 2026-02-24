@@ -22,7 +22,8 @@ export const useCopyToClipboard = ({
   timeout?: number;
 } = {}) => {
   const [isCopied, setIsCopied] = React.useState(false);
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Using any to prevent potential build errors with Node vs Edge types
+  const timeoutRef = React.useRef<any>(null);
 
   const copyToClipboard = React.useCallback(
     (
