@@ -2,7 +2,7 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "RAILPACK",
-    "buildCommand": "NODE_OPTIONS='--max-old-space-size=8192' turbo --filter \"./packages/**\" build && cd apps/www && contentlayer2 build && NODE_ENV=production tsx --tsconfig ./scripts/tsconfig.scripts.json scripts/build-registry.mts && yarn tailwindcss -i ./src/app/globals.css -o ./public/tailwind.css --minify && NODE_OPTIONS='--max-old-space-size=8192' next build"
+    "buildCommand": "yarn build && NODE_OPTIONS='--max-old-space-size=8192' turbo --filter \"./packages/**\" build && cd apps/www && contentlayer2 build && NODE_ENV=production tsx --tsconfig ./scripts/tsconfig.scripts.json scripts/build-registry.mts && yarn tailwindcss -i ./src/app/globals.css -o ./public/tailwind.css --minify && NODE_OPTIONS='--max-old-space-size=8192' next build"
   },
   "environments": {
     "production": {
