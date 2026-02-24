@@ -98,12 +98,12 @@ export function MobileNav({
                 </div>
                 <div className="flex flex-col gap-3">
                   {item?.items?.length &&
-                    item.items.map((_item) => {
+                    item.items.map((subItem) => {
                       const shouldFlatten =
-                        !_item.title || FLATTEN_SECTIONS.has(_item.title);
+                        !subItem.title || FLATTEN_SECTIONS.has(subItem.title);
 
-                      if (shouldFlatten && _item.items?.length) {
-                        return _item.items.map((nestedItem) => (
+                      if (shouldFlatten && subItem.items?.length) {
+                        return subItem.items.map((nestedItem) => (
                           <React.Fragment
                             key={(item.title ?? '') + nestedItem.title}
                           >
@@ -125,29 +125,29 @@ export function MobileNav({
                       }
 
                       return (
-                        <React.Fragment key={(item.title ?? '') + _item.title}>
-                          {!_item.disabled && (
+                        <React.Fragment key={(item.title ?? '') + subItem.title}>
+                          {!subItem.disabled && (
                             <>
-                              {_item.href ? (
+                              {subItem.href ? (
                                 <MobileLink
                                   onOpenChange={setOpen}
-                                  href={_item.href}
+                                  href={subItem.href}
                                 >
-                                  {_item.title}
-                                  {_item.label && (
+                                  {subItem.title}
+                                  {subItem.label && (
                                     <span className="ml-2 rounded-md bg-[#adfa1d] px-1.5 py-0.5 text-[#000000] text-xs leading-none no-underline group-hover:no-underline">
-                                      {_item.label}
+                                      {subItem.label}
                                     </span>
                                   )}
                                 </MobileLink>
                               ) : (
                                 <div className="font-medium text-lg">
-                                  {_item.title}
+                                  {subItem.title}
                                 </div>
                               )}
-                              {_item.items?.length && !shouldFlatten && (
+                              {subItem.items?.length && !shouldFlatten && (
                                 <div className="ml-4 flex flex-col gap-2">
-                                  {_item.items.map((nestedItem) => (
+                                  {subItem.items.map((nestedItem) => (
                                     <React.Fragment
                                       key={nestedItem.href || nestedItem.title}
                                     >
