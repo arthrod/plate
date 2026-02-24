@@ -62,7 +62,9 @@ export function BlockCopyButton({
             {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{hasCopied ? 'Copied' : 'Copy code'}</TooltipContent>
+        <TooltipContent className="bg-black text-white">
+          {hasCopied ? 'Copied' : 'Copy code'}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
