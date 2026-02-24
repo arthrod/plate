@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     value: children,
   });
 
-  const apiKey = key;
+  const apiKey = key || process.env.AI_GATEWAY_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(
