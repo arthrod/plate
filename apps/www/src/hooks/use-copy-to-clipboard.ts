@@ -22,8 +22,16 @@ export const useCopyToClipboard = ({
   timeout?: number;
 } = {}) => {
   const [isCopied, setIsCopied] = React.useState(false);
-  // Using any to prevent potential build errors with Node vs Edge types
-  const timeoutRef = React.useRef<any>(null);
+
+  React.useEffect(() => {
+    if (!isCopied) return;
+
+    const t = setTimeout(() => {
+      setIsCopied(false);
+    }, timeout);
+
+    return () => clearTimeout(t);
+  }, [isCopied, timeout]);
 
   const copyToClipboard = React.useCallback(
     (
@@ -39,28 +47,10 @@ export const useCopyToClipboard = ({
 
       void navigator.clipboard.writeText(value).then(() => {
         setIsCopied(true);
-
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
-
-        timeoutRef.current = setTimeout(() => {
-          setIsCopied(false);
-          timeoutRef.current = null;
-        }, timeout);
       });
 
       if (tooltip) {
         toast.success(tooltip, data);
-      }
-    },
-    [timeout]
-  );
-
-  React.useEffect(
-    () => () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
       }
     },
     []
