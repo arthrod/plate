@@ -17,7 +17,7 @@
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
-    "startCommand": "NODE_OPTIONS='--max-old-space-size=8192' HOSTNAME=0.0.0.0 next start --port ${PORT:-3000}",
+    "startCommand": "cd apps/www && NODE_OPTIONS='--max-old-space-size=8192' HOSTNAME=0.0.0.0 next start --port ${PORT:-3000}",
     "sleepApplication": false,
     "ipv6EgressEnabled": false,
     "multiRegionConfig": {
