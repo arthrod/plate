@@ -77,9 +77,10 @@ export function CopyButton({
         );
         setHasCopied(true);
       }}
+      aria-label={hasCopied ? 'Copied' : 'Copy'}
       {...props}
     >
-      <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
+      <span className="sr-only">Copy</span>
       {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
     </Button>
   );
@@ -122,13 +123,14 @@ export function CopyWithClassNames({
             'relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
             className
           )}
+          aria-label={hasCopied ? 'Copied' : 'Copy'}
         >
           {hasCopied ? (
             <Icons.check className="size-3" />
           ) : (
             <ClipboardIcon className="size-3" />
           )}
-          <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
+          <span className="sr-only">Copy</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -192,13 +194,14 @@ export function CopyNpmCommandButton({
             'relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
             className
           )}
+          aria-label={hasCopied ? 'Copied' : 'Copy'}
         >
           {hasCopied ? (
             <Icons.check className="size-3" />
           ) : (
             (icon ?? <ClipboardIcon className="size-3" />)
           )}
-          <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
+          <span className="sr-only">Copy</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

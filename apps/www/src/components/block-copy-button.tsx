@@ -56,9 +56,10 @@ export function BlockCopyButton({
               });
               setHasCopied(true);
             }}
+            aria-label={hasCopied ? 'Copied' : 'Copy'}
             {...props}
           >
-            <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
+            <span className="sr-only">Copy</span>
             {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
           </Button>
         </TooltipTrigger>
