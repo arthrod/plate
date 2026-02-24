@@ -98,6 +98,8 @@ export function MobileNav({
                 </div>
                 <div className="flex flex-col gap-3">
                   {item?.items?.length &&
+                    // Avoid underscore-prefixed names (e.g. _item) — React Compiler
+                    // generates broken variable names from them.
                     item.items.map((subItem) => {
                       const shouldFlatten =
                         !subItem.title || FLATTEN_SECTIONS.has(subItem.title);
@@ -105,7 +107,7 @@ export function MobileNav({
                       if (shouldFlatten && subItem.items?.length) {
                         return subItem.items.map((nestedItem) => (
                           <React.Fragment
-                            key={(item.title ?? '') + nestedItem.title}
+                            key={nestedItem.href || nestedItem.title}
                           >
                             {!nestedItem.disabled && nestedItem.href && (
                               <MobileLink
@@ -125,7 +127,7 @@ export function MobileNav({
                       }
 
                       return (
-                        <React.Fragment key={(item.title ?? '') + subItem.title}>
+                        <React.Fragment key={subItem.href || subItem.title}>
                           {!subItem.disabled && (
                             <>
                               {subItem.href ? (
