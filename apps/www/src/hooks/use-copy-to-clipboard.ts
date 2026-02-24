@@ -23,29 +23,38 @@ export const useCopyToClipboard = ({
 } = {}) => {
   const [isCopied, setIsCopied] = React.useState(false);
 
-  const copyToClipboard = (
-    value: string,
-    { data, tooltip }: { data?: ExternalToast; tooltip?: string } = {}
-  ) => {
-    if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
-      return;
-    }
-    if (!value) {
-      return;
-    }
+  React.useEffect(() => {
+    if (!isCopied) return;
 
-    void navigator.clipboard.writeText(value).then(() => {
-      setIsCopied(true);
+    const t = setTimeout(() => {
+      setIsCopied(false);
+    }, timeout);
 
-      setTimeout(() => {
-        setIsCopied(false);
-      }, timeout);
-    });
+    return () => clearTimeout(t);
+  }, [isCopied, timeout]);
 
-    if (tooltip) {
-      toast.success(tooltip, data);
-    }
-  };
+  const copyToClipboard = React.useCallback(
+    (
+      value: string,
+      { data, tooltip }: { data?: ExternalToast; tooltip?: string } = {}
+    ) => {
+      if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
+        return;
+      }
+      if (!value) {
+        return;
+      }
+
+      void navigator.clipboard.writeText(value).then(() => {
+        setIsCopied(true);
+      });
+
+      if (tooltip) {
+        toast.success(tooltip, data);
+      }
+    },
+    []
+  );
 
   return { copyToClipboard, isCopied };
 };

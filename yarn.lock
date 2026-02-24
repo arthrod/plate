@@ -38,6 +38,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ai-sdk/gateway@npm:3.0.54":
+  version: 3.0.54
+  resolution: "@ai-sdk/gateway@npm:3.0.54"
+  dependencies:
+    "@ai-sdk/provider": "npm:3.0.8"
+    "@ai-sdk/provider-utils": "npm:4.0.15"
+    "@vercel/oidc": "npm:3.1.0"
+  peerDependencies:
+    zod: ^3.25.76 || ^4.1.8
+  checksum: 10c0/df51805d9a7d94f05fafe7adc419028c62a5d72098ba8f92c7650350b135f949f375235f61caf6e56420a601b5e3ef0b04ab83feaf4883e9022d3142468b3ecc
+  languageName: node
+  linkType: hard
+
 "@ai-sdk/google@npm:^3.0.0":
   version: 3.0.6
   resolution: "@ai-sdk/google@npm:3.0.6"
@@ -3477,7 +3490,7 @@ __metadata:
   dependencies:
     "@ai-sdk/react": "npm:^3.0.0"
     "@platejs/combobox": "npm:52.0.15"
-    "@platejs/markdown": "npm:52.1.0"
+    "@platejs/markdown": "npm:52.3.1"
     "@platejs/selection": "npm:52.0.16"
     "@platejs/suggestion": "npm:52.0.11"
     ai: "npm:^6.0.97"
@@ -3913,7 +3926,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@platejs/markdown@npm:52.1.0, @platejs/markdown@workspace:^, @platejs/markdown@workspace:packages/markdown":
+"@platejs/markdown@npm:52.3.1, @platejs/markdown@workspace:^, @platejs/markdown@workspace:packages/markdown":
   version: 0.0.0-use.local
   resolution: "@platejs/markdown@workspace:packages/markdown"
   dependencies:
@@ -7808,6 +7821,20 @@ __metadata:
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
   checksum: 10c0/8b1d5b5df91753d3504c6c13be61f88c726147fcba7aee353c26967d0f51e0a8b520f2b7c566a60af8e5905fa6a414e945dc83b39a4517de7fd1fccfc14de79e
+  languageName: node
+  linkType: hard
+
+"ai@npm:^6.0.0":
+  version: 6.0.98
+  resolution: "ai@npm:6.0.98"
+  dependencies:
+    "@ai-sdk/gateway": "npm:3.0.54"
+    "@ai-sdk/provider": "npm:3.0.8"
+    "@ai-sdk/provider-utils": "npm:4.0.15"
+    "@opentelemetry/api": "npm:1.9.0"
+  peerDependencies:
+    zod: ^3.25.76 || ^4.1.8
+  checksum: 10c0/2c11cc752342b5150914010dea571d26b372a6de6774ebfe1b747073781445972d87d684847444d6ccefa8105bd00985a26a56dc49baa46e6adbb837042d46ba
   languageName: node
   linkType: hard
 
@@ -21785,7 +21812,7 @@ __metadata:
     "@udecode/cmdk": "workspace:^"
     "@udecode/cn": "workspace:^"
     "@uploadthing/react": "npm:7.3.1"
-    ai: "npm:^6.0.97"
+    ai: "npm:^6.0.0"
     autoprefixer: "npm:10.4.21"
     babel-plugin-react-compiler: "npm:1.0.0"
     class-variance-authority: "npm:0.7.1"

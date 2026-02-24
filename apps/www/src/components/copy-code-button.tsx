@@ -23,9 +23,13 @@ export function CopyCodeButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const themeCode = React.useMemo(
