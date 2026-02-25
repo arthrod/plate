@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 
 import type { Theme } from '@/lib/themes';
@@ -7,10 +9,10 @@ import { ClipboardIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useConfig } from '@/hooks/use-config';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { useThemesConfig } from '@/hooks/use-themes-config';
+import { trackEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
-
-import { copyToClipboardWithMeta } from './copy-button';
 
 export function CopyCodeButton({
   className,
@@ -20,13 +22,7 @@ export function CopyCodeButton({
   const [config] = useConfig();
   const { themesConfig } = useThemesConfig();
   const activeTheme = themesConfig.activeTheme;
-  const [hasCopied, setHasCopied] = React.useState(false);
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
-  }, [hasCopied]);
+  const { isCopied, copyToClipboard } = useCopyToClipboard();
 
   const themeCode = React.useMemo(
     () => getThemeCode(activeTheme, config.radius),
@@ -43,19 +39,19 @@ export function CopyCodeButton({
           className
         )}
         onClick={() => {
-          copyToClipboardWithMeta(themeCode, {
+          void copyToClipboard(themeCode);
+          trackEvent({
             name: 'copy_theme_code',
             properties: {
               radius: config.radius,
               theme: activeTheme.name,
             },
           });
-          setHasCopied(true);
         }}
         {...props}
       >
         <span className="sr-only">Copy</span>
-        {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+        {isCopied ? <CheckIcon /> : <ClipboardIcon />}
       </Button>
     );
   }
@@ -64,18 +60,18 @@ export function CopyCodeButton({
     <Button
       className={className}
       onClick={() => {
-        copyToClipboardWithMeta(themeCode, {
+        void copyToClipboard(themeCode);
+        trackEvent({
           name: 'copy_theme_code',
           properties: {
             radius: config.radius,
             theme: activeTheme.name,
           },
         });
-        setHasCopied(true);
       }}
       {...props}
     >
-      {hasCopied ? <CheckIcon /> : <CopyIcon />}
+      {isCopied ? <CheckIcon /> : <CopyIcon />}
       Copy code
     </Button>
   );
