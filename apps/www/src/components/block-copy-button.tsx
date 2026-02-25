@@ -12,7 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { type Event, trackEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +26,17 @@ export function BlockCopyButton({
   event: Event['name'];
   name: string;
 } & ComponentProps<typeof Button>) {
-  const { isCopied, copyToClipboard } = useCopyToClipboard();
+  const [hasCopied, setHasCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [hasCopied]);
 
   return (
     <TooltipProvider>
@@ -38,18 +47,19 @@ export function BlockCopyButton({
             variant="outline"
             className={cn('size-7 rounded-[6px] [&_svg]:size-3.5', className)}
             onClick={() => {
-              void copyToClipboard(code);
+              void navigator.clipboard.writeText(code);
               trackEvent({
                 name: event,
                 properties: {
                   name,
                 },
               });
+              setHasCopied(true);
             }}
             {...props}
           >
             <span className="sr-only">Copy</span>
-            {isCopied ? <CheckIcon /> : <ClipboardIcon />}
+            {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
           </Button>
         </TooltipTrigger>
         <TooltipContent className="bg-black text-white">

@@ -9,7 +9,6 @@ import { ClipboardIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useConfig } from '@/hooks/use-config';
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { useThemesConfig } from '@/hooks/use-themes-config';
 import { trackEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
@@ -22,12 +21,34 @@ export function CopyCodeButton({
   const [config] = useConfig();
   const { themesConfig } = useThemesConfig();
   const activeTheme = themesConfig.activeTheme;
-  const { isCopied, copyToClipboard } = useCopyToClipboard();
+  const [hasCopied, setHasCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [hasCopied]);
 
   const themeCode = React.useMemo(
     () => getThemeCode(activeTheme, config.radius),
     [activeTheme, config.radius]
   );
+
+  const copyToClipboard = () => {
+    void navigator.clipboard.writeText(themeCode);
+    trackEvent({
+      name: 'copy_theme_code',
+      properties: {
+        radius: config.radius,
+        theme: activeTheme.name,
+      },
+    });
+    setHasCopied(true);
+  };
 
   if (compact) {
     return (
@@ -38,40 +59,18 @@ export function CopyCodeButton({
           'size-7 rounded-[6px] text-primary-foreground [&_svg]:size-3.5',
           className
         )}
-        onClick={() => {
-          void copyToClipboard(themeCode);
-          trackEvent({
-            name: 'copy_theme_code',
-            properties: {
-              radius: config.radius,
-              theme: activeTheme.name,
-            },
-          });
-        }}
+        onClick={copyToClipboard}
         {...props}
       >
         <span className="sr-only">Copy</span>
-        {isCopied ? <CheckIcon /> : <ClipboardIcon />}
+        {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
       </Button>
     );
   }
 
   return (
-    <Button
-      className={className}
-      onClick={() => {
-        void copyToClipboard(themeCode);
-        trackEvent({
-          name: 'copy_theme_code',
-          properties: {
-            radius: config.radius,
-            theme: activeTheme.name,
-          },
-        });
-      }}
-      {...props}
-    >
-      {isCopied ? <CheckIcon /> : <CopyIcon />}
+    <Button className={className} onClick={copyToClipboard} {...props}>
+      {hasCopied ? <CheckIcon /> : <CopyIcon />}
       Copy code
     </Button>
   );
