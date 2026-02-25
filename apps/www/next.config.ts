@@ -62,10 +62,6 @@ const nextConfig = async (phase: string) => {
               value: 'SAMEORIGIN',
             },
             {
-              key: 'X-XSS-Protection',
-              value: '1; mode=block',
-            },
-            {
               key: 'Referrer-Policy',
               value: 'strict-origin-when-cross-origin',
             },
@@ -74,7 +70,7 @@ const nextConfig = async (phase: string) => {
               value: 'camera=(), microphone=(), geolocation=()',
             },
           ],
-          source: '/(.*)',
+          source: '/:path*',
         },
       ];
     },
