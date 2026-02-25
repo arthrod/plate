@@ -16,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { type Event, trackEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
 
@@ -44,7 +43,17 @@ export function CopyButton({
   variant = 'ghost',
   ...props
 }: CopyButtonProps) {
-  const { isCopied, copyToClipboard } = useCopyToClipboard();
+  const [hasCopied, setHasCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [hasCopied]);
 
   return (
     <Button
@@ -55,20 +64,23 @@ export function CopyButton({
         className
       )}
       onClick={() => {
-        void copyToClipboard(value);
-        if (event) {
-          trackEvent({
-            name: event,
-            properties: {
-              code: value,
-            },
-          });
-        }
+        void copyToClipboardWithMeta(
+          value,
+          event
+            ? {
+                name: event,
+                properties: {
+                  code: value,
+                },
+              }
+            : undefined
+        );
+        setHasCopied(true);
       }}
       {...props}
     >
       <span className="sr-only">Copy</span>
-      {isCopied ? <CheckIcon /> : <ClipboardIcon />}
+      {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
     </Button>
   );
 }
@@ -83,7 +95,22 @@ export function CopyWithClassNames({
   classNames,
   value,
 }: CopyWithClassNamesProps) {
-  const { isCopied, copyToClipboard } = useCopyToClipboard();
+  const [hasCopied, setHasCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [hasCopied]);
+
+  const copyToClipboard = React.useCallback((_value: string) => {
+    copyToClipboardWithMeta(_value);
+    setHasCopied(true);
+  }, []);
 
   return (
     <DropdownMenu>
@@ -96,7 +123,7 @@ export function CopyWithClassNames({
             className
           )}
         >
-          {isCopied ? (
+          {hasCopied ? (
             <Icons.check className="size-3" />
           ) : (
             <ClipboardIcon className="size-3" />
@@ -105,11 +132,11 @@ export function CopyWithClassNames({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => void copyToClipboard(value)}>
+        <DropdownMenuItem onClick={() => copyToClipboard(value)}>
           <Icons.react />
           <span>Component</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => void copyToClipboard(classNames)}>
+        <DropdownMenuItem onClick={() => copyToClipboard(classNames)}>
           <Icons.tailwind />
           <span>Classname</span>
         </DropdownMenuItem>
@@ -129,20 +156,30 @@ export function CopyNpmCommandButton({
   commands,
   icon,
 }: CopyNpmCommandButtonProps) {
-  const { isCopied, copyToClipboard } = useCopyToClipboard();
+  const [hasCopied, setHasCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [hasCopied]);
 
   const copyCommand = React.useCallback(
     (value: string, pm: 'bun' | 'npm' | 'pnpm' | 'yarn') => {
-      void copyToClipboard(value);
-      trackEvent({
+      void copyToClipboardWithMeta(value, {
         name: 'copy_npm_command',
         properties: {
           command: value,
           pm,
         },
       });
+      setHasCopied(true);
     },
-    [copyToClipboard]
+    []
   );
 
   return (
@@ -156,7 +193,7 @@ export function CopyNpmCommandButton({
             className
           )}
         >
-          {isCopied ? (
+          {hasCopied ? (
             <Icons.check className="size-3" />
           ) : (
             (icon ?? <ClipboardIcon className="size-3" />)
