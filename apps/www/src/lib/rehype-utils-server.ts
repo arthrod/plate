@@ -2,7 +2,6 @@ import React from 'react';
 
 import type { z } from 'zod';
 
-import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import {
   type Registry,
@@ -263,6 +262,8 @@ async function getAllItemFiles(
 }
 
 async function getFileContent(file: z.infer<typeof registryItemFileSchema>) {
+  const { promises: fs } = await import('node:fs');
+
   // Try different path resolutions
   const possiblePaths = [
     file.path,
