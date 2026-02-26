@@ -83,33 +83,35 @@ const nextConfig = async (phase: string) => {
       ];
     },
 
-    // webpack: (config, { buildId, dev, isServer, webpack }) => {
-    //   config.externals.push({
-    //     shiki: 'shiki',
-    //     typescript: 'typescript',
-    //   });
+    webpack: (config, { isServer, webpack }) => {
+      config.externals.push({
+        shiki: 'shiki',
+        typescript: 'typescript',
+      });
 
-    //   if (!isServer) {
-    //     config.resolve.fallback = {
-    //       ...config.resolve.fallback,
-    //       crypto: require.resolve('crypto-browserify'),
-    //       stream: require.resolve('stream-browserify'),
-    //     };
+      if (!isServer) {
+        config.resolve.fallback = {
+          ...config.resolve.fallback,
+          crypto: require.resolve('crypto-browserify'),
+          stream: require.resolve('stream-browserify'),
+          fs: false,
+          path: false,
+        };
 
-    //     config.plugins.push(
-    //       new webpack.ProvidePlugin({
-    //         process: 'process/browser',
-    //       }),
-    //       new webpack.NormalModuleReplacementPlugin(
-    //         /node:crypto/,
-    //         (resource: any) => {
-    //           resource.request = resource.request.replace(/^node:/, '');
-    //         }
-    //       )
-    //     );
-    //   }
-    //   return config;
-    // },
+        config.plugins.push(
+          new webpack.ProvidePlugin({
+            process: 'process/browser',
+          }),
+          new webpack.NormalModuleReplacementPlugin(
+            /node:crypto/,
+            (resource: any) => {
+              resource.request = resource.request.replace(/^node:/, '');
+            }
+          )
+        );
+      }
+      return config;
+    },
   };
 
   if (phase === 'phase-development-server') {

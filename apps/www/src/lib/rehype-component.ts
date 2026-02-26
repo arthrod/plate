@@ -12,10 +12,12 @@ import { highlightFiles } from './highlight-code';
 import {
   createFileTreeForRegistryItemFiles,
   fixImport,
-  getAllDependencies,
   getNodeAttributeByName,
-  getRegistryItem,
 } from './rehype-utils';
+import {
+  getAllDependencies,
+  getRegistryItem,
+} from './rehype-utils-server';
 
 // NOTE: shadcn fork
 export function rehypeComponent() {
