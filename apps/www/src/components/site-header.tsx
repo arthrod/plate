@@ -2,6 +2,11 @@ import Link from 'next/link';
 
 import { ModeSwitcher } from '@/components/mode-switcher';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { docsConfig } from '@/config/docs';
 import { siteConfig } from '@/config/site';
 
@@ -52,32 +57,48 @@ export function SiteHeader() {
               <CommandMenu />
             </div>
 
-            <Button size="icon" variant="ghost" className="size-8 px-0">
-              <Link
-                className="inline"
-                href={siteConfig.links.github}
-                rel="noreferrer"
-                target="_blank"
-              >
-                <Icons.gitHub className="size-4" />
-                <span className="sr-only">GitHub</span>
-              </Link>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  asChild
+                  size="icon"
+                  variant="ghost"
+                  className="size-8 px-0"
+                >
+                  <Link
+                    className="inline"
+                    href={siteConfig.links.github}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <Icons.gitHub className="size-4" />
+                    <span className="sr-only">GitHub</span>
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>GitHub</TooltipContent>
+            </Tooltip>
 
-            <Button
-              size="icon"
-              variant="ghost"
-              className="size-8 px-0 max-md:hidden"
-            >
-              <Link
-                href={siteConfig.links.discord}
-                rel="noreferrer"
-                target="_blank"
-              >
-                <Icons.discord className="size-4 fill-current" />
-                <span className="sr-only">Discord</span>
-              </Link>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  asChild
+                  size="icon"
+                  variant="ghost"
+                  className="size-8 px-0 max-md:hidden"
+                >
+                  <Link
+                    href={siteConfig.links.discord}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <Icons.discord className="size-4 fill-current" />
+                    <span className="sr-only">Discord</span>
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Discord</TooltipContent>
+            </Tooltip>
 
             <LanguagesDropdownMenu />
             <ModeSwitcher />

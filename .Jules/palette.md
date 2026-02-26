@@ -1,0 +1,3 @@
+## 2025-02-18 - [Adding Tooltips to Header Icons]
+**Learning:** Icon-only buttons in the site header (GitHub, Discord, Theme Toggle) lacked accessible descriptions on hover, relying solely on `sr-only` text. While `sr-only` handles screen readers, sighted users benefit from visual tooltips for clarity.
+**Action:** Wrapped icon buttons in `Tooltip` components from `@/components/ui/tooltip`. Critically, when wrapping a `Link` inside a `Button`, the `asChild` prop MUST be used on the `Button` to render a valid `<a>` tag instead of nesting `<a>` inside `<button>`. This ensures valid HTML semantics and correct keyboard navigation behavior. Verified that `Tooltip` usage here does not trigger the Edge Runtime build failures seen with `CopyButton`.
