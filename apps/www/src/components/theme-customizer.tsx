@@ -56,6 +56,7 @@ export function ThemeCustomizer() {
               activeTheme: THEMES['default-shadcn'],
             });
           }}
+          title="Reset"
         >
           <RepeatIcon />
           <span className="sr-only">Reset</span>
