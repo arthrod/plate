@@ -58,7 +58,6 @@ export function SiteHeader() {
                 href={siteConfig.links.github}
                 rel="noreferrer"
                 target="_blank"
-                title="GitHub"
               >
                 <Icons.gitHub className="size-4" />
                 <span className="sr-only">GitHub</span>
@@ -74,7 +73,6 @@ export function SiteHeader() {
                 href={siteConfig.links.discord}
                 rel="noreferrer"
                 target="_blank"
-                title="Discord"
               >
                 <Icons.discord className="size-4 fill-current" />
                 <span className="sr-only">Discord</span>
