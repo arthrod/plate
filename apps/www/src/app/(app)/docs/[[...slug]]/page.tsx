@@ -21,7 +21,7 @@ import {
   getCachedRegistryItem,
 } from '@/lib/registry-cache';
 import { getRegistryTitle } from '@/lib/registry-utils';
-import { getAllDependencies, getAllFiles } from '@/lib/rehype-utils';
+import { getAllDependencies, getAllFiles } from '@/lib/rehype-utils-server';
 import { getTableOfContents } from '@/lib/toc';
 import { registry } from '@/registry/registry';
 import { registryExamples } from '@/registry/registry-examples';

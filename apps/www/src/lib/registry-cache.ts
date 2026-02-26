@@ -4,11 +4,8 @@ import type { registryItemFileSchema } from 'shadcn/registry';
 import type { z } from 'zod';
 
 import { highlightFiles } from './highlight-code';
-import {
-  createFileTreeForRegistryItemFiles,
-  getAllDependencies,
-  getRegistryItem,
-} from './rehype-utils';
+import { createFileTreeForRegistryItemFiles } from './rehype-utils';
+import { getAllDependencies, getRegistryItem } from './rehype-utils-server';
 
 export const getCachedRegistryItem = React.cache(
   async (name: string, prefetch = false) =>
