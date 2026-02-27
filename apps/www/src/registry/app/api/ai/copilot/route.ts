@@ -1,12 +1,13 @@
 import type { NextRequest } from 'next/server';
 
+import { createGateway } from '@ai-sdk/gateway';
 import { generateText } from 'ai';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   const {
     apiKey: key,
-    model = 'gpt-4o-mini',
+    model,
     prompt,
     system,
   } = await req.json();
@@ -20,11 +21,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const gatewayProvider = createGateway({
+    apiKey,
+  });
+
   try {
     const result = await generateText({
       abortSignal: req.signal,
       maxOutputTokens: 50,
-      model: `openai/${model}`,
+      model: gatewayProvider(model || 'openai/gpt-4o-mini'),
       prompt,
       system,
       temperature: 0.7,
