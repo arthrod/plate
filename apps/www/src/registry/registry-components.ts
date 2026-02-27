@@ -57,7 +57,7 @@ const registryApi: Registry['items'] = [
     type: 'registry:file',
   },
   {
-    dependencies: ['ai@5.0.28'],
+    dependencies: ['ai@5.0.28', '@ai-sdk/gateway'],
     files: [
       {
         path: 'app/api/ai/copilot/route.ts',
