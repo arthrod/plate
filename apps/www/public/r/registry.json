@@ -4001,7 +4001,7 @@
       "type": "registry:file",
       "dependencies": [
         "ai@5.0.28",
-        "@ai-sdk/gateway"
+        "@ai-sdk/gateway@^3.0.0"
       ],
       "registryDependencies": [],
       "files": [
