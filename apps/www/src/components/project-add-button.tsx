@@ -24,6 +24,7 @@ export function ProjectAddButton({
           size="sm"
           variant="ghost"
           className={cn('rounded-sm', className)}
+          aria-label={isAdded ? 'Added to Project' : 'Add to Project'}
           onClick={() => {
             addBlock(name);
           }}
