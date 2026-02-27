@@ -24,13 +24,15 @@ export function ProjectAddButton({
           size="sm"
           variant="ghost"
           className={cn('rounded-sm', className)}
-          aria-label={isAdded ? 'Added to Project' : 'Add to Project'}
           onClick={() => {
             addBlock(name);
           }}
           {...props}
         >
           {isAdded ? <Check /> : <PlusCircle />}
+          <span className="sr-only">
+            {isAdded ? 'Added to Project' : 'Add to Project'}
+          </span>
         </Button>
       </TooltipTrigger>
       <TooltipContent sideOffset={10}>Add to Project</TooltipContent>
