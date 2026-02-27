@@ -1,0 +1,3 @@
+## 2024-05-15 - [O(1) Lookups in SelectionArea]
+**Learning:** `SelectionArea.ts` processes selections constantly on `requestAnimationFrame` during mouse movement. Iterating over `selected` or `stored` elements using `Array.prototype.includes` within `.filter()` operations causes O(n²) time complexity. When selecting numerous elements, this can lead to janky selection rendering or dropped frames.
+**Action:** Always convert dynamically updated arrays to `Set` collections (`new Set(array)`) before running `.filter()` operations that check for element existence inside a `requestAnimationFrame` or tight loop. This turns the time complexity into O(n).
