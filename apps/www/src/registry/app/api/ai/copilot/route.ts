@@ -11,6 +11,13 @@ export async function POST(req: NextRequest) {
     system,
   } = await req.json();
 
+  if (typeof prompt !== 'string') {
+    return NextResponse.json(
+      { error: 'Invalid request body' },
+      { status: 400 }
+    );
+  }
+
   const apiKey = key || process.env.AI_GATEWAY_API_KEY;
 
   if (!apiKey) {

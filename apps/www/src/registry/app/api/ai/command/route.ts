@@ -33,6 +33,13 @@ import {
 export async function POST(req: NextRequest) {
   const { apiKey: key, ctx, messages: messagesRaw, model } = await req.json();
 
+  if (!ctx || !Array.isArray(ctx.children) || !Array.isArray(messagesRaw)) {
+    return NextResponse.json(
+      { error: 'Invalid request body' },
+      { status: 400 }
+    );
+  }
+
   const { children, selection, toolName: toolNameParam } = ctx;
 
   const editor = createSlateEditor({
