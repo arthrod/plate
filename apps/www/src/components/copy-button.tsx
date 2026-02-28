@@ -16,6 +16,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { type Event, trackEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
 
@@ -44,6 +49,11 @@ export function CopyButton({
   ...props
 }: CopyButtonProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   React.useEffect(() => {
     setTimeout(() => {
@@ -51,7 +61,7 @@ export function CopyButton({
     }, 2000);
   }, [hasCopied]);
 
-  return (
+  const button = (
     <Button
       size="icon"
       variant={variant}
@@ -79,11 +89,30 @@ export function CopyButton({
       {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
     </Button>
   );
+
+  if (!isMounted) {
+    return button;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent>
+        {hasCopied ? 'Copied!' : 'Copy to clipboard'}
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 interface CopyNpmCommandButtonProps extends DropdownMenuTriggerProps {
   commands: Required<NpmCommands>;
   icon?: React.ReactNode;
+}
+
+interface CopyWithClassNamesProps extends DropdownMenuTriggerProps {
+  classNames: string;
+  value: string;
+  className?: string;
 }
 
 export function CopyWithClassNames({
@@ -135,12 +164,6 @@ export function CopyWithClassNames({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-interface CopyWithClassNamesProps extends DropdownMenuTriggerProps {
-  classNames: string;
-  value: string;
-  className?: string;
 }
 
 export function CopyNpmCommandButton({
