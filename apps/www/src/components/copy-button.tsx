@@ -46,9 +46,13 @@ export function CopyButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   return (
@@ -75,7 +79,7 @@ export function CopyButton({
       }}
       {...props}
     >
-      <span className="sr-only">Copy</span>
+      <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
       {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
     </Button>
   );
@@ -94,9 +98,13 @@ export function CopyWithClassNames({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const copyToClipboard = React.useCallback((_value: string) => {
@@ -120,7 +128,7 @@ export function CopyWithClassNames({
           ) : (
             <ClipboardIcon className="size-3" />
           )}
-          <span className="sr-only">Copy</span>
+          <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -151,9 +159,13 @@ export function CopyNpmCommandButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
+    if (!hasCopied) return;
+
+    const timeout = setTimeout(() => {
       setHasCopied(false);
     }, 2000);
+
+    return () => clearTimeout(timeout);
   }, [hasCopied]);
 
   const copyCommand = React.useCallback(
@@ -186,7 +198,7 @@ export function CopyNpmCommandButton({
           ) : (
             (icon ?? <ClipboardIcon className="size-3" />)
           )}
-          <span className="sr-only">Copy</span>
+          <span className="sr-only">{hasCopied ? 'Copied' : 'Copy'}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
