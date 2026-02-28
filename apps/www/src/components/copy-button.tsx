@@ -46,9 +46,13 @@ export function CopyButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
   }, [hasCopied]);
 
   return (
@@ -73,6 +77,7 @@ export function CopyButton({
         );
         setHasCopied(true);
       }}
+      aria-label={hasCopied ? 'Copied' : 'Copy'}
       {...props}
     >
       <span className="sr-only">Copy</span>
@@ -94,9 +99,13 @@ export function CopyWithClassNames({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
   }, [hasCopied]);
 
   const copyToClipboard = React.useCallback((_value: string) => {
@@ -114,6 +123,7 @@ export function CopyWithClassNames({
             'relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
             className
           )}
+          aria-label={hasCopied ? 'Copied' : 'Copy'}
         >
           {hasCopied ? (
             <Icons.check className="size-3" />
@@ -151,9 +161,13 @@ export function CopyNpmCommandButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
   }, [hasCopied]);
 
   const copyCommand = React.useCallback(
@@ -180,6 +194,7 @@ export function CopyNpmCommandButton({
             'relative z-10 size-6 text-slate-50 hover:bg-slate-700 hover:text-slate-50',
             className
           )}
+          aria-label={hasCopied ? 'Copied' : 'Copy'}
         >
           {hasCopied ? (
             <Icons.check className="size-3" />

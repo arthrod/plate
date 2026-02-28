@@ -29,9 +29,13 @@ export function BlockCopyButton({
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
+    if (hasCopied) {
+      const timeout = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
   }, [hasCopied]);
 
   return (
@@ -52,6 +56,7 @@ export function BlockCopyButton({
               });
               setHasCopied(true);
             }}
+            aria-label={hasCopied ? 'Copied' : 'Copy'}
             {...props}
           >
             <span className="sr-only">Copy</span>
