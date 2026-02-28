@@ -1,0 +1,4 @@
+## 2024-05-24 - [Reverse Tabnabbing Vulnerability in Registry Components]
+**Vulnerability:** Found a raw `<a>` tag with `target="_blank"` missing the `rel="noopener noreferrer"` attributes in `apps/www/src/registry/ui/link-toolbar.tsx`.
+**Learning:** This repo has custom registry UI components in `apps/www/src/registry/` where raw HTML tags are sometimes used instead of Next.js `<Link>`. Next.js automatically adds `rel="noopener noreferrer"` to external links, but native `<a>` elements do not. This exposes the app to reverse tabnabbing attacks where the newly opened window can redirect the original window's location.
+**Prevention:** Whenever rendering native `<a>` elements with `target="_blank"`, always explicitly include `rel="noopener noreferrer"`. Ensure security checks in registry components are as rigorous as core components since Next.js auto-protections won't apply to raw elements.
