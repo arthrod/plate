@@ -3,6 +3,25 @@
  *
  * This package provides DOCX import and export functionality for Plate editors,
  * including support for tracked changes (suggestions) and comments.
+ *
+ * How-to (commented example): keep track changes out of DOCX comments.
+ *
+ * // const commentPrefix = 'comment_';
+ * // const draftCommentKey = `${commentPrefix}draft`;
+ * // const blob = await exportToDocx(editor.children, {
+ * //   tracking: {
+ * //     discussions,
+ * //     getCommentIds: (node) =>
+ * //       Object.entries(node)
+ * //         .filter(
+ * //           ([key, value]) =>
+ * //             Boolean(value) &&
+ * //             key.startsWith(commentPrefix) &&
+ * //             key !== draftCommentKey
+ * //         )
+ * //         .map(([key]) => key.slice(commentPrefix.length)),
+ * //   },
+ * // });
  */
 
 // ============================================================================

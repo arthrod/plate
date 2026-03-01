@@ -37,6 +37,21 @@ import type { DocumentOptions, Margins } from './html-to-docx/index';
 export type DocumentMargins = Margins;
 export type HtmlToDocxOptions = DocumentOptions;
 
+const DOCX_MIME_TYPE =
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+async function createDocxZip(html: string, options: DocumentOptions) {
+  // Handle empty HTML - the underlying library crashes on empty string
+  const safeHtml = html.trim() === '' ? '<p></p>' : html;
+
+  // Create a new JSZip instance
+  const zip = new JSZip();
+
+  // Add files to the zip container
+  // Parameters: (zip, htmlString, options, headerHTML, footerHTML)
+  return addFilesToContainer(zip, safeHtml, options);
+}
+
 /**
  * Convert HTML content to a DOCX blob.
  *
@@ -64,22 +79,30 @@ export async function htmlToDocxBlob(
   html: string,
   options: DocumentOptions = {}
 ): Promise<Blob> {
-  // Handle empty HTML - the underlying library crashes on empty string
-  const safeHtml = html.trim() === '' ? '<p></p>' : html;
-
-  // Create a new JSZip instance
-  const zip = new JSZip();
-
-  // Add files to the zip container
-  // Parameters: (zip, htmlString, options, headerHTML, footerHTML)
-  const populatedZip = await addFilesToContainer(zip, safeHtml, options);
+  const populatedZip = await createDocxZip(html, options);
 
   // Generate the DOCX blob from the populated zip
-  const result = await populatedZip.generateAsync({
+  return populatedZip.generateAsync({
     type: 'blob',
-    mimeType:
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    mimeType: DOCX_MIME_TYPE,
   });
+}
 
-  return result;
+/**
+ * Convert HTML content to a DOCX buffer (Node/server-safe).
+ *
+ * @param html - The HTML content to convert
+ * @param options - Optional document configuration (orientation, margins, etc.)
+ * @returns A Promise that resolves to a Node.js Buffer containing the DOCX file
+ */
+export async function htmlToDocxBuffer(
+  html: string,
+  options: DocumentOptions = {}
+): Promise<Buffer> {
+  const populatedZip = await createDocxZip(html, options);
+
+  return populatedZip.generateAsync({
+    type: 'nodebuffer',
+    mimeType: DOCX_MIME_TYPE,
+  });
 }

@@ -1,9 +1,9 @@
 /**
  * Browser entry point for @platejs/docx-io
  *
- * This entry re-exports the full API using the browserified mammoth bundle
- * and Blob-based html-to-docx. Both vendored libraries work with Blob/ArrayBuffer
- * in browser environments without Node.js dependencies.
+ * This entry keeps Blob-based DOCX export (`htmlToDocxBlob`) for browser usage.
+ * Use the root entry for Node/server-safe `htmlToDocxBuffer`.
  */
 
+export { htmlToDocxBlob } from '../lib/exportDocx';
 export * from '../lib/index';
