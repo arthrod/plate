@@ -26,6 +26,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./browser": "./dist/browser/index.js",
+    "./server": "./dist/index.js",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
