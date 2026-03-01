@@ -8,9 +8,10 @@
  * - List indentation
  */
 
+import { describe, expect, it } from 'bun:test';
 import JSZip from 'jszip';
 
-import { htmlToDocxBlob } from '../html-to-docx';
+import { htmlToDocxBlob, htmlToDocxBuffer } from '../exportDocx';
 
 // Helper to load zip from Blob
 async function loadZipFromBlob(blob: Blob): Promise<JSZip> {
@@ -30,6 +31,14 @@ describe('htmlToDocxBlob', () => {
       expect(result.type).toBe(
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       );
+    });
+
+    it('should return a Buffer for server-safe export', async () => {
+      const result = await htmlToDocxBuffer('<p>Test</p>');
+      expect(result).toBeInstanceOf(Buffer);
+
+      const zip = await JSZip.loadAsync(result);
+      expect(zip.file('word/document.xml')).not.toBeNull();
     });
 
     it('should create a valid DOCX (ZIP) file structure', async () => {
