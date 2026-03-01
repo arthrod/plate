@@ -60,7 +60,13 @@ export const generateRandomString = (length: number, lowercase = false) => {
 };
 
 const CodeBlock: FC<Props> = memo(({ language, value }) => {
-  const { copyToClipboard, isCopied } = useCopyToClipboard({ timeout: 2000 });
+  const { copyToClipboard, isCopied, setIsCopied } = useCopyToClipboard({
+    timeout: 2000,
+  });
+
+  React.useEffect(() => {
+    setIsCopied(false);
+  }, [value, setIsCopied]);
 
   const downloadAsFile = () => {
     if (typeof window === 'undefined') {
