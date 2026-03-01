@@ -10,7 +10,7 @@ export const useCopyPathnameToClipboard = () => {
   return {
     copyPathnameToClipboard: (data?: ExternalToast) => {
       const currentUrl = window.location.href;
-      copyToClipboard(currentUrl);
+      void copyToClipboard(currentUrl);
       toast.success('Copied to clipboard', data);
     },
   };
@@ -22,30 +22,48 @@ export const useCopyToClipboard = ({
   timeout?: number;
 } = {}) => {
   const [isCopied, setIsCopied] = React.useState(false);
+  const timeoutRef = React.useRef<any>(null);
 
-  const copyToClipboard = (
-    value: string,
-    { data, tooltip }: { data?: ExternalToast; tooltip?: string } = {}
-  ) => {
-    if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
-      return;
-    }
-    if (!value) {
-      return;
-    }
+  const copyToClipboard = React.useCallback(
+    (
+      value: string,
+      { data, tooltip }: { data?: ExternalToast; tooltip?: string } = {}
+    ) => {
+      if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
+        return Promise.resolve();
+      }
+      if (!value) {
+        return Promise.resolve();
+      }
 
-    void navigator.clipboard.writeText(value).then(() => {
-      setIsCopied(true);
+      return navigator.clipboard.writeText(value).then(() => {
+        setIsCopied(true);
 
-      setTimeout(() => {
-        setIsCopied(false);
-      }, timeout);
-    });
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
 
-    if (tooltip) {
-      toast.success(tooltip, data);
-    }
-  };
+        timeoutRef.current = setTimeout(() => {
+          setIsCopied(false);
+          timeoutRef.current = null;
+        }, timeout);
+
+        if (tooltip) {
+          toast.success(tooltip, data);
+        }
+      });
+    },
+    [timeout]
+  );
+
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return { copyToClipboard, isCopied };
 };
