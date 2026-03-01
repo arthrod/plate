@@ -102,8 +102,14 @@ const BlockCommentContent = ({
   const resolvedSuggestions = useResolveSuggestion(suggestionNodes, blockPath);
   const resolvedDiscussions = useResolvedDiscussion(commentNodes, blockPath);
 
-  const suggestionsCount = resolvedSuggestions.length;
-  const discussionsCount = resolvedDiscussions.length;
+  const suggestionsCount = resolvedSuggestions.reduce(
+    (count, suggestion) => count + 1 + suggestion.comments.length,
+    0
+  );
+  const discussionsCount = resolvedDiscussions.reduce(
+    (count, discussion) => count + discussion.comments.length,
+    0
+  );
   const totalCount = suggestionsCount + discussionsCount;
 
   const activeSuggestionId = usePluginOption(suggestionPlugin, 'activeId');

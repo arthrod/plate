@@ -42,6 +42,12 @@ export type DocxTrackedComment = {
   hasEndToken: boolean;
 };
 
+/** Legacy plain comment shape used by preprocess helpers */
+export type DocxComment = {
+  id: string;
+  text: string;
+};
+
 // ============================================================================
 // Import Result Types
 // ============================================================================

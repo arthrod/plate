@@ -4,11 +4,14 @@ import * as React from 'react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import { exportToDocx, type DocxExportDiscussion } from '@platejs/docx-io/browser';
+import {
+  exportToDocx,
+  type DocxExportDiscussion,
+} from '@platejs/docx-io/browser';
 import { MarkdownPlugin } from '@platejs/markdown';
 import { ArrowDownToLineIcon } from 'lucide-react';
 import type { SlatePlugin } from 'platejs';
-import { createSlateEditor } from 'platejs';
+import { KEYS, createSlateEditor } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 import { serializeHtml } from 'platejs/static';
 
@@ -183,11 +186,41 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
       userId: d.userId,
       user: resolveUser(d.userId, d.authorName),
     }));
+    const commentPrefix = `${KEYS.comment}_`;
+    const draftCommentKey = `${commentPrefix}draft`;
+    const suggestionPrefix = `${KEYS.suggestion}_`;
+    const discussionIdsWithComments = new Set(
+      exportDiscussions
+        .filter((discussion) => (discussion.comments?.length ?? 0) > 0)
+        .map((discussion) => discussion.id)
+    );
 
     const blob = await exportToDocx(editor.children, {
       editorPlugins: [...BaseEditorKit, ...DocxExportKit] as SlatePlugin[],
       tracking: {
         discussions: exportDiscussions,
+        getCommentIds: (node) => {
+          const ids = new Set<string>();
+
+          for (const [key, value] of Object.entries(node)) {
+            if (!value) continue;
+
+            if (key.startsWith(commentPrefix) && key !== draftCommentKey) {
+              ids.add(key.slice(commentPrefix.length));
+              continue;
+            }
+
+            if (key.startsWith(suggestionPrefix)) {
+              const suggestionId = key.slice(suggestionPrefix.length);
+
+              if (discussionIdsWithComments.has(suggestionId)) {
+                ids.add(suggestionId);
+              }
+            }
+          }
+
+          return [...ids];
+        },
       },
     });
 
