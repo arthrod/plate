@@ -5,7 +5,7 @@ import * as React from 'react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
 import { getCommentKey } from '@platejs/comment';
-import { importDocxWithTracking } from '@platejs/docx-io';
+import { importDocxWithTracking } from '@platejs/docx-io/browser';
 import { MarkdownPlugin } from '@platejs/markdown';
 import { getSuggestionKey } from '@platejs/suggestion';
 import { ArrowUpToLineIcon } from 'lucide-react';

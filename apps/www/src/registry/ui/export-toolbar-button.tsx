@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import { exportToDocx, type DocxExportDiscussion } from '@platejs/docx-io';
+import { exportToDocx, type DocxExportDiscussion } from '@platejs/docx-io/browser';
 import { MarkdownPlugin } from '@platejs/markdown';
 import { ArrowDownToLineIcon } from 'lucide-react';
 import type { SlatePlugin } from 'platejs';

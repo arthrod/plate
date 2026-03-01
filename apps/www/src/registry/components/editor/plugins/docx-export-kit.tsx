@@ -28,7 +28,7 @@ import {
 } from '@/registry/ui/equation-node-static';
 import { SuggestionLeafDocx } from '@/registry/ui/suggestion-node-docx';
 import { TocElementDocx } from '@/registry/ui/toc-node-static';
-import { DocxExportPlugin } from '@platejs/docx-io';
+import { DocxExportPlugin } from '@platejs/docx-io/browser';
 import { KEYS } from 'platejs';
 
 /**

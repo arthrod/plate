@@ -36,6 +36,18 @@ const STATIC_INPUT_FILE_PATH = fs.existsSync(STATIC_TS_INPUT_FILE_PATH)
   ? STATIC_TS_INPUT_FILE_PATH
   : STATIC_TSX_INPUT_FILE_PATH;
 
+const BROWSER_TS_INPUT_FILE_PATH = path.join(
+  PACKAGE_ROOT_PATH,
+  'src/browser/index.ts'
+);
+const BROWSER_TSX_INPUT_FILE_PATH = path.join(
+  PACKAGE_ROOT_PATH,
+  'src/browser/index.tsx'
+);
+const BROWSER_INPUT_FILE_PATH = fs.existsSync(BROWSER_TS_INPUT_FILE_PATH)
+  ? BROWSER_TS_INPUT_FILE_PATH
+  : BROWSER_TSX_INPUT_FILE_PATH;
+
 const entry = [convertPathToPattern(INPUT_FILE)];
 
 if (fs.existsSync(REACT_INPUT_FILE_PATH)) {
@@ -44,6 +56,10 @@ if (fs.existsSync(REACT_INPUT_FILE_PATH)) {
 
 if (fs.existsSync(STATIC_INPUT_FILE_PATH)) {
   entry.push(convertPathToPattern(STATIC_INPUT_FILE_PATH));
+}
+
+if (fs.existsSync(BROWSER_INPUT_FILE_PATH)) {
+  entry.push(convertPathToPattern(BROWSER_INPUT_FILE_PATH));
 }
 
 // Disable sourcemaps in CI to speed up builds

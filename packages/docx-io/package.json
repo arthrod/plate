@@ -25,6 +25,7 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
+    "./browser": "./dist/browser/index.js",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
