@@ -102,10 +102,7 @@ const BlockCommentContent = ({
   const resolvedSuggestions = useResolveSuggestion(suggestionNodes, blockPath);
   const resolvedDiscussions = useResolvedDiscussion(commentNodes, blockPath);
 
-  const suggestionsCount = resolvedSuggestions.reduce(
-    (count, suggestion) => count + 1 + suggestion.comments.length,
-    0
-  );
+  const suggestionsCount = resolvedSuggestions.length;
   const discussionsCount = resolvedDiscussions.reduce(
     (count, discussion) => count + discussion.comments.length,
     0
@@ -184,7 +181,7 @@ const BlockCommentContent = ({
     commentNodes,
   ]);
 
-  if (suggestionsCount + resolvedDiscussions.length === 0 && !draftCommentNode)
+  if (totalCount === 0 && !draftCommentNode)
     return <div className="w-full">{children}</div>;
 
   return (

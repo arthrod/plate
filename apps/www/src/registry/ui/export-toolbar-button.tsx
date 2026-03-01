@@ -188,12 +188,6 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
     }));
     const commentPrefix = `${KEYS.comment}_`;
     const draftCommentKey = `${commentPrefix}draft`;
-    const suggestionPrefix = `${KEYS.suggestion}_`;
-    const discussionIdsWithComments = new Set(
-      exportDiscussions
-        .filter((discussion) => (discussion.comments?.length ?? 0) > 0)
-        .map((discussion) => discussion.id)
-    );
 
     const blob = await exportToDocx(editor.children, {
       editorPlugins: [...BaseEditorKit, ...DocxExportKit] as SlatePlugin[],
@@ -207,15 +201,6 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
 
             if (key.startsWith(commentPrefix) && key !== draftCommentKey) {
               ids.add(key.slice(commentPrefix.length));
-              continue;
-            }
-
-            if (key.startsWith(suggestionPrefix)) {
-              const suggestionId = key.slice(suggestionPrefix.length);
-
-              if (discussionIdsWithComments.has(suggestionId)) {
-                ids.add(suggestionId);
-              }
             }
           }
 

@@ -27,7 +27,6 @@ import {
   discussionPlugin,
   type TDiscussion,
 } from '@/registry/components/editor/plugins/discussion-kit';
-import { getDiscussionCounterSeed } from '../lib/discussion-ids';
 import { ToolbarButton } from './toolbar';
 
 type ImportType = 'html' | 'markdown';
@@ -85,10 +84,8 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
     onFilesSelected: async ({ plainFiles }) => {
       const arrayBuffer = await plainFiles[0].arrayBuffer();
 
-      // Compute next discussion number to avoid ID collisions
-      const existingDiscussions =
-        editor.getOption(discussionPlugin, 'discussions') ?? [];
-      let discussionCounter = getDiscussionCounterSeed(existingDiscussions);
+      // Import replaces editor content, so restart generated discussion IDs.
+      let discussionCounter = 0;
 
       // Import with full tracking support (suggestions + comments)
       const result = await importDocxWithTracking(editor as any, arrayBuffer, {
