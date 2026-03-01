@@ -198,6 +198,7 @@ function LinkOpenButton() {
       onMouseOver={(e) => {
         e.stopPropagation();
       }}
+      rel="noopener noreferrer"
       target="_blank"
     >
       <ExternalLink width={18} />
