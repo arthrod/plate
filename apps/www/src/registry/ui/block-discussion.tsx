@@ -103,10 +103,20 @@ const BlockCommentContent = ({
   const resolvedDiscussions = useResolvedDiscussion(commentNodes, blockPath);
 
   const suggestionsCount = resolvedSuggestions.length;
-  const discussionsCount = resolvedDiscussions.reduce(
-    (count, discussion) => count + discussion.comments.length,
-    0
+  const suggestionIds = new Set(
+    resolvedSuggestions.map((suggestion) => suggestion.suggestionId)
   );
+  const discussionsCount =
+    resolvedSuggestions.reduce(
+      (count, suggestion) => count + suggestion.comments.length,
+      0
+    ) +
+    resolvedDiscussions.reduce(
+      (count, discussion) =>
+        count +
+        (suggestionIds.has(discussion.id) ? 0 : discussion.comments.length),
+      0
+    );
   const totalCount = suggestionsCount + discussionsCount;
 
   const activeSuggestionId = usePluginOption(suggestionPlugin, 'activeId');
@@ -181,7 +191,7 @@ const BlockCommentContent = ({
     commentNodes,
   ]);
 
-  if (totalCount === 0 && !draftCommentNode)
+  if (suggestionsCount + resolvedDiscussions.length === 0 && !draftCommentNode)
     return <div className="w-full">{children}</div>;
 
   return (

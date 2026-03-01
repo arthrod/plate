@@ -27,6 +27,7 @@ import {
   discussionPlugin,
   type TDiscussion,
 } from '@/registry/components/editor/plugins/discussion-kit';
+import { suggestionPlugin } from '@/registry/components/editor/plugins/suggestion-kit';
 import { ToolbarButton } from './toolbar';
 
 type ImportType = 'html' | 'markdown';
@@ -158,6 +159,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
       // replaces the entire editor content, making old discussions stale
       editor.setOption(discussionPlugin, 'discussions', newDiscussions);
       editor.setOption(commentPlugin, 'uniquePathMap', new Map());
+      editor.setOption(suggestionPlugin, 'uniquePathMap', new Map());
 
       // Log import results in dev only
       if (
