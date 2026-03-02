@@ -280,6 +280,7 @@ function BlockViewerToolbar({ block }: { block: boolean }) {
                     npx shadcn@latest add {item.name}
                   </span>
                 )}
+                <span className="sr-only">Copy npx command</span>
               </Button>
 
               {block && (

@@ -73,6 +73,7 @@ export function ComponentSource({
               <span className="hidden xl:inline">
                 npx shadcn@latest add {name}
               </span>
+              <span className="sr-only">Copy npx command</span>
             </Button>
           </div>
         )}
