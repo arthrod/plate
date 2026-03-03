@@ -1,0 +1,3 @@
+## 2026-03-03 - [O(1) Set Lookups for DOM Element Filtering]
+**Learning:** When filtering large arrays of DOM elements (e.g., during drag-selection frames where hundreds of nodes might be processed), using `Array.prototype.includes()` inside loops leads to (N 	imes M)$ algorithmic complexity. In an environment like `packages/selection`, this can cause noticeable frame drops during continuous scrolling or dragging.
+**Action:** Always pre-compute a `Set` from the target arrays before the loop and use `Set.prototype.has()` to achieve (1)$ lookups, effectively reducing the time complexity to (N)$.
