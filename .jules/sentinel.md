@@ -1,0 +1,4 @@
+## 2024-05-28 - [Reverse Tabnabbing] Missing rel="noopener noreferrer" on target="_blank"
+**Vulnerability:** Several links in registry UI components (like `link-toolbar.tsx`) use `target="_blank"` without `rel="noopener noreferrer"`.
+**Learning:** This is a reverse tabnabbing vulnerability. If not properly secured, the newly opened page can access `window.opener` and redirect the original application page to a malicious phishing site. It is specifically critical in registry components as these components get copied directly into users' projects, proliferating the vulnerability to their downstream applications.
+**Prevention:** Always ensure any `<a target="_blank">` element includes `rel="noopener noreferrer"`. Modern Next.js `<Link>` components typically handle this by default if using `target="_blank"`, but native `<a>` tags or custom wrappers require explicit attributes.
