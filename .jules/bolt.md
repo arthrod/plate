@@ -1,0 +1,3 @@
+## 2024-05-24 - [Avoid Array.includes for DOM Element Lookups]
+**Learning:** During continuous operations like drag-to-select in `SelectionArea.ts`, filtering large arrays of DOM nodes using `.includes(el)` leads to O(N*M) algorithmic complexity. This causes significant performance bottlenecks leading to dropped frames when large arrays of selectables exist.
+**Action:** Always refactor iterative DOM element matching checks (`Array.filter`, `Array.find`) to use `Set.has(el)` by creating a new `Set` immediately prior to the loop. This converts lookups to O(1) and overall complexity to O(N+M), preserving 60FPS drag responsiveness without altering DOM or React component lifecycles.
