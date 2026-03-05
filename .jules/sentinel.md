@@ -1,0 +1,4 @@
+## 2025-03-05 - Fix missing rel="noopener noreferrer" for native a tags with target="_blank"
+**Vulnerability:** Found an instance in `apps/www/src/registry/ui/link-toolbar.tsx` where a native `<a>` tag used `target="_blank"` without also specifying `rel="noopener noreferrer"`.
+**Learning:** Native `<a>` tags inside the registry components do not benefit from Next.js `<Link>` component's automatic protections. They must always include `rel="noopener noreferrer"` to prevent reverse tabnabbing attacks where the newly opened window could potentially navigate the original window to a malicious site.
+**Prevention:** Whenever writing or modifying native `<a>` tags with `target="_blank"`, ensure `rel="noopener noreferrer"` is explicitly included. Run `grep -rn 'target="_blank"'` to find other instances.
