@@ -619,7 +619,6 @@ function BlockCopyCodeButton() {
         copyToClipboard(content);
       }}
     >
-      <span className="sr-only">Copy code</span>
       {isCopied ? <Check /> : <Clipboard />}
     </Button>
   );
