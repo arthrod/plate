@@ -1,3 +1,0 @@
-## 2024-05-18 - [Optimize Array Lookups in Selection Area]
-**Learning:** In performance-critical loops like DOM node traversal or event handling (e.g., `packages/selection/src/internal/SelectionArea.ts`), using `Array.includes()` inside `for` loops or `Array.filter()` calls can cause severe O(N*M) algorithmic complexity slowdowns.
-**Action:** Always pre-compute and use `Set` objects for O(1) lookups instead of `Array.includes` in these hot paths, especially when working with collections of DOM elements or heavily queried arrays.
