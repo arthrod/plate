@@ -103,7 +103,14 @@ Write a short reasoning paragraph and classify the PR using `general_daily_pruni
 - Archive to `design_explorations/subject_matter/PR{N}` on `devdesign`.
 - If the PR changes visible UI and screenshots are missing, use Playwright when the app can reasonably be rendered.
 - Add a `README.md` with PR title, URL, author, date, what the exploration covers.
-- Commit and push the archive to `devdesign`.
+- **Commit and push** the archive to `devdesign`:
+  ```bash
+  git checkout devdesign
+  git add design_explorations/subject_matter/PR{N}
+  git commit -m "design: archive PR #{N} — {title}"
+  git push origin devdesign
+  ```
+  You **must** push so the archive is on the remote. Do not leave changes only local.
 - Comment on the PR with the archive location.
 - **Close the PR** with `gh pr close <N> --delete-branch`. Do NOT merge design exploration PRs.
 

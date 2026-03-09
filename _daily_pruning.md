@@ -150,7 +150,14 @@ Do **not** redirect normal merges into a hardcoded branch such as `development`.
    - date reviewed
    - what the exploration covers
    - reviewer comments worth preserving
-7. Commit and push the archive to `devdesign`.
+7. **Commit and push** the archive to `devdesign`:
+   ```bash
+   git checkout devdesign
+   git add design_explorations/subject_matter/PR{number}
+   git commit -m "design: archive PR #{number} — {title}"
+   git push origin devdesign
+   ```
+   You **must** push so the archive is available on the remote. Do not leave changes only local.
 8. Comment on the original PR with the archive location.
 9. **Close the PR** using `gh pr close <N> --delete-branch --comment "Design archived to devdesign at design_explorations/subject_matter/PR{number}"`.
    Do **not** merge design exploration PRs. The design work is preserved on `devdesign`; the original PR branch is deleted.
