@@ -8,6 +8,7 @@ allowed-tools:
   - Edit
   - Bash(ls:*)
   - Bash(git:*)
+disable-model-invocation: true
 ---
 
 <objective>

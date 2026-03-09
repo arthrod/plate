@@ -41,13 +41,13 @@ Environment indicators:
 
 ```env
 # Use the pooled connection string (port 6543, not 5432)
-DATABASE_URL="YOUR_DATABASE_URL_HERE"
+DATABASE_URL="postgresql://user:pass@db.xxx.supabase.co:6543/postgres?pgbouncer=true"
 ```
 
 **For Neon:**
 
 ```env
-DATABASE_URL="YOUR_DATABASE_URL_HERE"
+DATABASE_URL="postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/dbname?sslmode=require"
 ```
 
 **For Prisma Accelerate:**
@@ -91,7 +91,7 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 ```env
 # ❌ Direct connection - creates new pool per function
-DATABASE_URL="YOUR_DATABASE_URL_HERE"
+DATABASE_URL="postgresql://user:pass@db.xxx.supabase.co:5432/postgres"
 ```
 
 **Rationalization:** "The connection string from the dashboard should work"
@@ -100,7 +100,7 @@ DATABASE_URL="YOUR_DATABASE_URL_HERE"
 
 ```env
 # ✅ Pooled connection
-DATABASE_URL="YOUR_DATABASE_URL_HERE"
+DATABASE_URL="postgresql://user:pass@db.xxx.supabase.co:6543/postgres?pgbouncer=true"
 ```
 
 ### ❌ Mistake #2: No connection limit in serverless

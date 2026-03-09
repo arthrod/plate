@@ -77,6 +77,7 @@ export function MediaPreviewDialog() {
                   })
                 )}
                 type="button"
+                aria-label="Previous"
               >
                 <ArrowLeft />
               </button>
@@ -89,6 +90,7 @@ export function MediaPreviewDialog() {
                   })
                 )}
                 type="button"
+                aria-label="Next"
               >
                 <ArrowRight />
               </button>
@@ -102,6 +104,7 @@ export function MediaPreviewDialog() {
                 )}
                 {...zommOutProps}
                 type="button"
+                aria-label="Zoom out"
               >
                 <Minus className="size-4" />
               </button>
@@ -123,18 +126,24 @@ export function MediaPreviewDialog() {
                 )}
                 {...zoomInProps}
                 type="button"
+                aria-label="Zoom in"
               >
                 <Plus className="size-4" />
               </button>
             </div>
             {/* TODO: downLoad the image */}
-            <button className={cn(buttonVariants())} type="button">
+            <button
+              className={cn(buttonVariants())}
+              type="button"
+              aria-label="Download"
+            >
               <Download className="size-4" />
             </button>
             <button
               {...closeProps}
               className={cn(buttonVariants())}
               type="button"
+              aria-label="Close"
             >
               <X className="size-4" />
             </button>

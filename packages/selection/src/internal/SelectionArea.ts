@@ -265,21 +265,26 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
   _keepSelection(): void {
     const { _options, _selection } = this;
     const { changed, selected, stored, touched } = _selection;
-    const addedElements = selected.filter((el) => !stored.includes(el));
+
+    // Optimization: Use Sets for O(1) lookups instead of Array.includes for O(N*M)
+    const storedSet = new Set(stored);
+    const addedElements = selected.filter((el) => !storedSet.has(el));
 
     switch (_options.behaviour.overlap) {
       case 'drop': {
+        const touchedSet = new Set(touched);
         _selection.stored = [
           ...addedElements,
-          ...stored.filter((el) => !touched.includes(el)), // Elements not touched
+          ...stored.filter((el) => !touchedSet.has(el)), // Elements not touched
         ];
 
         break;
       }
       case 'invert': {
+        const removedSet = new Set(changed.removed);
         _selection.stored = [
           ...addedElements,
-          ...stored.filter((el) => !changed.removed.includes(el)), // Elements not removed from selection
+          ...stored.filter((el) => !removedSet.has(el)), // Elements not removed from selection
         ];
 
         break;
@@ -287,7 +292,7 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
       case 'keep': {
         _selection.stored = [
           ...stored,
-          ...selected.filter((el) => !stored.includes(el)), // Newly added
+          ...addedElements, // Re-use addedElements instead of re-filtering
         ];
 
         break;
@@ -727,6 +732,12 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
     const added: Element[] = [];
     const removed: Element[] = [];
 
+    // O(1) lookups for performance-critical DOM intersections
+    const selectedSet = new Set(selected);
+    const storedSet = new Set(stored);
+    const touchedSet = new Set(touched);
+    const newlyTouchedSet = new Set<Element>();
+
     // Find newly selected elements
     // biome-ignore lint/style/useForOf: performance-critical loop
     for (let i = 0; i < _selectables.length; i++) {
@@ -742,25 +753,26 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
         )
       ) {
         // Check if the element wasn't present in the last selection.
-        if (!selected.includes(node)) {
+        if (!selectedSet.has(node)) {
           // Check if user wants to invert the selection for already selected elements
-          if (invert && stored.includes(node)) {
+          if (invert && storedSet.has(node)) {
             removed.push(node);
 
             continue;
           }
           added.push(node);
-        } else if (stored.includes(node) && !touched.includes(node)) {
+        } else if (storedSet.has(node) && !touchedSet.has(node)) {
           touched.push(node);
         }
 
         newlyTouched.push(node);
+        newlyTouchedSet.add(node);
       }
     }
 
     // Re-select elements which were previously stored
     if (invert) {
-      added.push(...stored.filter((v) => !selected.includes(v)));
+      added.push(...stored.filter((v) => !selectedSet.has(v)));
     }
 
     // Check which elements where removed since last selection
@@ -771,11 +783,11 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
       const node = selected[i];
 
       if (
-        !newlyTouched.includes(node) &&
+        !newlyTouchedSet.has(node) &&
         !(
           // Check if user wants to keep previously selected elements, e.g.
           // not make them part of the current selection as soon as they're touched.
-          (keep && stored.includes(node))
+          (keep && storedSet.has(node))
         )
       ) {
         removed.push(node);
