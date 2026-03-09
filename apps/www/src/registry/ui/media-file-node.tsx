@@ -18,7 +18,9 @@ export const FileElement = withHOC(
   function FileElement(props: PlateElementProps<TFileElement>) {
     const readOnly = useReadOnly();
     const { name, unsafeUrl } = useMediaState();
-    const safeUrl = sanitizeUrl(unsafeUrl);
+    const safeUrl = sanitizeUrl(unsafeUrl, {
+      allowedSchemes: ['http', 'https', 'mailto', 'tel', 'data', 'blob'],
+    });
 
     return (
       <PlateElement className="my-px rounded-sm" {...props}>

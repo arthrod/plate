@@ -9,7 +9,9 @@ import { SlateElement } from 'platejs/static';
 
 export function FileElementStatic(props: SlateElementProps<TFileElement>) {
   const { name, url } = props.element;
-  const safeUrl = sanitizeUrl(url);
+  const safeUrl = sanitizeUrl(url, {
+    allowedSchemes: ['http', 'https', 'mailto', 'tel', 'data', 'blob'],
+  });
 
   return (
     <SlateElement className="my-px rounded-sm" {...props}>
