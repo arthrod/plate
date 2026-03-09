@@ -265,21 +265,26 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
   _keepSelection(): void {
     const { _options, _selection } = this;
     const { changed, selected, stored, touched } = _selection;
-    const addedElements = selected.filter((el) => !stored.includes(el));
+
+    // Optimization: Use Sets for O(1) lookups instead of Array.includes for O(N*M)
+    const storedSet = new Set(stored);
+    const addedElements = selected.filter((el) => !storedSet.has(el));
 
     switch (_options.behaviour.overlap) {
       case 'drop': {
+        const touchedSet = new Set(touched);
         _selection.stored = [
           ...addedElements,
-          ...stored.filter((el) => !touched.includes(el)), // Elements not touched
+          ...stored.filter((el) => !touchedSet.has(el)), // Elements not touched
         ];
 
         break;
       }
       case 'invert': {
+        const removedSet = new Set(changed.removed);
         _selection.stored = [
           ...addedElements,
-          ...stored.filter((el) => !changed.removed.includes(el)), // Elements not removed from selection
+          ...stored.filter((el) => !removedSet.has(el)), // Elements not removed from selection
         ];
 
         break;
@@ -287,7 +292,7 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
       case 'keep': {
         _selection.stored = [
           ...stored,
-          ...selected.filter((el) => !stored.includes(el)), // Newly added
+          ...addedElements, // Re-use addedElements instead of re-filtering
         ];
 
         break;
