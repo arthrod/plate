@@ -422,16 +422,21 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
 
       this.select(rangeItems);
       this._latestElement = reference; // latestElement is by default cleared in .select()
-    } else if (
-      stored.includes(target) &&
-      (stored.length === 1 ||
-        evt.ctrlKey ||
-        stored.every((v) => this._selection.stored.includes(v)))
-    ) {
-      this.deselect(target);
     } else {
-      this.select(target);
-      this._latestElement = target;
+      const isAllStoredInSelection = () => {
+        const selectionStoredSet = new Set(this._selection.stored);
+        return stored.every((v) => selectionStoredSet.has(v));
+      };
+
+      if (
+        stored.includes(target) &&
+        (stored.length === 1 || evt.ctrlKey || isAllStoredInSelection())
+      ) {
+        this.deselect(target);
+      } else {
+        this.select(target);
+        this._latestElement = target;
+      }
     }
   }
 
@@ -846,19 +851,26 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
   deselect(query: SelectAllSelectors, quiet = false) {
     const { changed, selected, stored } = this._selection;
 
+    const selectedSet = new Set(selected);
+    const storedSet = new Set(stored);
+
     const elements = selectAll(query, this._options.document).filter(
-      (el) => selected.includes(el) || stored.includes(el)
+      (el) => selectedSet.has(el) || storedSet.has(el)
     );
 
     if (elements.length === 0) {
       return;
     }
 
-    this._selection.stored = stored.filter((el) => !elements.includes(el));
-    this._selection.selected = selected.filter((el) => !elements.includes(el));
+    const elementsSet = new Set(elements);
+
+    this._selection.stored = stored.filter((el) => !elementsSet.has(el));
+    this._selection.selected = selected.filter((el) => !elementsSet.has(el));
     this._selection.changed.added = [];
+
+    const removedSet = new Set(changed.removed);
     this._selection.changed.removed.push(
-      ...elements.filter((el) => !changed.removed.includes(el))
+      ...elements.filter((el) => !removedSet.has(el))
     );
 
     // We don't know which element was "selected" first so clear it
@@ -906,8 +918,12 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
    */
   select(query: SelectAllSelectors, quiet = false): Element[] {
     const { changed, selected, stored } = this._selection;
+
+    const selectedSet = new Set(selected);
+    const storedSet = new Set(stored);
+
     const elements = selectAll(query, this._options.document).filter(
-      (el) => !selected.includes(el) && !stored.includes(el)
+      (el) => !selectedSet.has(el) && !storedSet.has(el)
     );
 
     // Update element lists
