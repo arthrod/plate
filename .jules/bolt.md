@@ -1,4 +1,3 @@
-
-## 2024-03-01 - [O(N^2) Array Filter Bottleneck]
-**Learning:** In highly trafficked area computations like SelectionArea logic dealing with sets of DOM nodes (`selected`, `stored`, etc.), nesting `Array.includes` inside `Array.filter` leads to severe `O(N * M)` scaling issues, stalling execution when many nodes are selected or traversed.
-**Action:** Always convert "target" checking arrays to `Set` objects before doing intersection or difference filtering with `Array.filter` to reduce complexity to `O(N + M)` with `O(1)` Set lookups.
+## 2024-05-24 - Module-Level Map Caching for Static Arrays in React Components
+**Learning:** O(N) Array methods (like `find` or `includes`) operating on static arrays inside `useMemo` hooks or render loops cause unnecessary computational overhead on every update. In components like `TurnIntoToolbarButton`, `turnIntoItems.find()` was executed on every selection change.
+**Action:** Replace static array O(N) lookups with O(1) module-level `Map` or `Set` lookups. Define `const myMap = new Map(myArray.map(item => [item.key, item]))` OUTSIDE the component. This initializes the hash map exactly once per module load, ensuring maximum performance during component re-renders.
