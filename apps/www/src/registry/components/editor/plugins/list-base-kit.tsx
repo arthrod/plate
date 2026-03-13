@@ -17,7 +17,7 @@ export const BaseListKit = [
       ],
     },
     render: {
-      belowNodes: BlockListStatic,
+      belowNodes: BlockListStatic as any,
     },
   }),
 ];

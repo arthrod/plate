@@ -30,7 +30,7 @@ export function TocElementStatic(props: SlateElementProps) {
     <SlateElement {...props} className="mb-1 p-0">
       <div>
         {headingList.length > 0 ? (
-          headingList.map((item) => (
+          headingList.map((item: any) => (
             <Button
               key={item.title}
               variant="ghost"
@@ -67,22 +67,23 @@ const getHeadingList = (editor?: SlateEditor) => {
   const options = editor.getOptions(BaseTocPlugin);
 
   if (options.queryHeading) {
-    return options.queryHeading(editor);
+    return options.queryHeading(editor as any);
   }
 
   const headingList: Heading[] = [];
 
-  const values = editor.api.nodes<TElement>({
+  const values = editor.api.nodes({
     at: [],
-    match: (n) => isHeading(n),
+    match: (n: any) => isHeading(n),
   });
 
   if (!values) return [];
 
-  Array.from(values).forEach(([node, path]) => {
+  Array.from(values).forEach((value: any) => {
+    const [node, path] = value;
     const { type } = node;
     const title = NodeApi.string(node);
-    const depth = headingDepth[type];
+    const depth = headingDepth[type as string];
     const id = node.id as string;
 
     if (title) {
@@ -116,7 +117,7 @@ export function TocElementDocx(props: SlateElementProps) {
         }}
       >
         {headingList.length > 0 ? (
-          headingList.map((item) => (
+          headingList.map((item: any) => (
             <p
               key={item.id}
               style={{
