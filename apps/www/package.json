@@ -24,8 +24,8 @@
     "shadcn:dev": "shadcn build public/rd/registry.json --output public/rd",
     "shadcn:dev:docs": "shadcn build public/rd/registry-docs.json --output public/rd",
     "start": "next start",
-    "typecheck": "pnpm prebuild && tsc --noEmit",
-    "typecheck:watch": "pnpm typecheck --watch"
+    "typecheck": "pnpm prebuild && tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.package-integration.json",
+    "typecheck:watch": "pnpm prebuild && concurrently \"tsc --noEmit -p tsconfig.json --watch\" \"tsc --noEmit -p tsconfig.package-integration.json --watch\""
   },
   "browserslist": {
     "production": [
@@ -88,6 +88,7 @@
     "@platejs/playwright": "workspace:^",
     "@platejs/resizable": "workspace:^",
     "@platejs/selection": "workspace:^",
+    "@platejs/slate": "workspace:^",
     "@platejs/slash-command": "workspace:^",
     "@platejs/suggestion": "workspace:^",
     "@platejs/tabbable": "workspace:^",
@@ -188,13 +189,16 @@
   "devDependencies": {
     "@shikijs/compat": "1.1.7",
     "@tailwindcss/cli": "4.1.8",
+    "@types/unist": "^3.0.3",
     "@types/react-syntax-highlighter": "15.5.13",
     "autoprefixer": "10.4.21",
     "concurrently": "9.1.2",
     "glob": "11.0.2",
     "gray-matter": "^4.0.3",
+    "html-entities": "^2.6.0",
     "kleur": "4.1.5",
     "listr2": "8.3.3",
+    "mammoth": "^1.11.0",
     "mdast-util-toc": "7.1.0",
     "ora": "8.2.0",
     "postcss": "8.5.4",

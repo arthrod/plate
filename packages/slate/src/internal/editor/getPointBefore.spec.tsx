@@ -9,7 +9,7 @@ jsxt;
 
 describe('getPointBefore', () => {
   describe('default', () => {
-    it('should get point before cursor', () => {
+    it('get point before cursor', () => {
       const editor = createEditor(
         (
           <editor>
@@ -28,11 +28,23 @@ describe('getPointBefore', () => {
         path: [0, 0],
       });
     });
+
+    it('returns undefined for an invalid location instead of throwing', () => {
+      const editor = createEditor(
+        (
+          <editor>
+            <hp>test</hp>
+          </editor>
+        ) as any
+      );
+
+      expect(editor.api.before([9, 9, 9] as any)).toBeUndefined();
+    });
   });
 
   describe('when afterMatch=true', () => {
     describe('when character match', () => {
-      it('should get point after matched character', () => {
+      it('get point after matched character', () => {
         const editor = createEditor(
           (
             <editor>
@@ -66,7 +78,7 @@ describe('getPointBefore', () => {
         ) as any
       );
 
-      it('should return start', () => {
+      it('returns start', () => {
         expect(
           editor.api.before(editor.selection!, {
             afterMatch: true,
@@ -82,7 +94,7 @@ describe('getPointBefore', () => {
     });
 
     describe('when string match', () => {
-      it('should get point after matched string', () => {
+      it('get point after matched string', () => {
         const editor = createEditor(
           (
             <editor>
@@ -105,7 +117,7 @@ describe('getPointBefore', () => {
     });
 
     describe('when match function', () => {
-      it('should get point after match', () => {
+      it('get point after match', () => {
         const editor = createEditor(
           (
             <editor>
@@ -129,7 +141,7 @@ describe('getPointBefore', () => {
   });
 
   describe('when skipInvalid=true', () => {
-    it('should get point before space', () => {
+    it('get point before space', () => {
       const editor = createEditor(
         (
           <editor>
@@ -150,7 +162,7 @@ describe('getPointBefore', () => {
     });
 
     describe('when character not found', () => {
-      it('should return undefined', () => {
+      it('returns undefined', () => {
         const editor = createEditor(
           (
             <editor>
@@ -172,7 +184,7 @@ describe('getPointBefore', () => {
     });
 
     describe('when searching across blocks', () => {
-      it('should return undefined if not found', () => {
+      it('returns undefined if not found', () => {
         const editor = createEditor(
           (
             <editor>
@@ -192,11 +204,37 @@ describe('getPointBefore', () => {
           })
         ).toBeUndefined();
       });
+
+      it('returns the block start when matchBlockStart is true', () => {
+        const editor = createEditor(
+          (
+            <editor>
+              <hp>find z</hp>
+              <hp>
+                test http://google.com
+                <cursor />
+              </hp>
+            </editor>
+          ) as any
+        );
+
+        expect(
+          editor.api.before(editor.selection as any, {
+            afterMatch: true,
+            matchBlockStart: true,
+            matchString: 'z',
+            skipInvalid: true,
+          })
+        ).toEqual({
+          offset: 0,
+          path: [1, 0],
+        });
+      });
     });
   });
 
   describe('when unit=word', () => {
-    it('should get point before word', () => {
+    it('get point before word', () => {
       const editor = createEditor(
         (
           <editor>
@@ -221,7 +259,7 @@ describe('getPointBefore', () => {
 
   describe('when matchString', () => {
     describe('when multiple characters', () => {
-      it('should get point before matched string', () => {
+      it('get point before matched string', () => {
         const editor = createEditor(
           (
             <editor>
@@ -242,7 +280,7 @@ describe('getPointBefore', () => {
     });
 
     describe('when array of strings', () => {
-      it('should get point before first matched string', () => {
+      it('get point before first matched string', () => {
         const editor = createEditor(
           (
             <editor>
@@ -264,7 +302,7 @@ describe('getPointBefore', () => {
   });
 
   describe('when moving before void node', () => {
-    it('should get point before void node', () => {
+    it('get point before void node', () => {
       const editor = createEditor(
         (
           <editor>

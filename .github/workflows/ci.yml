@@ -7,6 +7,8 @@ on:
       - next
     paths:
       - 'packages/**'
+      - 'tooling/**'
+      - 'package.json'
       - '.github/actions/**'
       - '.github/workflows/lint-typecheck.yml'
       - 'pnpm-workspace.yaml'
@@ -26,6 +28,8 @@ on:
       - reopened
     paths:
       - 'packages/**'
+      - 'tooling/**'
+      - 'package.json'
       - '.github/actions/**'
       - '.github/workflows/**'
       - 'pnpm-workspace.yaml'
@@ -50,6 +54,9 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
+    if: >-
+      (github.event_name != 'pull_request' || github.event.pull_request.title != '[Release] Version packages') &&
+      (github.event_name != 'push' || github.event.head_commit.message != 'Version Packages')
 
     steps:
       - uses: actions/checkout@v4
@@ -85,7 +92,7 @@ jobs:
         run: pnpm typecheck
 
       - name: 🧪 Test
-        run: pnpm test
+        run: bun test
 
       # - name: 📥 Install Playwright dependencies
       #   run: |

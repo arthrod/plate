@@ -14,7 +14,7 @@ jsxt;
 describe('isAt', () => {
   describe('when checking range position', () => {
     describe('when checking text', () => {
-      it('should be true when range is in single text node', () => {
+      it('returns true when the range is in a single text node', () => {
         const input = createEditor(
           (
             <editor>
@@ -30,7 +30,7 @@ describe('isAt', () => {
         expect(input.api.isAt({ text: true })).toBe(true);
       });
 
-      it('should be false when range spans multiple text nodes', () => {
+      it('returns false when the range spans multiple text nodes', () => {
         const input = createEditor(
           (
             <editor>
@@ -51,7 +51,7 @@ describe('isAt', () => {
     describe('when checking blocks', () => {
       describe('when selection is in the same block', () => {
         describe('when one text', () => {
-          it('should be false for blocks check', () => {
+          it('returns false for a blocks check', () => {
             const input = createEditor(
               (
                 <editor>
@@ -67,7 +67,7 @@ describe('isAt', () => {
             expect(input.api.isAt({ blocks: true })).toBe(false);
           });
 
-          it('should be true for block check', () => {
+          it('returns true for a block check', () => {
             const input = createEditor(
               (
                 <editor>
@@ -85,7 +85,7 @@ describe('isAt', () => {
         });
 
         describe('when focus is inline element', () => {
-          it('should be false for blocks check', () => {
+          it('returns false for a blocks check', () => {
             const input = createEditor(
               (
                 <editor>
@@ -110,7 +110,7 @@ describe('isAt', () => {
       });
 
       describe('when selection spans multiple blocks', () => {
-        it('should be true for blocks check', () => {
+        it('returns true for a blocks check', () => {
           const input = createEditor(
             (
               <editor>
@@ -129,7 +129,7 @@ describe('isAt', () => {
           expect(input.api.isAt({ blocks: true })).toBe(true);
         });
 
-        it('should be false for block check', () => {
+        it('returns false for a block check', () => {
           const input = createEditor(
             (
               <editor>
@@ -151,7 +151,7 @@ describe('isAt', () => {
     });
 
     describe('when checking block boundaries', () => {
-      it('should be true when range starts at block start', () => {
+      it('returns true when the range starts at the block start', () => {
         const input = createEditor(
           (
             <editor>
@@ -167,7 +167,7 @@ describe('isAt', () => {
         expect(input.api.isAt({ start: true })).toBe(true);
       });
 
-      it('should be true when range ends at block end', () => {
+      it('returns true when the range ends at the block end', () => {
         const input = createEditor(
           (
             <editor>
@@ -183,7 +183,7 @@ describe('isAt', () => {
         expect(input.api.isAt({ end: true })).toBe(true);
       });
 
-      it('should be true when range covers entire block', () => {
+      it('returns true when the range covers the entire block', () => {
         const input = createEditor(
           (
             <editor>
@@ -204,8 +204,62 @@ describe('isAt', () => {
   });
 
   describe('when checking point position', () => {
+    describe('when checking block boundaries', () => {
+      it('returns true at the start of a block', () => {
+        const editor = createEditor(
+          (
+            <editor>
+              <hp>
+                <cursor />
+                word
+              </hp>
+            </editor>
+          ) as any
+        );
+
+        const point = RangeApi.start(editor.selection!);
+
+        expect(editor.api.isAt({ at: point, start: true })).toBe(true);
+      });
+
+      it('returns false when the point is not at the start of a block', () => {
+        const editor = createEditor(
+          (
+            <editor>
+              <hp>
+                wo
+                <cursor />
+                rd
+              </hp>
+            </editor>
+          ) as any
+        );
+
+        const point = RangeApi.start(editor.selection!);
+
+        expect(editor.api.isAt({ at: point, start: true })).toBe(false);
+      });
+
+      it('returns true at the end of a block', () => {
+        const editor = createEditor(
+          (
+            <editor>
+              <hp>
+                word
+                <cursor />
+              </hp>
+            </editor>
+          ) as any
+        );
+
+        const point = RangeApi.start(editor.selection!);
+
+        expect(editor.api.isAt({ at: point, end: true })).toBe(true);
+      });
+    });
+
     describe('when checking word end', () => {
-      it('should be true when at word end', () => {
+      it('returns true at a word end', () => {
         const editor = createEditor(
           (
             <editor>
@@ -224,7 +278,7 @@ describe('isAt', () => {
         );
       });
 
-      it('should be false when not at word end', () => {
+      it('returns false when not at a word end', () => {
         const editor = createEditor(
           (
             <editor>
@@ -243,7 +297,7 @@ describe('isAt', () => {
         );
       });
 
-      it('should be true at end of text', () => {
+      it('returns true at the end of the text', () => {
         const editor = createEditor(
           (
             <editor>
@@ -261,5 +315,38 @@ describe('isAt', () => {
         );
       });
     });
+
+    it('returns false for a point when no position flag is provided', () => {
+      const editor = createEditor(
+        (
+          <editor>
+            <hp>
+              wo
+              <cursor />
+              rd
+            </hp>
+          </editor>
+        ) as any
+      );
+
+      expect(editor.api.isAt({ at: editor.selection!.anchor })).toBe(false);
+    });
+  });
+
+  it('returns false for a range when no position flag is provided', () => {
+    const editor = createEditor(
+      (
+        <editor>
+          <hp>
+            wo
+            <anchor />
+            rd
+            <focus />
+          </hp>
+        </editor>
+      ) as any
+    );
+
+    expect(editor.api.isAt({ at: editor.selection! })).toBe(false);
   });
 });

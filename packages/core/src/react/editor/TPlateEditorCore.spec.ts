@@ -1,13 +1,12 @@
 import type { Value } from '@platejs/slate';
 
-import {
-  type InferPlugins,
-  createSlateEditor,
-  createSlatePlugin,
-  DebugPlugin,
-  someHtmlElement,
-} from '@platejs/core';
-import { createPlateEditor, withPlate } from '@platejs/core/react';
+import type { InferPlugins } from '../../lib/editor/SlateEditor';
+
+import { createSlateEditor } from '../../lib/editor/withSlate';
+import { createSlatePlugin } from '../../lib/plugin/createSlatePlugin';
+import { DebugPlugin } from '../../lib/plugins/debug/DebugPlugin';
+import { someHtmlElement } from '../../lib/plugins/html/utils/findHtmlElement';
+import { createPlateEditor, withPlate } from './withPlate';
 import { LinkPlugin } from '@platejs/link/react';
 
 describe('TPlateEditor core package', () => {
@@ -49,7 +48,7 @@ describe('TPlateEditor core package', () => {
   });
 
   describe('Core Plugins', () => {
-    it('should have DebugPlugin methods with default generics', () => {
+    it('exposes DebugPlugin methods on createSlateEditor', () => {
       const editor = createSlateEditor();
 
       expect(editor.api.debug).toBeDefined();
@@ -62,7 +61,7 @@ describe('TPlateEditor core package', () => {
       editor.api.debug.nonExistentMethod;
     });
 
-    it('should have DebugPlugin methods with default generics', () => {
+    it('exposes DebugPlugin methods on createPlateEditor', () => {
       const editor = createPlateEditor();
 
       expect(editor.api.debug).toBeDefined();
@@ -75,7 +74,7 @@ describe('TPlateEditor core package', () => {
       editor.api.debug.nonExistentMethod;
     });
 
-    it('should work with a mix of core and custom plugins', () => {
+    it('combines core and custom plugin APIs on slate and plate editors', () => {
       const slateEditor = createSlateEditor({
         plugins: [DebugPlugin, TextFormattingPlugin, ImagePlugin, LinkPlugin],
       });
@@ -99,7 +98,7 @@ describe('TPlateEditor core package', () => {
       editor.api.createBulletedList;
     });
 
-    it('should work extending a plugin', () => {
+    it('exposes link api after extending a plate plugin', () => {
       const editor = createPlateEditor({
         plugins: [
           LinkPlugin.extend({
@@ -123,7 +122,7 @@ describe('TPlateEditor core package', () => {
   });
 
   describe('Custom Plugins', () => {
-    it('should infer single and multiple plugin types correctly', () => {
+    it('infers plugin APIs across custom plugin sets', () => {
       const singlePluginEditor = createPlateEditor({
         plugins: [MyCustomPlugin],
       });
@@ -140,7 +139,7 @@ describe('TPlateEditor core package', () => {
       multiPluginEditor.api.nonExistentMethod;
     });
 
-    it('should work with createPlateEditor', () => {
+    it('exposes custom plugin APIs on createPlateEditor', () => {
       const editor = createPlateEditor({
         plugins: [MyCustomPlugin, ListPlugin, ImagePlugin],
       });
@@ -153,7 +152,7 @@ describe('TPlateEditor core package', () => {
       editor.api.insertTable;
     });
 
-    it('should allow extending editor with new plugins', () => {
+    it('extends a plate editor with additional plugins', () => {
       const plugins = [TextFormattingPlugin, ListPlugin];
       const editor1 = createPlateEditor({
         plugins,
@@ -174,7 +173,7 @@ describe('TPlateEditor core package', () => {
       editor.api.insertImage;
     });
 
-    it('should handle plugins with overlapping api names', () => {
+    it('merges overlapping api names on createPlateEditor', () => {
       const OverlappingPlugin = createSlatePlugin({
         key: 'overlapping',
         api: {
@@ -218,7 +217,7 @@ describe('TPlateEditor core package', () => {
       },
     });
 
-    it('should work with specific plugin types', () => {
+    it('supports specific plugin generics on createPlateEditor', () => {
       const editor = createPlateEditor<Value, typeof BoldPlugin>({
         plugins: [BoldPlugin],
       });

@@ -1,297 +1,232 @@
 /** @jsx jsxt */
 
-import { createSlateEditor, createSlatePlugin } from '@platejs/core';
 import { jsxt } from '@platejs/test-utils';
+
+import { createEditor } from '../../create-editor';
+import type { Editor, LegacyEditorMethods } from '../../interfaces';
+import { TextApi } from '../../interfaces';
+import { syncLegacyMethods } from '../../utils/assignLegacyTransforms';
 
 jsxt;
 
-describe('select void on backspace behavior', () => {
-  it('should select void block and remove empty current block when at start', () => {
-    const input = (
-      <editor>
-        <element type="img">
-          <htext />
-        </element>
-        <hp>
-          <cursor />
-        </hp>
-      </editor>
-    ) as any;
+describe('mergeNodes', () => {
+  it('returns early without a selection or explicit location', () => {
+    const editor = createEditor({
+      children: [
+        { type: 'p', children: [{ text: 'one' }] },
+        { type: 'p', children: [{ text: 'two' }] },
+      ] as any,
+    });
+
+    editor.selection = null;
+    editor.tf.mergeNodes();
+
+    expect(editor.children).toEqual([
+      { type: 'p', children: [{ text: 'one' }] },
+      { type: 'p', children: [{ text: 'two' }] },
+    ]);
+  });
+
+  it('merges block siblings by default when the selection is inside the second block', () => {
+    const editor = createEditor(
+      (
+        <editor>
+          <hp>one</hp>
+          <hp>
+            <cursor />
+            two
+          </hp>
+        </editor>
+      ) as any
+    );
+
+    editor.tf.mergeNodes();
 
     const output = (
       <editor>
-        <element type="img">
+        <hp>
+          one
           <cursor />
-        </element>
+          two
+        </hp>
       </editor>
     ) as any;
-
-    const editor = createSlateEditor({
-      plugins: [
-        createSlatePlugin({
-          key: 'img',
-          node: {
-            isElement: true,
-            isVoid: true,
-            type: 'img',
-          },
-        }),
-      ],
-      selection: input.selection,
-      value: input.children,
-    });
-
-    editor.tf.deleteBackward('character');
 
     expect(editor.children).toEqual(output.children);
     expect(editor.selection).toEqual(output.selection);
   });
 
-  it('should select void block without removing non-empty current block when at start', () => {
-    const input = (
-      <editor>
-        <element type="img">
-          <htext />
-        </element>
-        <hp>
-          <cursor />
-          some content
-        </hp>
-      </editor>
-    ) as any;
-
-    const output = (
-      <editor>
-        <element type="img">
-          <cursor />
-        </element>
-        <hp>some content</hp>
-      </editor>
-    ) as any;
-
-    const editor = createSlateEditor({
-      plugins: [
-        createSlatePlugin({
-          key: 'img',
-          node: {
-            isElement: true,
-            isVoid: true,
-            type: 'img',
-          },
-        }),
-      ],
-      selection: input.selection,
-      value: input.children,
+  it('deletes an expanded selection before merging and reselects the merged point', () => {
+    const editor = createEditor({
+      children: [
+        { type: 'p', children: [{ text: 'one' }] },
+        { type: 'p', children: [{ text: 'two' }] },
+      ] as any,
+      selection: {
+        anchor: { offset: 0, path: [1, 0] },
+        focus: { offset: 3, path: [1, 0] },
+      },
     });
 
-    editor.tf.deleteBackward('character');
+    editor.tf.mergeNodes();
 
-    expect(editor.children).toEqual(output.children);
-    expect(editor.selection).toEqual(output.selection);
+    expect(editor.children).toEqual([
+      { type: 'p', children: [{ text: 'one' }] },
+    ]);
+    expect(editor.selection).toEqual({
+      anchor: { offset: 3, path: [0, 0] },
+      focus: { offset: 3, path: [0, 0] },
+    });
   });
 
-  it('should NOT select when previous block is not void', () => {
-    const input = (
-      <editor>
-        <hp>previous content</hp>
-        <hp>
-          <cursor />
-          current content
-        </hp>
-      </editor>
-    ) as any;
-
-    const output = (
-      <editor>
-        <hp>
-          previous content
-          <cursor />
-          current content
-        </hp>
-      </editor>
-    ) as any;
-
-    const editor = createSlateEditor({
-      selection: input.selection,
-      value: input.children,
+  it('merges adjacent text nodes', () => {
+    const editor = createEditor({
+      children: [
+        { type: 'p', children: [{ text: 'one' }, { text: 'two' }] },
+      ] as any,
+      selection: {
+        anchor: { offset: 0, path: [0, 1] },
+        focus: { offset: 0, path: [0, 1] },
+      },
     });
 
-    editor.tf.deleteBackward('character');
+    editor.tf.mergeNodes({ at: [0, 1] });
 
-    expect(editor.children).toEqual(output.children);
-    expect(editor.selection).toEqual(output.selection);
+    expect(editor.children).toEqual([
+      { type: 'p', children: [{ text: 'onetwo' }] },
+    ]);
   });
 
-  it('should NOT select when not at start of block', () => {
-    const input = (
-      <editor>
-        <element type="img">
-          <htext />
-        </element>
-        <hp>
-          some
-          <cursor />
-          content
-        </hp>
-      </editor>
-    ) as any;
-
-    const output = (
-      <editor>
-        <element type="img">
-          <htext />
-        </element>
-        <hp>
-          som
-          <cursor />
-          content
-        </hp>
-      </editor>
-    ) as any;
-
-    const editor = createSlateEditor({
-      plugins: [
-        createSlatePlugin({
-          key: 'img',
-          node: {
-            isElement: true,
-            isVoid: true,
-            type: 'img',
-          },
-        }),
-      ],
-      selection: input.selection,
-      value: input.children,
+  it('moves cross-parent text nodes together before merging them', () => {
+    const editor = createEditor({
+      children: [
+        { type: 'p', children: [{ text: 'one' }] },
+        { type: 'p', children: [{ text: 'two' }] },
+      ] as any,
     });
 
-    editor.tf.deleteBackward('character');
+    editor.tf.mergeNodes({ at: [1, 0], match: TextApi.isText });
 
-    expect(editor.children).toEqual(output.children);
-    expect(editor.selection).toEqual(output.selection);
+    expect(editor.children).toEqual([
+      { type: 'p', children: [{ text: 'onetwo' }] },
+    ]);
   });
 
-  it('should work with horizontal rule void block', () => {
-    const input = (
-      <editor>
-        <element type="hr">
-          <htext />
-        </element>
-        <hp>
-          <cursor />
-        </hp>
-      </editor>
-    ) as any;
-
-    const output = (
-      <editor>
-        <element type="hr">
-          <cursor />
-        </element>
-      </editor>
-    ) as any;
-
-    const editor = createSlateEditor({
-      plugins: [
-        createSlatePlugin({
-          key: 'hr',
-          node: {
-            isElement: true,
-            isVoid: true,
-            type: 'hr',
-          },
-        }),
-      ],
-      selection: input.selection,
-      value: input.children,
+  it('merges sibling blocks and removes the emptied ancestor', () => {
+    const editor = createEditor({
+      children: [
+        {
+          type: 'blockquote',
+          children: [{ type: 'p', children: [{ text: 'one' }] }],
+        },
+        {
+          type: 'blockquote',
+          children: [{ type: 'p', children: [{ text: 'two' }] }],
+        },
+      ] as any,
+      selection: {
+        anchor: { offset: 0, path: [1, 0, 0] },
+        focus: { offset: 0, path: [1, 0, 0] },
+      },
     });
 
-    editor.tf.deleteBackward('character');
+    editor.tf.mergeNodes({ at: [1] });
 
-    expect(editor.children).toEqual(output.children);
-    expect(editor.selection).toEqual(output.selection);
+    expect(editor.children).toEqual([
+      {
+        type: 'blockquote',
+        children: [
+          { type: 'p', children: [{ text: 'one' }] },
+          { type: 'p', children: [{ text: 'two' }] },
+        ],
+      },
+    ]);
   });
 
-  it('should work with horizontal rule void block (reverse)', () => {
-    const input = (
-      <editor>
-        <hp>
-          <cursor />
-        </hp>
-        <element type="hr">
-          <htext />
-        </element>
-      </editor>
-    ) as any;
-
-    const output = (
-      <editor>
-        <element type="hr">
-          <cursor />
-        </element>
-      </editor>
-    ) as any;
-
-    const editor = createSlateEditor({
-      plugins: [
-        createSlatePlugin({
-          key: 'hr',
-          node: {
-            isElement: true,
-            isVoid: true,
-            type: 'hr',
-          },
-        }),
-      ],
-      selection: input.selection,
-      value: input.children,
+  it('returns early when there is no previous matching node', () => {
+    const editor = createEditor({
+      children: [
+        { type: 'p', children: [{ text: 'one' }] },
+        { type: 'p', children: [{ text: 'two' }] },
+      ] as any,
     });
 
-    editor.tf.deleteForward('character');
+    editor.tf.mergeNodes({ at: [0] });
 
-    expect(editor.children).toEqual(output.children);
-    expect(editor.selection).toEqual(output.selection);
+    expect(editor.children).toEqual([
+      { type: 'p', children: [{ text: 'one' }] },
+      { type: 'p', children: [{ text: 'two' }] },
+    ]);
   });
 
-  it('should work with text + horizontal rule void block (reverse)', () => {
-    const input = (
-      <editor>
-        <hp>
-          text
-          <cursor />
-        </hp>
-        <element type="hr">
-          <htext />
-        </element>
-      </editor>
-    ) as any;
+  it('merges text inside a void element when voids is true', () => {
+    const editor = createEditor({
+      children: [
+        {
+          children: [{ text: 'one' }, { text: 'two' }],
+          type: 'tag',
+        },
+      ] as any,
+    }) as Editor & LegacyEditorMethods;
 
-    const output = (
-      <editor>
-        <hp>text</hp>
-        <element type="hr">
-          <cursor />
-        </element>
-      </editor>
-    ) as any;
+    editor.isVoid = (element) => element.type === 'tag';
+    syncLegacyMethods(editor);
 
-    const editor = createSlateEditor({
-      plugins: [
-        createSlatePlugin({
-          key: 'hr',
-          node: {
-            isElement: true,
-            isVoid: true,
-            type: 'hr',
-          },
-        }),
-      ],
-      selection: input.selection,
-      value: input.children,
+    editor.tf.mergeNodes({ at: [0, 1], voids: true });
+
+    expect(editor.children).toEqual([
+      {
+        children: [{ text: 'onetwo' }],
+        type: 'tag',
+      },
+    ]);
+  });
+
+  it('respects shouldMergeNodes when it rejects the merge', () => {
+    const editor = createEditor({
+      children: [
+        { type: 'p', children: [{ text: 'one' }] },
+        { type: 'p', children: [{ text: 'two' }] },
+      ] as any,
+      selection: {
+        anchor: { offset: 0, path: [1, 0] },
+        focus: { offset: 0, path: [1, 0] },
+      },
     });
 
-    editor.tf.deleteForward('character');
+    editor.api.shouldMergeNodes = () => false;
 
-    expect(editor.children).toEqual(output.children);
-    expect(editor.selection).toEqual(output.selection);
+    editor.tf.mergeNodes({ at: [1] });
+
+    expect(editor.children).toEqual([
+      { type: 'p', children: [{ text: 'one' }] },
+      { type: 'p', children: [{ text: 'two' }] },
+    ]);
+  });
+
+  it('throws when the current and previous nodes are different kinds', () => {
+    const editor = createEditor(
+      (
+        <editor>
+          <hp>
+            one
+            <ha>two</ha>
+          </hp>
+        </editor>
+      ) as any
+    ) as Editor & LegacyEditorMethods;
+    const { isInline } = editor;
+
+    editor.isInline = (element) => element.type === 'a' || isInline(element);
+    syncLegacyMethods(editor);
+
+    expect(() =>
+      editor.tf.mergeNodes({
+        at: [0, 1],
+        match: (node: any) =>
+          node?.type === 'a' || typeof node?.text === 'string',
+        mode: 'highest',
+      })
+    ).toThrow(TypeError);
   });
 });

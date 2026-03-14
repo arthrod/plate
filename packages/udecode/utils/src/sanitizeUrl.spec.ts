@@ -7,15 +7,20 @@ describe('sanitizeUrl', () => {
       permitInvalid: false,
     };
 
-    it('should return null when url is invalid', () => {
+    it('returns null when url is invalid', () => {
       expect(sanitizeUrl('invalid', options)).toBeNull();
     });
 
-    it('should return null when url has disallowed scheme', () => {
+    it('returns null when url has disallowed scheme', () => {
       expect(sanitizeUrl('javascript://example.com/', options)).toBeNull();
     });
 
-    it('should return url when url is valid', () => {
+    it('returns internal links unchanged', () => {
+      expect(sanitizeUrl('/docs', options)).toBe('/docs');
+      expect(sanitizeUrl('#heading', options)).toBe('#heading');
+    });
+
+    it('returns url when url is valid', () => {
       expect(sanitizeUrl('http://example.com/', options)).toBe(
         'http://example.com/'
       );
@@ -28,15 +33,19 @@ describe('sanitizeUrl', () => {
       permitInvalid: true,
     };
 
-    it('should return url when url is invalid', () => {
+    it('returns url when url is invalid', () => {
       expect(sanitizeUrl('invalid', options)).toBe('invalid');
     });
 
-    it('should return null when url has disallowed scheme', () => {
+    it('returns null when url has disallowed scheme', () => {
       expect(sanitizeUrl('javascript://example.com/', options)).toBeNull();
     });
 
-    it('should return url when url is valid', () => {
+    it('returns null for undefined input', () => {
+      expect(sanitizeUrl(undefined, options)).toBeNull();
+    });
+
+    it('returns url when url is valid', () => {
       expect(sanitizeUrl('http://example.com/', options)).toBe(
         'http://example.com/'
       );

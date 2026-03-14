@@ -3,7 +3,8 @@ import React from 'react';
 import { renderHook } from '@testing-library/react';
 
 import { createSlatePlugin } from '../../lib/plugin';
-import { createPlateEditor, Plate, useEditorValue } from '../../react';
+import { TestPlate as Plate } from '../../react/__tests__/TestPlate';
+import { createPlateEditor, useEditorValue } from '../../react';
 
 describe('pipeNormalizeInitialValue', () => {
   const createTestPlugin = (key: string) =>
@@ -17,7 +18,7 @@ describe('pipeNormalizeInitialValue', () => {
   const plugins = [createTestPlugin('a'), createTestPlugin('b')];
 
   describe('when children is passed to createPlateEditor', () => {
-    it('should normalize the initial value once', () => {
+    it('normalize the initial value once', () => {
       const editor = createPlateEditor({
         plugins,
         value: [{ children: [{ text: '' }], count: 0, type: 'p' }],
@@ -38,7 +39,7 @@ describe('pipeNormalizeInitialValue', () => {
   });
 
   describe('when initialValue was previously passed to Plate', () => {
-    it('should normalize the initial value once', () => {
+    it('normalize the initial value once', () => {
       const editor = createPlateEditor({
         plugins,
         value: [{ children: [{ text: '' }], count: 0, type: 'p' }],
@@ -59,7 +60,7 @@ describe('pipeNormalizeInitialValue', () => {
   });
 
   describe('when both children and initialValue were previously provided', () => {
-    it('should use children and normalize it once', () => {
+    it('use children and normalize it once', () => {
       const editor = createPlateEditor({
         plugins,
         value: [{ children: [{ text: '' }], count: 0, type: 'p' }],
@@ -81,7 +82,7 @@ describe('pipeNormalizeInitialValue', () => {
 
   describe('withPlate', () => {
     describe('children handling', () => {
-      it('should use provided children', () => {
+      it('use provided children', () => {
         const children = [
           { children: [{ text: 'Test' }], count: 0, type: 'p' },
         ];
@@ -103,7 +104,7 @@ describe('pipeNormalizeInitialValue', () => {
         ]);
       });
 
-      it('should use create.value when children is empty', () => {
+      it('use create.value when children is empty', () => {
         const editor = createPlateEditor({
           plugins,
           value: [{ children: [{ text: 'Factory' }], count: 0, type: 'p' }],
@@ -124,7 +125,7 @@ describe('pipeNormalizeInitialValue', () => {
     });
 
     describe('selection handling', () => {
-      it('should use provided selection', () => {
+      it('use provided selection', () => {
         const selection = {
           anchor: { offset: 0, path: [0, 0] },
           focus: { offset: 1, path: [0, 0] },
@@ -137,7 +138,7 @@ describe('pipeNormalizeInitialValue', () => {
         expect(editor.selection).toEqual(selection);
       });
 
-      it('should auto-select start when autoSelect is "start"', () => {
+      it('auto-select start when autoSelect is "start"', () => {
         const editor = createPlateEditor({
           autoSelect: 'start',
           value: [{ children: [{ text: 'Test' }], type: 'p' }],
@@ -149,7 +150,7 @@ describe('pipeNormalizeInitialValue', () => {
         });
       });
 
-      it('should auto-select end when autoSelect is true', () => {
+      it('auto-select end when autoSelect is true', () => {
         const editor = createPlateEditor({
           autoSelect: true,
           value: [{ children: [{ text: 'Test' }], type: 'p' }],

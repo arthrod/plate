@@ -1,102 +1,89 @@
-/** @jsx jsxt */
+/** @jsx jsx */
 
-import { BoldPlugin, ItalicPlugin } from '@platejs/basic-nodes/react';
-import { jsxt } from '@platejs/test-utils';
+import { jsx } from '@platejs/test-utils';
 
-import { createEditor } from '../..';
+import { createEditor } from '../../create-editor';
 
-jsxt;
+jsx;
 
-describe('active', () => {
-  const input = createEditor(
-    (
-      <editor>
-        <hp>
-          tes
-          <htext bold>t</htext>
-        </hp>
-        <selection>
-          <anchor offset={0} path={[0, 1]} />
-          <focus offset={1} path={[0, 1]} />
-        </selection>
-      </editor>
-    ) as any
-  );
+describe('toggleMark', () => {
+  it('does nothing without a selection', () => {
+    const editor = createEditor({
+      children: [{ children: [{ text: 'test' }], type: 'p' }] as any,
+    });
 
-  const output = (
-    <editor>
-      <hp>
-        test
-        <cursor />
-      </hp>
-    </editor>
-  ) as any;
+    editor.selection = null;
+    editor.marks = { bold: true };
 
-  it('should be', () => {
-    input.tf.toggleMark(BoldPlugin.key);
-    expect(input.children).toEqual(output.children);
+    editor.tf.toggleMark('italic');
+
+    expect(editor.children).toEqual([
+      { children: [{ text: 'test' }], type: 'p' },
+    ]);
+    expect(editor.marks).toEqual({ bold: true });
   });
-});
 
-describe('clear', () => {
-  const input = createEditor(
-    (
-      <editor>
-        <hp>
-          <htext bold>test</htext>
-        </hp>
-        <selection>
-          <anchor offset={0} path={[0, 0]} />
-          <focus offset={4} path={[0, 0]} />
-        </selection>
-      </editor>
-    ) as any
-  );
+  it('removes the mark when it is already active', () => {
+    const editor = createEditor(
+      (
+        <editor>
+          <hp>
+            te
+            <cursor />
+            st
+          </hp>
+        </editor>
+      ) as any
+    );
 
-  const output = createEditor(
-    (
-      <editor>
-        <hp>
-          <htext italic>test</htext>
-          <cursor />
-        </hp>
-      </editor>
-    ) as any
-  );
+    editor.marks = { bold: true };
 
-  it('should be', () => {
-    input.tf.toggleMark(ItalicPlugin.key, { remove: BoldPlugin.key });
-    expect(input.children).toEqual(output.children);
+    editor.tf.toggleMark('bold');
+
+    expect(editor.marks).toEqual({});
   });
-});
 
-describe('inactive', () => {
-  const input = createEditor(
-    (
-      <editor>
-        <hp>test</hp>
-        <selection>
-          <anchor offset={3} path={[0, 0]} />
-          <focus offset={4} path={[0, 0]} />
-        </selection>
-      </editor>
-    ) as any
-  );
+  it('replaces mutually exclusive marks at a collapsed selection', () => {
+    const editor = createEditor(
+      (
+        <editor>
+          <hp>
+            te
+            <cursor />
+            st
+          </hp>
+        </editor>
+      ) as any
+    );
 
-  const output = createEditor(
-    (
-      <editor>
-        <hp>
-          tes
-          <htext bold>t</htext>
-          <cursor />
-        </hp>
-      </editor>
-    ) as any
-  );
+    editor.marks = { superscript: true };
 
-  it('should be', () => {
-    input.tf.toggleMark(BoldPlugin.key);
-    expect(input.children).toEqual(output.children);
+    editor.tf.toggleMark('subscript', { remove: 'superscript' });
+
+    expect(editor.marks).toEqual({ subscript: true });
+  });
+
+  it('replaces mutually exclusive marks across an expanded selection', () => {
+    const editor = createEditor(
+      (
+        <editor>
+          <hp>
+            te
+            <anchor />
+            <htext superscript>st</htext>
+            <focus />
+          </hp>
+        </editor>
+      ) as any
+    );
+
+    editor.tf.toggleMark('subscript', { remove: 'superscript' });
+
+    expect(editor.children).toEqual([
+      {
+        children: [{ text: 'te' }, { subscript: true, text: 'st' }],
+        type: 'p',
+      },
+    ]);
   });
 });

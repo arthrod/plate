@@ -1,10 +1,29 @@
 # @platejs/core
 
+## 52.3.4
+
+### Patch Changes
+
+- [#4857](https://github.com/udecode/plate/pull/4857) by [@zbeyens](https://github.com/zbeyens) –
+
+  - Fix `PlateSlate` so it passes the Slate remount key directly instead of spreading `key` through JSX props.
+
+- [#4857](https://github.com/udecode/plate/pull/4857) by [@zbeyens](https://github.com/zbeyens) –
+
+  - Fix `usePlateStore` so it no longer relies on a conditional hook path that breaks React Compiler.
+
+- [#4857](https://github.com/udecode/plate/pull/4857) by [@zbeyens](https://github.com/zbeyens) –
+
+  - Fix `usePluginOption(plugin, 'state')` so it returns the plugin option state instead of reporting an undefined option.
+
+- [#4857](https://github.com/udecode/plate/pull/4857) by [@zbeyens](https://github.com/zbeyens) –
+  - Update internal `@udecode/*` dependency ranges to workspace references.
+
 ## 52.3.3
 
 ### Patch Changes
 
-- [#4851](https://github.com/udecode/plate/pull/4851) by [@zbeyens](https://github.com/zbeyens) –
+- [#4853](https://github.com/udecode/plate/pull/4853) by [@zbeyens](https://github.com/zbeyens) –
   - Update Slate dependencies to `0.123.0`
 
 ## 52.0.17

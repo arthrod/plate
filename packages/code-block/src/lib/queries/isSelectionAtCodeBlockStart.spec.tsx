@@ -1,17 +1,22 @@
 /** @jsx jsxt */
 
 import { jsxt } from '@platejs/test-utils';
-import { createEditor } from 'platejs';
-import { createPlateEditor } from 'platejs/react';
+import { createEditor, createSlateEditor } from 'platejs';
 
 import { isSelectionAtCodeBlockStart } from './isSelectionAtCodeBlockStart';
 
 jsxt;
 
 describe('isSelectionAtCodeBlockStart', () => {
-  it('should be false when not in a code block', () => {
-    const input = createEditor(
-      (
+  const run = (input: any) =>
+    isSelectionAtCodeBlockStart(
+      createSlateEditor({ editor: createEditor(input) })
+    );
+
+  it.each([
+    {
+      expected: false,
+      input: (
         <editor>
           <hp>
             <htext />
@@ -23,17 +28,12 @@ describe('isSelectionAtCodeBlockStart', () => {
             </hcodeline>
           </hcodeblock>
         </editor>
-      ) as any
-    );
-
-    expect(
-      isSelectionAtCodeBlockStart(createPlateEditor({ editor: input }))
-    ).toBe(false);
-  });
-
-  it('should be false when on a non-first line of a code block', () => {
-    const input = createEditor(
-      (
+      ),
+      title: 'returns false outside a code block',
+    },
+    {
+      expected: false,
+      input: (
         <editor>
           <hcodeblock>
             <hcodeline>
@@ -45,17 +45,12 @@ describe('isSelectionAtCodeBlockStart', () => {
             </hcodeline>
           </hcodeblock>
         </editor>
-      ) as any
-    );
-
-    expect(
-      isSelectionAtCodeBlockStart(createPlateEditor({ editor: input }))
-    ).toBe(false);
-  });
-
-  it('should be false when not at the start of a code line', () => {
-    const input = createEditor(
-      (
+      ),
+      title: 'returns false on a later code line',
+    },
+    {
+      expected: false,
+      input: (
         <editor>
           <hcodeblock>
             <hcodeline>
@@ -64,17 +59,12 @@ describe('isSelectionAtCodeBlockStart', () => {
             </hcodeline>
           </hcodeblock>
         </editor>
-      ) as any
-    );
-
-    expect(
-      isSelectionAtCodeBlockStart(createPlateEditor({ editor: input }))
-    ).toBe(false);
-  });
-
-  it('should be true when at the start of the first line of a code block', () => {
-    const input = createEditor(
-      (
+      ),
+      title: 'returns false when the cursor is not at the line start',
+    },
+    {
+      expected: true,
+      input: (
         <editor>
           <hcodeblock>
             <hcodeline>
@@ -84,11 +74,10 @@ describe('isSelectionAtCodeBlockStart', () => {
             <hcodeline>line 2</hcodeline>
           </hcodeblock>
         </editor>
-      ) as any
-    );
-
-    expect(
-      isSelectionAtCodeBlockStart(createPlateEditor({ editor: input }))
-    ).toBe(true);
+      ),
+      title: 'returns true at the start of the first code line',
+    },
+  ])('$title', ({ input, expected }) => {
+    expect(run(input)).toBe(expected);
   });
 });
