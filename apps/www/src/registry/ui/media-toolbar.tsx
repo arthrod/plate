@@ -108,6 +108,7 @@ export function MediaToolbar({
 
             <Button size="sm" variant="ghost" {...buttonProps}>
               <Trash2Icon />
+              <span className="sr-only">Remove media</span>
             </Button>
           </div>
         )}

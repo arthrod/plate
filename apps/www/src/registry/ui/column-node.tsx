@@ -112,6 +112,7 @@ const ColumnDragHandle = React.memo(function ColumnDragHandle() {
                 event.preventDefault();
               }}
             />
+            <span className="sr-only">Drag column</span>
           </Button>
         </TooltipTrigger>
 
@@ -188,6 +189,7 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
             onClick={() => onColumnChange(['50%', '50%'])}
           >
             <DoubleColumnOutlined />
+            <span className="sr-only">Double column</span>
           </Button>
           <Button
             variant="ghost"
@@ -195,6 +197,7 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
             onClick={() => onColumnChange(['33%', '33%', '33%'])}
           >
             <ThreeColumnOutlined />
+            <span className="sr-only">Three columns</span>
           </Button>
           <Button
             variant="ghost"
@@ -202,6 +205,7 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
             onClick={() => onColumnChange(['70%', '30%'])}
           >
             <RightSideDoubleColumnOutlined />
+            <span className="sr-only">Right side double column</span>
           </Button>
           <Button
             variant="ghost"
@@ -209,6 +213,7 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
             onClick={() => onColumnChange(['30%', '70%'])}
           >
             <LeftSideDoubleColumnOutlined />
+            <span className="sr-only">Left side double column</span>
           </Button>
           <Button
             variant="ghost"
@@ -216,11 +221,13 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
             onClick={() => onColumnChange(['25%', '50%', '25%'])}
           >
             <DoubleSideDoubleColumnOutlined />
+            <span className="sr-only">Double side double column</span>
           </Button>
 
           <Separator orientation="vertical" className="mx-1 h-6" />
           <Button variant="ghost" className="size-8" {...buttonProps}>
             <Trash2Icon />
+            <span className="sr-only">Remove column</span>
           </Button>
         </div>
       </PopoverContent>
