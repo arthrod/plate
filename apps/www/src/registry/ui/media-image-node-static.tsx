@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { TCaptionProps, TImageElement, TResizableProps } from 'platejs';
 import type { SlateElementProps } from 'platejs/static';
 
-import { NodeApi } from 'platejs';
+import { NodeApi, sanitizeUrl } from 'platejs';
 import { SlateElement } from 'platejs/static';
 
 import { cn } from '@/lib/utils';
@@ -26,7 +26,7 @@ export function ImageElementStatic(
               'rounded-sm'
             )}
             alt={(props.attributes as any).alt}
-            src={url}
+            src={sanitizeUrl(url) || ''}
           />
           {caption && (
             <figcaption

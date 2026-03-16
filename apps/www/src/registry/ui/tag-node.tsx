@@ -6,6 +6,7 @@ import type { TTagElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 
 import Link from 'next/link';
+import { sanitizeUrl } from 'platejs';
 import {
   PlateElement,
   useFocused,
@@ -36,7 +37,7 @@ export function TagElement(props: PlateElementProps<TTagElement>) {
 
   const content =
     readOnly && element.url ? (
-      <Link href={element.url as string}>{badge}</Link>
+      <Link href={sanitizeUrl(element.url as string) || ''}>{badge}</Link>
     ) : (
       badge
     );
