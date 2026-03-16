@@ -5,8 +5,9 @@ export type SanitizeUrlOptions = {
 
 export const sanitizeUrl = (
   url: string | undefined,
-  { allowedSchemes, permitInvalid = false }: SanitizeUrlOptions
+  options?: SanitizeUrlOptions
 ): string | null => {
+  const { allowedSchemes, permitInvalid = false } = options || {};
   if (!url) return null;
 
   // Allow internal links starting with / or #

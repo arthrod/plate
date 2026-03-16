@@ -26,7 +26,7 @@ export function ImageElementStatic(
               'rounded-sm'
             )}
             alt={(props.attributes as any).alt}
-            src={sanitizeUrl(url) || ''}
+            src={sanitizeUrl(url, { allowedSchemes: ['http', 'https'] }) || ''}
           />
           {caption && (
             <figcaption

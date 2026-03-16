@@ -37,7 +37,7 @@ export function TagElement(props: PlateElementProps<TTagElement>) {
 
   const content =
     readOnly && element.url ? (
-      <Link href={sanitizeUrl(element.url as string) || ''}>{badge}</Link>
+      <Link href={sanitizeUrl(element.url as string, { allowedSchemes: ['http', 'https', 'mailto', 'tel'] }) || ''}>{badge}</Link>
     ) : (
       badge
     );

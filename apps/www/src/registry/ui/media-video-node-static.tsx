@@ -20,7 +20,7 @@ export function VideoElementStatic(
         >
           <video
             className="w-full max-w-full rounded-sm object-cover px-0"
-            src={sanitizeUrl(url) || ''}
+            src={sanitizeUrl(url, { allowedSchemes: ['http', 'https'] }) || ''}
             controls
           />
           {caption && <figcaption>{NodeApi.string(caption[0])}</figcaption>}
