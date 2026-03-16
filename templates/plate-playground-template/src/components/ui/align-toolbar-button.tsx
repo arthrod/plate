@@ -41,6 +41,8 @@ const items = [
   },
 ];
 
+const itemsMap = new Map(items.map((item) => [item.value, item]));
+
 export function AlignToolbarButton(props: DropdownMenuProps) {
   const { editor, tf } = useEditorPlugin(TextAlignPlugin);
   const value =
@@ -51,7 +53,7 @@ export function AlignToolbarButton(props: DropdownMenuProps) {
 
   const [open, setOpen] = React.useState(false);
   const IconValue =
-    items.find((item) => item.value === value)?.icon ?? AlignLeftIcon;
+    itemsMap.get(value)?.icon ?? AlignLeftIcon;
 
   return (
     <DropdownMenu modal={false} onOpenChange={setOpen} open={open} {...props}>

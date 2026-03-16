@@ -5,7 +5,7 @@ export type SanitizeUrlOptions = {
 
 export const sanitizeUrl = (
   url: string | undefined,
-  { allowedSchemes, permitInvalid = false }: SanitizeUrlOptions
+  { allowedSchemes, permitInvalid = false }: SanitizeUrlOptions = {}
 ): string | null => {
   if (!url) return null;
 
