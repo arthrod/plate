@@ -302,6 +302,7 @@ function BlockViewerToolbar({ block }: { block: boolean }) {
               'h-[26px] px-2 text-xs'
             )}
             href={item.meta?.descriptionSrc ?? siteConfig.links.potionIframe}
+            rel="noopener noreferrer"
             target="_blank"
           >
             <span
