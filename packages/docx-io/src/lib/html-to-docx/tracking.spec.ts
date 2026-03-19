@@ -367,7 +367,7 @@ describe('DOCX Export with Tracked Changes', () => {
     }
 
     expect(warn).toHaveBeenCalled();
-    expect(warn.mock.calls[0]?.[0]).toContain(
+    expect((warn.mock.calls as any)[0]?.[0]).toContain(
       'dead tracking tokens in document.xml'
     );
   });

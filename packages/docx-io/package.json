@@ -68,7 +68,9 @@
   "devDependencies": {
     "@platejs/docx": "workspace:^",
     "@platejs/markdown": "workspace:^",
-    "platejs": "workspace:^"
+    "@types/node": "25.5.0",
+    "platejs": "workspace:^",
+    "vitest": "4.1.0"
   },
   "peerDependencies": {
     "@platejs/docx": ">=52.0.0",

@@ -49,7 +49,7 @@ describe('Crash Reproduction: Overlapping and Duplicate IDs', () => {
     // 2. Construct Tokens
     const d1Start = buildCommentStartToken(discussion1Payload);
     const d2Start = buildCommentStartToken(discussion2Payload);
-    // @ts-expect-error - mock payload
+
     const sStart = buildSuggestionStartToken(suggestionPayload, 'insert');
 
     // 3. Construct HTML
