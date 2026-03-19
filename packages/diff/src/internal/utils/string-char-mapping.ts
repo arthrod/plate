@@ -5,20 +5,46 @@
 
 import type { Descendant } from 'platejs';
 
-import isEqual from 'lodash/isEqual.js';
-
 import { unusedCharGenerator } from './unused-char-generator';
+
+/**
+ * Recursively sort keys of an object to produce a stable JSON string.
+ */
+function stableStringify(obj: any): string {
+  if (obj === null || typeof obj !== 'object') {
+    return JSON.stringify(obj);
+  }
+
+  if (Array.isArray(obj)) {
+    return `[${obj.map((item) => stableStringify(item)).join(',')}]`;
+  }
+
+  const keys = Object.keys(obj).sort();
+  const parts: string[] = [];
+
+  for (const key of keys) {
+    if (obj[key] !== undefined) {
+      parts.push(`${JSON.stringify(key)}:${stableStringify(obj[key])}`);
+    }
+  }
+
+  return `{${parts.join(',')}}`;
+}
 
 export class StringCharMapping {
   private readonly _charGenerator = unusedCharGenerator();
-  private readonly _mappedNodes: [Descendant, string][] = [];
+
+  // O(1) mappings for character <-> node lookups
+  private readonly _charToNode = new Map<string, Descendant>();
+  private readonly _nodeByRefToChar = new Map<Descendant, string>();
+  private readonly _nodeByKeyToChar = new Map<string, string>();
 
   charToNode(c: string): Descendant {
-    const entry = this._mappedNodes.find(([_node, c2]) => c2 === c);
+    const node = this._charToNode.get(c);
 
-    if (!entry) throw new Error(`No node found for char ${c}`);
+    if (!node) throw new Error(`No node found for char ${c}`);
 
-    return entry[0];
+    return node;
   }
 
   nodesToString(nodes: Descendant[]): string {
@@ -26,15 +52,27 @@ export class StringCharMapping {
   }
 
   nodeToChar(node: Descendant): string {
-    // Check for a previously assigned character
-    for (const [n, c] of this._mappedNodes) {
-      if (isEqual(n, node)) {
-        return c;
-      }
+    // 1. Check for reference equality (fastest)
+    const refChar = this._nodeByRefToChar.get(node);
+    if (refChar !== undefined) {
+      return refChar;
     }
 
+    // 2. Check for structural equality via stable JSON key (replaces O(N) lodash/isEqual)
+    const nodeKey = stableStringify(node);
+    const keyChar = this._nodeByKeyToChar.get(nodeKey);
+    if (keyChar !== undefined) {
+      // Map this reference so future lookups are faster
+      this._nodeByRefToChar.set(node, keyChar);
+      return keyChar;
+    }
+
+    // 3. Generate a new character and map it
     const c = this._charGenerator.next().value;
-    this._mappedNodes.push([node, c]);
+
+    this._charToNode.set(c, node);
+    this._nodeByRefToChar.set(node, c);
+    this._nodeByKeyToChar.set(nodeKey, c);
 
     return c;
   }

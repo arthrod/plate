@@ -6,3 +6,7 @@
 ## 2024-05-13 - [O(1) Set Intersections]
 **Learning:** For performance-critical filtering of DOM elements (e.g., in `packages/selection`), use `Set` objects for O(1) lookups instead of `Array.includes` to prevent O(N*M) algorithmic complexity slowdowns during intensive operations like drag/selection. When refactoring O(N^2) array intersection checks, ensure the `Set` is instantiated from the target array, not the iterating array, to prevent tautological bugs.
 **Action:** Replace `arrayA.filter(v => arrayB.includes(v))` with `const setB = new Set(arrayB); arrayA.filter(v => setB.has(v))` in performance-sensitive DOM filtering loops, ensuring correct set initialization.
+
+## 2024-05-14 - [O(1) lookups for Structural Equality in StringCharMapping]
+**Learning:** In string-to-character mapping algorithms dealing with potentially large DOM structures like `packages/diff/src/internal/utils/string-char-mapping.ts`, using `Array.find` with `lodash/isEqual` results in `O(N^2)` time complexity, severely impacting performance as document size grows.
+**Action:** Replace `Array` + `isEqual` lookups with a `Map` approach using stable JSON serialization (sorting keys) to provide `O(1)` amortized structural equality lookups and `O(N)` overall complexity for large maps. Ensure a fast reference check is also included as a short-circuit.
