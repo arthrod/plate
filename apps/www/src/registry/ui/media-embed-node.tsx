@@ -10,6 +10,7 @@ import type { PlateElementProps } from 'platejs/react';
 import { parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { MediaEmbedPlugin, useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
+import { sanitizeUrl } from 'platejs';
 import { PlateElement, withHOC } from 'platejs/react';
 
 import { cn } from '@/lib/utils';
@@ -99,7 +100,11 @@ export const MediaEmbedElement = withHOC(
                         focused && selected && 'ring-2 ring-ring ring-offset-2'
                       )}
                       title="embed"
-                      src={embed!.url}
+                      src={
+                        sanitizeUrl(embed!.url, {
+                          allowedSchemes: ['http', 'https'],
+                        }) || ''
+                      }
                       allowFullScreen
                     />
                   </div>

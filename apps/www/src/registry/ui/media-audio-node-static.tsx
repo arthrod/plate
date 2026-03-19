@@ -13,7 +13,11 @@ export function AudioElementStatic(props: SlateElementProps<TAudioElement>) {
         <div className="h-16">
           <audio
             className="size-full"
-            src={sanitizeUrl(props.element.url, { allowedSchemes: ['http', 'https'] }) || ''}
+            src={
+              sanitizeUrl(props.element.url, {
+                allowedSchemes: ['http', 'https'],
+              }) || ''
+            }
             controls
           />
         </div>
