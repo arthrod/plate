@@ -135,6 +135,7 @@ export const DOCX_COMMENT_TOKEN_SUFFIX = ']]';
  * Regex pattern string for DOCX tracking tokens.
  * We use [\s\S]+? to capture payload because line wrapping can insert newlines
  * or spaces into the encoded JSON payload string.
+ * Note: double escape backslashes for string literal usage in RegExp constructor.
  */
 const DOCX_TOKEN_PATTERN_STRING = '\\[\\[DOCX_(INS|DEL|CMT)_(START|END):([\\s\\S]+?)\\]\\]';
 
@@ -176,6 +177,7 @@ function parseDocxToken(
     const data = JSON.parse(decoded);
 
     if (kind === 'CMT') {
+      if (data.replies && !Array.isArray(data.replies)) return null;
       return { data: data as CommentPayload, type: 'commentStart' };
     }
     if (kind === 'DEL') {
