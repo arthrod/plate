@@ -20,7 +20,14 @@ function stableStringify(obj: any): string {
   }
 
   const keys = Object.keys(obj).sort();
-  const parts = keys.map((key) => `${JSON.stringify(key)}:${stableStringify(obj[key])}`);
+  const parts: string[] = [];
+
+  for (const key of keys) {
+    if (obj[key] !== undefined) {
+      parts.push(`${JSON.stringify(key)}:${stableStringify(obj[key])}`);
+    }
+  }
+
   return `{${parts.join(',')}}`;
 }
 
