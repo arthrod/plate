@@ -40,7 +40,7 @@ export function OpenInPlus({ className }: { className?: string }) {
       <a
         className="absolute inset-0"
         href={`${siteConfig.links.platePro}`}
-        rel="noreferrer"
+        rel="noopener noreferrer"
         target="_blank"
       >
         <span className="sr-only">{content.getAccess}</span>
