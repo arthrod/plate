@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-
+import JSZip from 'jszip';
 import { htmlToDocxBlob } from '../exportDocx';
-import { loadZipFromBlob } from './test-utils';
 import {
   buildCommentEndToken,
   buildCommentStartToken,
@@ -13,6 +12,11 @@ import {
 } from './tracking';
 
 const mock = vi.fn;
+
+async function loadZipFromBlob(blob: Blob): Promise<JSZip> {
+  const zip = new JSZip();
+  return zip.loadAsync(await blob.arrayBuffer());
+}
 
 describe('Tracking Token Constants', () => {
   it('should have correct insertion token prefixes', () => {
