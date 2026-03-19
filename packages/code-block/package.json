@@ -41,7 +41,9 @@
   },
   "devDependencies": {
     "lowlight": "^3.3.0",
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "peerDependencies": {
     "platejs": ">=52.0.11",

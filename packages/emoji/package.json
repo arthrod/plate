@@ -45,7 +45,9 @@
   },
   "devDependencies": {
     "@emoji-mart/data": "^1.2.1",
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "peerDependencies": {
     "@emoji-mart/data": ">=1.2.0",
