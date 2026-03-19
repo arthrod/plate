@@ -1,0 +1,74 @@
+{
+  "inputNodes": [
+    {
+      "type": "h1",
+      "children": [
+        {
+          "text": "Hello World"
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "children": [
+        {
+          "text": "This is a paragraph."
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "children": [
+        {
+          "text": "Item 1"
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "children": [
+        {
+          "text": "Item 2"
+        }
+      ]
+    }
+  ],
+  "outputNodes": [
+    {
+      "type": "h1",
+      "children": [
+        {
+          "text": "Hello World"
+        }
+      ],
+      "id": "7bqJYJfPGj"
+    },
+    {
+      "type": "p",
+      "children": [
+        {
+          "text": "This is a paragraph."
+        }
+      ],
+      "id": "ct1EPV2wF4"
+    },
+    {
+      "type": "p",
+      "children": [
+        {
+          "text": "Item 1"
+        }
+      ],
+      "id": "HwzKhBH5Ou"
+    },
+    {
+      "type": "p",
+      "children": [
+        {
+          "text": "Item 2"
+        }
+      ],
+      "id": "YpLrcyPcJd"
+    }
+  ]
+}

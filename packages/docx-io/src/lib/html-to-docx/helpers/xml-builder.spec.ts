@@ -64,17 +64,25 @@ describe('buildRunsFromTextWithTokens', () => {
     const combinedXml = xmlStrings.join('');
 
     // Check for Parent Start (using regex to be namespace-agnostic)
-    expect(combinedXml).toMatch(new RegExp(`commentRangeStart[^>]*id="${parentNumericId}"`));
+    expect(combinedXml).toMatch(
+      new RegExp(`commentRangeStart[^>]*id="${parentNumericId}"`)
+    );
 
     // Check for Reply Start
-    expect(combinedXml).toMatch(new RegExp(`commentRangeStart[^>]*id="${replyNumericId}"`));
+    expect(combinedXml).toMatch(
+      new RegExp(`commentRangeStart[^>]*id="${replyNumericId}"`)
+    );
 
     // Check for Parent End
-    expect(combinedXml).toMatch(new RegExp(`commentRangeEnd[^>]*id="${parentNumericId}"`));
+    expect(combinedXml).toMatch(
+      new RegExp(`commentRangeEnd[^>]*id="${parentNumericId}"`)
+    );
 
     // Check for Reply End - THIS IS THE FIX VERIFICATION
     // This asserts that the fix logic correctly found the reply ID and emitted the end tag
-    expect(combinedXml).toMatch(new RegExp(`commentRangeEnd[^>]*id="${replyNumericId}"`));
+    expect(combinedXml).toMatch(
+      new RegExp(`commentRangeEnd[^>]*id="${replyNumericId}"`)
+    );
   });
 
   it('should fallback to generated ID when reply.id is missing', () => {
@@ -124,9 +132,13 @@ describe('buildRunsFromTextWithTokens', () => {
     const combinedXml = xmlStrings.join('');
 
     // Check for Reply Start with expected generated ID
-    expect(combinedXml).toMatch(new RegExp(`commentRangeStart[^>]*id="${replyNumericId}"`));
+    expect(combinedXml).toMatch(
+      new RegExp(`commentRangeStart[^>]*id="${replyNumericId}"`)
+    );
 
     // Check for Reply End
-    expect(combinedXml).toMatch(new RegExp(`commentRangeEnd[^>]*id="${replyNumericId}"`));
+    expect(combinedXml).toMatch(
+      new RegExp(`commentRangeEnd[^>]*id="${replyNumericId}"`)
+    );
   });
 });

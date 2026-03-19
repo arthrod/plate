@@ -19,9 +19,9 @@ describe('XML Builder Regression Tests', () => {
         {
           id: '', // Empty string ID (falsy)
           authorName: 'Reply User',
-          text: 'Reply with empty ID'
-        }
-      ]
+          text: 'Reply with empty ID',
+        },
+      ],
     };
 
     // We expect the XML builder to use "" as the ID, not "cmt-1-reply-0"
