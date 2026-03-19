@@ -32,10 +32,10 @@ export function TocElementStatic(props: SlateElementProps) {
         {headingList.length > 0 ? (
           headingList.map((item) => (
             <Button
-              key={item.id}
+              key={item.title}
               variant="ghost"
               className={headingItemVariants({
-                depth: Math.min(item.depth, 3) as 1 | 2 | 3,
+                depth: item.depth as 1 | 2 | 3,
               })}
             >
               {item.title}
