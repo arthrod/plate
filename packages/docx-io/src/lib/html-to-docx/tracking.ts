@@ -44,6 +44,13 @@ export interface CommentPayload {
   date?: string;
   text?: string;
   replies?: CommentReply[];
+  // TODO(paraId-fidelity): Missing paraId and parentParaId fields!
+  // These threading IDs must flow through tracking tokens to reach XML builder.
+  // To fix:
+  // 1. Add: paraId?: string;
+  // 2. Add: parentParaId?: string;
+  // 3. Update xml-builder.ts to use these instead of generating random IDs
+  // Related: docx-document.ts line 1131, PR `#45` reply ID fix
 }
 
 /** Parsed token from text */

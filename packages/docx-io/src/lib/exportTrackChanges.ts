@@ -49,6 +49,10 @@ export type DocxExportComment = {
   id?: string | null;
   user?: DocxExportUser | null;
   userId?: string | null;
+  // TODO(paraId-fidelity): Missing paraId field for comment-level threading!
+  // To fix:
+  // 1. Add: paraId?: string | null;
+  // 2. Pass through from editor state to export
 };
 
 /** Discussion thread containing comments */
@@ -59,6 +63,13 @@ export type DocxExportDiscussion = {
   id: string;
   user?: DocxExportUser | null;
   userId?: string | null;
+  // TODO(paraId-fidelity): Missing paraId and parentParaId fields!
+  // These threading IDs need to be preserved during export, but are not in the type.
+  // To fix:
+  // 1. Add: paraId?: string | null;
+  // 2. Add: parentParaId?: string | null;
+  // 3. Pass from TDiscussion through export pipeline
+  // Related: PR `#45` fixed reply IDs; this needs same treatment
 };
 
 /** Suggestion metadata stored on nodes */
