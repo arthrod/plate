@@ -71,6 +71,8 @@
   "devDependencies": {
     "@platejs/docx": "workspace:^",
     "@platejs/markdown": "workspace:^",
+    "@types/jsdom": "28.0.0",
+    "jsdom": "29.0.0",
     "platejs": "workspace:^"
   },
   "peerDependencies": {

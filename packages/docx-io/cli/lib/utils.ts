@@ -2,7 +2,9 @@ export type ClassValue = string | number | boolean | undefined | null;
 export type ClassArray = ClassValue[];
 export type ClassDictionary = Record<string, any>;
 
-export function cn(...inputs: (ClassValue | ClassArray | ClassDictionary)[]): string {
+export function cn(
+  ...inputs: (ClassValue | ClassArray | ClassDictionary)[]
+): string {
   const classes: string[] = [];
 
   for (const input of inputs) {
