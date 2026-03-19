@@ -128,6 +128,6 @@ describe('resolveCommentMeta with reply IDs', () => {
     const replyId = payload!.replies![0]!.id;
     expect(replyId).toBeDefined();
     expect(typeof replyId).toBe('string');
-    expect(replyId.length).toBeGreaterThan(0);
+    expect(replyId!.length).toBeGreaterThan(0);
   });
 });
