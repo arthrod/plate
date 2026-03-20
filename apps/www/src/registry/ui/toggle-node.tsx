@@ -22,6 +22,7 @@ export function ToggleElement(props: PlateElementProps) {
         variant="ghost"
         className="-left-0.5 absolute top-0 size-6 cursor-pointer select-none items-center justify-center rounded-md p-px text-muted-foreground transition-colors hover:bg-accent [&_svg]:size-4"
         contentEditable={false}
+        aria-label="Toggle"
         {...buttonProps}
       >
         <ChevronRight
@@ -31,6 +32,7 @@ export function ToggleElement(props: PlateElementProps) {
               : 'rotate-0 transition-transform duration-75'
           }
         />
+        <span className="sr-only">Toggle</span>
       </Button>
       {props.children}
     </PlateElement>
