@@ -102,8 +102,7 @@ function CodeBlockCombobox() {
           aria-expanded={open}
           role="combobox"
         >
-          {languages.find((language) => language.value === value)?.label ??
-            'Plain Text'}
+          {languagesMap.get(value)?.label ?? 'Plain Text'}
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -287,3 +286,7 @@ const languages: { label: string; value: string }[] = [
   { label: 'XML', value: 'xml' },
   { label: 'YAML', value: 'yaml' },
 ];
+
+const languagesMap = new Map(
+  languages.map((language) => [language.value, language])
+);
