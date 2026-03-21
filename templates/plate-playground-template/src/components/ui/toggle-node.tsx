@@ -19,6 +19,7 @@ export function ToggleElement(props: PlateElementProps) {
         contentEditable={false}
         size="icon"
         variant="ghost"
+        title={open ? 'Collapse' : 'Expand'}
         {...buttonProps}
       >
         <ChevronRight
@@ -28,6 +29,7 @@ export function ToggleElement(props: PlateElementProps) {
               : 'rotate-0 transition-transform duration-75'
           }
         />
+        <span className="sr-only">{open ? 'Collapse' : 'Expand'}</span>
       </Button>
       {props.children}
     </PlateElement>
