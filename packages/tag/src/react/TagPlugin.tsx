@@ -29,13 +29,15 @@ export const MultiSelectPlugin = toPlatePlugin(
               text: true,
             });
           } else {
-            const texts = new Set(
-              Array.from(
-                editor.api.nodes<TText>({
-                  text: true,
-                })
-              ).map(([text]) => text)
-            );
+            // Optimization: iterate directly using `for...of` to avoid `Array.from(...).map(...)` overhead
+            // and intermediate array allocations when collecting text nodes into a `Set`.
+            const texts = new Set<TText>();
+
+            for (const [text] of editor.api.nodes<TText>({
+              text: true,
+            })) {
+              texts.add(text);
+            }
 
             // Remove text not in selection
             editor.tf.removeNodes({
