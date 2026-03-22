@@ -22,7 +22,6 @@ export function StarOnGithub({ count }: { count: number }) {
           'transition-all duration-300 ease-out'
         )}
         href={siteConfig.links.github}
-        rel="noopener noreferrer"
         target="_blank"
       >
         <span

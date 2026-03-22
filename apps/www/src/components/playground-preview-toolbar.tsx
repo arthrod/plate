@@ -122,11 +122,7 @@ export function PlaygroundPreviewToolbar({
               className="size-[22px] rounded-sm p-0"
               title="Open in New Tab"
             >
-              <Link
-                href="/blocks/playground"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
+              <Link href="/blocks/playground" target="_blank">
                 <span className="sr-only">Open in New Tab</span>
                 <Fullscreen className="size-3.5" />
               </Link>
