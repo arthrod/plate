@@ -422,16 +422,24 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
 
       this.select(rangeItems);
       this._latestElement = reference; // latestElement is by default cleared in .select()
-    } else if (
-      stored.includes(target) &&
-      (stored.length === 1 ||
-        evt.ctrlKey ||
-        stored.every((v) => this._selection.stored.includes(v)))
-    ) {
-      this.deselect(target);
     } else {
-      this.select(target);
-      this._latestElement = target;
+      let shouldDeselect = false;
+      if (stored.includes(target)) {
+        if (stored.length === 1 || evt.ctrlKey) {
+          shouldDeselect = true;
+        } else {
+          // Optimization: Use Set for O(1) lookups instead of Array.includes for O(N*M)
+          const selectionStoredSet = new Set(this._selection.stored);
+          shouldDeselect = stored.every((v) => selectionStoredSet.has(v));
+        }
+      }
+
+      if (shouldDeselect) {
+        this.deselect(target);
+      } else {
+        this.select(target);
+        this._latestElement = target;
+      }
     }
   }
 
@@ -539,11 +547,12 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
 
     // Check if area starts in one of the start areas / boundaries
     const evtPath = evt.composedPath();
+    const evtPathSet = new Set(evtPath);
 
     if (
       !this._container ||
-      !startAreas.find((el) => evtPath.includes(el)) ||
-      !resolvedBoundaries.find((el) => evtPath.includes(el))
+      !startAreas.find((el) => evtPathSet.has(el)) ||
+      !resolvedBoundaries.find((el) => evtPathSet.has(el))
     ) {
       return;
     }
