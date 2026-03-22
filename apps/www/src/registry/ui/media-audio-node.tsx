@@ -26,7 +26,10 @@ export const AudioElement = withHOC(
           <div className="h-16">
             <audio
               className="size-full"
-              src={sanitizeUrl(unsafeUrl, { allowedSchemes: ['http', 'https'] }) || ''}
+              src={
+                sanitizeUrl(unsafeUrl, { allowedSchemes: ['http', 'https'] }) ||
+                ''
+              }
               controls
             />
           </div>
