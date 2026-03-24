@@ -1,0 +1,3 @@
+## 2024-05-24 - Optimize static array lookups to O(1) in toolbar buttons
+**Learning:** Static arrays used for lookup in high-frequency React renders (e.g., finding the active icon in a toolbar based on block type, which happens every keystroke or selection change) can cause unnecessary CPU cycles with O(N) `Array.find` calls. Since the array contents (like `turnIntoItems` or `items` in align buttons) are static, this is a clear bottleneck.
+**Action:** Replace `Array.find` with O(1) `Map.get` by creating a module-level `Map` instance derived from the static array. This ensures lookups are instantaneous regardless of the array size, particularly beneficial in `useMemo` or render bodies for editor toolbar buttons that update frequently.
