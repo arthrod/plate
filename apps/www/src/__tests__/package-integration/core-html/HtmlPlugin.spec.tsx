@@ -289,11 +289,11 @@ describe('when inserting plain text', () => {
   let jsonParseSpy: ReturnType<typeof spyOn>;
 
   afterEach(() => {
-    jsonParseSpy?.mockRestore();
+    (jsonParseSpy as any)?.mockRestore?.();
   });
 
   it('falls back to the default insertData behavior', () => {
-    jsonParseSpy = spyOn(JSON, 'parse').mockReturnValue(
+    jsonParseSpy = (spyOn(JSON, 'parse') as any).mockReturnValue(
       <fragment>inserted</fragment>
     );
 
