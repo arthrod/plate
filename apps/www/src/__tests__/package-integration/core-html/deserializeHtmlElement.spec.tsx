@@ -197,7 +197,7 @@ describe('when plugin has deserializer.parse', () => {
         parsers: {
           html: {
             deserializer: {
-              parse: ({ element }) => ({
+              parse: ({ element }: any) => ({
                 opener: element.getAttribute('target') === '_blank',
                 type: 'a',
                 url: element.getAttribute('href'),
