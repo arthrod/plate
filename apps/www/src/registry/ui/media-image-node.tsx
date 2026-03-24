@@ -9,6 +9,7 @@ import { useDraggable } from '@platejs/dnd';
 import { Image, ImagePlugin, useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import { PlateElement, withHOC } from 'platejs/react';
+import { sanitizeUrl } from 'platejs/static';
 
 import { cn } from '@/lib/utils';
 
@@ -54,6 +55,7 @@ export const ImageElement = withHOC(
                   isDragging && 'opacity-50'
                 )}
                 alt={props.attributes.alt as string | undefined}
+                src={sanitizeUrl(props.element.url) || ''}
               />
               <ResizeHandle
                 className={mediaResizeHandleVariants({

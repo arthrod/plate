@@ -5,6 +5,7 @@ import type { SlateElementProps } from 'platejs/static';
 
 import { NodeApi } from 'platejs';
 import { SlateElement } from 'platejs/static';
+import { sanitizeUrl } from 'platejs/static';
 
 import { cn } from '@/lib/utils';
 
@@ -26,7 +27,7 @@ export function ImageElementStatic(
               'rounded-sm'
             )}
             alt={(props.attributes as any).alt}
-            src={url}
+            src={sanitizeUrl(url) || ''}
           />
           {caption && (
             <figcaption
