@@ -5,6 +5,7 @@ import type { SlateElementProps } from 'platejs/static';
 
 import { NodeApi } from 'platejs';
 import { SlateElement } from 'platejs/static';
+import { sanitizeUrl } from 'platejs';
 
 export function VideoElementStatic(
   props: SlateElementProps<TVideoElement & TCaptionElement & TResizableProps>
@@ -20,7 +21,7 @@ export function VideoElementStatic(
         >
           <video
             className="w-full max-w-full rounded-sm object-cover px-0"
-            src={url}
+            src={sanitizeUrl(url, {}) || ''}
             controls
           />
           {caption && <figcaption>{NodeApi.string(caption[0])}</figcaption>}
