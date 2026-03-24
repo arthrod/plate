@@ -12,7 +12,7 @@ import { parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import { PlateElement, useEditorMounted, withHOC } from 'platejs/react';
-import { sanitizeUrl } from 'platejs/static';
+import { sanitizeUrl } from 'platejs';
 
 import { cn } from '@/lib/utils';
 
@@ -101,7 +101,7 @@ export const VideoElement = withHOC(
                 <div ref={handleRef}>
                   <ReactPlayer
                     height="100%"
-                    src={sanitizeUrl(unsafeUrl) || ''}
+                    src={sanitizeUrl(unsafeUrl, {}) || ''}
                     width="100%"
                     controls
                   />

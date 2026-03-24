@@ -4,7 +4,7 @@ import type { TAudioElement } from 'platejs';
 import type { SlateElementProps } from 'platejs/static';
 
 import { SlateElement } from 'platejs/static';
-import { sanitizeUrl } from 'platejs/static';
+import { sanitizeUrl } from 'platejs';
 
 export function AudioElementStatic(props: SlateElementProps<TAudioElement>) {
   return (
@@ -13,7 +13,7 @@ export function AudioElementStatic(props: SlateElementProps<TAudioElement>) {
         <div className="h-16">
           <audio
             className="size-full"
-            src={sanitizeUrl(props.element.url) || ''}
+            src={sanitizeUrl(props.element.url, {}) || ''}
             controls
           />
         </div>
