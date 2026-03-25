@@ -286,16 +286,16 @@ describe('when inserting plain text', () => {
     </editor>
   ) as any;
 
-  let jsonParseSpy: ReturnType<typeof spyOn>;
+  let jsonParseSpy: any;
 
   afterEach(() => {
     jsonParseSpy?.mockRestore();
   });
 
   it('falls back to the default insertData behavior', () => {
-    jsonParseSpy = spyOn(JSON, 'parse').mockReturnValue(
-      <fragment>inserted</fragment>
-    );
+    jsonParseSpy = (spyOn(JSON, 'parse') as any).mockReturnValue(
+      (<fragment>inserted</fragment>) as any
+    ) as any;
 
     const editor = createSlateEditor({
       plugins: [],
