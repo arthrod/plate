@@ -43,7 +43,7 @@ describe('when element has class and attribute, and plugin has deserialize type,
                       },
                     ],
                     withoutChildren: true,
-                    parse: ({ element }) => ({
+                    parse: ({ element }: any) => ({
                       id: element.dataset.id,
                       type: 'poll',
                     }),
@@ -197,7 +197,7 @@ describe('when plugin has deserializer.parse', () => {
         parsers: {
           html: {
             deserializer: {
-              parse: ({ element }) => ({
+              parse: ({ element }: any) => ({
                 opener: element.getAttribute('target') === '_blank',
                 type: 'a',
                 url: element.getAttribute('href'),
