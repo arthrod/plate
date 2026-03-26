@@ -30,23 +30,21 @@
  * @packageDocumentation
  */
 
-'use client';
+"use client";
 
-import type {
-  AnyPluginConfig,
-  CreateSlateEditorOptions,
-  PluginConfig,
-  Value,
-} from 'platejs';
-import { createSlateEditor, createTSlatePlugin } from 'platejs';
-import type { PlateStaticProps, SerializeHtmlOptions } from 'platejs/static';
-import { serializeHtml } from 'platejs/static';
-
-import juice from 'juice';
-
-import type { DocumentMargins } from './html-to-docx';
-
-import { htmlToDocxBlob } from './html-to-docx';
+import juice from "juice";
+import type { SlatePlugin, Value } from "platejs";
+import { createSlateEditor, createSlatePlugin } from "platejs";
+import type { PlateStaticProps, SerializeHtmlOptions } from "platejs/static";
+import { serializeHtml } from "platejs/static";
+import { htmlToDocxBlob } from "./exportDocx";
+import {
+	buildUserNameMap,
+	type DocxExportDiscussion,
+	type InjectDocxTrackingTokensOptions,
+	injectDocxTrackingTokens,
+} from "./exportTrackChanges";
+import type { DocumentMargins } from "./html-to-docx";
 
 // =============================================================================
 // CSS Styles for DOCX Export
@@ -158,55 +156,91 @@ export type DocxExportMargins = DocumentMargins;
 /**
  * Page orientation options.
  */
-export type DocxExportOrientation = 'landscape' | 'portrait';
+export type DocxExportOrientation = "landscape" | "portrait";
+
+/**
+ * Options for tracked changes/comments export.
+ */
+export type DocxTrackingExportOptions = {
+	/**
+	 * Discussion threads for comment metadata.
+	 * Each discussion represents a comment thread with its comments.
+	 */
+	discussions?: DocxExportDiscussion[] | null;
+
+	/**
+	 * Custom function to get comment IDs from a text node.
+	 * If not provided, uses default implementation that looks for 'comment_' prefixed keys.
+	 */
+	getCommentIds?: InjectDocxTrackingTokensOptions["getCommentIds"];
+
+	/**
+	 * Custom function to get suggestion metadata from a text node.
+	 * If not provided, uses default implementation that looks for 'suggestion_' prefixed keys.
+	 */
+	getSuggestions?: InjectDocxTrackingTokensOptions["getSuggestions"];
+
+	/**
+	 * Function to convert rich content to plain text.
+	 * Used for extracting comment text from rich content.
+	 */
+	nodeToString?: InjectDocxTrackingTokensOptions["nodeToString"];
+};
 
 /**
  * Options for DOCX export operations.
  */
 export type DocxExportOperationOptions = {
-  /**
-   * Additional CSS styles to include in the document.
-   * These are appended after the default DOCX_EXPORT_STYLES.
-   *
-   * @example
-   * ```typescript
-   * customStyles: '.highlight { background-color: #ffeb3b; }'
-   * ```
-   */
-  customStyles?: string;
+	/**
+	 * Additional CSS styles to include in the document.
+	 * These are appended after the default DOCX_EXPORT_STYLES.
+	 *
+	 * @example
+	 * ```typescript
+	 * customStyles: '.highlight { background-color: #ffeb3b; }'
+	 * ```
+	 */
+	customStyles?: string;
 
-  /**
-   * Font family for the document body.
-   * This overrides the default Calibri font.
-   *
-   * @example
-   * ```typescript
-   * fontFamily: 'Times New Roman'
-   * ```
-   */
-  fontFamily?: string;
+	/**
+	 * Font family for the document body.
+	 * This overrides the default Calibri font.
+	 *
+	 * @example
+	 * ```typescript
+	 * fontFamily: 'Times New Roman'
+	 * ```
+	 */
+	fontFamily?: string;
 
-  /**
-   * Page margins in twentieths of a point.
-   * 1 inch = 1440 twentieths.
-   *
-   * @example
-   * ```typescript
-   * margins: { top: 720, bottom: 720 } // 0.5 inch top/bottom
-   * ```
-   */
-  margins?: DocxExportMargins;
+	/**
+	 * Page margins in twentieths of a point.
+	 * 1 inch = 1440 twentieths.
+	 *
+	 * @example
+	 * ```typescript
+	 * margins: { top: 720, bottom: 720 } // 0.5 inch top/bottom
+	 * ```
+	 */
+	margins?: DocxExportMargins;
 
-  /**
-   * Page orientation.
-   * @default 'portrait'
-   */
-  orientation?: DocxExportOrientation;
+	/**
+	 * Page orientation.
+	 * @default 'portrait'
+	 */
+	orientation?: DocxExportOrientation;
 
-  /**
-   * Document title (for metadata purposes).
-   */
-  title?: string;
+	/**
+	 * Document title (for metadata purposes).
+	 */
+	title?: string;
+
+	/**
+	 * Options for exporting tracked changes and comments.
+	 * When provided, tracking tokens will be injected into the document
+	 * and converted to Word tracked changes format.
+	 */
+	tracking?: DocxTrackingExportOptions;
 };
 
 /**
@@ -214,19 +248,19 @@ export type DocxExportOperationOptions = {
  * These are stored in the plugin options store.
  */
 export type DocxExportPluginOptions = {
-  /**
-   * The Plate.js editor plugins to use for HTML serialization.
-   * If not provided, the editor's current plugins will be used.
-   *
-   * This should match the plugins used in your editor for accurate serialization.
-   */
-  editorPlugins?: AnyPluginConfig[];
+	/**
+	 * The Plate.js editor plugins to use for HTML serialization.
+	 * If not provided, the editor's current plugins will be used.
+	 *
+	 * This should match the plugins used in your editor for accurate serialization.
+	 */
+	editorPlugins?: SlatePlugin[];
 
-  /**
-   * The React component to use for static rendering.
-   * If not provided, a default PlateStatic component will be used.
-   */
-  editorStaticComponent?: React.ComponentType<PlateStaticProps>;
+	/**
+	 * The React component to use for static rendering.
+	 * If not provided, a default PlateStatic component will be used.
+	 */
+	editorStaticComponent?: React.ComponentType<PlateStaticProps>;
 };
 
 /**
@@ -234,15 +268,8 @@ export type DocxExportPluginOptions = {
  * @deprecated Use DocxExportOperationOptions for export functions
  */
 export interface DocxExportOptions
-  extends DocxExportOperationOptions,
-    DocxExportPluginOptions {}
-
-export type DocxExportPluginConfig = PluginConfig<
-  'docxExport',
-  DocxExportPluginOptions,
-  { docxExport: DocxExportApiMethods },
-  { docxExport: DocxExportTransformMethods }
->;
+	extends DocxExportOperationOptions,
+		DocxExportPluginOptions {}
 
 // =============================================================================
 // Plugin Config Types
@@ -252,37 +279,37 @@ export type DocxExportPluginConfig = PluginConfig<
  * API methods for the docxExport namespace on editor.api
  */
 export type DocxExportApiMethods = {
-  /**
-   * Download the editor content as a DOCX file.
-   *
-   * @param blob - The DOCX blob to download
-   * @param filename - The filename for the download (with or without .docx extension)
-   */
-  download: (blob: Blob, filename: string) => void;
+	/**
+	 * Download the editor content as a DOCX file.
+	 *
+	 * @param blob - The DOCX blob to download
+	 * @param filename - The filename for the download (with or without .docx extension)
+	 */
+	download: (blob: Blob, filename: string) => void;
 
-  /**
-   * Convert editor content to a DOCX blob.
-   *
-   * @param options - Export options (orientation, margins, styles, etc.)
-   * @returns A Promise that resolves to a Blob containing the DOCX file
-   */
-  exportToBlob: (options?: DocxExportOperationOptions) => Promise<Blob>;
+	/**
+	 * Convert editor content to a DOCX blob.
+	 *
+	 * @param options - Export options (orientation, margins, styles, etc.)
+	 * @returns A Promise that resolves to a Blob containing the DOCX file
+	 */
+	exportToBlob: (options?: DocxExportOperationOptions) => Promise<Blob>;
 };
 
 /**
  * Transform methods for the docxExport namespace on editor.tf
  */
 export type DocxExportTransformMethods = {
-  /**
-   * Export and download the editor content as a DOCX file.
-   *
-   * @param filename - The filename for the download
-   * @param options - Export options (orientation, margins, styles, etc.)
-   */
-  exportAndDownload: (
-    filename: string,
-    options?: DocxExportOperationOptions
-  ) => Promise<void>;
+	/**
+	 * Export and download the editor content as a DOCX file.
+	 *
+	 * @param filename - The filename for the download
+	 * @param options - Export options (orientation, margins, styles, etc.)
+	 */
+	exportAndDownload: (
+		filename: string,
+		options?: DocxExportOperationOptions,
+	) => Promise<void>;
 };
 
 // =============================================================================
@@ -300,13 +327,13 @@ export type DocxExportTransformMethods = {
  * - 0.25 inch = 360
  */
 export const DEFAULT_DOCX_MARGINS: DocxExportMargins = {
-  bottom: 1440,
-  footer: 720,
-  gutter: 0,
-  header: 720,
-  left: 1440,
-  right: 1440,
-  top: 1440,
+	bottom: 1440,
+	footer: 720,
+	gutter: 0,
+	header: 720,
+	left: 1440,
+	right: 1440,
+	top: 1440,
 };
 
 // =============================================================================
@@ -317,12 +344,12 @@ export const DEFAULT_DOCX_MARGINS: DocxExportMargins = {
  * Internal options for serializing to HTML.
  */
 type SerializeToHtmlInternalOptions = {
-  EditorStaticComponent?: React.ComponentType<PlateStaticProps>;
-  /** Component overrides by plugin key */
-  components?: Record<string, React.ComponentType<any>>;
-  fontFamily?: string;
-  plugins?: AnyPluginConfig[];
-  value: Value;
+	EditorStaticComponent?: React.ComponentType<PlateStaticProps>;
+	/** Component overrides by plugin key */
+	components?: Record<string, React.ComponentType<any>>;
+	fontFamily?: string;
+	plugins?: SlatePlugin[];
+	value: Value;
 };
 
 /**
@@ -332,39 +359,39 @@ type SerializeToHtmlInternalOptions = {
  * @returns HTML string representation of the editor content
  */
 async function serializeToHtml(
-  options: SerializeToHtmlInternalOptions
+	options: SerializeToHtmlInternalOptions,
 ): Promise<string> {
-  const { EditorStaticComponent, components, fontFamily, plugins, value } =
-    options;
+	const { EditorStaticComponent, components, fontFamily, plugins, value } =
+		options;
 
-  const editorStatic = createSlateEditor({
-    plugins: plugins ?? [],
-    value,
-  } as CreateSlateEditorOptions<Value>);
+	const editorStatic = createSlateEditor({
+		plugins: plugins ?? [],
+		value,
+	});
 
-  // Apply component overrides directly to editor.meta.components
-  if (components) {
-    (editorStatic.meta as any).components = {
-      ...editorStatic.meta.components,
-      ...components,
-    };
-  }
+	// Apply component overrides directly to editor.meta.components
+	if (components) {
+		(editorStatic.meta as any).components = {
+			...editorStatic.meta.components,
+			...components,
+		};
+	}
 
-  const htmlOptions: Partial<SerializeHtmlOptions> = {};
+	const htmlOptions: Partial<SerializeHtmlOptions> = {};
 
-  if (EditorStaticComponent) {
-    htmlOptions.editorComponent = EditorStaticComponent;
-    htmlOptions.props = {
-      style: {
-        padding: '0',
-        ...(fontFamily ? { fontFamily } : {}),
-      },
-    };
-  }
+	if (EditorStaticComponent) {
+		htmlOptions.editorComponent = EditorStaticComponent;
+		htmlOptions.props = {
+			style: {
+				padding: "0",
+				...(fontFamily ? { fontFamily } : {}),
+			},
+		};
+	}
 
-  const html = await serializeHtml(editorStatic, htmlOptions);
+	const html = await serializeHtml(editorStatic, htmlOptions);
 
-  return html;
+	return html;
 }
 
 /**
@@ -375,11 +402,11 @@ async function serializeToHtml(
  * @returns Complete HTML document string
  */
 function wrapHtmlForDocx(bodyHtml: string, customStyles?: string): string {
-  const styles = customStyles
-    ? `${DOCX_EXPORT_STYLES}\n${customStyles}`
-    : DOCX_EXPORT_STYLES;
+	const styles = customStyles
+		? `${DOCX_EXPORT_STYLES}\n${customStyles}`
+		: DOCX_EXPORT_STYLES;
 
-  return `<!DOCTYPE html>
+	return `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -397,11 +424,11 @@ ${bodyHtml}
  * Internal options for exportToDocxInternal.
  */
 interface ExportToDocxInternalOptions extends DocxExportOperationOptions {
-  /** Component overrides by plugin key */
-  components?: Record<string, React.ComponentType<any>>;
-  editorPlugins?: AnyPluginConfig[];
-  editorStaticComponent?: React.ComponentType<PlateStaticProps>;
-  value: Value;
+	/** Component overrides by plugin key */
+	components?: Record<string, React.ComponentType<any>>;
+	editorPlugins?: SlatePlugin[];
+	editorStaticComponent?: React.ComponentType<PlateStaticProps>;
+	value: Value;
 }
 
 /**
@@ -411,48 +438,65 @@ interface ExportToDocxInternalOptions extends DocxExportOperationOptions {
  * @returns A Promise that resolves to a Blob containing the DOCX file
  */
 async function exportToDocxInternal(
-  options: ExportToDocxInternalOptions
+	options: ExportToDocxInternalOptions,
 ): Promise<Blob> {
-  const {
-    components,
-    customStyles,
-    editorPlugins,
-    editorStaticComponent,
-    fontFamily,
-    margins = DEFAULT_DOCX_MARGINS,
-    orientation = 'portrait',
-    value,
-  } = options;
+	const {
+		components,
+		customStyles,
+		editorPlugins,
+		editorStaticComponent,
+		fontFamily,
+		margins = DEFAULT_DOCX_MARGINS,
+		orientation = "portrait",
+		tracking,
+		value,
+	} = options;
 
-  // Serialize editor content to HTML
-  const bodyHtml = await serializeToHtml({
-    EditorStaticComponent: editorStaticComponent,
-    components,
-    fontFamily,
-    plugins: editorPlugins,
-    value,
-  });
+	// Process tracking tokens if enabled
+	let processedValue: Value = value;
 
-  // Wrap in complete HTML document
-  const fullHtml = wrapHtmlForDocx(bodyHtml, customStyles);
+	if (tracking) {
+		const userNameMap = buildUserNameMap(tracking.discussions);
+		processedValue = injectDocxTrackingTokens(value, {
+			discussions: tracking.discussions,
+			getCommentIds: tracking.getCommentIds,
+			getSuggestions: tracking.getSuggestions,
+			nodeToString: tracking.nodeToString,
+			userNameMap,
+		}) as Value;
+	}
 
-  // Inline CSS styles using juice for DOCX compatibility
-  const inlinedHtml = juice(fullHtml, {
-    removeStyleTags: false,
-    preserveMediaQueries: false,
-    preserveFontFaces: false,
-  });
+	// Serialize editor content to HTML
+	const bodyHtml = await serializeToHtml({
+		EditorStaticComponent: editorStaticComponent,
+		components,
+		fontFamily,
+		plugins: editorPlugins,
+		value: processedValue,
+	});
 
-  // Convert to DOCX using browser-compatible implementation
-  const blob = await htmlToDocxBlob(inlinedHtml, {
-    margins: {
-      ...DEFAULT_DOCX_MARGINS,
-      ...margins,
-    },
-    orientation,
-  });
+	// Wrap in complete HTML document
+	const fullHtml = wrapHtmlForDocx(bodyHtml, customStyles);
 
-  return blob;
+	// Inline CSS styles using juice for DOCX compatibility
+	// html-to-docx only reads inline style="" attributes, so CSS <style> blocks
+	// (e.g. table borders, backgrounds) must be inlined first.
+	const inlinedHtml = juice(fullHtml, {
+		removeStyleTags: false,
+		preserveMediaQueries: false,
+		preserveFontFaces: false,
+	});
+
+	// Convert to DOCX using browser-compatible implementation
+	const blob = await htmlToDocxBlob(inlinedHtml, {
+		margins: {
+			...DEFAULT_DOCX_MARGINS,
+			...margins,
+		},
+		orientation,
+	});
+
+	return blob;
 }
 
 /**
@@ -479,44 +523,44 @@ async function exportToDocxInternal(
  * ```
  */
 export async function exportToDocx(
-  value: Value,
-  options: DocxExportOptions = {}
+	value: Value,
+	options: DocxExportOptions = {},
 ): Promise<Blob> {
-  const { editorPlugins, editorStaticComponent, ...operationOptions } = options;
+	const { editorPlugins, editorStaticComponent, ...operationOptions } = options;
 
-  // Extract component overrides from plugins
-  let components: Record<string, React.ComponentType<any>> | undefined;
+	// Extract component overrides from plugins
+	let components: Record<string, React.ComponentType<any>> | undefined;
 
-  if (editorPlugins) {
-    for (const plugin of editorPlugins) {
-      // Check direct override first
-      let pluginOverride = (plugin as any).override;
+	if (editorPlugins) {
+		for (const plugin of editorPlugins) {
+			// Check direct override first
+			let pluginOverride = (plugin as any).override;
 
-      // If no direct override, check __configuration (from configure())
-      if (
-        (!pluginOverride || !pluginOverride.components) &&
-        (plugin as any).__configuration
-      ) {
-        const configResult = (plugin as any).__configuration({});
-        pluginOverride = configResult?.override;
-      }
+			// If no direct override, check __configuration (from configure())
+			if (
+				(!pluginOverride || !pluginOverride.components) &&
+				(plugin as any).__configuration
+			) {
+				const configResult = (plugin as any).__configuration({});
+				pluginOverride = configResult?.override;
+			}
 
-      if (pluginOverride?.components) {
-        components = {
-          ...components,
-          ...pluginOverride.components,
-        };
-      }
-    }
-  }
+			if (pluginOverride?.components) {
+				components = {
+					...components,
+					...pluginOverride.components,
+				};
+			}
+		}
+	}
 
-  return exportToDocxInternal({
-    ...operationOptions,
-    components,
-    editorPlugins,
-    editorStaticComponent,
-    value,
-  });
+	return exportToDocxInternal({
+		...operationOptions,
+		components,
+		editorPlugins,
+		editorStaticComponent,
+		value,
+	});
 }
 
 /**
@@ -535,14 +579,13 @@ export async function exportToDocx(
  * ```
  */
 export function downloadDocx(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename.endsWith('.docx') ? filename : `${filename}.docx`;
-  document.body.append(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+	const url = URL.createObjectURL(blob);
+	const a = window.document.createElement("a");
+	a.href = url;
+	a.download = filename.endsWith(".docx") ? filename : `${filename}.docx`;
+	a.click();
+	a.remove();
+	URL.revokeObjectURL(url);
 }
 
 /**
@@ -565,12 +608,12 @@ export function downloadDocx(blob: Blob, filename: string): void {
  * ```
  */
 export async function exportEditorToDocx(
-  value: Value,
-  filename: string,
-  options: DocxExportOptions = {}
+	value: Value,
+	filename: string,
+	options: DocxExportOptions = {},
 ): Promise<void> {
-  const blob = await exportToDocx(value, options);
-  downloadDocx(blob, filename);
+	const blob = await exportToDocx(value, options);
+	downloadDocx(blob, filename);
 }
 
 // =============================================================================
@@ -628,66 +671,65 @@ export async function exportEditorToDocx(
  * downloadDocx(blob, 'my-document.docx');
  * ```
  */
-export const DocxExportPlugin = createTSlatePlugin<DocxExportPluginConfig>({
-  key: 'docxExport',
-  options: {
-    editorPlugins: undefined as AnyPluginConfig[] | undefined,
-    editorStaticComponent: undefined as
-      | React.ComponentType<PlateStaticProps>
-      | undefined,
-  },
+export const DocxExportPlugin = createSlatePlugin({
+	key: "docxExport",
+	options: {
+		editorPlugins: undefined as SlatePlugin[] | undefined,
+		editorStaticComponent: undefined as
+			| React.ComponentType<PlateStaticProps>
+			| undefined,
+	},
 })
-  .extendEditorApi((ctx) => {
-    const { editor, getOptions } = ctx;
+	.extendEditorApi(({ editor, getOptions }) => ({
+		docxExport: {
+			download: (blob: Blob, filename: string): void => {
+				downloadDocx(blob, filename);
+			},
+			exportToBlob: async (
+				options: DocxExportOperationOptions = {},
+			): Promise<Blob> => {
+				const pluginOptions = getOptions();
 
-    return {
-      docxExport: {
-        download: (blob: Blob, filename: string): void => {
-          downloadDocx(blob, filename);
-        },
-        exportToBlob: async (
-          options: DocxExportOperationOptions = {}
-        ): Promise<Blob> => {
-          const pluginOptions = getOptions();
+				// Get component overrides from plugin.override.components
+				const plugin = editor.getPlugin({ key: "docxExport" }) as any;
+				const components = plugin.override?.components as
+					| Record<string, React.ComponentType<any>>
+					| undefined;
 
-          // Get component overrides from plugin.override.components
-          const plugin = editor.getPlugin({ key: 'docxExport' }) as any;
-          const components = plugin.override?.components as
-            | Record<string, React.ComponentType<any>>
-            | undefined;
-
-          return exportToDocxInternal({
-            ...options,
-            components,
-            editorPlugins: pluginOptions.editorPlugins,
-            editorStaticComponent: pluginOptions.editorStaticComponent,
-            value: editor.children,
-          });
-        },
-      },
-    };
-  })
-  .extendEditorTransforms((ctx) => {
-    const { editor } = ctx;
-
-    return {
-      docxExport: {
-        exportAndDownload: async (
-          filename: string,
-          options: DocxExportOperationOptions = {}
-        ): Promise<void> => {
-          const api = editor.api as unknown as {
-            docxExport: DocxExportApiMethods;
-          };
-          const blob = await api.docxExport.exportToBlob(options);
-          api.docxExport.download(blob, filename);
-        },
-      },
-    };
-  });
+				return exportToDocxInternal({
+					...options,
+					components,
+					editorPlugins: pluginOptions.editorPlugins,
+					editorStaticComponent: pluginOptions.editorStaticComponent,
+					value: editor.children,
+				});
+			},
+		},
+	}))
+	.extendEditorTransforms(({ editor }) => ({
+		docxExport: {
+			exportAndDownload: async (
+				filename: string,
+				options: DocxExportOperationOptions = {},
+			): Promise<void> => {
+				const api = editor.api as unknown as {
+					docxExport: DocxExportApiMethods;
+				};
+				const blob = await api.docxExport.exportToBlob(options);
+				api.docxExport.download(blob, filename);
+			},
+		},
+	}));
 
 // =============================================================================
 // Re-exports
 // =============================================================================
 
-export { htmlToDocxBlob } from './html-to-docx';
+export { htmlToDocxBlob } from "./exportDocx";
+
+// Re-export tracking types and utilities for convenience
+export type { DocxExportDiscussion } from "./exportTrackChanges";
+export {
+	buildUserNameMap,
+	injectDocxTrackingTokens,
+} from "./exportTrackChanges";
