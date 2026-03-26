@@ -9,7 +9,7 @@ export function SiteFooter() {
           <a
             className="font-medium underline underline-offset-4"
             href={siteConfig.links.twitter}
-            rel="noopener noreferrer"
+            rel="noreferrer"
             target="_blank"
           >
             {siteConfig.author}
@@ -18,7 +18,7 @@ export function SiteFooter() {
           <a
             className="font-medium underline underline-offset-4"
             href={siteConfig.links.github}
-            rel="noopener noreferrer"
+            rel="noreferrer"
             target="_blank"
           >
             GitHub
