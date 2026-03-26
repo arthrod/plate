@@ -56,7 +56,7 @@ export function SiteHeader() {
               <Link
                 className="inline"
                 href={siteConfig.links.github}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 <Icons.gitHub className="size-4" />
@@ -71,7 +71,7 @@ export function SiteHeader() {
             >
               <Link
                 href={siteConfig.links.discord}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 <Icons.discord className="size-4 fill-current" />

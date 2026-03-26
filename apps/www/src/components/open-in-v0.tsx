@@ -18,7 +18,7 @@ export function OpenInV0Button({
     >
       <a
         href={`https://v0.dev/chat/api/open?url=https://platejs.org/r/${name}.json`}
-        rel="noreferrer"
+        rel="noopener noreferrer"
         target="_blank"
       >
         Open in{' '}
