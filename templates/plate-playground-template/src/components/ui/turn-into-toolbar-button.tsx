@@ -133,6 +133,11 @@ export const turnIntoItems = [
   },
 ];
 
+// O(1) lookup for turnIntoItems
+const turnIntoItemsMap = new Map(
+  turnIntoItems.map((item) => [item.value, item])
+);
+
 export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -143,7 +148,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   });
   const selectedItem = React.useMemo(
     () =>
-      turnIntoItems.find((item) => item.value === (value ?? KEYS.p)) ??
+      turnIntoItemsMap.get(value ?? KEYS.p) ??
       turnIntoItems[0],
     [value]
   );
