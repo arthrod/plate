@@ -147,9 +147,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
     getProp: (node) => getBlockType(node as TElement),
   });
   const selectedItem = React.useMemo(
-    () =>
-      turnIntoItemsMap.get(value ?? KEYS.p) ??
-      turnIntoItems[0],
+    () => turnIntoItemsMap.get(value ?? KEYS.p) ?? turnIntoItems[0],
     [value]
   );
 
