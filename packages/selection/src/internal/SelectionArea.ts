@@ -421,7 +421,11 @@ export class SelectionArea extends EventTarget<SelectionEvents> {
       stored.includes(target) &&
       (stored.length === 1 ||
         evt.ctrlKey ||
-        stored.every((v) => this._selection.stored.includes(v)))
+        (() => {
+          // ⚡ Bolt: Replace O(N^2) Array.includes loop with O(N) Set lookup
+          const storedSet = new Set(this._selection.stored);
+          return stored.every((v) => storedSet.has(v));
+        })())
     ) {
       this.deselect(target);
     } else {

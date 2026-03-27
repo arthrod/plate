@@ -1,0 +1,3 @@
+## 2025-02-23 - O(1) Set Lookups for Array Intersections
+**Learning:** When checking if all elements of one array exist in another (e.g. `arrayA.every(v => arrayB.includes(v))`), the time complexity is O(N * M), which becomes a significant bottleneck (O(N^2) for similar sizes) when executed frequently, such as during DOM events or rendering cycles.
+**Action:** Always refactor O(N^2) array intersection checks into O(1) checks by initializing a `Set` from the target array (e.g., `const setB = new Set(arrayB); arrayA.every(v => setB.has(v))`). Ensure the `Set` is instantiated from the target array (`arrayB`), not the iterating array (`arrayA`), to prevent tautological bugs.
