@@ -331,6 +331,7 @@ export function SettingsDialog() {
           )}
           size="icon"
           variant="default"
+          aria-label="Settings"
           // data-block-hide
         >
           <Settings className="size-4" />
