@@ -332,10 +332,10 @@ export function SettingsDialog() {
             'group fixed right-4 bottom-4 z-50 size-10 overflow-hidden',
             'rounded-full shadow-md hover:shadow-lg'
           )}
-          aria-label="Settings"
           // data-block-hide
         >
           <Settings className="size-4" />
+          <span className="sr-only">Settings</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

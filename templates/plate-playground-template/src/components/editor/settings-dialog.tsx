@@ -331,10 +331,10 @@ export function SettingsDialog() {
           )}
           size="icon"
           variant="default"
-          aria-label="Settings"
           // data-block-hide
         >
           <Settings className="size-4" />
+          <span className="sr-only">Settings</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

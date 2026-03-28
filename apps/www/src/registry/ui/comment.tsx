@@ -208,11 +208,11 @@ export function Comment(props: {
               <Button
                 variant="ghost"
                 className="h-6 p-1 text-muted-foreground"
-                aria-label="Resolve Comment"
                 onClick={onResolveComment}
                 type="button"
               >
                 <CheckIcon className="size-4" />
+                <span className="sr-only">Resolve Comment</span>
               </Button>
             )}
 
@@ -265,7 +265,6 @@ export function Comment(props: {
                   size="icon"
                   variant="ghost"
                   className="size-[28px]"
-                  aria-label="Cancel"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
                     void onCancel();
@@ -274,12 +273,12 @@ export function Comment(props: {
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-primary/40">
                     <XIcon className="size-3 stroke-[3px] text-background" />
                   </div>
+                  <span className="sr-only">Cancel</span>
                 </Button>
 
                 <Button
                   size="icon"
                   variant="ghost"
-                  aria-label="Save"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
                     void onSave();
@@ -288,6 +287,7 @@ export function Comment(props: {
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
                     <CheckIcon className="size-3 stroke-[3px] text-background" />
                   </div>
+                  <span className="sr-only">Save</span>
                 </Button>
               </div>
             )}
@@ -593,7 +593,6 @@ export function CommentCreateForm({
               size="icon"
               variant="ghost"
               className="absolute right-0.5 bottom-0.5 ml-auto size-6 shrink-0"
-              aria-label="Add Comment"
               disabled={commentContent.trim().length === 0}
               onClick={(e) => {
                 e.stopPropagation();
@@ -603,6 +602,7 @@ export function CommentCreateForm({
               <div className="flex size-6 items-center justify-center rounded-full">
                 <ArrowUpIcon />
               </div>
+              <span className="sr-only">Add Comment</span>
             </Button>
           </EditorContainer>
         </Plate>
