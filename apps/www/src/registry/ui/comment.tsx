@@ -210,6 +210,7 @@ export function Comment(props: {
                 className="h-6 p-1 text-muted-foreground"
                 onClick={onResolveComment}
                 type="button"
+                aria-label="Resolve comment"
               >
                 <CheckIcon className="size-4" />
               </Button>
@@ -268,6 +269,7 @@ export function Comment(props: {
                     e.stopPropagation();
                     void onCancel();
                   }}
+                  aria-label="Cancel editing"
                 >
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-primary/40">
                     <XIcon className="size-3 stroke-[3px] text-background" />
@@ -281,6 +283,7 @@ export function Comment(props: {
                     e.stopPropagation();
                     void onSave();
                   }}
+                  aria-label="Save comment"
                 >
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
                     <CheckIcon className="size-3 stroke-[3px] text-background" />
@@ -365,7 +368,11 @@ function CommentMoreDropdown(props: {
       modal={false}
     >
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <Button variant="ghost" className={cn('h-6 p-1 text-muted-foreground')}>
+        <Button
+          variant="ghost"
+          className={cn('h-6 p-1 text-muted-foreground')}
+          aria-label="More options"
+        >
           <MoreHorizontalIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -595,6 +602,7 @@ export function CommentCreateForm({
                 e.stopPropagation();
                 onAddComment();
               }}
+              aria-label="Submit comment"
             >
               <div className="flex size-6 items-center justify-center rounded-full">
                 <ArrowUpIcon />

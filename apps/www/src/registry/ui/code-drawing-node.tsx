@@ -244,6 +244,7 @@ export function CodeDrawingElement(
               className="size-8"
               onClick={handleDownload}
               title="Export"
+              aria-label="Export drawing"
             >
               <DownloadIcon className="size-4" />
             </Button>
@@ -254,6 +255,7 @@ export function CodeDrawingElement(
             className="size-8"
             onClick={removeNode}
             title="Delete"
+            aria-label="Delete drawing"
           >
             <Trash2 className="size-4" />
           </Button>
