@@ -23,6 +23,16 @@ export default defineConfig([
       'tooling/**',
     ],
   },
+  // Default TS parser for all apps/www TypeScript files so ESLint doesn't fail on type syntax
+  {
+    files: [
+      'apps/www/**/*.ts',
+      'apps/www/**/*.tsx',
+      'apps/www/**/*.mts',
+      'apps/www/**/*.cts',
+    ],
+    languageOptions: { parser: tsParser },
+  },
   // React Hooks config for apps/www (React 19 with React Compiler)
   {
     ...reactHooks.configs.flat.recommended,
