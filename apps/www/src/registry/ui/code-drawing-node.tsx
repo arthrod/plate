@@ -242,6 +242,7 @@ export function CodeDrawingElement(
               size="icon"
               variant="ghost"
               className="size-8"
+              aria-label="Export"
               onClick={handleDownload}
               title="Export"
             >
@@ -252,6 +253,7 @@ export function CodeDrawingElement(
             size="icon"
             variant="ghost"
             className="size-8"
+            aria-label="Delete"
             onClick={removeNode}
             title="Delete"
           >
