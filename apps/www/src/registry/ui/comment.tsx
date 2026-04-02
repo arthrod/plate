@@ -264,6 +264,7 @@ export function Comment(props: {
                   size="icon"
                   variant="ghost"
                   className="size-[28px]"
+                  aria-label="Cancel"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
                     void onCancel();
@@ -277,6 +278,7 @@ export function Comment(props: {
                 <Button
                   size="icon"
                   variant="ghost"
+                  aria-label="Save"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
                     void onSave();
@@ -590,6 +592,7 @@ export function CommentCreateForm({
               size="icon"
               variant="ghost"
               className="absolute right-0.5 bottom-0.5 ml-auto size-6 shrink-0"
+              aria-label="Reply"
               disabled={commentContent.trim().length === 0}
               onClick={(e) => {
                 e.stopPropagation();

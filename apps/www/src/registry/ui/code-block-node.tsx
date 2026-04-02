@@ -51,6 +51,7 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
               size="icon"
               variant="ghost"
               className="size-6 text-xs"
+              aria-label="Format code"
               onClick={() => formatCodeBlock(editor, { element })}
               title="Format code"
             >
