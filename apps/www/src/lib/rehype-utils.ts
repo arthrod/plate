@@ -270,7 +270,7 @@ export async function getRegistryItem(
   const allFiles = await getAllItemFiles(name, seen);
 
   for (const file of allFiles) {
-    const relativePath = path.relative(process.cwd(), file.path);
+    const relativePath = path.relative(/* turbopackIgnore: true */ process.cwd(), file.path);
 
     const content =
       !prefetch || file.path === item.files[0].path
@@ -369,7 +369,7 @@ async function getFileContent(file: z.infer<typeof registryItemFileSchema>) {
     file.path,
     file.path.replace('src/registry/', ''),
     `src/registry/${file.path}`,
-  ].map((p) => path.join(process.cwd(), p));
+  ].map((p) => path.join(/* turbopackIgnore: true */ process.cwd(), p));
 
   let raw: string | undefined;
 
