@@ -1,0 +1,4 @@
+## 2026-04-04 - Centralized Reverse Tabnabbing Protection for Links
+**Vulnerability:** Reverse tabnabbing vulnerability (Missing `rel="noopener noreferrer"` on `target="_blank"` links).
+**Learning:** The `@platejs/link` package centralizes the attributes for links rendered by the Plate editor in `packages/link/src/lib/utils/getLinkAttributes.ts`. Global security enhancements for rendered links (like adding `noopener noreferrer` for `target="_blank"`) should be implemented here for centralized coverage, preventing issues across different components relying on this rendering path.
+**Prevention:** Always implement base link attribute security inside `getLinkAttributes.ts` rather than in individual rendering components to ensure uniform protection. Ensure return type casts are updated to include any new attributes like `rel`.
