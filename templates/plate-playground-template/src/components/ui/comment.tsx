@@ -265,6 +265,7 @@ export function Comment(props: {
                   }}
                   size="icon"
                   variant="ghost"
+                  aria-label="Cancel"
                 >
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-primary/40">
                     <XIcon className="size-3 stroke-[3px] text-background" />
@@ -278,6 +279,7 @@ export function Comment(props: {
                   }}
                   size="icon"
                   variant="ghost"
+                  aria-label="Save comment"
                 >
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
                     <CheckIcon className="size-3 stroke-[3px] text-background" />
@@ -592,6 +594,7 @@ export function CommentCreateForm({
               }}
               size="icon"
               variant="ghost"
+              aria-label="Add comment"
             >
               <div className="flex size-6 items-center justify-center rounded-full">
                 <ArrowUpIcon />
