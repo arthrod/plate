@@ -243,6 +243,7 @@ export function CodeDrawingElement(
               size="icon"
               title="Export"
               variant="ghost"
+              aria-label="Export"
             >
               <DownloadIcon className="size-4" />
             </Button>
@@ -253,6 +254,7 @@ export function CodeDrawingElement(
             size="icon"
             title="Delete"
             variant="ghost"
+            aria-label="Delete"
           >
             <Trash2 className="size-4" />
           </Button>

@@ -111,6 +111,7 @@ export default function CollaborativeEditingDemo(): React.ReactNode {
                 variant="outline"
                 onClick={generateNewRoom}
                 title="Generate new room"
+                aria-label="Generate new room"
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
