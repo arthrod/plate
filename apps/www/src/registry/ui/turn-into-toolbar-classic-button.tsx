@@ -50,6 +50,10 @@ const turnIntoItems = baseTurnIntoItems.map((item) =>
   item.value in listItemsMap ? listItemsMap[item.value] : item
 );
 
+const turnIntoItemsMap = new Map(
+  turnIntoItems.map((item) => [item.value, item])
+);
+
 export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -60,8 +64,8 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   });
   const selectedItem = React.useMemo(
     () =>
-      turnIntoItems.find((item) => item.value === (value ?? KEYS.p)) ??
-      turnIntoItems[0],
+      // ⚡ Bolt Optimization: Replaced O(N) Array.find with O(1) Map.get for faster lookup during renders
+      turnIntoItemsMap.get(value ?? KEYS.p) ?? turnIntoItems[0],
     [value]
   );
 

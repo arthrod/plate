@@ -1,0 +1,3 @@
+## 2024-04-06 - O(1) Optimization for static toolbar lookup
+**Learning:** In highly interactive React components like `turnIntoItems` and `alignItems` that are rendered inside maps or memo blocks, O(N) lookup operations using `Array.find` add unnecessary overhead. The `turnIntoItems` menu has over 15 elements, while simple, a `Map.get()` handles lookup far more efficiently and reduces overhead in performance critical paths.
+**Action:** When implementing static lookup tables for toolbar components or large item arrays in React `useMemo` blocks, always replace O(N) `Array.find` with an O(1) `Map.get` derived statically outside of the component to improve lookup speeds without sacrificing readability.
