@@ -113,6 +113,7 @@ export default function CollaborativeEditingDemo(): React.ReactNode {
                 title="Generate new room"
               >
                 <RefreshCw className="h-4 w-4" />
+                <span className="sr-only">Generate new room</span>
               </Button>
             </div>
           </div>

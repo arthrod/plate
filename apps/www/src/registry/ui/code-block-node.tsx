@@ -55,6 +55,7 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
               title="Format code"
             >
               <BracesIcon className="!size-3.5 text-muted-foreground" />
+              <span className="sr-only">Format code</span>
             </Button>
           )}
 
