@@ -245,6 +245,7 @@ export function CodeDrawingElement(
               variant="ghost"
             >
               <DownloadIcon className="size-4" />
+              <span className="sr-only">Export</span>
             </Button>
           )}
           <Button
@@ -255,6 +256,7 @@ export function CodeDrawingElement(
             variant="ghost"
           >
             <Trash2 className="size-4" />
+            <span className="sr-only">Delete</span>
           </Button>
         </div>
       </PopoverContent>
