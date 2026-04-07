@@ -1,0 +1,3 @@
+## 2026-03-29 - Consistent aria-label for icon-only buttons
+**Learning:** Added `aria-label` to icon-only buttons across components to improve screen reader accessibility. Since components like `comment.tsx` are often synchronized between `apps/www/src/registry/ui/` and `templates/plate-playground-template/src/components/ui/`, it is critical to implement a11y attributes consistently across these duplicated file paths.
+**Action:** Always search for all copies of a component (e.g., using `find`) across the repository when implementing UX or accessibility micro-improvements to maintain synchronization, especially between registry and templates.

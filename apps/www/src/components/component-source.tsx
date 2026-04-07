@@ -67,6 +67,7 @@ export function ComponentSource({
                   `npx shadcn@latest add ${siteConfig.registryUrl}${name}`
                 );
               }}
+              aria-label="Copy package command"
             >
               {isCopied ? <Check /> : <Terminal />}
 
