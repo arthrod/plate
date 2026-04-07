@@ -185,6 +185,7 @@ export function DocsNav({ config }: { config: DocsConfig }) {
               className="-translate-y-1/2 absolute top-1/2 right-2 text-muted-foreground hover:text-foreground"
               onClick={() => setFilter('')}
               type="button"
+              aria-label="Clear filter"
             >
               <X className="size-4" />
             </button>
