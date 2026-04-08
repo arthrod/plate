@@ -334,6 +334,7 @@ export function SettingsDialog() {
           // data-block-hide
         >
           <Settings className="size-4" />
+          <span className="sr-only">Open settings</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
