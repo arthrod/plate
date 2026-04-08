@@ -47,6 +47,35 @@ describe('getLinkAttributes', () => {
     });
   });
 
+  describe('when target is _blank', () => {
+    const link: TLinkElement = {
+      ...baseLink,
+      target: '_blank',
+      url: 'https://example.com/',
+    };
+
+    const emptyEditor = createEditor({ defaultLinkAttributes: {} });
+
+    it('adds noopener and noreferrer to rel when target is _blank', () => {
+      expect(getLinkAttributes(emptyEditor, link)).toEqual({
+        href: 'https://example.com/',
+        rel: 'noopener noreferrer',
+        target: '_blank',
+      });
+    });
+
+    it('preserves existing rel attributes while adding noopener and noreferrer', () => {
+      const customRelEditor = createEditor({
+        defaultLinkAttributes: { rel: 'nofollow' },
+      });
+      expect(getLinkAttributes(customRelEditor, link)).toEqual({
+        href: 'https://example.com/',
+        rel: 'nofollow noopener noreferrer',
+        target: '_blank',
+      });
+    });
+  });
+
   describe('when url is invalid', () => {
     const link: TLinkElement = {
       ...baseLink,

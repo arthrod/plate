@@ -28,9 +28,18 @@ export const getLinkAttributes = (editor: SlateEditor, link: TLinkElement) => {
     attributes.target = link.target;
   }
 
+  // Defense-in-depth: add noopener noreferrer to target="_blank" links
+  if (attributes.target === '_blank') {
+    const rel = attributes.rel ? String(attributes.rel) : '';
+    const relArray = rel.split(' ').filter(Boolean);
+    if (!relArray.includes('noopener')) relArray.push('noopener');
+    if (!relArray.includes('noreferrer')) relArray.push('noreferrer');
+    attributes.rel = relArray.join(' ');
+  }
+
   return attributes as Pick<
     React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    'href' | 'target'
+    'href' | 'target' | 'rel'
   > &
     UnknownObject;
 };
