@@ -38,13 +38,11 @@ export const MultiSelectPlugin = toPlatePlugin(
               text: true,
             });
           } else {
-            const texts = new Set(
-              Array.from(
-                editor.api.nodes<TextLike>({
-                  text: true,
-                })
-              ).map((entry: any) => entry[0])
-            );
+            // ⚡ Bolt: Optimize Set collection by using for...of to avoid intermediate array allocations
+            const texts = new Set<TextLike>();
+            for (const [node] of editor.api.nodes<TextLike>({ text: true })) {
+              texts.add(node);
+            }
 
             // Remove text not in selection
             editor.tf.removeNodes({
