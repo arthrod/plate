@@ -269,6 +269,7 @@ export function Comment(props: {
                     void onCancel();
                   }}
                 >
+                  <span className="sr-only">Cancel</span>
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-primary/40">
                     <XIcon className="size-3 stroke-[3px] text-background" />
                   </div>
@@ -282,6 +283,7 @@ export function Comment(props: {
                     void onSave();
                   }}
                 >
+                  <span className="sr-only">Save</span>
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
                     <CheckIcon className="size-3 stroke-[3px] text-background" />
                   </div>
@@ -596,6 +598,7 @@ export function CommentCreateForm({
                 onAddComment();
               }}
             >
+              <span className="sr-only">Reply</span>
               <div className="flex size-6 items-center justify-center rounded-full">
                 <ArrowUpIcon />
               </div>
