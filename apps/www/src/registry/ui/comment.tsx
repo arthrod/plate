@@ -211,6 +211,7 @@ export function Comment(props: {
                 onClick={onResolveComment}
                 type="button"
               >
+                <span className="sr-only">Resolve comment</span>
                 <CheckIcon className="size-4" />
               </Button>
             )}
@@ -368,6 +369,7 @@ function CommentMoreDropdown(props: {
     >
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
         <Button variant="ghost" className={cn('h-6 p-1 text-muted-foreground')}>
+          <span className="sr-only">More options</span>
           <MoreHorizontalIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
