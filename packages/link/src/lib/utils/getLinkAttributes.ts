@@ -28,9 +28,14 @@ export const getLinkAttributes = (editor: SlateEditor, link: TLinkElement) => {
     attributes.target = link.target;
   }
 
+  // Security: Prevent reverse tabnabbing
+  if (attributes.target === '_blank') {
+    attributes.rel = 'noopener noreferrer';
+  }
+
   return attributes as Pick<
     React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    'href' | 'target'
+    'href' | 'target' | 'rel'
   > &
     UnknownObject;
 };
