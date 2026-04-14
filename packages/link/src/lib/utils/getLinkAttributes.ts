@@ -29,9 +29,14 @@ export const getLinkAttributes = (editor: SlateEditor, link: TLinkElement) => {
   }
 
   if (attributes.target === '_blank') {
-    attributes.rel = attributes.rel
-      ? `${attributes.rel} noopener noreferrer`
-      : 'noopener noreferrer';
+    if (attributes.rel) {
+      const rels = new Set(attributes.rel.split(' '));
+      rels.add('noopener');
+      rels.add('noreferrer');
+      attributes.rel = Array.from(rels).join(' ');
+    } else {
+      attributes.rel = 'noopener noreferrer';
+    }
   }
 
   return attributes as Pick<
