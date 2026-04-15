@@ -209,6 +209,7 @@ export function Comment(props: {
                 variant="ghost"
               >
                 <CheckIcon className="size-4" />
+                <span className="sr-only">Resolve comment</span>
               </Button>
             )}
 
@@ -268,6 +269,7 @@ export function Comment(props: {
                 >
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-primary/40">
                     <XIcon className="size-3 stroke-[3px] text-background" />
+                    <span className="sr-only">Cancel</span>
                   </div>
                 </Button>
 
@@ -281,6 +283,7 @@ export function Comment(props: {
                 >
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
                     <CheckIcon className="size-3 stroke-[3px] text-background" />
+                    <span className="sr-only">Save</span>
                   </div>
                 </Button>
               </div>
@@ -364,6 +367,7 @@ function CommentMoreDropdown(props: {
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
         <Button className={cn('h-6 p-1 text-muted-foreground')} variant="ghost">
           <MoreHorizontalIcon className="size-4" />
+          <span className="sr-only">More options</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -595,6 +599,7 @@ export function CommentCreateForm({
             >
               <div className="flex size-6 items-center justify-center rounded-full">
                 <ArrowUpIcon />
+                <span className="sr-only">Reply</span>
               </div>
             </Button>
           </EditorContainer>
