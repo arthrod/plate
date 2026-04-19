@@ -99,4 +99,24 @@ describe('getLinkAttributes', () => {
       expect(linkAttributes).not.toHaveProperty('target');
     });
   });
+
+  describe('when target is _blank without default rel', () => {
+    const editorWithoutDefaultRel = createSlateEditor({
+      plugins: [BaseLinkPlugin],
+    });
+
+    const link: TLinkElement = {
+      ...baseLink,
+      target: '_blank',
+      url: 'https://example.com/',
+    };
+
+    it('adds noopener noreferrer to rel', () => {
+      expect(getLinkAttributes(editorWithoutDefaultRel, link)).toEqual({
+        href: 'https://example.com/',
+        rel: 'noopener noreferrer',
+        target: '_blank',
+      });
+    });
+  });
 });
