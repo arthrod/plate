@@ -40,27 +40,32 @@ export const queryEditor = <E extends Editor>(
   }
 
   const allows = allow == null ? [] : castArray(allow);
-  const levels = Array.from(editor.api.levels({ at, reverse: true }));
-
-  if (
-    allows.length > 0 &&
-    !levels.some(
-      ([node]) => ElementApi.isElement(node) && allows.includes(node.type)
-    )
-  ) {
-    return false;
-  }
-
   const excludes = exclude == null ? [] : castArray(exclude);
 
-  if (
-    excludes.length > 0 &&
-    levels.some(
-      ([node]) => ElementApi.isElement(node) && excludes.includes(node.type)
-    )
-  ) {
-    return false;
+  if (allows.length === 0 && excludes.length === 0) {
+    return true;
   }
 
-  return true;
+  let hasAllowed = allows.length === 0;
+
+  // Performance optimization: Iterate the generator directly to avoid allocating an array
+  // and enable early O(1) short-circuit returns.
+  for (const [node] of editor.api.levels({ at, reverse: true })) {
+    if (ElementApi.isElement(node)) {
+      if (excludes.length > 0 && excludes.includes(node.type)) {
+        return false;
+      }
+
+      if (!hasAllowed && allows.includes(node.type)) {
+        hasAllowed = true;
+
+        // If there are no excludes to check, we can short-circuit immediately
+        if (excludes.length === 0) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return hasAllowed;
 };
