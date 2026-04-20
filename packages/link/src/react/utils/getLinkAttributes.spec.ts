@@ -99,4 +99,38 @@ describe('getLinkAttributes', () => {
       expect(linkAttributes).not.toHaveProperty('target');
     });
   });
+
+  describe('when target is _blank', () => {
+    const link: TLinkElement = {
+      ...baseLink,
+      target: '_blank',
+      url: 'https://example.com/',
+    };
+
+    it('adds noopener noreferrer to rel when defaultLinkAttributes is empty', () => {
+      const emptyOptionsEditor = createEditor({
+        defaultLinkAttributes: {},
+      });
+      const linkAttributes = getLinkAttributes(emptyOptionsEditor, link);
+      expect(linkAttributes).toEqual({
+        href: 'https://example.com/',
+        rel: 'noopener noreferrer',
+        target: '_blank',
+      });
+    });
+
+    it('adds noopener noreferrer to rel when defaultLinkAttributes has existing rel', () => {
+      const existingRelEditor = createEditor({
+        defaultLinkAttributes: {
+          rel: 'nofollow',
+        },
+      });
+      const linkAttributes = getLinkAttributes(existingRelEditor, link);
+      expect(linkAttributes).toEqual({
+        href: 'https://example.com/',
+        rel: 'nofollow noopener noreferrer',
+        target: '_blank',
+      });
+    });
+  });
 });
