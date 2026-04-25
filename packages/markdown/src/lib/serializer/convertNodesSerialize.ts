@@ -145,8 +145,10 @@ const shouldIncludeText = (
   }
 
   // Check text properties against allowedNodes/disallowedNodes
-  for (const [key, value] of Object.entries(text)) {
+  for (const key of Object.keys(text)) {
     if (key === 'text') continue;
+
+    const value = text[key as keyof TText];
 
     if (allowedNodes) {
       // If allowedNodes is specified, only include if the mark is in allowedNodes
