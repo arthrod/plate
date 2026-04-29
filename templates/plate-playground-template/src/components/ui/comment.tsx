@@ -209,6 +209,7 @@ export function Comment(props: {
                 variant="ghost"
               >
                 <CheckIcon className="size-4" />
+                <span className="sr-only">Resolve Comment</span>
               </Button>
             )}
 
@@ -269,6 +270,7 @@ export function Comment(props: {
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-primary/40">
                     <XIcon className="size-3 stroke-[3px] text-background" />
                   </div>
+                  <span className="sr-only">Cancel</span>
                 </Button>
 
                 <Button
@@ -282,6 +284,7 @@ export function Comment(props: {
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
                     <CheckIcon className="size-3 stroke-[3px] text-background" />
                   </div>
+                  <span className="sr-only">Save</span>
                 </Button>
               </div>
             )}
@@ -596,6 +599,7 @@ export function CommentCreateForm({
               <div className="flex size-6 items-center justify-center rounded-full">
                 <ArrowUpIcon />
               </div>
+              <span className="sr-only">Add Comment</span>
             </Button>
           </EditorContainer>
         </Plate>
