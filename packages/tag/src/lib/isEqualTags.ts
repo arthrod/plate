@@ -16,33 +16,28 @@ export function isEqualTags<T extends TTagProps>(
   editor: SlateEditor,
   newTags?: T[]
 ): boolean {
-  const currentTags = [
-    ...editor.api.nodes<TTagElement>({
-      at: [],
-      match: { type: KEYS.tag },
-    }),
-  ].map(([node]) => node);
+  const current = new Set<string>();
 
-  const current = currentTags.reduce(
-    (acc, tag) => {
-      acc[tag.value] = true;
+  for (const [node] of editor.api.nodes<TTagElement>({
+    at: [],
+    match: { type: KEYS.tag },
+  })) {
+    current.add(node.value);
+  }
 
-      return acc;
-    },
-    {} as Record<string, boolean>
-  );
+  const next = new Set<string>();
 
-  const next = (newTags ?? []).reduce(
-    (acc, tag) => {
-      acc[tag.value] = true;
+  if (newTags) {
+    for (const tag of newTags) {
+      next.add(tag.value);
+    }
+  }
 
-      return acc;
-    },
-    {} as Record<string, boolean>
-  );
+  if (current.size !== next.size) return false;
 
-  return (
-    Object.keys(current).length === Object.keys(next).length &&
-    Object.keys(current).every((key) => next[key])
-  );
+  for (const key of current) {
+    if (!next.has(key)) return false;
+  }
+
+  return true;
 }
