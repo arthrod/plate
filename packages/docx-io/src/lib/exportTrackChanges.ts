@@ -7,6 +7,8 @@
 
 import type { Descendant } from 'platejs';
 
+import type { DocxTrackedChange } from './types';
+
 export type InjectDocxTrackingTokensOptions = {
   /** Slate value to scan. */
   value: Descendant[];
@@ -15,13 +17,7 @@ export type InjectDocxTrackingTokensOptions = {
    * author/date metadata. Decouples the injector from any specific
    * suggestion-mark shape.
    */
-  getSuggestions: (node: Descendant) => Array<{
-    id: string;
-    kind: 'insertion' | 'deletion';
-    author: string;
-    authorInitials?: string;
-    date: string;
-  }>;
+  getSuggestions: (node: Descendant) => DocxTrackedChange[];
   /**
    * Optional discussion data for the comment extension (#343). The injector
    * accepts both shapes so a single traversal can wrap insertions, deletions,
@@ -45,10 +41,14 @@ export type InjectDocxTrackingTokensOptions = {
  *
  * TODO(#342): real implementation. The deep version traverses the tree once,
  * accumulates active suggestion ids per text node, and emits text nodes that
- * carry the literal token strings as plain text.
+ * carry the literal token strings as plain text. Throws until then so
+ * callers can't mistake "not implemented" for "nothing to inject" — that
+ * would silently lose tracked changes on export.
  */
 export function injectDocxTrackingTokens(
   _options: InjectDocxTrackingTokensOptions
 ): { value: Descendant[] } {
-  return { value: _options.value };
+  throw new Error(
+    'injectDocxTrackingTokens is not implemented yet (tracked in #342).'
+  );
 }

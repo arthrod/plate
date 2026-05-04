@@ -17,12 +17,32 @@ export type ImportDocxResult = {
 };
 
 /**
+ * Payload encoded inside a tracked-change START token (`[[DOCX_INS_START:…]]`
+ * or `[[DOCX_DEL_START:…]]`).
+ */
+export type DocxTrackedChangeStartPayload = {
+  /** Stable id pairing the START with its END. */
+  id: string;
+  /** Display name from `<w:author>`. */
+  author: string;
+  /** Author initials from `<w:initials>`. */
+  authorInitials?: string;
+  /** ISO-8601 date from `<w:date>`. */
+  date: string;
+};
+
+/** Parsed tracked change extracted from token-bearing HTML / Slate value. */
+export type DocxTrackedChange = DocxTrackedChangeStartPayload & {
+  kind: 'insertion' | 'deletion';
+};
+
+/**
  * Result of importing a DOCX file with the tracking branch enabled.
  * Returned when `ImportDocxOptions.tracking` is set. See #342 / #343.
  */
 export type ImportDocxWithTrackingResult = ImportDocxResult & {
   /** Tracked changes recovered from `[[DOCX_INS_*]]` / `[[DOCX_DEL_*]]`. */
-  trackedChanges?: unknown[];
+  trackedChanges?: DocxTrackedChange[];
   /** Threaded discussion data recovered from `[[DOCX_CMT_*]]`. */
   discussions?: unknown[];
   /** Anchor-resolution and pairing failures, surfaced for the caller. */

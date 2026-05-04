@@ -45,7 +45,16 @@ export async function importDocx(
   arrayBuffer: ArrayBuffer,
   options: ImportDocxOptions = {}
 ): Promise<ImportDocxResult> {
-  const { rtf = '' } = options;
+  const { rtf = '', tracking } = options;
+
+  if (tracking) {
+    // TODO(#342): branch into the forked Mammoth + token-resolver path and
+    // return `ImportDocxWithTrackingResult`. Throw until then so callers
+    // can't mistake "tracking ignored" for "tracked changes imported".
+    throw new Error(
+      'Tracked-changes import branch is not implemented yet (tracked in #342).'
+    );
+  }
 
   // Convert DOCX to HTML using mammoth
   const mammothResult = await mammoth.convertToHtml(
@@ -82,11 +91,6 @@ export async function importDocx(
 
   // Extract comments
   const comments = extractComments(commentById, commentIds);
-
-  // TODO(#342): when `options.tracking` is on, branch into the forked
-  // Mammoth + token-resolver path before this point and return
-  // `ImportDocxWithTrackingResult` (with `trackedChanges`, `discussions`,
-  // `errors`). The non-tracking happy path stays exactly as below.
 
   return {
     comments,

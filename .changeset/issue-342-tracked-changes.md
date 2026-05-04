@@ -2,4 +2,4 @@
 "@platejs/docx-io": minor
 ---
 
-Add scaffolds for DOCX tracked-changes (`<w:ins>` / `<w:del>`) round-trip via embedded tracking tokens. Exports new `parseDocxTrackedChanges`, `applyTrackedChangeSuggestions`, `injectDocxTrackingTokens`, `createSearchRangeFn`, plus the locked `[[DOCX_INS_*]]` / `[[DOCX_DEL_*]]` token grammar constants. `ImportDocxOptions.tracking` and `DocxExportOperationOptions.tracking` enable the (forked) Mammoth + token-resolver branch; the deep traversal lands behind the public surface.
+Add scaffolding for DOCX tracked-changes (`<w:ins>` / `<w:del>`) round-trip via embedded tracking tokens. Exposes `parseDocxTrackedChanges`, `applyTrackedChangeSuggestions`, `injectDocxTrackingTokens`, `createSearchRangeFn`, the locked `[[DOCX_INS_*]]` / `[[DOCX_DEL_*]]` token grammar constants, and `ImportDocxOptions.tracking` / `DocxExportOperationOptions.tracking` API surface. Deep traversal is not implemented yet — calling these entry points throws until the resolver lands.

@@ -34,15 +34,16 @@ export type CreateSearchRangeFnOptions = {
  * Build a function that locates a `needle` substring across the deserialized
  * tree's text nodes. Returns `null` if no match is found.
  *
- * TODO(#342): real implementation. For now this returns a no-op resolver so
- * the public API surface compiles while the deep traversal lands behind it.
+ * TODO(#342): real implementation. The returned resolver currently throws
+ * so callers can't mistake "not implemented" for "no match" — once the
+ * cross-node walk lands, swap the body and keep the same signature.
  */
 export function createSearchRangeFn(
   _options: CreateSearchRangeFnOptions
 ): SearchRangeFn {
   return () => {
-    // TODO(#342): walk text nodes in document order, accumulating offsets,
-    // and return the path / offset of the first cross-node match.
-    return null;
+    throw new Error(
+      'createSearchRangeFn is not implemented yet (tracked in #342).'
+    );
   };
 }

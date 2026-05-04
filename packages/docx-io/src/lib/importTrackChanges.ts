@@ -11,6 +11,11 @@
 
 import type { SlateEditor } from 'platejs';
 
+import type {
+  DocxTrackedChange,
+  DocxTrackedChangeStartPayload,
+} from './types';
+
 /** Token grammar — locked per the issue body. */
 export const DOCX_INSERTION_START_TOKEN_PREFIX = '[[DOCX_INS_START:';
 export const DOCX_INSERTION_END_TOKEN_PREFIX = '[[DOCX_INS_END:';
@@ -18,26 +23,7 @@ export const DOCX_DELETION_START_TOKEN_PREFIX = '[[DOCX_DEL_START:';
 export const DOCX_DELETION_END_TOKEN_PREFIX = '[[DOCX_DEL_END:';
 export const DOCX_TRACKING_TOKEN_SUFFIX = ']]';
 
-/** Payload encoded inside a START token (insertion or deletion). */
-export type DocxTrackedChangeStartPayload = {
-  /** Stable id pairing the START with its END. */
-  id: string;
-  /** Display name from `<w:author>`. */
-  author: string;
-  /** Author initials from `<w:initials>`. */
-  authorInitials?: string;
-  /** ISO-8601 date from `<w:date>`. */
-  date: string;
-};
-
-/** Parsed tracked change extracted from token-bearing HTML / Slate value. */
-export type DocxTrackedChange = {
-  id: string;
-  kind: 'insertion' | 'deletion';
-  author: string;
-  authorInitials?: string;
-  date: string;
-};
+export type { DocxTrackedChange, DocxTrackedChangeStartPayload };
 
 /**
  * Extract token payloads from raw HTML emitted by the forked Mammoth path.
@@ -45,10 +31,13 @@ export type DocxTrackedChange = {
  * TODO(#342): real implementation. The deep version walks the HTML once,
  * matches each `START`/`END` pair by id, and yields a `DocxTrackedChange`
  * per pair so the apply step can re-anchor on Slate paths after
- * deserialization.
+ * deserialization. Throws until then so callers can't mistake "not
+ * implemented" for "no tracked changes".
  */
 export function parseDocxTrackedChanges(_html: string): DocxTrackedChange[] {
-  return [];
+  throw new Error(
+    'parseDocxTrackedChanges is not implemented yet (tracked in #342).'
+  );
 }
 
 export type ApplyTrackedChangeSuggestionsOptions = {
@@ -68,10 +57,13 @@ export type ApplyTrackedChangeSuggestionsOptions = {
  * range, and strip the tokens. Errors (missing pairings, anchor misses) are
  * surfaced via the optional `result.errors` array on the importer's return.
  *
- * TODO(#342): build on `createSearchRangeFn` from `./searchRange`.
+ * TODO(#342): build on `createSearchRangeFn` from `./searchRange`. Throws
+ * until then so callers can't mistake "not implemented" for "applied 0".
  */
 export function applyTrackedChangeSuggestions(
   _options: ApplyTrackedChangeSuggestionsOptions
 ): { applied: number; errors: string[] } {
-  return { applied: 0, errors: [] };
+  throw new Error(
+    'applyTrackedChangeSuggestions is not implemented yet (tracked in #342).'
+  );
 }
