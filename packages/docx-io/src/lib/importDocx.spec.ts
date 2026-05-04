@@ -175,4 +175,26 @@ describe('liftBlocksOutOfParagraphs', () => {
     ]);
     expect(result).toEqual([{ type: 'hr', children: [{ text: '' }] }]);
   });
+
+  it('uses editor.api.isBlock to lift custom block types not in the fallback sets', async () => {
+    const { liftBlocksOutOfParagraphs } = await import('./importDocx');
+    const isBlock = mock((node: any) => node?.type === 'custom_void');
+    const editor = { api: { isBlock } } as any;
+    const result = liftBlocksOutOfParagraphs(editor, [
+      {
+        type: 'p',
+        children: [
+          { text: 'before' },
+          { type: 'custom_void', children: [{ text: '' }] },
+          { text: 'after' },
+        ],
+      },
+    ]);
+    expect(result).toEqual([
+      { type: 'p', children: [{ text: 'before' }] },
+      { type: 'custom_void', children: [{ text: '' }] },
+      { type: 'p', children: [{ text: 'after' }] },
+    ]);
+    expect(isBlock).toHaveBeenCalled();
+  });
 });

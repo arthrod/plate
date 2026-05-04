@@ -102,18 +102,24 @@ const isBlockChild = (
   node: LiftableNode
 ): boolean => {
   if (isText(node)) return false;
-  const type = typeof node.type === 'string' ? node.type : undefined;
-  if (type && FALLBACK_BLOCK_VOIDS.has(type)) return true;
-  if (type && INLINE_ONLY_PARENTS.has(type)) return true;
-  if (type && BLOCK_CONTAINERS.has(type)) return true;
+  // Prefer the editor's schema (it knows which plugins are registered and
+  // which node types are blocks). Fall back to hardcoded sets only when the
+  // editor isn't supplied or doesn't recognize the type — that way consumers
+  // missing a particular media plugin still get block-voids lifted.
   if (editor) {
     try {
-      return editor.api.isBlock(node as any);
+      if (editor.api.isBlock(node as any)) return true;
     } catch {
-      return false;
+      // ignore — fall through to the hardcoded fallbacks
     }
   }
-  return false;
+  const type = typeof node.type === 'string' ? node.type : undefined;
+  if (!type) return false;
+  return (
+    FALLBACK_BLOCK_VOIDS.has(type) ||
+    INLINE_ONLY_PARENTS.has(type) ||
+    BLOCK_CONTAINERS.has(type)
+  );
 };
 
 /**
