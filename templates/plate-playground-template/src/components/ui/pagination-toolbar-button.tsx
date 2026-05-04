@@ -13,7 +13,9 @@ export function PaginationToolbarButton() {
       data-plate-prevent-overlay
       onClick={() => {
         triggerPaginationStub();
-        toast('Pagination preview — wire after #357/#358 merges.');
+        toast(
+          'Pagination preview — this feature will be enabled in a future update.'
+        );
       }}
       tooltip="Pagination (preview)"
     >
