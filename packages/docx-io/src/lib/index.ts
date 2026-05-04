@@ -3,7 +3,9 @@
  */
 
 export * from './docx-export-plugin';
+export * from './exportComments';
 export * from './html-to-docx';
+export * from './importComments';
 export * from './importDocx';
 export * from './preprocessMammothHtml';
 export * from './types';
