@@ -52,4 +52,29 @@ describe('extractTokens (variant C — pre-clean stash)', () => {
     expect(stripped).toBe(html);
     expect(tokens).toEqual([]);
   });
+
+  it('matches multi-line JSON payloads', () => {
+    const multiLine = `[[DOCX_CMT_START:{"id":"c1",\n"authorName":"Alice",\n"body":"long"}]]`;
+    const html = `<p>${multiLine}body[[DOCX_CMT_END:c1]]</p>`;
+    const { stripped, tokens } = extractTokens(html);
+    expect(tokens).toHaveLength(2);
+    expect(tokens[0].kind).toBe('cmt-start');
+    expect(tokens[0].tokenText).toBe(multiLine);
+    expect(stripped).toBe('<p>body</p>');
+  });
+
+  it('preserves leading whitespace in fingerprint context', () => {
+    // `Word [[T]]` and `Word[[T]]` must produce different anchorBefore
+    // fingerprints so the resolver does not collapse them.
+    const a = extractTokens(`<p>Word ${insEnd('a')}</p>`);
+    const b = extractTokens(`<p>Word${insEnd('a')}</p>`);
+    expect(a.tokens[0].anchorBefore).not.toBe(b.tokens[0].anchorBefore);
+  });
+
+  it('decodes mdash / rsquo entities into the fingerprint', () => {
+    const html = `<p>he said&mdash;&rsquo;hi&rsquo; ${insEnd('a')}</p>`;
+    const { tokens } = extractTokens(html);
+    expect(tokens[0].anchorBefore).toContain('—');
+    expect(tokens[0].anchorBefore).toContain('’');
+  });
 });

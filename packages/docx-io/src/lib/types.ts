@@ -29,14 +29,11 @@ export type ImportDocxOptions = {
 };
 
 /**
- * Result returned when `ImportDocxOptions.tracking` is enabled. Carries the
- * standard `ImportDocxResult` plus anchor-resolution failures so the caller
- * can decide whether to surface them.
+ * Result returned when `ImportDocxOptions.tracking` is enabled. Intersects
+ * `ImportDocxResult` so any future field added to the base result type flows
+ * through automatically.
  */
-export type ImportDocxWithTrackingResult = {
-  nodes: any[];
-  comments: DocxComment[];
-  warnings: string[];
+export type ImportDocxWithTrackingResult = ImportDocxResult & {
   /** Anchor-resolution and pairing failures, surfaced to the caller. */
   errors?: string[];
 };

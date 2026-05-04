@@ -11,9 +11,16 @@
 /**
  * Match every tracking token (`[[DOCX_(INS|DEL|CMT)_(START|END|REF):…]]`) so
  * the prefix list is locked: a user-typed `"see [[note]]"` does NOT match.
+ *
+ * Implementation notes:
+ * - `[\s\S]` matches across newlines (mammoth can emit multi-line JSON
+ *   payloads for long comment bodies).
+ * - The tempered greedy body `(?:(?!\[\[DOCX_)[\s\S])*?` refuses to swallow
+ *   the next token's prefix, so adjacent tokens still split correctly when a
+ *   payload contains literal `]]` lookalikes.
  */
 export const TRACKING_TOKEN_REGEX =
-  /\[\[DOCX_(?:INS|DEL|CMT)_(?:START|END|REF):.*?]]/g;
+  /\[\[DOCX_(?:INS|DEL|CMT)_(?:START|END|REF):(?:(?!\[\[DOCX_)[\s\S])*?]]/g;
 
 export type StashedTokenKind =
   | 'cmt-end'
@@ -69,20 +76,42 @@ export type StashedToken = {
 };
 
 const FINGERPRINT_LENGTH = 32;
+// HTML-to-text ratio in mammoth output is variable (heavy styling, long span
+// chains). 8x the fingerprint length leaves enough headroom for a 32-char
+// fingerprint after tag stripping and whitespace collapse.
+const RAW_SLICE_FACTOR = 8;
 
-const decodeHtmlEntities = (s: string): string =>
-  s
-    .replaceAll(/&nbsp;/g, ' ')
-    .replaceAll(/&amp;/g, '&')
-    .replaceAll(/&lt;/g, '<')
-    .replaceAll(/&gt;/g, '>')
-    .replaceAll(/&quot;/g, '"')
-    .replaceAll(/&#39;/g, "'");
+// Common HTML entities that mammoth emits. Numeric entities are not handled —
+// the slack the edit-distance-tolerant resolver in `reapplyTokens` provides
+// covers the rare miss without a full entity table.
+const HTML_ENTITY_MAP: Record<string, string> = {
+  '&amp;': '&',
+  '&apos;': "'",
+  '&gt;': '>',
+  '&lt;': '<',
+  '&mdash;': '—',
+  '&ndash;': '–',
+  '&nbsp;': ' ',
+  '&quot;': '"',
+  '&rsquo;': '’',
+  '&#39;': "'",
+};
 
+const decodeHtmlEntities = (s: string): string => {
+  let out = s;
+  for (const entity of Object.keys(HTML_ENTITY_MAP)) {
+    out = out.replaceAll(entity, HTML_ENTITY_MAP[entity]);
+  }
+  return out;
+};
+
+// Naive — fine for mammoth output (well-formed, no `>` in attributes), the
+// edit-distance tolerance in `reapplyTokens` absorbs the occasional miss.
 const stripTags = (s: string): string => s.replaceAll(/<[^>]+>/g, '');
 
-const collapseWhitespace = (s: string): string =>
-  s.replaceAll(/\s+/g, ' ').trim();
+// Preserve leading/trailing single spaces so adjacency context (`Word [[T]]`
+// vs `Word[[T]]`) survives into the fingerprint.
+const collapseWhitespace = (s: string): string => s.replaceAll(/\s+/g, ' ');
 
 const fingerprint = (
   html: string,
@@ -92,8 +121,11 @@ const fingerprint = (
 ): string => {
   const slice =
     direction === 'before'
-      ? html.slice(Math.max(0, start - 4 * FINGERPRINT_LENGTH), end)
-      : html.slice(start, end + 4 * FINGERPRINT_LENGTH);
+      ? html.slice(
+          Math.max(0, start - RAW_SLICE_FACTOR * FINGERPRINT_LENGTH),
+          end
+        )
+      : html.slice(start, end + RAW_SLICE_FACTOR * FINGERPRINT_LENGTH);
   const text = collapseWhitespace(decodeHtmlEntities(stripTags(slice)));
   if (direction === 'before') return text.slice(-FINGERPRINT_LENGTH);
   return text.slice(0, FINGERPRINT_LENGTH);
