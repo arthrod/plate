@@ -55,4 +55,26 @@ describe('cleanDocx tracking-token round-trip (variant A — DOM placeholder swa
     // No placeholder span should remain.
     expect(result).not.toContain('data-docx-tracking-token');
   });
+
+  it('preserves adjacent tokens even when payloads contain `]]` lookalikes', () => {
+    // Tempered greedy regex must refuse to swallow the next token's prefix.
+    // (Mammoth itself URL-encodes JSON payloads, so a literal `]]` inside a
+    // payload is a defensive case, not a real-world Mammoth output.)
+    const a = `[[DOCX_CMT_START:{"id":"a","body":"first"}]]`;
+    const b = `[[DOCX_INS_START:{"id":"b","author":"X"}]]`;
+    const html = `<p>${a}body${b}new[[DOCX_INS_END:b]][[DOCX_CMT_END:a]]</p>`;
+    const result = cleanDocx(html, RTF);
+    expect(result).toContain(a);
+    expect(result).toContain(b);
+    expect(result).toContain('[[DOCX_INS_END:b]]');
+    expect(result).toContain('[[DOCX_CMT_END:a]]');
+  });
+
+  it('preserves multi-line JSON payloads in tracking tokens', () => {
+    const multiLine = `[[DOCX_CMT_START:{"id":"c1",\n"authorName":"Alice",\n"body":"long body"}]]`;
+    const html = `<p>${multiLine}body[[DOCX_CMT_END:c1]]</p>`;
+    const result = cleanDocx(html, RTF);
+    expect(result).toContain(multiLine);
+    expect(result).toContain('[[DOCX_CMT_END:c1]]');
+  });
 });

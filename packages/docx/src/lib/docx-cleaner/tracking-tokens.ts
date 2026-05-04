@@ -29,9 +29,16 @@ export const DOCX_COMMENT_TOKEN_SUFFIX = ']]';
  * The prefix list is locked: only tokens whose prefix matches one of the
  * exported `DOCX_*_TOKEN_PREFIX` constants are considered. A user-typed
  * `"see [[note]]"` does NOT match.
+ *
+ * Implementation notes:
+ * - `[\s\S]` matches across newlines (mammoth can emit multi-line JSON
+ *   payloads for long comment bodies).
+ * - The tempered greedy body `(?:(?!\[\[DOCX_)[\s\S])*?` refuses to swallow
+ *   another token's prefix, so adjacent tokens are still split correctly when
+ *   the payload itself contains `]]` (e.g. `"body":"a]]b"`).
  */
 export const TRACKING_TOKEN_REGEX =
-  /(\[\[DOCX_(?:INS|DEL|CMT)_(?:START|END|REF):.*?]])/g;
+  /(\[\[DOCX_(?:INS|DEL|CMT)_(?:START|END|REF):(?:(?!\[\[DOCX_)[\s\S])*?]])/g;
 
 /** Token kinds that the placeholder swap distinguishes. */
 export type TrackingTokenKind =

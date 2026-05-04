@@ -20,17 +20,26 @@ const PLACEHOLDER_DATA_ATTR = 'data-docx-tracking-token';
 const PLACEHOLDER_KIND_ATTR = 'data-docx-tracking-kind';
 const ZERO_WIDTH_SPACE = '​';
 
+// Buffer is preferred when available (Node, bundled SSR). `unescape`/`escape`
+// are not defined in modern Node and must not be reached. Browser path uses
+// `TextEncoder`/`TextDecoder` to round-trip arbitrary Unicode through base64.
 const encodeToken = (token: string): string => {
-  if (typeof btoa === 'function')
-    return btoa(unescape(encodeURIComponent(token)));
-  // Node fallback (jsdom test envs etc.).
-  return Buffer.from(token, 'utf8').toString('base64');
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(token, 'utf8').toString('base64');
+  }
+  const bytes = new TextEncoder().encode(token);
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
 };
 
 const decodeToken = (encoded: string): string => {
-  if (typeof atob === 'function')
-    return decodeURIComponent(escape(atob(encoded)));
-  return Buffer.from(encoded, 'base64').toString('utf8');
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(encoded, 'base64').toString('utf8');
+  }
+  const binary = atob(encoded);
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
 };
 
 const collectTextNodes = (root: Node): Text[] => {
