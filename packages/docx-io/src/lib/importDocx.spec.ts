@@ -62,3 +62,117 @@ describe('importDocx', () => {
     });
   });
 });
+
+describe('liftBlocksOutOfParagraphs', () => {
+  const noopEditor = { api: { isBlock: () => false } } as any;
+
+  it('lifts a block-void child out of a paragraph', async () => {
+    const { liftBlocksOutOfParagraphs } = await import('./importDocx');
+    const result = liftBlocksOutOfParagraphs(noopEditor, [
+      {
+        type: 'p',
+        children: [{ type: 'img', url: 'a.png', children: [{ text: '' }] }],
+      },
+    ]);
+    expect(result).toEqual([
+      { type: 'img', url: 'a.png', children: [{ text: '' }] },
+    ]);
+  });
+
+  it('splits a paragraph around an inline-block child', async () => {
+    const { liftBlocksOutOfParagraphs } = await import('./importDocx');
+    const result = liftBlocksOutOfParagraphs(noopEditor, [
+      {
+        align: 'center',
+        type: 'p',
+        children: [
+          { text: 'before' },
+          { type: 'img', url: 'a.png', children: [{ text: '' }] },
+          { text: 'after' },
+        ],
+      },
+    ]);
+    expect(result).toEqual([
+      { type: 'p', align: 'center', children: [{ text: 'before' }] },
+      { type: 'img', url: 'a.png', children: [{ text: '' }] },
+      { type: 'p', align: 'center', children: [{ text: 'after' }] },
+    ]);
+  });
+
+  it('flattens nested paragraphs', async () => {
+    const { liftBlocksOutOfParagraphs } = await import('./importDocx');
+    const result = liftBlocksOutOfParagraphs(noopEditor, [
+      {
+        type: 'p',
+        children: [{ type: 'p', children: [{ text: 'nested' }] }],
+      },
+    ]);
+    expect(result).toEqual([{ type: 'p', children: [{ text: 'nested' }] }]);
+  });
+
+  it('lifts a block-void child out of a list-item-content (lic)', async () => {
+    const { liftBlocksOutOfParagraphs } = await import('./importDocx');
+    const result = liftBlocksOutOfParagraphs(noopEditor, [
+      {
+        type: 'lic',
+        children: [{ type: 'img', url: 'a.png', children: [{ text: '' }] }],
+      },
+    ]);
+    expect(result).toEqual([
+      { type: 'img', url: 'a.png', children: [{ text: '' }] },
+    ]);
+  });
+
+  it('leaves block containers (table/tr/td) untouched', async () => {
+    const { liftBlocksOutOfParagraphs } = await import('./importDocx');
+    const input = [
+      {
+        type: 'table',
+        children: [
+          {
+            type: 'tr',
+            children: [
+              {
+                type: 'td',
+                children: [{ type: 'p', children: [{ text: 'cell' }] }],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const result = liftBlocksOutOfParagraphs(noopEditor, input);
+    expect(result).toEqual(input);
+  });
+
+  it('does not propagate uniqueness-bearing properties on split', async () => {
+    const { liftBlocksOutOfParagraphs } = await import('./importDocx');
+    const result = liftBlocksOutOfParagraphs(noopEditor, [
+      {
+        commentId: 'c1',
+        listId: 'list1',
+        type: 'p',
+        children: [
+          { text: 'before' },
+          { type: 'img', url: 'a.png', children: [{ text: '' }] },
+          { text: 'after' },
+        ],
+      } as any,
+    ]);
+    // commentId/listId must NOT appear on either split half.
+    expect(result.every((n) => !('commentId' in n) && !('listId' in n))).toBe(
+      true
+    );
+  });
+
+  it('falls back to FALLBACK_BLOCK_VOIDS when editor.api.isBlock is missing', async () => {
+    const { liftBlocksOutOfParagraphs } = await import('./importDocx');
+    const result = liftBlocksOutOfParagraphs(undefined, [
+      {
+        type: 'p',
+        children: [{ type: 'hr', children: [{ text: '' }] }],
+      },
+    ]);
+    expect(result).toEqual([{ type: 'hr', children: [{ text: '' }] }]);
+  });
+});
