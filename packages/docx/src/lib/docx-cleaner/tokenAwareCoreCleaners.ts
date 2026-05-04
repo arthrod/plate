@@ -19,54 +19,85 @@ import {
 import {
   __TOKEN_AWARE_CLEANER__,
   containsTrackingToken,
-  nodeContainsTrackingToken,
 } from './tracking-tokens';
 
 const TOKEN_PARK_ATTR = 'data-docx-token-park';
 
+type ParkedEntry = { marker: Comment; node: Node };
+
 /**
- * Detach every token-bearing element from the tree, leaving a marker comment
- * in its place. Returns the parked nodes paired with their marker positions
- * so the caller can re-attach them after delegating to a token-blind cleaner.
+ * Find every text node whose value contains a tracking token, then park its
+ * immediate parent (or, when the token sits directly under `body`, the text
+ * node itself) behind a marker comment so the delegated cleaner cannot see
+ * the token text.
+ *
+ * Single text-node walk → O(N). Avoids the previous O(N²) shape that called
+ * `nodeContainsTrackingToken(element)` (which itself walks the subtree) for
+ * every element. Also avoids the nested-element double-park bug where a
+ * token in `<div><p><span>[[T]]</span></p></div>` parked all three
+ * ancestors.
  */
-function parkTokenBearingElements(
-  body: HTMLElement
-): Array<{ marker: Comment; node: Element }> {
+function parkTokenBearingElements(body: HTMLElement): ParkedEntry[] {
   const doc = body.ownerDocument;
   if (!doc) return [];
-  const parked: Array<{ marker: Comment; node: Element }> = [];
-  const walker = doc.createTreeWalker(body, 0x1 /* SHOW_ELEMENT */);
-  const candidates: Element[] = [];
+
+  // SHOW_TEXT only — text nodes directly under `body` are also visited, so
+  // a bare `<body>[[DOCX_INS_START:...]]</body>` token is not skipped.
+  const walker = doc.createTreeWalker(body, 0x4 /* SHOW_TEXT */);
+  const tokenTextNodes: Text[] = [];
   let cursor = walker.nextNode();
   while (cursor) {
-    const el = cursor as Element;
-    if (
-      nodeContainsTrackingToken(el) &&
-      !el.hasAttribute(TOKEN_PARK_ATTR) &&
-      !el.parentElement?.hasAttribute(TOKEN_PARK_ATTR)
-    ) {
-      candidates.push(el);
+    const text = cursor as Text;
+    if (containsTrackingToken(text.nodeValue ?? '')) {
+      tokenTextNodes.push(text);
     }
     cursor = walker.nextNode();
   }
-  for (const el of candidates) {
-    if (!el.parentNode) continue;
+
+  // Park the closest enclosing element per text node, deduped. When the text
+  // node is a direct child of `body`, park the text node itself.
+  const parked: ParkedEntry[] = [];
+  const seen = new Set<Node>();
+  for (const text of tokenTextNodes) {
+    const target: Node =
+      text.parentElement && text.parentElement !== body
+        ? text.parentElement
+        : text;
+    if (seen.has(target)) continue;
+    // If an ancestor of `target` is already parked, skip — its subtree is
+    // already detached. Walk up via `parentNode` rather than `parentElement`
+    // so element-typed parents are checked correctly.
+    let ancestor: Node | null = target.parentNode;
+    let nestedInsideParked = false;
+    while (ancestor && ancestor !== body) {
+      if (seen.has(ancestor)) {
+        nestedInsideParked = true;
+        break;
+      }
+      ancestor = ancestor.parentNode;
+    }
+    if (nestedInsideParked) continue;
+    seen.add(target);
+
+    if (!target.parentNode) continue;
     const id = String(parked.length);
-    el.setAttribute(TOKEN_PARK_ATTR, id);
+    if (target.nodeType === 1) {
+      (target as Element).setAttribute(TOKEN_PARK_ATTR, id);
+    }
     const marker = doc.createComment(`docx-token-park:${id}`);
-    el.parentNode.insertBefore(marker, el);
-    el.parentNode.removeChild(el);
-    parked.push({ marker, node: el });
+    target.parentNode.insertBefore(marker, target);
+    target.parentNode.removeChild(target);
+    parked.push({ marker, node: target });
   }
   return parked;
 }
 
-function restoreParkedElements(
-  parked: Array<{ marker: Comment; node: Element }>
-): void {
+function restoreParkedElements(parked: ParkedEntry[]): void {
   for (const { marker, node } of parked) {
     if (!marker.parentNode) continue;
-    node.removeAttribute(TOKEN_PARK_ATTR);
+    if (node.nodeType === 1) {
+      (node as Element).removeAttribute(TOKEN_PARK_ATTR);
+    }
     marker.parentNode.insertBefore(node, marker);
     marker.parentNode.removeChild(marker);
   }

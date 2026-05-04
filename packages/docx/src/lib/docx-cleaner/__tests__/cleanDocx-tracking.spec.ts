@@ -53,4 +53,33 @@ describe('cleanDocx tracking-token round-trip (variant B — per-cleaner skip pr
     const result = cleanDocx(html, RTF);
     expect(result).toContain('[[note]]');
   });
+
+  it('preserves a token nested inside three levels of element wrappers', () => {
+    // Repro for the parking nested-element issue — only the immediate parent
+    // of the token-bearing text node should be parked, never every ancestor.
+    const html = `<div><p><span>${insStart('a')}new${insEnd('a')}</span></p></div>`;
+    const result = cleanDocx(html, RTF);
+    expect(result).toContain(insStart('a'));
+    expect(result).toContain(insEnd('a'));
+  });
+
+  it('preserves multi-line JSON payloads in tracking tokens', () => {
+    const multiLine = `[[DOCX_CMT_START:{"id":"c1",\n"authorName":"Alice",\n"body":"long body"}]]`;
+    const html = `<p>${multiLine}body[[DOCX_CMT_END:c1]]</p>`;
+    const result = cleanDocx(html, RTF);
+    expect(result).toContain(multiLine);
+    expect(result).toContain('[[DOCX_CMT_END:c1]]');
+  });
+
+  it('preserves adjacent tokens whose payloads contain `]]` lookalikes', () => {
+    // Tempered greedy regex must refuse to swallow the next token's prefix.
+    const a = `[[DOCX_CMT_START:{"id":"a","body":"first"}]]`;
+    const b = `[[DOCX_INS_START:{"id":"b","author":"X"}]]`;
+    const html = `<p>${a}body${b}new[[DOCX_INS_END:b]][[DOCX_CMT_END:a]]</p>`;
+    const result = cleanDocx(html, RTF);
+    expect(result).toContain(a);
+    expect(result).toContain(b);
+    expect(result).toContain('[[DOCX_INS_END:b]]');
+    expect(result).toContain('[[DOCX_CMT_END:a]]');
+  });
 });
