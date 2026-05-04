@@ -83,6 +83,11 @@ export async function importDocx(
   // Extract comments
   const comments = extractComments(commentById, commentIds);
 
+  // TODO(#342): when `options.tracking` is on, branch into the forked
+  // Mammoth + token-resolver path before this point and return
+  // `ImportDocxWithTrackingResult` (with `trackedChanges`, `discussions`,
+  // `errors`). The non-tracking happy path stays exactly as below.
+
   return {
     comments,
     nodes,

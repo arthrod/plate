@@ -207,6 +207,21 @@ export type DocxExportOperationOptions = {
    * Document title (for metadata purposes).
    */
   title?: string;
+
+  /**
+   * Tracked-changes export configuration. When provided, the exporter wraps
+   * `@platejs/suggestion`-marked ranges with `[[DOCX_INS_*]]` /
+   * `[[DOCX_DEL_*]]` tokens before serialization so the (forked)
+   * `html-to-docx` translates them into native `<w:ins>` / `<w:del>` runs.
+   * See #342.
+   */
+  tracking?: {
+    /** Identity of the user performing the export. */
+    currentUserId?: string;
+    currentUserName?: string;
+    /** Whether transient / uncommitted suggestion marks are exported too. */
+    includeTransientSuggestions?: boolean;
+  };
 };
 
 /**
@@ -425,6 +440,11 @@ async function exportToDocxInternal(
     orientation = 'portrait',
     value,
   } = options;
+
+  // TODO(#342): when `options.tracking` is set, run `injectDocxTrackingTokens`
+  // on `value` here so suggestion-marked ranges become `[[DOCX_INS_*]]` /
+  // `[[DOCX_DEL_*]]` token text before serialization, and the (forked)
+  // `html-to-docx` translates them back into native `<w:ins>` / `<w:del>` runs.
 
   // Serialize editor content to HTML
   const bodyHtml = await serializeToHtml({
