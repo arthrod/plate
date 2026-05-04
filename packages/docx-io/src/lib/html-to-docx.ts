@@ -58,9 +58,10 @@ export async function htmlToDocxBlob(
   const zip = new JSZip();
   const resultZip = await addFilesToContainer(zip, safeHtml, options, null);
   const buffer = await resultZip.generateAsync({ type: 'uint8array' });
-  const blobBuffer = new Uint8Array(buffer);
 
-  return new Blob([blobBuffer], {
+  // Cast to a stricter ArrayBuffer-backed view to satisfy the Blob constructor
+  // type without the runtime cost of allocating and copying a fresh Uint8Array.
+  return new Blob([buffer as Uint8Array<ArrayBuffer>], {
     type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   });
 }
