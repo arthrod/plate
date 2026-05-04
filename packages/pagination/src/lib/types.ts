@@ -1,4 +1,4 @@
-import type { TElement, Value } from 'platejs';
+import type { TElement } from 'platejs';
 
 /** Page geometry in CSS pixels. */
 export type PageRect = {
@@ -65,13 +65,20 @@ export type Measurer = {
  * Variant A keeps these document-level — no per-page node config — because
  * pages are derived, not authored.
  */
-export type BasePaginationOptions<_V extends Value = Value> = {
+export type BasePaginationOptions = {
   /** Footer slot height in CSS pixels. */
   footerHeight: number;
   /** Footnote well height in CSS pixels (allocated bottom of each page). */
   footnoteWell: number;
   /** Header slot height in CSS pixels. */
   headerHeight: number;
+  /**
+   * Whether the React `PaginationPlugin` should bundle footnote sub-plugins
+   * (`FootnoteDefinitionPlugin`, `FootnoteReferencePlugin`,
+   * `FootnoteInputPlugin`). Defaults to `true`. Set to `false` when you want
+   * pagination without footnote coupling.
+   */
+  includeFootnoteSubPlugins?: boolean;
   /** Page margin box. */
   margins: PageMargins;
   /**
