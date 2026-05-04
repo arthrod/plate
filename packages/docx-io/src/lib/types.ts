@@ -15,9 +15,9 @@ export type DocxComment = {
   authorInitials?: string;
   /** ISO-8601 date string from `<w:date>`. */
   date?: string;
-  /** Per-paragraph DOCX `paraId` of the root comment paragraph. */
+  /** Per-paragraph DOCX `paraId` for this comment. */
   paraId?: string;
-  /** `parentParaId` for replies (points to the root comment's `paraId`). */
+  /** `parentParaId` for replies (points to the parent comment's `paraId`). */
   parentParaId?: string;
   /** Whether this is a point comment (single insertion-point) vs. a range. */
   isPoint?: boolean;
@@ -35,7 +35,7 @@ export type DocxComment = {
 export type DocxImportDiscussion = {
   /** Root comment carrying `paraId`. */
   root: DocxComment;
-  /** Reply comments carrying `parentParaId === root.paraId`. */
+  /** Reply comments belonging to this discussion thread. */
   replies: DocxComment[];
 };
 

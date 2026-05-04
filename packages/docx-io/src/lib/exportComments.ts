@@ -37,6 +37,11 @@ export type ExportCommentsOptions = {
 export function injectDocxCommentTokens(_options: ExportCommentsOptions): {
   value: Descendant[];
 } {
-  // TODO(#343): build on `injectDocxTrackingTokens` from #342.
-  return { value: _options.value };
+  // TODO(#343): build on `injectDocxTrackingTokens` from #342. Throw rather
+  // than returning the input unchanged so callers can't mistake "not
+  // implemented" for "no comments to inject" — that would silently lose
+  // comments on export.
+  throw new Error(
+    'injectDocxCommentTokens is not implemented yet (tracked in #343).'
+  );
 }

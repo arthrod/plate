@@ -11,8 +11,6 @@ import type { SlateEditor } from 'platejs';
 
 import type { DocxComment, DocxImportDiscussion } from './types';
 
-export type { DocxImportDiscussion } from './types';
-
 /**
  * Token grammar for OOXML comment ranges. Mirrors the tracked-changes grammar
  * from #342 so a single resolver can handle both.
@@ -23,16 +21,20 @@ export const DOCX_COMMENT_REF_TOKEN_PREFIX = '[[DOCX_CMT_REF:';
 export const DOCX_COMMENT_TOKEN_SUFFIX = ']]';
 
 /**
- * Payload encoded inside `[[DOCX_CMT_START:{payload}]]`.
+ * Payload encoded inside `[[DOCX_CMT_START:{payload}]]`. Mirrors the public
+ * {@link DocxComment} shape so the resolver can rebuild a full comment from
+ * the token alone.
  */
 export type DocxCommentTokenPayload = {
   id: string;
+  /** Plain-text body of the comment. */
+  text: string;
   authorName?: string;
   authorInitials?: string;
   date?: string;
-  /** Per-paragraph DOCX `paraId` for the root comment. */
+  /** Per-paragraph DOCX `paraId` for this comment. */
   paraId?: string;
-  /** `parentParaId` for replies (matches the root's `paraId`). */
+  /** `parentParaId` for replies (matches the parent comment's `paraId`). */
   parentParaId?: string;
   /** True if this is a single insertion-point comment (no range). */
   isPoint?: boolean;
@@ -51,8 +53,11 @@ export type DocxCommentTokenPayload = {
  */
 export function parseDocxComments(_html: string): DocxComment[] {
   // TODO(#343): replace with real implementation built on `searchRange` from
-  // the tracked-changes branch (#342).
-  return [];
+  // the tracked-changes branch (#342). Throw rather than silently returning
+  // [] so callers can't mistake "not implemented" for "no comments".
+  throw new Error(
+    'parseDocxComments is not implemented yet (tracked in #343).'
+  );
 }
 
 export type ApplyTrackedCommentsLocalOptions = {
@@ -78,6 +83,9 @@ export type ApplyTrackedCommentsLocalOptions = {
 export function applyTrackedCommentsLocal(
   _options: ApplyTrackedCommentsLocalOptions
 ): DocxImportDiscussion[] {
-  // TODO(#343): integrate with the tracked-changes resolver.
-  return [];
+  // TODO(#343): integrate with the tracked-changes resolver. Throw so
+  // callers can't mistake "not implemented" for "no discussions".
+  throw new Error(
+    'applyTrackedCommentsLocal is not implemented yet (tracked in #343).'
+  );
 }
