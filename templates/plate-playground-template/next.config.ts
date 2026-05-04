@@ -1,3 +1,4 @@
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -19,5 +20,8 @@ const nextConfig: NextConfig = {
     ];
   },
 };
+
+// Wire OpenNext-Cloudflare bindings to Next.js dev server.
+initOpenNextCloudflareForDev();
 
 export default nextConfig;
