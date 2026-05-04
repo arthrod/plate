@@ -3,5 +3,7 @@
  */
 
 export * from './cleanDocx';
+export * from './tokenAwareCoreCleaners';
+export * from './tracking-tokens';
 export * from './types';
 export * from './utils/index';
