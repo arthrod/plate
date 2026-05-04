@@ -1485,7 +1485,7 @@ importers:
   packages/pagination:
     dependencies:
       '@chenglou/pretext':
-        specifier: ^0.0.6
+        specifier: 0.0.6
         version: 0.0.6
       '@platejs/footnote':
         specifier: workspace:^

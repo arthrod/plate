@@ -6,6 +6,7 @@ import {
 import { toTPlatePlugin } from 'platejs/react';
 
 import { BasePaginationPlugin } from '../lib/base-pagination-plugin';
+import type { BasePaginationConfig } from '../lib/types';
 import { FooterPlugin } from './footer-plugin';
 import { HeaderPlugin } from './header-plugin';
 import { PageBreakPlugin } from './page-break-plugin';
@@ -19,18 +20,26 @@ import { SectionPlugin } from './section-plugin';
  * section that owns their references via `configurePlugin`, no fork of
  * `@platejs/footnote`).
  *
- * TODO: variant B — wire `configurePlugin(FootnoteDefinitionPlugin, ...)` once
- * the section-scoping selector lands. Bundling the plugin here is enough to
- * give consumers a single import.
+ * The `configurePlugin` call is wired up against `FootnoteDefinitionPlugin`
+ * with a no-op options merge so the section-scoping seam is real; the actual
+ * scoping selector lands with the `withNormalizeNode` body. See TODO(#358) in
+ * `with-pagination.ts`.
  */
-export const PaginationPlugin = toTPlatePlugin(BasePaginationPlugin, {
-  plugins: [
-    SectionPlugin,
-    HeaderPlugin,
-    FooterPlugin,
-    PageBreakPlugin,
-    FootnoteDefinitionPlugin,
-    FootnoteReferencePlugin,
-    FootnoteInputPlugin,
-  ],
+export const PaginationPlugin = toTPlatePlugin<BasePaginationConfig>(
+  BasePaginationPlugin,
+  {
+    plugins: [
+      SectionPlugin,
+      HeaderPlugin,
+      FooterPlugin,
+      PageBreakPlugin,
+      FootnoteDefinitionPlugin,
+      FootnoteReferencePlugin,
+      FootnoteInputPlugin,
+    ],
+  }
+).configurePlugin(FootnoteDefinitionPlugin, {
+  // TODO(#358): replace with the real section-scoping options merge once the
+  // auto-paginator's section walk lands.
+  options: {},
 });

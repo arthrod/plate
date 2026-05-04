@@ -2,4 +2,4 @@
 '@platejs/pagination': minor
 ---
 
-Add `@platejs/pagination` (variant B) — document-model `Section[]` with explicit `page_break` nodes and an auto-paginator inside `withNormalizeNode`.
+Scaffold `@platejs/pagination` (variant B): document-model `Section[]` with explicit `page_break` nodes and a placeholder auto-paginator hook in `withNormalizeNode`. The normalization and pagination passes themselves remain TODO and land in a follow-up.

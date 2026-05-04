@@ -5,7 +5,7 @@ import type { Descendant } from 'platejs';
  * writes this cache during the `withNormalizeNode` pass so that a small text
  * edit only re-measures the affected block instead of the whole document.
  *
- * TODO: variant B — back this with `WeakMap<Descendant, number>` plus an
+ * TODO(#358): back this with `WeakMap<Descendant, number>` plus an
  * invalidation hook driven by the slate operation stream.
  */
 export type MeasureCache = {
@@ -16,8 +16,7 @@ export type MeasureCache = {
 };
 
 export const createMeasureCache = (): MeasureCache => {
-  // TODO: variant B — implement with WeakMap and operation-driven invalidation.
-  const cache = new WeakMap<Descendant, number>();
+  let cache = new WeakMap<Descendant, number>();
 
   return {
     get: (node) => cache.get(node),
@@ -28,8 +27,7 @@ export const createMeasureCache = (): MeasureCache => {
       cache.delete(node);
     },
     clear: () => {
-      // WeakMap has no clear; the variant B implementation will reset by
-      // dropping the reference and creating a fresh map.
+      cache = new WeakMap<Descendant, number>();
     },
   };
 };

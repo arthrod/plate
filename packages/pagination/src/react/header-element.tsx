@@ -1,18 +1,7 @@
-import * as React from 'react';
+import React from 'react';
 
-import type { TElement } from 'platejs';
+import { type PlateElementProps, PlateElement } from 'platejs/react';
 
-export const HeaderElement = React.forwardRef<
-  HTMLDivElement,
-  {
-    attributes: React.HTMLAttributes<HTMLDivElement>;
-    children: React.ReactNode;
-    element: TElement;
-  }
->(({ attributes, children }, ref) => (
-  <div ref={ref} {...attributes} className="section-header">
-    {children}
-  </div>
-));
-
-HeaderElement.displayName = 'HeaderElement';
+export function HeaderElement(props: PlateElementProps) {
+  return <PlateElement className="section-header" {...props} />;
+}

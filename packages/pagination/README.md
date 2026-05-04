@@ -8,14 +8,13 @@ plus a stream of body blocks broken across pages by explicit `page_break` void
 elements (`manual: true` for user-inserted breaks, `manual: false` for breaks
 inserted by the auto-paginator).
 
-The auto-paginator runs inside `withNormalizeNode`, measures rendered block
-heights with [pretext](https://github.com/chenglou/pretext), and inserts or
-removes non-manual `page_break` nodes so that each page fits within the
-configured `pageSize` and `margins`.
-
-Footnote references and definitions are scoped per section via
-`configurePlugin`, so footnotes flow into the footer of the section that owns
-their reference.
+> **Status: scaffold.** The auto-paginator inside `withNormalizeNode`,
+> [pretext](https://github.com/chenglou/pretext)-based block-height measurement,
+> automatic insertion/removal of non-manual `page_break` nodes, and section-
+> scoped footnote routing via `configurePlugin` are all wired up as
+> `TODO(#358)` placeholders. The current package ships the public KEYS,
+> plugin shells, types, and React lifts so consumers can register the plugin
+> and the algorithm body can land in a follow-up without breaking the API.
 
 ## Installation
 

@@ -1,4 +1,4 @@
-import type { Descendant, PluginConfig, TElement } from 'platejs';
+import type { KEYS, Descendant, PluginConfig, TElement } from 'platejs';
 
 /** Page-size presets recognised by the auto-paginator. */
 export type PageSize = 'A4' | 'Letter' | { height: number; width: number };
@@ -28,40 +28,47 @@ export type SectPr = {
 };
 
 export type Section = TElement & {
-  type: 'section';
+  type: typeof KEYS.section;
   sectPr?: SectPr;
   children: Descendant[];
 };
 
 export type Header = TElement & {
-  type: 'header';
+  type: typeof KEYS.header;
   children: Descendant[];
 };
 
 export type Footer = TElement & {
-  type: 'footer';
+  type: typeof KEYS.footer;
   children: Descendant[];
 };
 
 export type PageBreak = TElement & {
-  type: 'page_break';
+  type: typeof KEYS.pageBreak;
   /** True when the user inserted the break; false for auto-paginator output. */
   manual: boolean;
   children: [{ text: '' }];
 };
 
 export type BasePaginationConfig = PluginConfig<
-  'pagination',
+  typeof KEYS.pagination,
   {
-    /** Default page size applied when a section omits its own. */
-    pageSize: PageSize;
-    /** Default page margins applied when a section omits its own. */
-    margins: PageMargins;
     /**
      * When true, the auto-paginator runs inside `withNormalizeNode`. Set false
      * to bypass measurement (useful for headless tests, server rendering, or
      * collaborative back-ends that do not need physical pages).
      */
     autoPaginate: boolean;
+    /**
+     * When true, `enforceSectionInvariants` will wrap loose root blocks into a
+     * `Section`. Defaults to `false` to avoid silently rewriting existing
+     * documents on first install. Consumers with prior content should run a
+     * one-shot migration adapter, then enable this only for new documents.
+     */
+    autoEnforceSections?: boolean;
+    /** Default page margins applied when a section omits its own. */
+    margins: PageMargins;
+    /** Default page size applied when a section omits its own. */
+    pageSize: PageSize;
   }
 >;
