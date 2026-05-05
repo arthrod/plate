@@ -1,15 +1,15 @@
 /* biome-ignore-all lint: legacy code */
-import type JSZip from 'jszip';
+import type JSZip from "jszip";
 
-import { decode } from 'html-entities';
+import { decode } from "html-entities";
 // eslint-disable-next-line import/no-named-default
 // @ts-expect-error - no types available
-import { default as HTMLToVDOM } from 'html-to-vdom';
+import { default as HTMLToVDOM } from "html-to-vdom";
 // @ts-expect-error - no types available
-import VNode from 'virtual-dom/vnode/vnode';
+import VNode from "virtual-dom/vnode/vnode";
 // @ts-expect-error - no types available
-import VText from 'virtual-dom/vnode/vtext';
-import { create } from 'xmlbuilder2';
+import VText from "virtual-dom/vnode/vtext";
+import { create } from "xmlbuilder2";
 
 import {
   defaultDocumentOptions,
@@ -25,11 +25,11 @@ import {
   themeFolder,
   themeType,
   wordFolder,
-} from './constants';
-import DocxDocument from './docx-document';
-import renderDocumentFile from './helpers/render-document-file';
-import relsXML from './schemas/rels';
-import type { DocumentOptions, Margins, PageSize } from './types';
+} from "./constants";
+import DocxDocument from "./docx-document";
+import renderDocumentFile from "./helpers/render-document-file";
+import relsXML from "./schemas/rels";
+import type { DocumentOptions, Margins, PageSize } from "./types";
 import {
   cmRegex,
   cmToTWIP,
@@ -39,7 +39,7 @@ import {
   pixelToTWIP,
   pointRegex,
   pointToHIP,
-} from './utils/unit-conversion';
+} from "./utils/unit-conversion";
 
 interface VTree {
   children?: VTree[];
@@ -58,9 +58,9 @@ interface NormalizedDocumentOptions {
   font?: string;
   fontSize?: number | null;
   footer?: boolean;
-  footerType?: 'default' | 'even' | 'first';
+  footerType?: "default" | "even" | "first";
   header?: boolean;
-  headerType?: 'default' | 'even' | 'first';
+  headerType?: "default" | "even" | "first";
   keywords?: string[];
   lastModifiedBy?: string;
   lineNumber?: boolean;
@@ -68,7 +68,7 @@ interface NormalizedDocumentOptions {
   margins?: NormalizedMargins | null;
   modifiedAt?: Date;
   numbering?: NumberingOptions;
-  orientation?: 'landscape' | 'portrait';
+  orientation?: "landscape" | "portrait";
   pageNumber?: boolean;
   pageSize?: NormalizedPageSize | null;
   revision?: number;
@@ -78,9 +78,9 @@ interface NormalizedDocumentOptions {
   title?: string;
 }
 
-type LineNumberOptions = DocumentOptions['lineNumberOptions'];
-type NumberingOptions = DocumentOptions['numbering'];
-type TableOptions = DocumentOptions['table'];
+type LineNumberOptions = DocumentOptions["lineNumberOptions"];
+type NumberingOptions = DocumentOptions["numbering"];
+type TableOptions = DocumentOptions["table"];
 
 interface NormalizedMargins {
   bottom?: number;
@@ -107,12 +107,10 @@ const mergeOptions = <T extends object>(options: T, patch: Partial<T>): T => ({
   ...patch,
 });
 
-const fixupFontSize = (
-  fontSize: number | string | null | undefined
-): number | null => {
+const fixupFontSize = (fontSize: number | string | null | undefined): number | null => {
   let normalizedFontSize: number | null;
 
-  if (typeof fontSize === 'string' && pointRegex.test(fontSize)) {
+  if (typeof fontSize === "string" && pointRegex.test(fontSize)) {
     const matchedParts = fontSize.match(pointRegex);
 
     if (matchedParts) {
@@ -122,8 +120,7 @@ const fixupFontSize = (
     }
   } else if (fontSize != null) {
     // assuming it is already in HIP
-    normalizedFontSize =
-      typeof fontSize === 'number' ? fontSize : Number.parseInt(fontSize, 10);
+    normalizedFontSize = typeof fontSize === "number" ? fontSize : Number.parseInt(fontSize, 10);
   } else {
     normalizedFontSize = null;
   }
@@ -133,51 +130,35 @@ const fixupFontSize = (
 
 const normalizeUnits = (
   dimensioningObject: Margins | PageSize | null | undefined,
-  defaultDimensionsProperty: NormalizedMargins | NormalizedPageSize
+  defaultDimensionsProperty: NormalizedMargins | NormalizedPageSize,
 ): NormalizedMargins | NormalizedPageSize | null => {
   let normalizedUnitResult: Record<string, number> = {};
 
-  if (typeof dimensioningObject === 'object' && dimensioningObject !== null) {
+  if (typeof dimensioningObject === "object" && dimensioningObject !== null) {
     Object.keys(dimensioningObject).forEach((key) => {
-      const value = (
-        dimensioningObject as Record<string, number | string | undefined>
-      )[key];
-      const defaultValue = (
-        defaultDimensionsProperty as Record<string, number>
-      )[key];
+      const value = (dimensioningObject as Record<string, number | string | undefined>)[key];
+      const defaultValue = (defaultDimensionsProperty as Record<string, number>)[key];
 
-      if (typeof value === 'string' && pixelRegex.test(value)) {
+      if (typeof value === "string" && pixelRegex.test(value)) {
         const matchedParts = value.match(pixelRegex);
 
         if (matchedParts) {
-          normalizedUnitResult[key] = pixelToTWIP(
-            Number.parseFloat(matchedParts[1])
-          );
+          normalizedUnitResult[key] = pixelToTWIP(Number.parseFloat(matchedParts[1]));
         }
-      } else if (typeof value === 'string' && cmRegex.test(value)) {
+      } else if (typeof value === "string" && cmRegex.test(value)) {
         const matchedParts = value.match(cmRegex);
 
         if (matchedParts) {
-          normalizedUnitResult[key] = cmToTWIP(
-            Number.parseFloat(matchedParts[1])
-          );
+          normalizedUnitResult[key] = cmToTWIP(Number.parseFloat(matchedParts[1]));
         }
-      } else if (typeof value === 'string' && inchRegex.test(value)) {
+      } else if (typeof value === "string" && inchRegex.test(value)) {
         const matchedParts = value.match(inchRegex);
 
         if (matchedParts) {
-          normalizedUnitResult[key] = inchToTWIP(
-            Number.parseFloat(matchedParts[1])
-          );
+          normalizedUnitResult[key] = inchToTWIP(Number.parseFloat(matchedParts[1]));
         }
-      } else if (
-        value !== undefined &&
-        value !== null &&
-        value !== 0 &&
-        value !== '0'
-      ) {
-        normalizedUnitResult[key] =
-          typeof value === 'number' ? value : Number.parseInt(value, 10);
+      } else if (value !== undefined && value !== null && value !== 0 && value !== "0") {
+        normalizedUnitResult[key] = typeof value === "number" ? value : Number.parseInt(value, 10);
       } else {
         // incase value is something like 0
         normalizedUnitResult[key] = defaultValue;
@@ -191,53 +172,35 @@ const normalizeUnits = (
   return normalizedUnitResult as NormalizedMargins | NormalizedPageSize;
 };
 
-const normalizeDocumentOptions = (
-  documentOptions: DocumentOptions
-): NormalizedDocumentOptions => {
+const normalizeDocumentOptions = (documentOptions: DocumentOptions): NormalizedDocumentOptions => {
   const result: NormalizedDocumentOptions = {};
 
   // Copy over non-transformed properties
-  if (documentOptions.createdAt !== undefined)
-    result.createdAt = documentOptions.createdAt;
-  if (documentOptions.creator !== undefined)
-    result.creator = documentOptions.creator;
+  if (documentOptions.createdAt !== undefined) result.createdAt = documentOptions.createdAt;
+  if (documentOptions.creator !== undefined) result.creator = documentOptions.creator;
   if (documentOptions.decodeUnicode !== undefined)
     result.decodeUnicode = documentOptions.decodeUnicode;
-  if (documentOptions.defaultLang !== undefined)
-    result.defaultLang = documentOptions.defaultLang;
-  if (documentOptions.description !== undefined)
-    result.description = documentOptions.description;
+  if (documentOptions.defaultLang !== undefined) result.defaultLang = documentOptions.defaultLang;
+  if (documentOptions.description !== undefined) result.description = documentOptions.description;
   if (documentOptions.font !== undefined) result.font = documentOptions.font;
-  if (documentOptions.footer !== undefined)
-    result.footer = documentOptions.footer;
-  if (documentOptions.footerType !== undefined)
-    result.footerType = documentOptions.footerType;
-  if (documentOptions.header !== undefined)
-    result.header = documentOptions.header;
-  if (documentOptions.headerType !== undefined)
-    result.headerType = documentOptions.headerType;
-  if (documentOptions.keywords !== undefined)
-    result.keywords = documentOptions.keywords;
+  if (documentOptions.footer !== undefined) result.footer = documentOptions.footer;
+  if (documentOptions.footerType !== undefined) result.footerType = documentOptions.footerType;
+  if (documentOptions.header !== undefined) result.header = documentOptions.header;
+  if (documentOptions.headerType !== undefined) result.headerType = documentOptions.headerType;
+  if (documentOptions.keywords !== undefined) result.keywords = documentOptions.keywords;
   if (documentOptions.lastModifiedBy !== undefined)
     result.lastModifiedBy = documentOptions.lastModifiedBy;
-  if (documentOptions.lineNumber !== undefined)
-    result.lineNumber = documentOptions.lineNumber;
+  if (documentOptions.lineNumber !== undefined) result.lineNumber = documentOptions.lineNumber;
   if (documentOptions.lineNumberOptions !== undefined)
     result.lineNumberOptions = documentOptions.lineNumberOptions;
-  if (documentOptions.modifiedAt !== undefined)
-    result.modifiedAt = documentOptions.modifiedAt;
-  if (documentOptions.numbering !== undefined)
-    result.numbering = documentOptions.numbering;
-  if (documentOptions.orientation !== undefined)
-    result.orientation = documentOptions.orientation;
-  if (documentOptions.pageNumber !== undefined)
-    result.pageNumber = documentOptions.pageNumber;
-  if (documentOptions.revision !== undefined)
-    result.revision = documentOptions.revision;
+  if (documentOptions.modifiedAt !== undefined) result.modifiedAt = documentOptions.modifiedAt;
+  if (documentOptions.numbering !== undefined) result.numbering = documentOptions.numbering;
+  if (documentOptions.orientation !== undefined) result.orientation = documentOptions.orientation;
+  if (documentOptions.pageNumber !== undefined) result.pageNumber = documentOptions.pageNumber;
+  if (documentOptions.revision !== undefined) result.revision = documentOptions.revision;
   if (documentOptions.skipFirstHeaderFooter !== undefined)
     result.skipFirstHeaderFooter = documentOptions.skipFirstHeaderFooter;
-  if (documentOptions.subject !== undefined)
-    result.subject = documentOptions.subject;
+  if (documentOptions.subject !== undefined) result.subject = documentOptions.subject;
   if (documentOptions.table !== undefined) result.table = documentOptions.table;
   if (documentOptions.title !== undefined) result.title = documentOptions.title;
 
@@ -245,13 +208,13 @@ const normalizeDocumentOptions = (
   if (documentOptions.pageSize !== undefined) {
     result.pageSize = normalizeUnits(
       documentOptions.pageSize,
-      defaultDocumentOptions.pageSize as NormalizedPageSize
+      defaultDocumentOptions.pageSize as NormalizedPageSize,
     ) as NormalizedPageSize | null;
   }
   if (documentOptions.margins !== undefined) {
     result.margins = normalizeUnits(
       documentOptions.margins,
-      defaultDocumentOptions.margins as NormalizedMargins
+      defaultDocumentOptions.margins as NormalizedMargins,
     ) as NormalizedMargins | null;
   }
 
@@ -260,9 +223,7 @@ const normalizeDocumentOptions = (
     result.fontSize = fixupFontSize(documentOptions.fontSize);
   }
   if (documentOptions.complexScriptFontSize !== undefined) {
-    result.complexScriptFontSize = fixupFontSize(
-      documentOptions.complexScriptFontSize
-    );
+    result.complexScriptFontSize = fixupFontSize(documentOptions.complexScriptFontSize);
   }
 
   return result;
@@ -275,11 +236,9 @@ async function addFilesToContainer(
   htmlString: string | null,
   suppliedDocumentOptions: DocumentOptions,
   headerHTMLString?: string | null,
-  footerHTMLString?: string | null
+  footerHTMLString?: string | null,
 ): Promise<JSZip> {
-  const normalizedDocumentOptions = normalizeDocumentOptions(
-    suppliedDocumentOptions
-  );
+  const normalizedDocumentOptions = normalizeDocumentOptions(suppliedDocumentOptions);
   const documentOptions = {
     ...defaultDocumentOptions,
     ...normalizedDocumentOptions,
@@ -314,14 +273,14 @@ async function addFilesToContainer(
   docxDocument.documentXML = await renderDocumentFile(docxDocument);
 
   zip.folder(relsFolderName)!.file(
-    '.rels',
-    create({ encoding: 'UTF-8', standalone: true }, relsXML).toString({
+    ".rels",
+    create({ encoding: "UTF-8", standalone: true }, relsXML).toString({
       prettyPrint: true,
     }),
-    { createFolders: false }
+    { createFolders: false },
   );
 
-  zip.folder('docProps')!.file('core.xml', docxDocument.generateCoreXML(), {
+  zip.folder("docProps")!.file("core.xml", docxDocument.generateCoreXML(), {
     createFolders: false,
   });
 
@@ -337,14 +296,12 @@ async function addFilesToContainer(
       docxDocument.relationshipFilename,
       headerType,
       fileNameWithExt,
-      internalRelationship
+      internalRelationship,
     );
 
-    zip
-      .folder(wordFolder)!
-      .file(fileNameWithExt, headerXML.toString({ prettyPrint: true }), {
-        createFolders: false,
-      });
+    zip.folder(wordFolder)!.file(fileNameWithExt, headerXML.toString({ prettyPrint: true }), {
+      createFolders: false,
+    });
 
     docxDocument.headerObjects.push({
       headerId,
@@ -364,14 +321,12 @@ async function addFilesToContainer(
       docxDocument.relationshipFilename,
       footerType,
       fileNameWithExt,
-      internalRelationship
+      internalRelationship,
     );
 
-    zip
-      .folder(wordFolder)!
-      .file(fileNameWithExt, footerXML.toString({ prettyPrint: true }), {
-        createFolders: false,
-      });
+    zip.folder(wordFolder)!.file(fileNameWithExt, footerXML.toString({ prettyPrint: true }), {
+      createFolders: false,
+    });
 
     docxDocument.footerObjects.push({
       footerId,
@@ -385,7 +340,7 @@ async function addFilesToContainer(
     docxDocument.relationshipFilename,
     themeType,
     `${themeFolder}/${themeFileNameWithExt}`,
-    internalRelationship
+    internalRelationship,
   );
   zip
     .folder(wordFolder)!
@@ -396,22 +351,22 @@ async function addFilesToContainer(
 
   zip
     .folder(wordFolder)!
-    .file('document.xml', docxDocument.generateDocumentXML(), {
+    .file("document.xml", docxDocument.generateDocumentXML(), {
       createFolders: false,
     })
-    .file('fontTable.xml', docxDocument.generateFontTableXML(), {
+    .file("fontTable.xml", docxDocument.generateFontTableXML(), {
       createFolders: false,
     })
-    .file('styles.xml', docxDocument.generateStylesXML(), {
+    .file("styles.xml", docxDocument.generateStylesXML(), {
       createFolders: false,
     })
-    .file('numbering.xml', docxDocument.generateNumberingXML(), {
+    .file("numbering.xml", docxDocument.generateNumberingXML(), {
       createFolders: false,
     })
-    .file('settings.xml', docxDocument.generateSettingsXML(), {
+    .file("settings.xml", docxDocument.generateSettingsXML(), {
       createFolders: false,
     })
-    .file('webSettings.xml', docxDocument.generateWebSettingsXML(), {
+    .file("webSettings.xml", docxDocument.generateWebSettingsXML(), {
       createFolders: false,
     });
 
@@ -419,16 +374,13 @@ async function addFilesToContainer(
 
   if (relationshipXMLs && Array.isArray(relationshipXMLs)) {
     relationshipXMLs.forEach(({ fileName, xmlString }) => {
-      zip
-        .folder(wordFolder)!
-        .folder(relsFolderName)!
-        .file(`${fileName}.xml.rels`, xmlString, {
-          createFolders: false,
-        });
+      zip.folder(wordFolder)!.folder(relsFolderName)!.file(`${fileName}.xml.rels`, xmlString, {
+        createFolders: false,
+      });
     });
   }
 
-  zip.file('[Content_Types].xml', docxDocument.generateContentTypesXML(), {
+  zip.file("[Content_Types].xml", docxDocument.generateContentTypesXML(), {
     createFolders: false,
   });
 

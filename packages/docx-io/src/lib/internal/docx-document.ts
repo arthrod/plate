@@ -1,9 +1,9 @@
 /* biome-ignore-all lint: legacy code */
-import type JSZip from 'jszip';
+import type JSZip from "jszip";
 
-import { nanoid } from 'nanoid';
-import { create, fragment } from 'xmlbuilder2';
-import type { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
+import { nanoid } from "nanoid";
+import { create, fragment } from "xmlbuilder2";
+import type { XMLBuilder } from "xmlbuilder2/lib/interfaces";
 
 import {
   applicationName,
@@ -22,26 +22,23 @@ import {
   landscapeWidth,
   portraitMargins,
   themeType as themeFileType,
-} from './constants';
-import { convertVTreeToXML } from './helpers/render-document-file';
-import namespaces from './namespaces';
-import generateCoreXML from './schemas/core';
-import contentTypesXMLString from './schemas/content-types';
-import generateDocumentTemplate from './schemas/document.template';
-import documentRelsXMLString from './schemas/document-rels';
-import fontTableXMLString from './schemas/font-table';
-import genericRelsXMLString from './schemas/generic-rels';
-import generateNumberingXMLTemplate from './schemas/numbering';
-import settingsXMLString from './schemas/settings';
-import generateStylesXML from './schemas/styles';
-import generateThemeXML from './schemas/theme';
-import webSettingsXMLString from './schemas/web-settings';
-import type { DocumentMargins } from './schemas/document.template';
-import { fontFamilyToTableObject } from './utils/font-family-conversion';
-import ListStyleBuilder, {
-  type ListStyleDefaults,
-  type ListStyleType,
-} from './utils/list';
+} from "./constants";
+import { convertVTreeToXML } from "./helpers/render-document-file";
+import namespaces from "./namespaces";
+import generateCoreXML from "./schemas/core";
+import contentTypesXMLString from "./schemas/content-types";
+import generateDocumentTemplate from "./schemas/document.template";
+import documentRelsXMLString from "./schemas/document-rels";
+import fontTableXMLString from "./schemas/font-table";
+import genericRelsXMLString from "./schemas/generic-rels";
+import generateNumberingXMLTemplate from "./schemas/numbering";
+import settingsXMLString from "./schemas/settings";
+import generateStylesXML from "./schemas/styles";
+import generateThemeXML from "./schemas/theme";
+import webSettingsXMLString from "./schemas/web-settings";
+import type { DocumentMargins } from "./schemas/document.template";
+import { fontFamilyToTableObject } from "./utils/font-family-conversion";
+import ListStyleBuilder, { type ListStyleDefaults, type ListStyleType } from "./utils/list";
 
 /**
  * Get bullet character for unordered list based on level.
@@ -50,9 +47,9 @@ import ListStyleBuilder, {
 const getBulletChar = (level: number): string => {
   // Symbol font bullet characters for different levels
   const bullets = [
-    '\uF0B7', // Level 0: Bullet (•)
-    'o', // Level 1: Circle (will render as ○ with Symbol font)
-    '\uF0A7', // Level 2: Square bullet (■)
+    "\uF0B7", // Level 0: Bullet (•)
+    "o", // Level 1: Circle (will render as ○ with Symbol font)
+    "\uF0A7", // Level 2: Square bullet (■)
   ];
   return bullets[level % bullets.length];
 };
@@ -141,14 +138,14 @@ export interface RelationshipXMLOutput {
 export interface NumberingObject {
   numberingId: number;
   properties: NumberingProperties;
-  type: 'ol' | 'ul';
+  type: "ol" | "ul";
 }
 
 /** Numbering properties */
 export interface NumberingProperties {
   attributes?: Record<string, string | undefined>;
   style?: {
-    'list-style-type'?: ListStyleType;
+    "list-style-type"?: ListStyleType;
     [key: string]: string | undefined;
   };
 }
@@ -217,23 +214,21 @@ export interface DocxDocumentProperties {
 
 function generateContentTypesFragments(
   contentTypesXML: XMLBuilder,
-  type: 'footer' | 'header',
-  objects: FooterObject[] | HeaderObject[]
+  type: "footer" | "header",
+  objects: FooterObject[] | HeaderObject[],
 ): void {
   if (objects && Array.isArray(objects)) {
     objects.forEach((object) => {
       const id =
-        type === 'header'
-          ? (object as HeaderObject).headerId
-          : (object as FooterObject).footerId;
+        type === "header" ? (object as HeaderObject).headerId : (object as FooterObject).footerId;
       const contentTypesFragment = fragment({
         defaultNamespace: { ele: namespaces.contentTypes },
       })
-        .ele('Override')
-        .att('PartName', `/word/${type}${id}.xml`)
+        .ele("Override")
+        .att("PartName", `/word/${type}${id}.xml`)
         .att(
-          'ContentType',
-          `application/vnd.openxmlformats-officedocument.wordprocessingml.${type}+xml`
+          "ContentType",
+          `application/vnd.openxmlformats-officedocument.wordprocessingml.${type}+xml`,
         )
         .up();
 
@@ -246,7 +241,7 @@ function generateSectionReferenceXML(
   documentXML: XMLBuilder,
   documentSectionType: string,
   objects: FooterObject[] | HeaderObject[],
-  isEnabled: boolean
+  isEnabled: boolean,
 ): void {
   if (isEnabled && objects && Array.isArray(objects) && objects.length > 0) {
     const xmlFragment = fragment();
@@ -254,9 +249,9 @@ function generateSectionReferenceXML(
       const objectFragment = fragment({
         namespaceAlias: { w: namespaces.w, r: namespaces.r },
       })
-        .ele('@w', `${documentSectionType}Reference`)
-        .att('@r', 'id', `rId${relationshipId}`)
-        .att('@w', 'type', type)
+        .ele("@w", `${documentSectionType}Reference`)
+        .att("@r", "id", `rId${relationshipId}`)
+        .att("@w", "type", type)
         .up();
       xmlFragment.import(objectFragment);
     });
@@ -266,10 +261,7 @@ function generateSectionReferenceXML(
 }
 
 function generateXMLString(xmlString: string): string {
-  const xmlDocumentString = create(
-    { encoding: 'UTF-8', standalone: true },
-    xmlString
-  );
+  const xmlDocumentString = create({ encoding: "UTF-8", standalone: true }, xmlString);
 
   return xmlDocumentString.toString({ prettyPrint: true });
 }
@@ -277,10 +269,10 @@ function generateXMLString(xmlString: string): string {
 async function generateSectionXML(
   this: DocxDocument,
   vTree: VTree,
-  type: 'footer' | 'header' = 'header'
+  type: "footer" | "header" = "header",
 ): Promise<FooterResult | HeaderResult> {
   const sectionXML = create({
-    encoding: 'UTF-8',
+    encoding: "UTF-8",
     standalone: true,
     namespaceAlias: {
       w: namespaces.w,
@@ -291,7 +283,7 @@ async function generateSectionXML(
       wp: namespaces.wp,
       w10: namespaces.w10,
     },
-  }).ele('@w', type === 'header' ? 'hdr' : 'ftr');
+  }).ele("@w", type === "header" ? "hdr" : "ftr");
 
   const XMLFragment = fragment();
   const docxDocumentInstance = this as Parameters<typeof convertVTreeToXML>[0];
@@ -299,27 +291,27 @@ async function generateSectionXML(
   await convertVTreeToXML(docxDocumentInstance, docxVTree, XMLFragment);
 
   if (
-    type === 'footer' &&
+    type === "footer" &&
     // @ts-expect-error - Node is actually an Element here
-    (XMLFragment.first().node as Element).tagName === 'p' &&
+    (XMLFragment.first().node as Element).tagName === "p" &&
     this.pageNumber
   ) {
     XMLFragment.first().import(
       fragment({ namespaceAlias: { w: namespaces.w } })
-        .ele('@w', 'fldSimple')
-        .att('@w', 'instr', 'PAGE')
-        .ele('@w', 'r')
+        .ele("@w", "fldSimple")
+        .att("@w", "instr", "PAGE")
+        .ele("@w", "r")
         .up()
-        .up()
+        .up(),
     );
   }
   sectionXML.root().import(XMLFragment);
 
-  const referenceName = type === 'header' ? 'Header' : 'Footer';
-  const lastIdKey = `last${referenceName}Id` as 'lastFooterId' | 'lastHeaderId';
+  const referenceName = type === "header" ? "Header" : "Footer";
+  const lastIdKey = `last${referenceName}Id` as "lastFooterId" | "lastHeaderId";
   this[lastIdKey] += 1;
 
-  if (type === 'header') {
+  if (type === "header") {
     return {
       headerId: this.lastHeaderId,
       headerXML: sectionXML,
@@ -384,18 +376,14 @@ class DocxDocument {
     this.pageSize = properties.pageSize || defaultDocumentOptions.pageSize;
 
     const isPortraitOrientation = this.orientation === defaultOrientation;
-    const height = this.pageSize.height
-      ? this.pageSize.height
-      : landscapeHeight;
+    const height = this.pageSize.height ? this.pageSize.height : landscapeHeight;
     const width = this.pageSize.width ? this.pageSize.width : landscapeWidth;
 
     this.width = isPortraitOrientation ? width : height;
     this.height = isPortraitOrientation ? height : width;
 
     const marginsObject = properties.margins;
-    const defaultMargins = isPortraitOrientation
-      ? portraitMargins
-      : landscapeMargins;
+    const defaultMargins = isPortraitOrientation ? portraitMargins : landscapeMargins;
     this.margins =
       marginsObject && Object.keys(marginsObject).length > 0
         ? {
@@ -404,32 +392,28 @@ class DocxDocument {
           }
         : defaultMargins;
 
-    this.availableDocumentSpace =
-      this.width - this.margins.left - this.margins.right;
-    this.title = properties.title || '';
-    this.subject = properties.subject || '';
+    this.availableDocumentSpace = this.width - this.margins.left - this.margins.right;
+    this.title = properties.title || "";
+    this.subject = properties.subject || "";
     this.creator = properties.creator || applicationName;
     this.keywords = properties.keywords || [applicationName];
-    this.description = properties.description || '';
+    this.description = properties.description || "";
     this.lastModifiedBy = properties.lastModifiedBy || applicationName;
     this.revision = properties.revision || 1;
     this.createdAt = properties.createdAt || new Date();
     this.modifiedAt = properties.modifiedAt || new Date();
-    this.headerType = properties.headerType || 'default';
+    this.headerType = properties.headerType || "default";
     this.header = properties.header || false;
-    this.footerType = properties.footerType || 'default';
+    this.footerType = properties.footerType || "default";
     this.footer = properties.footer || false;
     this.font = properties.font || defaultFont;
     this.fontSize = properties.fontSize ?? defaultFontSize;
-    this.complexScriptFontSize =
-      properties.complexScriptFontSize ?? defaultFontSize;
+    this.complexScriptFontSize = properties.complexScriptFontSize ?? defaultFontSize;
     this.lang = properties.lang || defaultLang;
     this.tableRowCantSplit = properties.table?.row?.cantSplit || false;
     this.pageNumber = properties.pageNumber || false;
     this.skipFirstHeaderFooter = properties.skipFirstHeaderFooter || false;
-    this.lineNumber = properties.lineNumber
-      ? properties.lineNumberOptions || null
-      : null;
+    this.lineNumber = properties.lineNumber ? properties.lineNumberOptions || null : null;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
@@ -439,9 +423,7 @@ class DocxDocument {
     this.numberingObjects = [];
     this.fontTableObjects = [];
     this.relationshipFilename = documentFileName;
-    this.relationships = [
-      { fileName: documentFileName, lastRelsId: 5, rels: [] },
-    ];
+    this.relationships = [{ fileName: documentFileName, lastRelsId: 5, rels: [] }];
     this.mediaFiles = [];
     this.headerObjects = [];
     this.footerObjects = [];
@@ -458,8 +440,7 @@ class DocxDocument {
     this.generateNumberingXML = this.generateNumberingXML.bind(this);
     this.generateRelsXML = this.generateRelsXML.bind(this);
     this.createMediaFile = this.createMediaFile.bind(this);
-    this.createDocumentRelationships =
-      this.createDocumentRelationships.bind(this);
+    this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
     this.generateFooterXML = this.generateFooterXML.bind(this);
     this.generateSectionXML = generateSectionXML.bind(this);
@@ -469,62 +450,34 @@ class DocxDocument {
 
   generateSectionXML: (
     vTree: VTree,
-    type?: 'footer' | 'header'
+    type?: "footer" | "header",
   ) => Promise<FooterResult | HeaderResult>;
 
   generateContentTypesXML(): string {
-    const contentTypesXML = create(
-      { encoding: 'UTF-8', standalone: true },
-      contentTypesXMLString
-    );
+    const contentTypesXML = create({ encoding: "UTF-8", standalone: true }, contentTypesXMLString);
 
-    generateContentTypesFragments(
-      contentTypesXML,
-      'header',
-      this.headerObjects
-    );
-    generateContentTypesFragments(
-      contentTypesXML,
-      'footer',
-      this.footerObjects
-    );
+    generateContentTypesFragments(contentTypesXML, "header", this.headerObjects);
+    generateContentTypesFragments(contentTypesXML, "footer", this.footerObjects);
 
     return contentTypesXML.toString({ prettyPrint: true });
   }
 
   generateDocumentXML(): string {
     const documentXML = create(
-      { encoding: 'UTF-8', standalone: true },
-      generateDocumentTemplate(
-        this.width,
-        this.height,
-        this.orientation,
-        this.margins
-      )
+      { encoding: "UTF-8", standalone: true },
+      generateDocumentTemplate(this.width, this.height, this.orientation, this.margins),
     );
     documentXML.root().first().import(this.documentXML!);
 
-    generateSectionReferenceXML(
-      documentXML,
-      'header',
-      this.headerObjects,
-      this.header
-    );
-    generateSectionReferenceXML(
-      documentXML,
-      'footer',
-      this.footerObjects,
-      this.footer
-    );
+    generateSectionReferenceXML(documentXML, "header", this.headerObjects, this.header);
+    generateSectionReferenceXML(documentXML, "footer", this.footerObjects, this.footer);
 
     if ((this.header || this.footer) && this.skipFirstHeaderFooter) {
       documentXML
         .root()
         .first()
         .first()
-        .import(
-          fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'titlePg')
-        );
+        .import(fragment({ namespaceAlias: { w: namespaces.w } }).ele("@w", "titlePg"));
     }
     if (this.lineNumber) {
       const { countBy, start, restart } = this.lineNumber;
@@ -534,10 +487,10 @@ class DocxDocument {
         .first()
         .import(
           fragment({ namespaceAlias: { w: namespaces.w } })
-            .ele('@w', 'lnNumType')
-            .att('@w', 'countBy', String(countBy))
-            .att('@w', 'start', String(start))
-            .att('@w', 'restart', restart as string)
+            .ele("@w", "lnNumType")
+            .att("@w", "countBy", String(countBy))
+            .att("@w", "start", String(start))
+            .att("@w", "restart", restart as string),
         );
     }
 
@@ -549,73 +502,48 @@ class DocxDocument {
 
     // wp: (wordprocessingDrawing) elements
     const wpElements = [
-      'inline',
-      'anchor',
-      'simplePos',
-      'positionH',
-      'positionV',
-      'posOffset',
-      'extent',
-      'effectExtent',
-      'wrapNone',
-      'wrapSquare',
-      'wrapTight',
-      'wrapThrough',
-      'docPr',
+      "inline",
+      "anchor",
+      "simplePos",
+      "positionH",
+      "positionV",
+      "posOffset",
+      "extent",
+      "effectExtent",
+      "wrapNone",
+      "wrapSquare",
+      "wrapTight",
+      "wrapThrough",
+      "docPr",
     ];
     wpElements.forEach((el) => {
-      xmlString = xmlString.replace(
-        new RegExp(`<w:${el}([ />])`, 'g'),
-        `<wp:${el}$1`
-      );
-      xmlString = xmlString.replace(
-        new RegExp(`</w:${el}>`, 'g'),
-        `</wp:${el}>`
-      );
+      xmlString = xmlString.replace(new RegExp(`<w:${el}([ />])`, "g"), `<wp:${el}$1`);
+      xmlString = xmlString.replace(new RegExp(`</w:${el}>`, "g"), `</wp:${el}>`);
     });
 
     // a: (drawingML main) elements
     const aElements = [
-      'graphic',
-      'graphicData',
-      'blip',
-      'srcRect',
-      'stretch',
-      'fillRect',
-      'xfrm',
-      'off',
-      'ext',
-      'prstGeom',
+      "graphic",
+      "graphicData",
+      "blip",
+      "srcRect",
+      "stretch",
+      "fillRect",
+      "xfrm",
+      "off",
+      "ext",
+      "prstGeom",
     ];
     aElements.forEach((el) => {
-      xmlString = xmlString.replace(
-        new RegExp(`<w:${el}([ />])`, 'g'),
-        `<a:${el}$1`
-      );
-      xmlString = xmlString.replace(
-        new RegExp(`</w:${el}>`, 'g'),
-        `</a:${el}>`
-      );
+      xmlString = xmlString.replace(new RegExp(`<w:${el}([ />])`, "g"), `<a:${el}$1`);
+      xmlString = xmlString.replace(new RegExp(`</w:${el}>`, "g"), `</a:${el}>`);
     });
 
     // pic: (picture) elements
-    const picElements = [
-      'pic',
-      'nvPicPr',
-      'cNvPr',
-      'cNvPicPr',
-      'blipFill',
-      'spPr',
-    ];
+    const picElements = ["pic", "nvPicPr", "cNvPr", "cNvPicPr", "blipFill", "spPr"];
     picElements.forEach((el) => {
-      xmlString = xmlString.replace(
-        new RegExp(`<w:${el}([ />])`, 'g'),
-        `<pic:${el}$1`
-      );
-      xmlString = xmlString.replace(
-        new RegExp(`</w:${el}>`, 'g'),
-        `</pic:${el}>`
-      );
+      xmlString = xmlString.replace(new RegExp(`<w:${el}([ />])`, "g"), `<pic:${el}$1`);
+      xmlString = xmlString.replace(new RegExp(`</w:${el}>`, "g"), `</pic:${el}>`);
     });
 
     return xmlString;
@@ -632,8 +560,8 @@ class DocxDocument {
         this.lastModifiedBy,
         this.revision,
         this.createdAt,
-        this.modifiedAt
-      )
+        this.modifiedAt,
+      ),
     );
   }
 
@@ -649,27 +577,19 @@ class DocxDocument {
 
   generateStylesXML(): string {
     return generateXMLString(
-      generateStylesXML(
-        this.font,
-        this.fontSize,
-        this.complexScriptFontSize,
-        this.lang
-      )
+      generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize, this.lang),
     );
   }
 
   generateFontTableXML(): string {
-    const fontTableXML = create(
-      { encoding: 'UTF-8', standalone: true },
-      fontTableXMLString
-    );
+    const fontTableXML = create({ encoding: "UTF-8", standalone: true }, fontTableXMLString);
     const fontNames = [
-      'Arial',
-      'Calibri',
-      'Calibri Light',
-      'Courier New',
-      'Symbol',
-      'Times New Roman',
+      "Arial",
+      "Calibri",
+      "Calibri Light",
+      "Courier New",
+      "Symbol",
+      "Times New Roman",
     ];
     this.fontTableObjects.forEach(({ fontName, genericFontName }) => {
       if (!fontNames.includes(fontName)) {
@@ -677,26 +597,24 @@ class DocxDocument {
         const fontFragment = fragment({
           namespaceAlias: { w: namespaces.w },
         })
-          .ele('@w', 'font')
-          .att('@w', 'name', fontName);
+          .ele("@w", "font")
+          .att("@w", "name", fontName);
 
         switch (genericFontName) {
-          case 'serif':
-            fontFragment
-              .ele('@w', 'altName')
-              .att('@w', 'val', 'Times New Roman');
-            fontFragment.ele('@w', 'family').att('@w', 'val', 'roman');
-            fontFragment.ele('@w', 'pitch').att('@w', 'val', 'variable');
+          case "serif":
+            fontFragment.ele("@w", "altName").att("@w", "val", "Times New Roman");
+            fontFragment.ele("@w", "family").att("@w", "val", "roman");
+            fontFragment.ele("@w", "pitch").att("@w", "val", "variable");
             break;
-          case 'sans-serif':
-            fontFragment.ele('@w', 'altName').att('@w', 'val', 'Arial');
-            fontFragment.ele('@w', 'family').att('@w', 'val', 'swiss');
-            fontFragment.ele('@w', 'pitch').att('@w', 'val', 'variable');
+          case "sans-serif":
+            fontFragment.ele("@w", "altName").att("@w", "val", "Arial");
+            fontFragment.ele("@w", "family").att("@w", "val", "swiss");
+            fontFragment.ele("@w", "pitch").att("@w", "val", "variable");
             break;
-          case 'monospace':
-            fontFragment.ele('@w', 'altName').att('@w', 'val', 'Courier New');
-            fontFragment.ele('@w', 'family').att('@w', 'val', 'modern');
-            fontFragment.ele('@w', 'pitch').att('@w', 'val', 'fixed');
+          case "monospace":
+            fontFragment.ele("@w", "altName").att("@w", "val", "Courier New");
+            fontFragment.ele("@w", "family").att("@w", "val", "modern");
+            fontFragment.ele("@w", "pitch").att("@w", "val", "fixed");
             break;
           default:
             break;
@@ -715,8 +633,8 @@ class DocxDocument {
 
   generateNumberingXML(): string {
     const numberingXML = create(
-      { encoding: 'UTF-8', standalone: true },
-      generateNumberingXMLTemplate()
+      { encoding: "UTF-8", standalone: true },
+      generateNumberingXMLTemplate(),
     );
 
     const abstractNumberingFragments = fragment();
@@ -726,70 +644,61 @@ class DocxDocument {
       const abstractNumberingFragment = fragment({
         namespaceAlias: { w: namespaces.w },
       })
-        .ele('@w', 'abstractNum')
-        .att('@w', 'abstractNumId', String(numberingId));
+        .ele("@w", "abstractNum")
+        .att("@w", "abstractNumId", String(numberingId));
 
       [...new Array(8).keys()].forEach((level) => {
         const levelFragment = fragment({ namespaceAlias: { w: namespaces.w } })
-          .ele('@w', 'lvl')
-          .att('@w', 'ilvl', String(level))
-          .ele('@w', 'start')
+          .ele("@w", "lvl")
+          .att("@w", "ilvl", String(level))
+          .ele("@w", "start")
+          .att("@w", "val", type === "ol" ? properties.attributes?.["data-start"] || "1" : "1")
+          .up()
+          .ele("@w", "numFmt")
           .att(
-            '@w',
-            'val',
-            type === 'ol' ? properties.attributes?.['data-start'] || '1' : '1'
+            "@w",
+            "val",
+            type === "ol"
+              ? this.ListStyleBuilder.getListStyleType(properties.style?.["list-style-type"])
+              : "bullet",
           )
           .up()
-          .ele('@w', 'numFmt')
+          .ele("@w", "lvlText")
           .att(
-            '@w',
-            'val',
-            type === 'ol'
-              ? this.ListStyleBuilder.getListStyleType(
-                  properties.style?.['list-style-type']
-                )
-              : 'bullet'
+            "@w",
+            "val",
+            type === "ol"
+              ? this.ListStyleBuilder.getListPrefixSuffix(properties.style, level)
+              : getBulletChar(level),
           )
           .up()
-          .ele('@w', 'lvlText')
-          .att(
-            '@w',
-            'val',
-            type === 'ol'
-              ? this.ListStyleBuilder.getListPrefixSuffix(
-                  properties.style,
-                  level
-                )
-              : getBulletChar(level)
-          )
+          .ele("@w", "lvlJc")
+          .att("@w", "val", "left")
           .up()
-          .ele('@w', 'lvlJc')
-          .att('@w', 'val', 'left')
-          .up()
-          .ele('@w', 'pPr')
-          .ele('@w', 'tabs')
-          .ele('@w', 'tab')
-          .att('@w', 'val', 'num')
-          .att('@w', 'pos', String(level * 360 + 360))
+          .ele("@w", "pPr")
+          .ele("@w", "tabs")
+          .ele("@w", "tab")
+          .att("@w", "val", "num")
+          .att("@w", "pos", String(level * 360 + 360))
           .up()
           .up()
-          .ele('@w', 'ind')
-          .att('@w', 'left', String(level * 360 + 360))
-          .att('@w', 'hanging', '360')
+          .ele("@w", "ind")
+          .att("@w", "left", String(level * 360 + 360))
+          .att("@w", "hanging", "360")
           .up()
           .up()
           .up();
 
-        if (type === 'ul') {
+        if (type === "ul") {
           levelFragment.last().import(
             fragment({ namespaceAlias: { w: namespaces.w } })
-              .ele('@w', 'rPr')
-              .ele('@w', 'rFonts')
-              .att('@w', 'ascii', 'Symbol')
-              .att('@w', 'hAnsi', 'Symbol')
-              .att('@w', 'hint', 'default')
+              .ele("@w", "rPr")
+              .ele("@w", "rFonts")
+              .att("@w", "ascii", "Symbol")
+              .att("@w", "hAnsi", "Symbol")
+              .att("@w", "hint", "default")
               .up()
-              .up()
+              .up(),
           );
         }
         abstractNumberingFragment.import(levelFragment);
@@ -799,12 +708,12 @@ class DocxDocument {
 
       numberingFragments.import(
         fragment({ namespaceAlias: { w: namespaces.w } })
-          .ele('@w', 'num')
-          .att('@w', 'numId', String(numberingId))
-          .ele('@w', 'abstractNumId')
-          .att('@w', 'val', String(numberingId))
+          .ele("@w", "num")
+          .att("@w", "numId", String(numberingId))
+          .ele("@w", "abstractNumId")
+          .att("@w", "val", String(numberingId))
           .up()
-          .up()
+          .up(),
       );
     });
 
@@ -815,45 +724,38 @@ class DocxDocument {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  appendRelationships(
-    xmlFragment: XMLBuilder,
-    relationships: RelationshipObject[]
-  ): void {
+  appendRelationships(xmlFragment: XMLBuilder, relationships: RelationshipObject[]): void {
     relationships.forEach(({ relationshipId, type, target, targetMode }) => {
       xmlFragment.import(
         fragment({ defaultNamespace: { ele: namespaces.relationship } })
-          .ele('Relationship')
-          .att('Id', `rId${relationshipId}`)
-          .att('Type', type)
-          .att('Target', target)
-          .att('TargetMode', targetMode)
-          .up()
+          .ele("Relationship")
+          .att("Id", `rId${relationshipId}`)
+          .att("Type", type)
+          .att("Target", target)
+          .att("TargetMode", targetMode)
+          .up(),
       );
     });
   }
 
   generateRelsXML(): RelationshipXMLOutput[] {
-    const relationshipXMLStrings = this.relationships.map(
-      ({ fileName, rels }) => {
-        const xmlFragment = create(
-          { encoding: 'UTF-8', standalone: true },
-          fileName === documentFileName
-            ? documentRelsXMLString
-            : genericRelsXMLString
-        );
-        this.appendRelationships(xmlFragment.root(), rels);
+    const relationshipXMLStrings = this.relationships.map(({ fileName, rels }) => {
+      const xmlFragment = create(
+        { encoding: "UTF-8", standalone: true },
+        fileName === documentFileName ? documentRelsXMLString : genericRelsXMLString,
+      );
+      this.appendRelationships(xmlFragment.root(), rels);
 
-        return {
-          fileName,
-          xmlString: xmlFragment.toString({ prettyPrint: true }),
-        };
-      }
-    );
+      return {
+        fileName,
+        xmlString: xmlFragment.toString({ prettyPrint: true }),
+      };
+    });
 
     return relationshipXMLStrings;
   }
 
-  createNumbering(type: 'ol' | 'ul', properties: NumberingProperties): number {
+  createNumbering(type: "ol" | "ul", properties: NumberingProperties): number {
     this.lastNumberingId += 1;
     this.numberingObjects.push({
       numberingId: this.lastNumberingId,
@@ -876,18 +778,18 @@ class DocxDocument {
     const matches = base64String.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
 
     if (!matches || matches.length !== 3) {
-      throw new Error('Invalid base64 string');
+      throw new Error("Invalid base64 string");
     }
 
     const base64FileContent = matches[2];
     // matches array contains file type in base64 format - image/jpeg and base64 stringified data
     const extensionMatch = matches[1].match(/\/(.*?)$/);
     const fileExtension =
-      extensionMatch && extensionMatch[1] === 'octet-stream'
-        ? 'png'
+      extensionMatch && extensionMatch[1] === "octet-stream"
+        ? "png"
         : extensionMatch
           ? extensionMatch[1]
-          : 'png';
+          : "png";
 
     const fileNameWithExtension = `image-${nanoid()}.${fileExtension}`;
 
@@ -904,10 +806,10 @@ class DocxDocument {
     fileName: string,
     type: string,
     target: string,
-    targetMode: string = 'External'
+    targetMode: string = "External",
   ): number {
     let relationshipObject = this.relationships.find(
-      (relationship) => relationship.fileName === fileName
+      (relationship) => relationship.fileName === fileName,
     );
     let lastRelsId = 1;
 
@@ -950,11 +852,11 @@ class DocxDocument {
   }
 
   generateHeaderXML(vTree: VTree): Promise<HeaderResult> {
-    return this.generateSectionXML(vTree, 'header') as Promise<HeaderResult>;
+    return this.generateSectionXML(vTree, "header") as Promise<HeaderResult>;
   }
 
   generateFooterXML(vTree: VTree): Promise<FooterResult> {
-    return this.generateSectionXML(vTree, 'footer') as Promise<FooterResult>;
+    return this.generateSectionXML(vTree, "footer") as Promise<FooterResult>;
   }
 }
 

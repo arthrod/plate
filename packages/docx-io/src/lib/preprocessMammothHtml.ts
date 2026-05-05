@@ -1,7 +1,7 @@
-import type { DocxComment } from './types';
+import type { DocxComment } from "./types";
 
-const DOCX_COMMENT_REF_TOKEN_PREFIX = '[[DOCX_COMMENT_REF:';
-const DOCX_COMMENT_REF_TOKEN_SUFFIX = ']]';
+const DOCX_COMMENT_REF_TOKEN_PREFIX = "[[DOCX_COMMENT_REF:";
+const DOCX_COMMENT_REF_TOKEN_SUFFIX = "]]";
 
 // Top-level regex patterns for performance
 const COMMENT_ID_REGEX = /^comment-/;
@@ -29,49 +29,43 @@ export type PreprocessMammothHtmlResult = {
  * 2. Replaces comment anchors with tokens `[[DOCX_COMMENT_REF:id]]`
  * 3. Returns the processed HTML and comment data
  */
-export function preprocessMammothHtml(
-  html: string
-): PreprocessMammothHtmlResult {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
+export function preprocessMammothHtml(html: string): PreprocessMammothHtmlResult {
+  const doc = new DOMParser().parseFromString(html, "text/html");
   const commentById = new Map<string, string>();
 
   // Extract comments from <dl> elements
-  for (const dl of Array.from(doc.querySelectorAll('dl'))) {
+  for (const dl of Array.from(doc.querySelectorAll("dl"))) {
     if (!dl.querySelector('dt[id^="comment-"]')) continue;
 
     const dtNodes = Array.from(dl.querySelectorAll('dt[id^="comment-"]'));
 
     for (const dt of dtNodes) {
-      const dtId = dt.getAttribute('id') ?? '';
-      const commentId = dtId.replace(COMMENT_ID_REGEX, '');
+      const dtId = dt.getAttribute("id") ?? "";
+      const commentId = dtId.replace(COMMENT_ID_REGEX, "");
 
       if (!commentId) continue;
 
       const dd = dt.nextElementSibling;
 
-      if (!dd || dd.tagName !== 'DD') continue;
+      if (!dd || dd.tagName !== "DD") continue;
 
       const ddClone = dd.cloneNode(true) as HTMLElement;
 
       // Remove back-reference links
-      for (const a of Array.from(
-        ddClone.querySelectorAll('a[href^="#comment-ref-"]')
-      )) {
+      for (const a of Array.from(ddClone.querySelectorAll('a[href^="#comment-ref-"]'))) {
         a.remove();
       }
 
-      for (const element of Array.from(
-        ddClone.querySelectorAll('br, div, li, p')
-      )) {
-        if (element.tagName === 'BR') {
-          element.replaceWith(ddClone.ownerDocument.createTextNode(' '));
+      for (const element of Array.from(ddClone.querySelectorAll("br, div, li, p"))) {
+        if (element.tagName === "BR") {
+          element.replaceWith(ddClone.ownerDocument.createTextNode(" "));
         } else {
-          element.append(ddClone.ownerDocument.createTextNode(' '));
+          element.append(ddClone.ownerDocument.createTextNode(" "));
         }
       }
 
-      let text = (ddClone.textContent ?? '').replaceAll(/\s+/g, ' ').trim();
-      text = text.replace(ARROW_SUFFIX_REGEX, '').trim();
+      let text = (ddClone.textContent ?? "").replaceAll(/\s+/g, " ").trim();
+      text = text.replace(ARROW_SUFFIX_REGEX, "").trim();
 
       commentById.set(commentId, text);
     }
@@ -84,8 +78,8 @@ export function preprocessMammothHtml(
   const commentIds: string[] = [];
 
   for (const a of Array.from(doc.querySelectorAll('a[id^="comment-ref-"]'))) {
-    const aId = a.getAttribute('id') ?? '';
-    const commentId = aId.replace(COMMENT_REF_ID_REGEX, '');
+    const aId = a.getAttribute("id") ?? "";
+    const commentId = aId.replace(COMMENT_REF_ID_REGEX, "");
 
     if (!commentId) continue;
 
@@ -98,7 +92,7 @@ export function preprocessMammothHtml(
     const textNode = doc.createTextNode(token);
     const parent = a.parentElement;
 
-    if (parent?.tagName === 'SUP' && parent.childNodes.length === 1) {
+    if (parent?.tagName === "SUP" && parent.childNodes.length === 1) {
       parent.replaceWith(textNode);
     } else {
       a.replaceWith(textNode);
@@ -113,11 +107,11 @@ export function preprocessMammothHtml(
  */
 export function extractComments(
   commentById: Map<string, string>,
-  commentIds: string[]
+  commentIds: string[],
 ): DocxComment[] {
   return commentIds.map((id) => ({
     id,
-    text: commentById.get(id) ?? '',
+    text: commentById.get(id) ?? "",
   }));
 }
 

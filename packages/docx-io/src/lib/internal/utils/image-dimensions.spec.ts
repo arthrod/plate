@@ -1,7 +1,7 @@
-import { getImageDimensions } from './image-dimensions';
+import { getImageDimensions } from "./image-dimensions";
 
-describe('getImageDimensions', () => {
-  it('parses png dimensions from the IHDR bytes', () => {
+describe("getImageDimensions", () => {
+  it("parses png dimensions from the IHDR bytes", () => {
     const png = new Uint8Array(24);
     png.set([0x89, 0x50, 0x4e, 0x47], 0);
     png.set([0x00, 0x00, 0x01, 0x40], 16);
@@ -9,34 +9,32 @@ describe('getImageDimensions', () => {
 
     expect(getImageDimensions(png)).toEqual({
       height: 240,
-      type: 'png',
+      type: "png",
       width: 320,
     });
   });
 
-  it('falls back for malformed jpeg buffers', () => {
+  it("falls back for malformed jpeg buffers", () => {
     const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0x00, 0x00]);
 
     expect(getImageDimensions(jpeg)).toEqual({
       height: 100,
-      type: 'jpg',
+      type: "jpg",
       width: 100,
     });
   });
 
-  it('parses jpeg dimensions from SOF markers', () => {
-    const jpeg = new Uint8Array([
-      0xff, 0xd8, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0x20, 0x00, 0x30,
-    ]);
+  it("parses jpeg dimensions from SOF markers", () => {
+    const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0x20, 0x00, 0x30]);
 
     expect(getImageDimensions(jpeg)).toEqual({
       height: 32,
-      type: 'jpg',
+      type: "jpg",
       width: 48,
     });
   });
 
-  it('parses gif, bmp, and webp dimensions', () => {
+  it("parses gif, bmp, and webp dimensions", () => {
     const gif = new Uint8Array(10);
     gif.set([0x47, 0x49, 0x46, 0x38], 0);
     gif.set([0x20, 0x00, 0x30, 0x00], 6);
@@ -55,22 +53,22 @@ describe('getImageDimensions', () => {
 
     expect(getImageDimensions(gif)).toEqual({
       height: 48,
-      type: 'gif',
+      type: "gif",
       width: 32,
     });
     expect(getImageDimensions(bmp)).toEqual({
       height: 24,
-      type: 'bmp',
+      type: "bmp",
       width: 16,
     });
     expect(getImageDimensions(webp)).toEqual({
       height: 36,
-      type: 'webp',
+      type: "webp",
       width: 64,
     });
   });
 
-  it('accepts ArrayBuffer input', () => {
+  it("accepts ArrayBuffer input", () => {
     const png = new Uint8Array(24);
     png.set([0x89, 0x50, 0x4e, 0x47], 0);
     png.set([0x00, 0x00, 0x00, 0x20], 16);
@@ -78,15 +76,15 @@ describe('getImageDimensions', () => {
 
     expect(getImageDimensions(png.buffer)).toEqual({
       height: 16,
-      type: 'png',
+      type: "png",
       width: 32,
     });
   });
 
-  it('returns the default unknown dimensions for unsupported formats', () => {
+  it("returns the default unknown dimensions for unsupported formats", () => {
     expect(getImageDimensions(new Uint8Array([0x01, 0x02, 0x03]))).toEqual({
       height: 100,
-      type: 'unknown',
+      type: "unknown",
       width: 100,
     });
   });

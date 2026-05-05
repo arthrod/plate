@@ -221,7 +221,7 @@
         "sass": "1.89.2",
         "shadcn": "2.6.3",
         "shadcn-prose": "1.0.8",
-        "slate": "0.124.0",
+        "slate": "0.124.1",
         "sonner": "2.0.5",
         "stream-browserify": "3.0.0",
         "tailwind-merge": "3.3.1",
@@ -269,7 +269,7 @@
     },
     "packages/ai": {
       "name": "@platejs/ai",
-      "version": "52.3.22",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/markdown": "workspace:^",
         "@platejs/selection": "workspace:^",
@@ -286,14 +286,25 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.15",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
+    "packages/autoformat": {
+      "name": "@platejs/autoformat",
+      "version": "53.0.0",
+      "devDependencies": {
+        "@plate/scripts": "workspace:*",
+        "platejs": "workspace:^",
+      },
+      "peerDependencies": {
+        "platejs": ">=53.0.0",
+      },
+    },
     "packages/basic-nodes": {
       "name": "@platejs/basic-nodes",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -302,14 +313,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/basic-styles": {
       "name": "@platejs/basic-styles",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -318,14 +329,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/callout": {
       "name": "@platejs/callout",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -334,14 +345,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/caption": {
       "name": "@platejs/caption",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
         "react-textarea-autosize": "^8.5.9",
@@ -351,14 +362,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/code-block": {
       "name": "@platejs/code-block",
-      "version": "52.3.16",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -368,14 +379,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.3.16",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/code-drawing": {
       "name": "@platejs/code-drawing",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@codemirror/lang-javascript": "6.2.4",
         "@codemirror/theme-one-dark": "6.1.3",
@@ -395,14 +406,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/combobox": {
       "name": "@platejs/combobox",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -411,14 +422,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.15",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/comment": {
       "name": "@platejs/comment",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "lodash": "^4.17.21",
         "react-compiler-runtime": "^1.0.0",
@@ -428,14 +439,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/core": {
       "name": "@platejs/core",
-      "version": "52.3.21",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/slate": "workspace:*",
         "@udecode/react-hotkeys": "workspace:*",
@@ -451,8 +462,8 @@
         "nanoid": "^5.1.5",
         "optics-ts": "2.4.1",
         "react-compiler-runtime": "^1.0.0",
-        "slate": "0.124.0",
-        "slate-dom": "0.124.0",
+        "slate": "0.124.1",
+        "slate-dom": "0.124.1",
         "slate-hyperscript": "0.100.0",
         "slate-react": "0.124.0",
         "use-deep-compare": "^1.3.0",
@@ -470,7 +481,7 @@
     },
     "packages/csv": {
       "name": "@platejs/csv",
-      "version": "52.3.20",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/table": "workspace:*",
         "papaparse": "^5.5.3",
@@ -482,14 +493,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/cursor": {
       "name": "@platejs/cursor",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -498,14 +509,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/date": {
       "name": "@platejs/date",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -514,14 +525,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/diff": {
       "name": "@platejs/diff",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "diff-match-patch-ts": "^0.6.0",
         "lodash": "^4.17.21",
@@ -532,14 +543,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/dnd": {
       "name": "@platejs/dnd",
-      "version": "52.3.16",
+      "version": "53.0.0",
       "dependencies": {
         "lodash": "^4.17.21",
         "raf": "^3.4.1",
@@ -550,7 +561,7 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.3.16",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dnd": ">=14.0.0",
         "react-dnd-html5-backend": ">=14.0.0",
@@ -559,7 +570,7 @@
     },
     "packages/docx": {
       "name": "@platejs/docx",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
         "validator": "^13.15.15",
@@ -569,14 +580,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/docx-io": {
       "name": "@platejs/docx-io",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "color-name": "^2.0.0",
         "html-entities": "^2.5.2",
@@ -597,16 +608,16 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "@platejs/docx": ">=52.3.10",
-        "@platejs/markdown": ">=52.3.10",
-        "platejs": ">=52.0.0",
+        "@platejs/docx": ">=53.0.0",
+        "@platejs/markdown": ">=53.0.0",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/emoji": {
       "name": "@platejs/emoji",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/combobox": "workspace:*",
         "react-compiler-runtime": "^1.0.0",
@@ -618,14 +629,14 @@
       },
       "peerDependencies": {
         "@emoji-mart/data": ">=1.2.0",
-        "platejs": ">=52.0.15",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/excalidraw": {
       "name": "@platejs/excalidraw",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@excalidraw/excalidraw": "0.18.0",
         "lodash": "^4.17.21",
@@ -637,14 +648,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/find-replace": {
       "name": "@platejs/find-replace",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -653,14 +664,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/floating": {
       "name": "@platejs/floating",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@floating-ui/core": "^1.6.7",
         "@floating-ui/react": "^0.26.23",
@@ -671,14 +682,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/footnote": {
       "name": "@platejs/footnote",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/combobox": "workspace:^",
         "react-compiler-runtime": "^1.0.0",
@@ -688,14 +699,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/indent": {
       "name": "@platejs/indent",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -704,14 +715,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/juice": {
       "name": "@platejs/juice",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "juice": "^11.0.1",
         "react-compiler-runtime": "^1.0.0",
@@ -721,14 +732,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/layout": {
       "name": "@platejs/layout",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -737,14 +748,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/link": {
       "name": "@platejs/link",
-      "version": "52.3.17",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/floating": "workspace:^",
         "react-compiler-runtime": "^1.0.0",
@@ -754,14 +765,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/list": {
       "name": "@platejs/list",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/indent": "workspace:^",
         "clsx": "^2.1.1",
@@ -773,14 +784,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/list-classic": {
       "name": "@platejs/list-classic",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "lodash": "^4.17.21",
         "react-compiler-runtime": "^1.0.0",
@@ -790,14 +801,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/markdown": {
       "name": "@platejs/markdown",
-      "version": "52.3.22",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/date": "workspace:*",
         "lodash": "^4.17.23",
@@ -823,14 +834,14 @@
         "remark-math": "6.0.0",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/math": {
       "name": "@platejs/math",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "katex": "0.16.22",
         "react-compiler-runtime": "^1.0.0",
@@ -841,16 +852,15 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/media": {
       "name": "@platejs/media",
-      "version": "52.3.10",
+      "version": "53.0.1",
       "dependencies": {
-        "js-video-url-parser": "^0.5.1",
         "react-compiler-runtime": "^1.0.0",
       },
       "devDependencies": {
@@ -858,14 +868,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/mention": {
       "name": "@platejs/mention",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/combobox": "workspace:*",
         "react-compiler-runtime": "^1.0.0",
@@ -875,14 +885,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.15",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/plate": {
       "name": "platejs",
-      "version": "52.3.21",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/core": "workspace:^",
         "@platejs/slate": "workspace:^",
@@ -909,7 +919,7 @@
     },
     "packages/playwright": {
       "name": "@platejs/playwright",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -919,14 +929,14 @@
       },
       "peerDependencies": {
         "@playwright/test": ">=1.42.1",
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/resizable": {
       "name": "@platejs/resizable",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -935,14 +945,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/selection": {
       "name": "@platejs/selection",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "copy-to-clipboard": "^3.3.3",
         "react-compiler-runtime": "^1.0.0",
@@ -952,14 +962,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/slash-command": {
       "name": "@platejs/slash-command",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/combobox": "workspace:*",
         "react-compiler-runtime": "^1.0.0",
@@ -969,21 +979,21 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.15",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/slate": {
       "name": "@platejs/slate",
-      "version": "52.3.21",
+      "version": "53.0.0",
       "dependencies": {
         "@udecode/utils": "workspace:^",
         "is-plain-object": "^5.0.0",
         "lodash": "^4.17.21",
         "scroll-into-view-if-needed": "^3.1.0",
-        "slate": "0.124.0",
-        "slate-dom": "0.124.0",
+        "slate": "0.124.1",
+        "slate-dom": "0.124.1",
       },
       "devDependencies": {
         "@plate/scripts": "workspace:*",
@@ -991,7 +1001,7 @@
     },
     "packages/suggestion": {
       "name": "@platejs/suggestion",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/diff": "workspace:^",
         "lodash": "^4.17.21",
@@ -1002,14 +1012,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/tabbable": {
       "name": "@platejs/tabbable",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
         "tabbable": "^6.2.0",
@@ -1019,14 +1029,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/table": {
       "name": "@platejs/table",
-      "version": "52.3.20",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/resizable": "workspace:^",
         "lodash": "^4.17.21",
@@ -1038,14 +1048,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/tag": {
       "name": "@platejs/tag",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -1054,17 +1064,17 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/test-utils": {
       "name": "@platejs/test-utils",
-      "version": "52.3.21",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/slate": "workspace:*",
-        "slate": "0.124.0",
+        "slate": "0.124.1",
         "slate-hyperscript": "0.100.0",
       },
       "devDependencies": {
@@ -1073,7 +1083,7 @@
     },
     "packages/toc": {
       "name": "@platejs/toc",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "react-compiler-runtime": "^1.0.0",
       },
@@ -1082,14 +1092,14 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
     },
     "packages/toggle": {
       "name": "@platejs/toggle",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/indent": "workspace:*",
         "jotai": "^2.18.0",
@@ -1101,7 +1111,7 @@
         "platejs": "workspace:^",
       },
       "peerDependencies": {
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
       },
@@ -1199,7 +1209,7 @@
     },
     "packages/utils": {
       "name": "@platejs/utils",
-      "version": "52.3.21",
+      "version": "53.0.0",
       "dependencies": {
         "@platejs/core": "workspace:^",
         "@platejs/slate": "workspace:^",
@@ -1219,7 +1229,7 @@
     },
     "packages/yjs": {
       "name": "@platejs/yjs",
-      "version": "52.3.10",
+      "version": "53.0.0",
       "dependencies": {
         "@slate-yjs/core": "^1.0.2",
         "react-compiler-runtime": "^1.0.0",
@@ -1232,7 +1242,7 @@
       },
       "peerDependencies": {
         "@hocuspocus/provider": "^3.4.0",
-        "platejs": ">=52.0.11",
+        "platejs": ">=53.0.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
         "y-webrtc": "10.3.0",
@@ -1857,6 +1867,8 @@
     "@plate/scripts": ["@plate/scripts@workspace:packages/plate-scripts"],
 
     "@platejs/ai": ["@platejs/ai@workspace:packages/ai"],
+
+    "@platejs/autoformat": ["@platejs/autoformat@workspace:packages/autoformat"],
 
     "@platejs/basic-nodes": ["@platejs/basic-nodes@workspace:packages/basic-nodes"],
 
@@ -3396,8 +3408,6 @@
 
     "js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
 
-    "js-video-url-parser": ["js-video-url-parser@0.5.1", "", {}, "sha512-/vwqT67k0AyIGMHAvSOt+n4JfrZWF7cPKgKswDO35yr27GfW4HtjpQVlTx6JLF45QuPm8mkzFHkZgFVnFm4x/w=="],
-
     "js-yaml": ["js-yaml@3.14.1", "", { "dependencies": { "argparse": "1.0.10", "esprima": "4.0.1" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g=="],
 
     "jsbi": ["jsbi@4.3.2", "", {}, "sha512-9fqMSQbhJykSeii05nxKl4m6Eqn2P6rOlYiS+C5Dr/HPIU/7yZxu5qzbs40tgaFORiw2Amd0mirjxatXYMkIew=="],
@@ -4224,9 +4234,9 @@
 
     "slash": ["slash@3.0.0", "", {}, "sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q=="],
 
-    "slate": ["slate@0.124.0", "", {}, "sha512-yhtJ0MSV+Z63UTaZtGZDp1goO9XZb5VGER9bmwX+38yJUb7nijPkYEcxD5mpezsSLqL6NedUb4wyvoZa+HDWuQ=="],
+    "slate": ["slate@0.124.1", "", {}, "sha512-ii7DwezgvbLAyKtHBIunjTR1kzbNfYLCUKLMzJELlbTZkvHzX4DzN7HKIwcakf6dPxO6AoeT/P7kHOcyTym/hA=="],
 
-    "slate-dom": ["slate-dom@0.124.0", "", { "dependencies": { "@juggle/resize-observer": "^3.4.0", "direction": "^1.0.4", "is-hotkey": "^0.2.0", "is-plain-object": "^5.0.0", "lodash": "^4.17.21", "scroll-into-view-if-needed": "^3.1.0", "tiny-invariant": "1.3.1" }, "peerDependencies": { "slate": ">=0.121.0" } }, "sha512-dPabNlzo67xWRNFT5HtSc0M/F9mfiQSnjJAEx0Uzk7oC++WaRuBy897F+rNzfvM+zH9exMc3hsTMtM7jGDhIiQ=="],
+    "slate-dom": ["slate-dom@0.124.1", "", { "dependencies": { "@juggle/resize-observer": "^3.4.0", "direction": "^1.0.4", "is-hotkey": "^0.2.0", "is-plain-object": "^5.0.0", "lodash": "^4.17.21", "scroll-into-view-if-needed": "^3.1.0", "tiny-invariant": "1.3.1" }, "peerDependencies": { "slate": ">=0.121.0" } }, "sha512-D3yVibjLZM4Oj4MmXxOEXbjrlf4wJez3OvGABBNYrAP7gXb0d96tKNtWZ0hGm/5y84idw/LHjZ7W1uTYqFR9rQ=="],
 
     "slate-hyperscript": ["slate-hyperscript@0.100.0", "", { "dependencies": { "is-plain-object": "5.0.0" }, "peerDependencies": { "slate": "0.123.0" } }, "sha512-fb2KdAYg6RkrQGlqaIi4wdqz3oa0S4zKNBJlbnJbNOwa23+9FLD6oPVx9zUGqCSIpy+HIpOeqXrg0Kzwh/Ii4A=="],
 

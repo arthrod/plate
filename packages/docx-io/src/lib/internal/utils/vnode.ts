@@ -4,6 +4,4 @@ export type VNode = {
 };
 
 export const vNodeHasChildren = (vNode: VNode | null | undefined): boolean =>
-  Boolean(
-    vNode?.children && Array.isArray(vNode.children) && vNode.children.length
-  );
+  Boolean(vNode?.children && Array.isArray(vNode.children) && vNode.children.length);

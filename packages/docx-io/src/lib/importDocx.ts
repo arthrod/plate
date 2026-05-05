@@ -1,18 +1,15 @@
-import { cleanDocx } from '@platejs/docx';
-import mammoth from 'mammoth';
-import type { SlateEditor } from 'platejs';
+import { cleanDocx } from "@platejs/docx";
+import mammoth from "mammoth";
+import type { SlateEditor } from "platejs";
 
-import {
-  extractComments,
-  preprocessMammothHtml,
-} from './preprocessMammothHtml';
-import type { ImportDocxOptions, ImportDocxResult } from './types';
+import { extractComments, preprocessMammothHtml } from "./preprocessMammothHtml";
+import type { ImportDocxOptions, ImportDocxResult } from "./types";
 
 /**
  * Parse HTML string to DOM element for deserialization.
  */
 function parseHtmlElement(html: string): HTMLElement | undefined {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const doc = new DOMParser().parseFromString(html, "text/html");
 
   return doc.body ?? undefined;
 }
@@ -43,25 +40,21 @@ function parseHtmlElement(html: string): HTMLElement | undefined {
 export async function importDocx(
   editor: SlateEditor,
   arrayBuffer: ArrayBuffer,
-  options: ImportDocxOptions = {}
+  options: ImportDocxOptions = {},
 ): Promise<ImportDocxResult> {
-  const { rtf = '' } = options;
+  const { rtf = "" } = options;
 
   // Convert DOCX to HTML using mammoth
   const mammothResult = await mammoth.convertToHtml(
     { arrayBuffer },
-    { styleMap: ['comment-reference => sup'] }
+    { styleMap: ["comment-reference => sup"] },
   );
 
   const mammothHtml = mammothResult.value;
   const warnings = mammothResult.messages.map((msg) => msg.message);
 
   // Preprocess to extract comments
-  const {
-    commentById,
-    commentIds,
-    html: preprocessedHtml,
-  } = preprocessMammothHtml(mammothHtml);
+  const { commentById, commentIds, html: preprocessedHtml } = preprocessMammothHtml(mammothHtml);
 
   // Clean DOCX-specific HTML
   const cleanedHtml = cleanDocx(preprocessedHtml, rtf);
@@ -73,7 +66,7 @@ export async function importDocx(
     return {
       comments: [],
       nodes: [],
-      warnings: [...warnings, 'Failed to parse HTML'],
+      warnings: [...warnings, "Failed to parse HTML"],
     };
   }
 

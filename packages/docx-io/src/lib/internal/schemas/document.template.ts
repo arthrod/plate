@@ -1,4 +1,4 @@
-import namespaces from '../namespaces';
+import namespaces from "../namespaces";
 
 export type DocumentMargins = {
   bottom: number;
@@ -14,7 +14,7 @@ const generateDocumentTemplate = (
   width: number,
   height: number,
   orientation: string,
-  margins: DocumentMargins
+  margins: DocumentMargins,
 ): string => `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 

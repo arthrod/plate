@@ -1,20 +1,20 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from "lodash";
 
-export type Orientation = 'landscape' | 'portrait';
+export type Orientation = "landscape" | "portrait";
 
-export type HeaderFooterType = 'default' | 'even' | 'first';
+export type HeaderFooterType = "default" | "even" | "first";
 
-export type LineNumberRestart = 'continuous' | 'newPage' | 'newSection';
+export type LineNumberRestart = "continuous" | "newPage" | "newSection";
 
 export type ListStyleType =
-  | 'decimal'
-  | 'disc'
-  | 'lower-alpha'
-  | 'lower-roman'
-  | 'upper-alpha'
-  | 'upper-roman';
+  | "decimal"
+  | "disc"
+  | "lower-alpha"
+  | "lower-roman"
+  | "upper-alpha"
+  | "upper-roman";
 
-export type VerticalAlign = 'bottom' | 'middle' | 'top';
+export type VerticalAlign = "bottom" | "middle" | "top";
 
 export type Margins = {
   bottom: number;
@@ -92,8 +92,8 @@ export type DocumentOptions = {
   title: string;
 };
 
-const applicationName = 'html-to-docx';
-const defaultOrientation: Orientation = 'portrait';
+const applicationName = "html-to-docx";
+const defaultOrientation: Orientation = "portrait";
 const landscapeWidth = 15_840;
 const landscapeHeight = 12_240;
 const landscapeMargins: Margins = {
@@ -114,34 +114,34 @@ const portraitMargins: Margins = {
   right: 1800,
   top: 1440,
 };
-const defaultFont = 'Times New Roman';
+const defaultFont = "Times New Roman";
 const defaultFontSize = 22;
-const defaultLang = 'en-US';
+const defaultLang = "en-US";
 const defaultDocumentOptions: DocumentOptions = {
   complexScriptFontSize: defaultFontSize,
   createdAt: new Date(),
   creator: applicationName,
   decodeUnicode: false,
   defaultLang,
-  description: '',
+  description: "",
   font: defaultFont,
   fontSize: defaultFontSize,
   footer: false,
-  footerType: 'default',
+  footerType: "default",
   header: false,
-  headerType: 'default',
+  headerType: "default",
   keywords: [applicationName],
   lastModifiedBy: applicationName,
   lineNumber: false,
   lineNumberOptions: {
     countBy: 1,
-    restart: 'continuous',
+    restart: "continuous",
     start: 0,
   },
   margins: cloneDeep(portraitMargins),
   modifiedAt: new Date(),
   numbering: {
-    defaultOrderedListStyleType: 'decimal',
+    defaultOrderedListStyleType: "decimal",
   },
   orientation: defaultOrientation,
   pageNumber: false,
@@ -151,52 +151,52 @@ const defaultDocumentOptions: DocumentOptions = {
   },
   revision: 1,
   skipFirstHeaderFooter: false,
-  subject: '',
+  subject: "",
   table: {
     row: {
       cantSplit: false,
     },
   },
-  title: '',
+  title: "",
 };
-const defaultHTMLString = '<p></p>';
-const relsFolderName = '_rels';
-const headerFileName = 'header1';
-const footerFileName = 'footer1';
-const themeFileName = 'theme1';
-const documentFileName = 'document';
-const headerType = 'header';
-const footerType = 'footer';
-const themeType = 'theme';
-const hyperlinkType = 'hyperlink';
-const imageType = 'image';
-const internalRelationship = 'Internal';
-const wordFolder = 'word';
-const themeFolder = 'theme';
+const defaultHTMLString = "<p></p>";
+const relsFolderName = "_rels";
+const headerFileName = "header1";
+const footerFileName = "footer1";
+const themeFileName = "theme1";
+const documentFileName = "document";
+const headerType = "header";
+const footerType = "footer";
+const themeType = "theme";
+const hyperlinkType = "hyperlink";
+const imageType = "image";
+const internalRelationship = "Internal";
+const wordFolder = "word";
+const themeFolder = "theme";
 const paragraphBordersObject: ParagraphBorders = {
   bottom: {
-    color: 'FFFFFF',
+    color: "FFFFFF",
     size: 0,
     spacing: 3,
   },
   left: {
-    color: 'FFFFFF',
+    color: "FFFFFF",
     size: 0,
     spacing: 3,
   },
   right: {
-    color: 'FFFFFF',
+    color: "FFFFFF",
     size: 0,
     spacing: 3,
   },
   top: {
-    color: 'FFFFFF',
+    color: "FFFFFF",
     size: 0,
     spacing: 3,
   },
 };
-const colorlessColors: string[] = ['transparent', 'auto'];
-const verticalAlignValues: VerticalAlign[] = ['top', 'middle', 'bottom'];
+const colorlessColors: string[] = ["transparent", "auto"];
+const verticalAlignValues: VerticalAlign[] = ["top", "middle", "bottom"];
 
 export {
   applicationName,

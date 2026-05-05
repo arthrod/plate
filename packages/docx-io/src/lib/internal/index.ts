@@ -5,4 +5,4 @@ export type {
   NumberingOptions,
   PageSize,
   TableOptions,
-} from './types';
+} from "./types";

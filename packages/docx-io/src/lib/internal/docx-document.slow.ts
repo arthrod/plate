@@ -1,47 +1,33 @@
-import JSZip from 'jszip';
+import JSZip from "jszip";
 
-import {
-  documentFileName,
-  headerType,
-  hyperlinkType,
-  imageType,
-} from './constants';
-import DocxDocument from './docx-document';
-import namespaces from './namespaces';
+import { documentFileName, headerType, hyperlinkType, imageType } from "./constants";
+import DocxDocument from "./docx-document";
+import namespaces from "./namespaces";
 
 const createDocxDocument = (overrides = {}) =>
   new DocxDocument({
-    htmlString: '<p>Test</p>',
+    htmlString: "<p>Test</p>",
     zip: new JSZip(),
     ...overrides,
   });
 
-describe('DocxDocument', () => {
-  it('creates relationships with the correct OOXML namespace and next id', () => {
+describe("DocxDocument", () => {
+  it("creates relationships with the correct OOXML namespace and next id", () => {
     const document = createDocxDocument();
 
     expect(
-      document.createDocumentRelationships(
-        documentFileName,
-        hyperlinkType,
-        'https://platejs.org'
-      )
+      document.createDocumentRelationships(documentFileName, hyperlinkType, "https://platejs.org"),
     ).toBe(6);
     expect(
       document.createDocumentRelationships(
         documentFileName,
         imageType,
-        'media/image-1.png',
-        'Internal'
-      )
+        "media/image-1.png",
+        "Internal",
+      ),
     ).toBe(7);
     expect(
-      document.createDocumentRelationships(
-        documentFileName,
-        headerType,
-        'header1.xml',
-        'Internal'
-      )
+      document.createDocumentRelationships(documentFileName, headerType, "header1.xml", "Internal"),
     ).toBe(8);
 
     const relationshipsXml = document
@@ -59,28 +45,22 @@ describe('DocxDocument', () => {
     expect(relationshipsXml).toContain('Target="header1.xml"');
   });
 
-  it('normalizes octet-stream media to png and rejects invalid base64 payloads', () => {
+  it("normalizes octet-stream media to png and rejects invalid base64 payloads", () => {
     const document = createDocxDocument();
 
-    expect(
-      document.createMediaFile('data:application/octet-stream;base64,QUJDRA==')
-    ).toEqual({
-      fileContent: 'QUJDRA==',
+    expect(document.createMediaFile("data:application/octet-stream;base64,QUJDRA==")).toEqual({
+      fileContent: "QUJDRA==",
       fileNameWithExtension: expect.stringMatching(/^image-.+\.png$/),
       id: 1,
     });
 
-    expect(() => document.createMediaFile('not-base64')).toThrow(
-      'Invalid base64 string'
-    );
+    expect(() => document.createMediaFile("not-base64")).toThrow("Invalid base64 string");
   });
 
-  it('adds custom fonts once with generic family metadata', () => {
-    const document = createDocxDocument({ font: 'Arial' });
+  it("adds custom fonts once with generic family metadata", () => {
+    const document = createDocxDocument({ font: "Arial" });
 
-    expect(document.createFont('"IBM Plex Serif", serif')).toBe(
-      'IBM Plex Serif'
-    );
+    expect(document.createFont('"IBM Plex Serif", serif')).toBe("IBM Plex Serif");
     document.createFont('"IBM Plex Serif", serif');
     document.createFont('"Fira Code", monospace');
 
@@ -88,10 +68,10 @@ describe('DocxDocument', () => {
 
     expect(fontTableXml.match(/w:name="IBM Plex Serif"/g)).toHaveLength(1);
     expect(fontTableXml).toMatch(
-      /<w:font w:name="IBM Plex Serif">[\s\S]*?<w:altName w:val="Times New Roman"\/>[\s\S]*?<w:family w:val="roman"\/>[\s\S]*?<w:pitch w:val="variable"\/>/
+      /<w:font w:name="IBM Plex Serif">[\s\S]*?<w:altName w:val="Times New Roman"\/>[\s\S]*?<w:family w:val="roman"\/>[\s\S]*?<w:pitch w:val="variable"\/>/,
     );
     expect(fontTableXml).toMatch(
-      /<w:font w:name="Fira Code">[\s\S]*?<w:altName w:val="Courier New"\/>[\s\S]*?<w:family w:val="modern"\/>[\s\S]*?<w:pitch w:val="fixed"\/>/
+      /<w:font w:name="Fira Code">[\s\S]*?<w:altName w:val="Courier New"\/>[\s\S]*?<w:family w:val="modern"\/>[\s\S]*?<w:pitch w:val="fixed"\/>/,
     );
   });
 });

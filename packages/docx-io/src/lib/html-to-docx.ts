@@ -7,10 +7,10 @@
  * @packageDocumentation
  */
 
-import JSZip from 'jszip';
+import JSZip from "jszip";
 
-import addFilesToContainer from './internal/html-to-docx';
-import type { DocumentOptions, Margins } from './internal/types';
+import addFilesToContainer from "./internal/html-to-docx";
+import type { DocumentOptions, Margins } from "./internal/types";
 
 // Re-export types from the library
 export type {
@@ -20,7 +20,7 @@ export type {
   NumberingOptions,
   PageSize,
   TableOptions,
-} from './internal/types';
+} from "./internal/types";
 
 // Backwards compatibility aliases
 export type DocumentMargins = Margins;
@@ -49,18 +49,15 @@ export type HtmlToDocxOptions = DocumentOptions;
  * a.click();
  * ```
  */
-export async function htmlToDocxBlob(
-  html: string,
-  options: DocumentOptions = {}
-): Promise<Blob> {
+export async function htmlToDocxBlob(html: string, options: DocumentOptions = {}): Promise<Blob> {
   // Handle empty HTML - the underlying library crashes on empty string
-  const safeHtml = html.trim() === '' ? '<p></p>' : html;
+  const safeHtml = html.trim() === "" ? "<p></p>" : html;
   const zip = new JSZip();
   const resultZip = await addFilesToContainer(zip, safeHtml, options, null);
-  const buffer = await resultZip.generateAsync({ type: 'uint8array' });
+  const buffer = await resultZip.generateAsync({ type: "uint8array" });
   const blobBuffer = new Uint8Array(buffer);
 
   return new Blob([blobBuffer], {
-    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   });
 }

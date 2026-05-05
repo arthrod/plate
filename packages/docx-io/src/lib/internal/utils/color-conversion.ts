@@ -6,23 +6,19 @@ export const hex3Regex = /#([0-9A-F])([0-9A-F])([0-9A-F])/i;
 export const rgbToHex = (
   red: number | string,
   green: number | string,
-  blue: number | string
+  blue: number | string,
 ): string => {
   const hexColorCode = [red, green, blue]
     .map((x) => {
       const hex = Number.parseInt(String(x), 10).toString(16);
       return hex.length === 1 ? `0${hex}` : hex;
     })
-    .join('');
+    .join("");
 
   return hexColorCode;
 };
 
-export const hslToHex = (
-  hue: number,
-  saturation: number,
-  luminosity: number
-): string => {
+export const hslToHex = (hue: number, saturation: number, luminosity: number): string => {
   const h = hue / 360;
   const s = saturation / 100;
   const l = luminosity / 100;
@@ -54,11 +50,11 @@ export const hslToHex = (
       const hex = Math.round(x * 255).toString(16);
       return hex.length === 1 ? `0${hex}` : hex;
     })
-    .join('');
+    .join("");
 };
 
 export const hex3ToHex = (red: string, green: string, blue: string): string => {
-  const hexColorCode = [red, green, blue].map((x) => `${x}${x}`).join('');
+  const hexColorCode = [red, green, blue].map((x) => `${x}${x}`).join("");
 
   return hexColorCode;
 };

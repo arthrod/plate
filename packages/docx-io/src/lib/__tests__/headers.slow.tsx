@@ -1,12 +1,12 @@
 /** @jsx jsx */
 
-import { jsx } from '@platejs/test-utils';
+import { jsx } from "@platejs/test-utils";
 
-import { getDocxTestName, testDocxImporter } from './testDocxImporter';
+import { getDocxTestName, testDocxImporter } from "./testDocxImporter";
 
 jsx;
 
-const name = 'headers';
+const name = "headers";
 
 // mammoth output: h1-h6 preserved, no font styles
 describe(getDocxTestName(name), () => {
@@ -25,10 +25,7 @@ describe(getDocxTestName(name), () => {
         <hh6>Sixth level</hh6>
         <hp>Some more plain text.</hp>
         <hp>Seventh level</hp>
-        <hp>
-          Since no Heading 7 style exists in styles.xml, this gets converted to
-          Span.
-        </hp>
+        <hp>Since no Heading 7 style exists in styles.xml, this gets converted to Span.</hp>
       </editor>
     ),
     filename: name,

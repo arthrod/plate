@@ -1,12 +1,12 @@
 /** @jsx jsx */
 
-import { jsx } from '@platejs/test-utils';
+import { jsx } from "@platejs/test-utils";
 
-import { getDocxTestName, testDocxImporter } from './testDocxImporter';
+import { getDocxTestName, testDocxImporter } from "./testDocxImporter";
 
 jsx;
 
-const name = 'tables';
+const name = "tables";
 
 // mammoth output: tables preserved, background colors and header bold lost
 describe(getDocxTestName(name), () => {

@@ -1,11 +1,11 @@
-import { defaultFont, defaultFontSize, defaultLang } from '../constants';
-import namespaces from '../namespaces';
+import { defaultFont, defaultFontSize, defaultLang } from "../constants";
+import namespaces from "../namespaces";
 
 const generateStylesXML = (
   font: string = defaultFont,
   fontSize: number = defaultFontSize,
   complexScriptFontSize: number = defaultFontSize,
-  lang: string = defaultLang
+  lang: string = defaultLang,
 ): string => `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 

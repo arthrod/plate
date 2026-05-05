@@ -1,4 +1,4 @@
-import namespaces from '../namespaces';
+import namespaces from "../namespaces";
 
 // Font data available here: https://fossies.org/linux/pandoc/data/docx/word/fontTable.xml
 const fontTableXML: string = `

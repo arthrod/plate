@@ -30,23 +30,19 @@
  * @packageDocumentation
  */
 
-'use client';
+"use client";
 
-import type {
-  AnyPluginConfig,
-  CreateSlateEditorOptions,
-  PluginConfig,
-} from 'platejs';
-import type { SlateEditor } from 'platejs';
-import { createSlateEditor, createTSlatePlugin } from 'platejs';
-import type { PlateStaticProps, SerializeHtmlOptions } from 'platejs/static';
-import { serializeHtml } from 'platejs/static';
+import type { AnyPluginConfig, CreateSlateEditorOptions, PluginConfig } from "platejs";
+import type { SlateEditor } from "platejs";
+import { createSlateEditor, createTSlatePlugin } from "platejs";
+import type { PlateStaticProps, SerializeHtmlOptions } from "platejs/static";
+import { serializeHtml } from "platejs/static";
 
-import juice from 'juice';
+import juice from "juice";
 
-import type { DocumentMargins } from './html-to-docx';
+import type { DocumentMargins } from "./html-to-docx";
 
-import { htmlToDocxBlob } from './html-to-docx';
+import { htmlToDocxBlob } from "./html-to-docx";
 
 // =============================================================================
 // CSS Styles for DOCX Export
@@ -158,7 +154,7 @@ export type DocxExportMargins = DocumentMargins;
 /**
  * Page orientation options.
  */
-export type DocxExportOrientation = 'landscape' | 'portrait';
+export type DocxExportOrientation = "landscape" | "portrait";
 
 /**
  * Options for DOCX export operations.
@@ -233,12 +229,10 @@ export type DocxExportPluginOptions = {
  * Options for DOCX export (combines plugin options and operation options).
  * @deprecated Use DocxExportOperationOptions for export functions
  */
-export interface DocxExportOptions
-  extends DocxExportOperationOptions,
-    DocxExportPluginOptions {}
+export interface DocxExportOptions extends DocxExportOperationOptions, DocxExportPluginOptions {}
 
 export type DocxExportPluginConfig = PluginConfig<
-  'docxExport',
+  "docxExport",
   DocxExportPluginOptions,
   { docxExport: DocxExportApiMethods },
   { docxExport: DocxExportTransformMethods }
@@ -279,10 +273,7 @@ export type DocxExportTransformMethods = {
    * @param filename - The filename for the download
    * @param options - Export options (orientation, margins, styles, etc.)
    */
-  exportAndDownload: (
-    filename: string,
-    options?: DocxExportOperationOptions
-  ) => Promise<void>;
+  exportAndDownload: (filename: string, options?: DocxExportOperationOptions) => Promise<void>;
 };
 
 // =============================================================================
@@ -333,11 +324,8 @@ type SerializeToHtmlInternalOptions = {
  * @param options - Serialization options
  * @returns HTML string representation of the editor content
  */
-async function serializeToHtml(
-  options: SerializeToHtmlInternalOptions
-): Promise<string> {
-  const { EditorStaticComponent, components, fontFamily, plugins, value } =
-    options;
+async function serializeToHtml(options: SerializeToHtmlInternalOptions): Promise<string> {
+  const { EditorStaticComponent, components, fontFamily, plugins, value } = options;
 
   const editorStatic = createSlateEditor({
     plugins: plugins ?? [],
@@ -358,7 +346,7 @@ async function serializeToHtml(
     htmlOptions.editorComponent = EditorStaticComponent;
     htmlOptions.props = {
       style: {
-        padding: '0',
+        padding: "0",
         ...(fontFamily ? { fontFamily } : {}),
       },
     };
@@ -377,9 +365,7 @@ async function serializeToHtml(
  * @returns Complete HTML document string
  */
 function wrapHtmlForDocx(bodyHtml: string, customStyles?: string): string {
-  const styles = customStyles
-    ? `${DOCX_EXPORT_STYLES}\n${customStyles}`
-    : DOCX_EXPORT_STYLES;
+  const styles = customStyles ? `${DOCX_EXPORT_STYLES}\n${customStyles}` : DOCX_EXPORT_STYLES;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -412,9 +398,7 @@ interface ExportToDocxInternalOptions extends DocxExportOperationOptions {
  * @param options - Export options including value and configuration
  * @returns A Promise that resolves to a Blob containing the DOCX file
  */
-async function exportToDocxInternal(
-  options: ExportToDocxInternalOptions
-): Promise<Blob> {
+async function exportToDocxInternal(options: ExportToDocxInternalOptions): Promise<Blob> {
   const {
     components,
     customStyles,
@@ -422,7 +406,7 @@ async function exportToDocxInternal(
     editorStaticComponent,
     fontFamily,
     margins = DEFAULT_DOCX_MARGINS,
-    orientation = 'portrait',
+    orientation = "portrait",
     value,
   } = options;
 
@@ -482,7 +466,7 @@ async function exportToDocxInternal(
  */
 export async function exportToDocx(
   value: DocxValue,
-  options: DocxExportOptions = {}
+  options: DocxExportOptions = {},
 ): Promise<Blob> {
   const { editorPlugins, editorStaticComponent, ...operationOptions } = options;
 
@@ -495,10 +479,7 @@ export async function exportToDocx(
       let pluginOverride = (plugin as any).override;
 
       // If no direct override, check __configuration (from configure())
-      if (
-        (!pluginOverride || !pluginOverride.components) &&
-        (plugin as any).__configuration
-      ) {
+      if ((!pluginOverride || !pluginOverride.components) && (plugin as any).__configuration) {
         const configResult = (plugin as any).__configuration({});
         pluginOverride = configResult?.override;
       }
@@ -538,9 +519,9 @@ export async function exportToDocx(
  */
 export function downloadDocx(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
-  a.download = filename.endsWith('.docx') ? filename : `${filename}.docx`;
+  a.download = filename.endsWith(".docx") ? filename : `${filename}.docx`;
   document.body.append(a);
   a.click();
   a.remove();
@@ -569,7 +550,7 @@ export function downloadDocx(blob: Blob, filename: string): void {
 export async function exportEditorToDocx(
   value: DocxValue,
   filename: string,
-  options: DocxExportOptions = {}
+  options: DocxExportOptions = {},
 ): Promise<void> {
   const blob = await exportToDocx(value, options);
   downloadDocx(blob, filename);
@@ -631,49 +612,40 @@ export async function exportEditorToDocx(
  * ```
  */
 export const DocxExportPlugin = createTSlatePlugin<DocxExportPluginConfig>({
-  key: 'docxExport',
+  key: "docxExport",
   options: {
     editorPlugins: undefined as AnyPluginConfig[] | undefined,
-    editorStaticComponent: undefined as
-      | React.ComponentType<PlateStaticProps>
-      | undefined,
+    editorStaticComponent: undefined as React.ComponentType<PlateStaticProps> | undefined,
   },
 })
-  .extendEditorApi(
-    (ctx: {
-      editor: SlateEditor;
-      getOptions: () => DocxExportPluginOptions;
-    }) => {
-      const { editor, getOptions } = ctx;
+  .extendEditorApi((ctx: { editor: SlateEditor; getOptions: () => DocxExportPluginOptions }) => {
+    const { editor, getOptions } = ctx;
 
-      return {
-        docxExport: {
-          download: (blob: Blob, filename: string): void => {
-            downloadDocx(blob, filename);
-          },
-          exportToBlob: async (
-            options: DocxExportOperationOptions = {}
-          ): Promise<Blob> => {
-            const pluginOptions = getOptions();
-
-            // Get component overrides from plugin.override.components
-            const plugin = editor.getPlugin({ key: 'docxExport' }) as any;
-            const components = plugin.override?.components as
-              | Record<string, React.ComponentType<any>>
-              | undefined;
-
-            return exportToDocxInternal({
-              ...options,
-              components,
-              editorPlugins: pluginOptions.editorPlugins,
-              editorStaticComponent: pluginOptions.editorStaticComponent,
-              value: editor.children,
-            });
-          },
+    return {
+      docxExport: {
+        download: (blob: Blob, filename: string): void => {
+          downloadDocx(blob, filename);
         },
-      };
-    }
-  )
+        exportToBlob: async (options: DocxExportOperationOptions = {}): Promise<Blob> => {
+          const pluginOptions = getOptions();
+
+          // Get component overrides from plugin.override.components
+          const plugin = editor.getPlugin({ key: "docxExport" }) as any;
+          const components = plugin.override?.components as
+            | Record<string, React.ComponentType<any>>
+            | undefined;
+
+          return exportToDocxInternal({
+            ...options,
+            components,
+            editorPlugins: pluginOptions.editorPlugins,
+            editorStaticComponent: pluginOptions.editorStaticComponent,
+            value: editor.children,
+          });
+        },
+      },
+    };
+  })
   .extendEditorTransforms((ctx: { editor: SlateEditor }) => {
     const { editor } = ctx;
 
@@ -681,7 +653,7 @@ export const DocxExportPlugin = createTSlatePlugin<DocxExportPluginConfig>({
       docxExport: {
         exportAndDownload: async (
           filename: string,
-          options: DocxExportOperationOptions = {}
+          options: DocxExportOperationOptions = {},
         ): Promise<void> => {
           const api = editor.api as unknown as {
             docxExport: DocxExportApiMethods;
@@ -697,4 +669,4 @@ export const DocxExportPlugin = createTSlatePlugin<DocxExportPluginConfig>({
 // Re-exports
 // =============================================================================
 
-export { htmlToDocxBlob } from './html-to-docx';
+export { htmlToDocxBlob } from "./html-to-docx";

@@ -11,11 +11,11 @@ export async function imageToBase64(imageUrl: string): Promise<string> {
   // Check if it's a valid URL
   try {
     const url = new URL(imageUrl);
-    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-      throw new Error('Invalid URL provided');
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      throw new Error("Invalid URL provided");
     }
   } catch {
-    throw new Error('Invalid URL provided');
+    throw new Error("Invalid URL provided");
   }
 
   const response = await fetch(imageUrl);
@@ -28,7 +28,7 @@ export async function imageToBase64(imageUrl: string): Promise<string> {
   const uint8Array = new Uint8Array(arrayBuffer);
 
   // Convert to base64
-  let binary = '';
+  let binary = "";
   for (const byte of uint8Array) {
     binary += String.fromCharCode(byte);
   }

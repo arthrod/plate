@@ -8,9 +8,9 @@
  * - List indentation
  */
 
-import JSZip from 'jszip';
+import JSZip from "jszip";
 
-import { htmlToDocxBlob } from '../html-to-docx';
+import { htmlToDocxBlob } from "../html-to-docx";
 
 // Helper to load zip from Blob
 async function loadZipFromBlob(blob: Blob): Promise<JSZip> {
@@ -18,113 +18,113 @@ async function loadZipFromBlob(blob: Blob): Promise<JSZip> {
   return JSZip.loadAsync(arrayBuffer);
 }
 
-describe('htmlToDocxBlob', () => {
-  describe('basic functionality', () => {
-    it('returns a Blob', async () => {
-      const result = await htmlToDocxBlob('<p>Test</p>');
+describe("htmlToDocxBlob", () => {
+  describe("basic functionality", () => {
+    it("returns a Blob", async () => {
+      const result = await htmlToDocxBlob("<p>Test</p>");
       expect(result).toBeInstanceOf(Blob);
     });
 
-    it('returns blob with correct MIME type', async () => {
-      const result = await htmlToDocxBlob('<p>Test</p>');
+    it("returns blob with correct MIME type", async () => {
+      const result = await htmlToDocxBlob("<p>Test</p>");
       expect(result.type).toBe(
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       );
     });
 
-    it('create a valid DOCX (ZIP) file structure', async () => {
-      const result = await htmlToDocxBlob('<p>Test</p>');
+    it("create a valid DOCX (ZIP) file structure", async () => {
+      const result = await htmlToDocxBlob("<p>Test</p>");
       const zip = await loadZipFromBlob(result);
 
       // DOCX must contain these required files
-      expect(zip.file('[Content_Types].xml')).not.toBeNull();
-      expect(zip.file('_rels/.rels')).not.toBeNull();
-      expect(zip.file('word/document.xml')).not.toBeNull();
-      expect(zip.file('word/styles.xml')).not.toBeNull();
+      expect(zip.file("[Content_Types].xml")).not.toBeNull();
+      expect(zip.file("_rels/.rels")).not.toBeNull();
+      expect(zip.file("word/document.xml")).not.toBeNull();
+      expect(zip.file("word/styles.xml")).not.toBeNull();
     });
 
-    it('include content in document.xml', async () => {
-      const htmlContent = '<p>Hello World</p>';
+    it("include content in document.xml", async () => {
+      const htmlContent = "<p>Hello World</p>";
       const result = await htmlToDocxBlob(htmlContent);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Hello World');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Hello World");
     });
 
-    it('handle empty HTML', async () => {
-      const result = await htmlToDocxBlob('');
+    it("handle empty HTML", async () => {
+      const result = await htmlToDocxBlob("");
       expect(result).toBeInstanceOf(Blob);
       expect(result.size).toBeGreaterThan(0);
     });
   });
 
-  describe('document orientation', () => {
-    it('default to portrait orientation', async () => {
-      const result = await htmlToDocxBlob('<p>Test</p>');
+  describe("document orientation", () => {
+    it("default to portrait orientation", async () => {
+      const result = await htmlToDocxBlob("<p>Test</p>");
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('<w:sectPr');
-      expect(docXml).toContain('<w:pgSz');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("<w:sectPr");
+      expect(docXml).toContain("<w:pgSz");
       expect(docXml).toContain('w:orient="portrait"');
     });
 
-    it('support landscape orientation', async () => {
-      const result = await htmlToDocxBlob('<p>Test</p>', {
-        orientation: 'landscape',
+    it("support landscape orientation", async () => {
+      const result = await htmlToDocxBlob("<p>Test</p>", {
+        orientation: "landscape",
       });
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
+      const docXml = await zip.file("word/document.xml")!.async("string");
       expect(docXml).toContain('w:orient="landscape"');
     });
   });
 
-  describe('text formatting', () => {
-    it('handle bold text', async () => {
-      const html = '<p><strong>Bold text</strong></p>';
+  describe("text formatting", () => {
+    it("handle bold text", async () => {
+      const html = "<p><strong>Bold text</strong></p>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Bold text');
-      expect(docXml).toContain('<w:b');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Bold text");
+      expect(docXml).toContain("<w:b");
     });
 
-    it('handle italic text', async () => {
-      const html = '<p><em>Italic text</em></p>';
+    it("handle italic text", async () => {
+      const html = "<p><em>Italic text</em></p>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Italic text');
-      expect(docXml).toContain('<w:i');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Italic text");
+      expect(docXml).toContain("<w:i");
     });
 
-    it('handle underlined text', async () => {
-      const html = '<p><u>Underlined text</u></p>';
+    it("handle underlined text", async () => {
+      const html = "<p><u>Underlined text</u></p>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Underlined text');
-      expect(docXml).toContain('<w:u');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Underlined text");
+      expect(docXml).toContain("<w:u");
     });
 
-    it('handle strikethrough text', async () => {
-      const html = '<p><s>Strikethrough text</s></p>';
+    it("handle strikethrough text", async () => {
+      const html = "<p><s>Strikethrough text</s></p>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Strikethrough text');
-      expect(docXml).toContain('<w:strike');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Strikethrough text");
+      expect(docXml).toContain("<w:strike");
     });
   });
 
-  describe('headings', () => {
-    it('handle h1-h6 headings', async () => {
+  describe("headings", () => {
+    it("handle h1-h6 headings", async () => {
       const html = `
         <h1>Heading 1</h1>
         <h2>Heading 2</h2>
@@ -136,16 +136,16 @@ describe('htmlToDocxBlob', () => {
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Heading 1');
-      expect(docXml).toContain('Heading 6');
-      expect(docXml).toContain('Heading1');
-      expect(docXml).toContain('Heading2');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Heading 1");
+      expect(docXml).toContain("Heading 6");
+      expect(docXml).toContain("Heading1");
+      expect(docXml).toContain("Heading2");
     });
   });
 
-  describe('tables', () => {
-    it('handle basic tables', async () => {
+  describe("tables", () => {
+    it("handle basic tables", async () => {
       const html = `
         <table>
           <tr><th>Header 1</th><th>Header 2</th></tr>
@@ -155,13 +155,13 @@ describe('htmlToDocxBlob', () => {
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Header 1');
-      expect(docXml).toContain('Cell 1');
-      expect(docXml).toContain('<w:tbl');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Header 1");
+      expect(docXml).toContain("Cell 1");
+      expect(docXml).toContain("<w:tbl");
     });
 
-    it('handle tables with border-collapse', async () => {
+    it("handle tables with border-collapse", async () => {
       const html = `
         <table style="border-collapse: collapse; border: 1px solid black;">
           <tr><td>Cell 1</td><td>Cell 2</td></tr>
@@ -170,12 +170,12 @@ describe('htmlToDocxBlob', () => {
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('<w:tbl');
-      expect(docXml).toContain('<w:tblBorders');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("<w:tbl");
+      expect(docXml).toContain("<w:tblBorders");
     });
 
-    it('does not add borders for tables with border: none', async () => {
+    it("does not add borders for tables with border: none", async () => {
       const html = `
         <table style="border: none; border-collapse: collapse;">
           <tr>
@@ -187,13 +187,13 @@ describe('htmlToDocxBlob', () => {
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('<w:tbl');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("<w:tbl");
       // Should NOT have tblBorders element when border is none
-      expect(docXml).not.toContain('<w:tblBorders');
+      expect(docXml).not.toContain("<w:tblBorders");
     });
 
-    it('does not add borders for tables with border: 0', async () => {
+    it("does not add borders for tables with border: 0", async () => {
       const html = `
         <table style="border: 0; border-collapse: collapse;">
           <tr>
@@ -204,35 +204,35 @@ describe('htmlToDocxBlob', () => {
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('<w:tbl');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("<w:tbl");
       // Should NOT have tblBorders element when border is 0
-      expect(docXml).not.toContain('<w:tblBorders');
+      expect(docXml).not.toContain("<w:tblBorders");
     });
   });
 
-  describe('lists', () => {
-    it('handle unordered lists', async () => {
-      const html = '<ul><li>Item 1</li><li>Item 2</li></ul>';
+  describe("lists", () => {
+    it("handle unordered lists", async () => {
+      const html = "<ul><li>Item 1</li><li>Item 2</li></ul>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Item 1');
-      expect(docXml).toContain('Item 2');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Item 1");
+      expect(docXml).toContain("Item 2");
     });
 
-    it('handle ordered lists', async () => {
-      const html = '<ol><li>First</li><li>Second</li></ol>';
+    it("handle ordered lists", async () => {
+      const html = "<ol><li>First</li><li>Second</li></ol>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('First');
-      expect(docXml).toContain('Second');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("First");
+      expect(docXml).toContain("Second");
     });
 
-    it('handle nested lists', async () => {
+    it("handle nested lists", async () => {
       const html = `
         <ul>
           <li>Item 1
@@ -245,12 +245,12 @@ describe('htmlToDocxBlob', () => {
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Item 1');
-      expect(docXml).toContain('Nested Item 1');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Item 1");
+      expect(docXml).toContain("Nested Item 1");
     });
 
-    it('handle list indentation via margin-left', async () => {
+    it("handle list indentation via margin-left", async () => {
       const html = `
         <ul style="margin-left: 24px;">
           <li>Indented item</li>
@@ -259,80 +259,80 @@ describe('htmlToDocxBlob', () => {
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Indented item');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Indented item");
     });
   });
 
-  describe('links', () => {
-    it('handle hyperlinks', async () => {
+  describe("links", () => {
+    it("handle hyperlinks", async () => {
       const html = '<p><a href="https://example.com">Click here</a></p>';
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Click here');
-      expect(docXml).toContain('<w:hyperlink');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Click here");
+      expect(docXml).toContain("<w:hyperlink");
     });
   });
 
-  describe('special characters', () => {
-    it('handle Unicode characters', async () => {
-      const html = '<p>Hello World</p>';
+  describe("special characters", () => {
+    it("handle Unicode characters", async () => {
+      const html = "<p>Hello World</p>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Hello World');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Hello World");
     });
 
-    it('handle CJK characters', async () => {
-      const html = '<p>Hello World</p>';
+    it("handle CJK characters", async () => {
+      const html = "<p>Hello World</p>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Hello World');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Hello World");
     });
 
-    it('handle emojis', async () => {
-      const html = '<p>Hello World</p>';
+    it("handle emojis", async () => {
+      const html = "<p>Hello World</p>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('Hello World');
-    });
-  });
-
-  describe('code blocks', () => {
-    it('handle inline code', async () => {
-      const html = '<p><code>inline code</code></p>';
-      const result = await htmlToDocxBlob(html);
-      const zip = await loadZipFromBlob(result);
-
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('inline code');
-    });
-
-    it('handle code blocks', async () => {
-      const html = '<pre><code>const x = 1;</code></pre>';
-      const result = await htmlToDocxBlob(html);
-      const zip = await loadZipFromBlob(result);
-
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('const x = 1;');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("Hello World");
     });
   });
 
-  describe('blockquote', () => {
-    it('handle blockquotes', async () => {
-      const html = '<blockquote>This is a quote</blockquote>';
+  describe("code blocks", () => {
+    it("handle inline code", async () => {
+      const html = "<p><code>inline code</code></p>";
       const result = await htmlToDocxBlob(html);
       const zip = await loadZipFromBlob(result);
 
-      const docXml = await zip.file('word/document.xml')!.async('string');
-      expect(docXml).toContain('This is a quote');
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("inline code");
+    });
+
+    it("handle code blocks", async () => {
+      const html = "<pre><code>const x = 1;</code></pre>";
+      const result = await htmlToDocxBlob(html);
+      const zip = await loadZipFromBlob(result);
+
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("const x = 1;");
+    });
+  });
+
+  describe("blockquote", () => {
+    it("handle blockquotes", async () => {
+      const html = "<blockquote>This is a quote</blockquote>";
+      const result = await htmlToDocxBlob(html);
+      const zip = await loadZipFromBlob(result);
+
+      const docXml = await zip.file("word/document.xml")!.async("string");
+      expect(docXml).toContain("This is a quote");
     });
   });
 });

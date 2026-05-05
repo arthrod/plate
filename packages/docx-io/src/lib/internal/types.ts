@@ -1,5 +1,5 @@
-import type { HeaderFooterType } from './constants';
-import type { DocxListStyleType } from './utils/list';
+import type { HeaderFooterType } from "./constants";
+import type { DocxListStyleType } from "./utils/list";
 
 type UnitValue = number | string;
 
@@ -26,7 +26,7 @@ export type TableOptions = {
 
 export type LineNumberOptions = {
   countBy?: number;
-  restart?: 'continuous' | 'newPage' | 'newSection';
+  restart?: "continuous" | "newPage" | "newSection";
   start?: number;
 };
 
@@ -54,7 +54,7 @@ export type DocumentOptions = {
   margins?: Margins | null;
   modifiedAt?: Date;
   numbering?: NumberingOptions;
-  orientation?: 'landscape' | 'portrait';
+  orientation?: "landscape" | "portrait";
   pageNumber?: boolean;
   pageSize?: PageSize | null;
   revision?: number;
