@@ -106,7 +106,12 @@ export function MediaToolbar({
 
             <Separator orientation="vertical" className="mx-1 h-6" />
 
-            <Button size="sm" variant="ghost" {...buttonProps}>
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-label="Delete"
+              {...buttonProps}
+            >
               <Trash2Icon />
             </Button>
           </div>
