@@ -1,19 +1,160 @@
+import * as React from 'react';
+
+import type { TElement } from 'platejs';
+
 import type { Page } from '../lib/types';
 
 export type PageFrameProps = {
+  /** Resolved chrome heights from `BasePaginationOptions`. */
+  chrome: { footerHeight: number; footnoteWell: number; headerHeight: number };
+  /** First-class header element copied off the document, if any. */
+  documentFooter?: TElement;
+  /** First-class footer element copied off the document, if any. */
+  documentHeader?: TElement;
   page: Page;
+  /** Vertical position of the page in the overlay coordinate space. */
+  top: number;
 };
 
 /**
- * Single page chrome: header band, content rect outline, footnote well,
- * footer band.
+ * Single page chrome rendered by the overlay: header band, content rect
+ * outline, footnote well, footer band.
  *
  * Variant A renders this purely as an overlay; it never wraps the live
  * editor children, so editing remains uninterrupted.
  */
-export const PageFrame = (_props: PageFrameProps): null => {
-  // TODO: variant A — paint header/footer slots from the document's header
-  // and footer nodes; reserve `footnoteWell` height; outline `page.rect` in
-  // print colors. No DOM under here is editable.
-  return null;
+export const PageFrame = ({
+  chrome,
+  documentFooter,
+  documentHeader,
+  page,
+  top,
+}: PageFrameProps): React.JSX.Element => {
+  const { rect } = page;
+  const headerOffset = chrome.headerHeight;
+  const footnoteWellTop =
+    rect.height - chrome.footerHeight - chrome.footnoteWell;
+  const footerTop = rect.height - chrome.footerHeight;
+
+  return (
+    <div
+      aria-hidden="true"
+      data-page-index={page.pageIndex}
+      data-plate-pagination-page=""
+      style={{
+        background: '#ffffff',
+        border: '1px solid rgba(15,23,42,0.15)',
+        borderRadius: 2,
+        boxShadow: '0 1px 2px rgba(15,23,42,0.08)',
+        height: rect.height,
+        left: 0,
+        pointerEvents: 'none',
+        position: 'absolute',
+        top,
+        width: rect.width,
+      }}
+    >
+      {chrome.headerHeight > 0 ? (
+        <div
+          data-plate-pagination-slot="header"
+          style={{
+            borderBottom: '1px dashed rgba(15,23,42,0.1)',
+            color: 'rgba(15,23,42,0.55)',
+            fontSize: 12,
+            height: chrome.headerHeight,
+            left: 0,
+            padding: '8px 16px',
+            position: 'absolute',
+            right: 0,
+            top: 0,
+          }}
+        >
+          {documentHeader ? collectInlineText(documentHeader) : null}
+        </div>
+      ) : null}
+
+      {chrome.footnoteWell > 0 && page.footnotes.length > 0 ? (
+        <div
+          data-plate-pagination-slot="footnote-well"
+          style={{
+            borderTop: '1px solid rgba(15,23,42,0.1)',
+            color: 'rgba(15,23,42,0.7)',
+            fontSize: 11,
+            height: chrome.footnoteWell,
+            left: 16,
+            overflow: 'hidden',
+            padding: '4px 0',
+            position: 'absolute',
+            right: 16,
+            top: footnoteWellTop,
+          }}
+        >
+          {page.footnotes.map((def, i) => (
+            <div key={(def as { id?: string }).id ?? i}>
+              {`[${(def as { identifier?: string }).identifier ?? i + 1}] `}
+              {collectInlineText(def)}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {chrome.footerHeight > 0 ? (
+        <div
+          data-plate-pagination-slot="footer"
+          style={{
+            borderTop: '1px dashed rgba(15,23,42,0.1)',
+            color: 'rgba(15,23,42,0.55)',
+            fontSize: 12,
+            height: chrome.footerHeight,
+            left: 0,
+            padding: '8px 16px',
+            position: 'absolute',
+            right: 0,
+            top: footerTop,
+          }}
+        >
+          <span>
+            {documentFooter ? collectInlineText(documentFooter) : null}
+          </span>
+          <span style={{ float: 'right' }}>{`${page.pageIndex + 1}`}</span>
+        </div>
+      ) : null}
+
+      <div
+        data-plate-pagination-slot="content"
+        style={{
+          height: rect.contentHeight,
+          left: 0,
+          position: 'absolute',
+          right: 0,
+          top: headerOffset,
+        }}
+      />
+    </div>
+  );
+};
+
+const collectInlineText = (node: TElement | undefined): string => {
+  if (!node) return '';
+  let out = '';
+  walk(node, (t) => {
+    out += t;
+  });
+
+  return out;
+};
+
+const walk = (
+  node: { children?: unknown[]; text?: string },
+  visit: (text: string) => void
+): void => {
+  if (typeof node.text === 'string') {
+    visit(node.text);
+
+    return;
+  }
+  if (!Array.isArray(node.children)) return;
+  for (const child of node.children) {
+    walk(child as { children?: unknown[]; text?: string }, visit);
+  }
 };

@@ -1,24 +1,29 @@
-import type { TElement } from 'platejs';
+import * as React from 'react';
 
-export type FootnotePortalProps = {
-  /** Definitions that should appear inside `target` for the current page. */
-  definitions: TElement[];
-  /** The per-page footer-well DOM node receiving the portalled definitions. */
-  target: HTMLElement | null;
-};
+import { KEYS } from 'platejs';
 
 /**
- * Hide footnote definitions in the document flow and re-mount them inside
- * the page's footer well.
+ * Variant A — CodeRabbit Design Choice 2: footnote definitions stay in the
+ * Slate tree so editing/selection/keyboard nav are unaffected, but in-flow
+ * appearances are hidden via CSS while the visible representation lives in
+ * the per-page footer well painted by `PageFrame`.
  *
- * Variant A — CodeRabbit Design Choice 2: definitions stay in the Slate
- * tree (so editing/selection/keyboard nav are unaffected) but render with
- * `visibility: hidden` in flow, and a React portal mirrors them into the
- * footer well so they appear in print position.
+ * This component injects the global stylesheet rule that hides
+ * footnote-definition blocks from the editor body. The visible copy in the
+ * footer well is a snapshot rendered by `PageFrame`; bidirectional editing
+ * inside the well is intentionally out of scope for variant A — `print`
+ * mode (follow-up) renders real DOM in the well via a `createPortal`.
  */
-export const FootnotePortal = (_props: FootnotePortalProps): null => {
-  // TODO: variant A — `createPortal(<DefinitionList nodes={definitions} />, target)`
-  // and emit a `<style>` rule that hides the in-flow nodes via
-  // `[data-pagination-hidden=true] { visibility: hidden; pointer-events: none; }`.
-  return null;
-};
+export const FootnotePortal = (): React.JSX.Element => (
+  <style data-plate-pagination-footnote-style="">{`
+    [data-slate-node="element"][data-slate-type="${KEYS.footnoteDefinition}"] {
+      visibility: hidden;
+      pointer-events: none;
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+  `}</style>
+);

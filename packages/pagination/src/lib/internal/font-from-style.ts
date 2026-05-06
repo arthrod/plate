@@ -1,12 +1,30 @@
 /**
  * Resolve a CSSStyleDeclaration into the canonical CSS `font` shorthand
- * understood by canvas/pretext measurement.
+ * understood by `CanvasRenderingContext2D.font`.
  *
  * Variant A keys the measure cache on the resolved font string, so this
- * needs to be deterministic across re-renders of the same node.
+ * stays deterministic across re-renders of the same node.
+ *
+ * Output shape: `${style} ${weight} ${size}px/${lineHeight} ${family}`.
+ * `style` and `weight` are omitted when they match defaults so the same
+ * visual font produces the same key.
  */
-export const fontFromStyle = (_style: CSSStyleDeclaration): string => {
-  // TODO: variant A — assemble `${weight} ${size}/${lh} ${family}` from the
-  // computed style and pass through to the pretext measurer.
-  return '';
+export const fontFromStyle = (style: CSSStyleDeclaration): string => {
+  const family = style.fontFamily || 'sans-serif';
+  const size = style.fontSize || '16px';
+  const weight = style.fontWeight || '400';
+  const fontStyle = style.fontStyle || 'normal';
+  const lineHeight =
+    style.lineHeight && style.lineHeight !== 'normal'
+      ? `/${style.lineHeight}`
+      : '';
+
+  const parts: string[] = [];
+
+  if (fontStyle !== 'normal') parts.push(fontStyle);
+  if (weight !== '400' && weight !== 'normal') parts.push(weight);
+  parts.push(`${size}${lineHeight}`);
+  parts.push(family);
+
+  return parts.join(' ');
 };

@@ -31,6 +31,9 @@ const FOOTNOTE_SUB_PLUGINS = [
  * - Mounts the {@link PageOverlay} via `render.afterEditable` so pages are
  *   painted as a derived overlay on top of the live editor (CodeRabbit
  *   Design Choice 1).
+ * - Mounts {@link FootnotePortal} alongside the overlay to hide in-flow
+ *   `footnoteDefinition` blocks (CodeRabbit Design Choice 2). The visible
+ *   copy is rendered inside each page's footnote well by `PageFrame`.
  */
 export const PaginationPlugin = toTPlatePlugin<BasePaginationConfig>(
   BasePaginationPlugin
