@@ -1,0 +1,4 @@
+# Vendored upstream packages — committed dist artifacts override the
+# repo-wide `**/dist` ignore so the template stays self-contained.
+!**/dist
+!**/dist/**

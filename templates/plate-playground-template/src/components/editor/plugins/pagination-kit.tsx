@@ -1,25 +1,29 @@
 'use client';
 
-import type { AnyPlatePlugin } from 'platejs/react';
+import { PageOverlay, PaginationPlugin } from '@platejs/pagination/react';
 
 /**
- * Pagination kit — PLACEHOLDER STUB.
+ * Pagination kit — variant A (render-time overlay).
  *
- * The real `@platejs/pagination` package is not yet published to npm.
- * Tracked in PRs #357 and #358. Until those land, this kit exports an
- * empty plugin array so the editor wiring stays valid and the toolbar
- * button has a stable integration point.
+ * Painted as an absolute overlay on top of the editor; pages are derived
+ * per render and the document model never changes. See `@platejs/pagination`.
  *
- * When the upstream package ships:
- * 1. Add `@platejs/pagination` (and any React entry) to dependencies.
- * 2. Replace `PaginationKit` below with the real plugin(s).
- * 3. Replace `triggerPaginationStub` in `pagination-toolbar-button.tsx`
- *    with the real transform/api call exposed by the plugin.
+ * Render is bound at the kit level (not the package) so the JSX boundary
+ * lives inside this `'use client'` file — mirrors the `CursorOverlayKit`
+ * pattern used by other Plate plugins.
  */
-export const PaginationKit: AnyPlatePlugin[] = [];
-
-/** Stub action triggered by the pagination toolbar button. */
-export const triggerPaginationStub = () => {
-  // biome-ignore lint/suspicious/noConsole: intentional placeholder log
-  console.log('TODO: replace stub when @platejs/pagination publishes');
-};
+export const PaginationKit = [
+  PaginationPlugin.configure({
+    options: {
+      footerHeight: 48,
+      footnoteWell: 96,
+      headerHeight: 48,
+      includeFootnoteSubPlugins: false,
+      margins: { bottom: 96, left: 72, right: 72, top: 96 },
+      pageSize: 'A4',
+    },
+    render: {
+      afterEditable: () => <PageOverlay />,
+    },
+  }),
+];
