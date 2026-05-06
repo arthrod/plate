@@ -1,4 +1,4 @@
-import { a as BaseFooterPlugin, c as FOOTNOTE_DEFINITION_KEY, i as BaseHeaderPlugin, l as HEADER_KEY, n as BasePaginationPlugin, o as allocateFootnotes, r as BasePageBreakPlugin, s as FOOTER_KEY, t as paginate } from "../paginate-i8QIaby-.js";
+import { a as BaseHeaderPlugin, c as FOOTER_KEY, i as BasePageBreakPlugin, l as FOOTNOTE_DEFINITION_KEY, n as BasePaginationPlugin, o as BaseFooterPlugin, r as setEditorPages, s as allocateFootnotes, t as paginate, u as HEADER_KEY } from "../paginate-c73WStbw.js";
 import { toPlatePlugin, toTPlatePlugin, useEditorRef, useEditorValue, usePluginOption } from "platejs/react";
 import { c } from "react-compiler-runtime";
 import * as React from "react";
@@ -52,6 +52,7 @@ const PageBreakPlugin = toPlatePlugin(BasePageBreakPlugin);
 
 //#endregion
 //#region src/react/page-frame.tsx
+const HEADING_TYPE_RE = /^h([1-6])$/;
 /**
 * Single page chrome rendered by the overlay: header band, content rect,
 * footnote well, footer band — plus a faithful mini-rendering of each block
@@ -209,7 +210,7 @@ const BlockPreview = (t0) => {
 	} else t1 = $[1];
 	const text = t1;
 	const type = node.type;
-	if (typeof type === "string" && /^h([1-6])$/.test(type)) {
+	if (typeof type === "string" && HEADING_TYPE_RE.test(type)) {
 		const level = Number.parseInt(type.slice(1), 10);
 		let t2$1;
 		if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
@@ -368,27 +369,11 @@ const resolvePageRect = (pageSize, margins, reservations) => {
 };
 
 //#endregion
-//#region src/react/internal/page-state.ts
-/**
-* The latest pagination snapshot is stored on the editor instance under a
-* non-enumerable slot so `editor.api.pagination.*` queries can resolve
-* without going through React. `usePageLayout` writes the slot after each
-* pagination cycle; `BasePaginationPlugin.api.pagination.getPages` reads it.
-*
-* Writing onto the editor avoids a WeakMap allocation and keeps the read
-* path zero-overhead — the API just dereferences a property.
-*/
-const SLOT = "__pagination_pages__";
-const setEditorPages = (editor, pages) => {
-	editor[SLOT] = pages;
-};
-
-//#endregion
 //#region src/lib/internal/measure-cache.ts
 const DEFAULT_MAX_ENTRIES = 5e3;
 const createMeasureCache = (maxEntries = DEFAULT_MAX_ENTRIES) => {
 	const store = /* @__PURE__ */ new Map();
-	const composeKey = (k) => `${k.nodeId} ${k.marksFingerprint} ${k.font} ${k.width}`;
+	const composeKey = (k) => `${k.nodeId} ${k.marksFingerprint} ${k.font} ${k.width} ${k.contentHash}`;
 	return {
 		clear: () => store.clear(),
 		get: (key) => store.get(composeKey(key)),
@@ -404,13 +389,22 @@ const createMeasureCache = (maxEntries = DEFAULT_MAX_ENTRIES) => {
 		size: () => store.size
 	};
 };
+/**
+* djb2 hash of a string — small, fast, no deps, plenty of entropy for
+* cache key disambiguation.
+*/
+const hashString = (s) => {
+	let h = 5381;
+	for (let i = 0; i < s.length; i++) h = (h << 5) + h + s.charCodeAt(i) | 0;
+	return h.toString(36);
+};
 
 //#endregion
 //#region src/react/use-pretext-measurer.ts
 const FONT_SIZE_RE = /(\d+(?:\.\d+)?)(px|pt)(?:\/((?:\d+(?:\.\d+)?(?:px|pt)?)|(?:\d+(?:\.\d+)?)))?/;
 const PX_SUFFIX_RE = /px$/;
 const PT_SUFFIX_RE = /pt$/;
-const FONT_SIZE_PX_RE = /(\d+(?:\.\d+)?)px/;
+const FONT_SIZE_UNIT_RE = /(\d+(?:\.\d+)?)(px|pt)/;
 const WHITESPACE_RE = /\s+/;
 /**
 * Returns a {@link Measurer} backed by a canvas-based text-width oracle plus
@@ -438,20 +432,17 @@ const usePretextMeasurer = (editorId) => {
 		const ctx2d = createCanvasContext();
 		t1 = { measure: (node, ctx) => {
 			const nodeId = node.id?.toString() ?? fallbackNodeId(node);
-			const cached = cache.get({
+			const key = {
+				contentHash: hashString(`${node.type ?? ""}|${collectPlainText(node)}`),
 				font: ctx.font,
 				marksFingerprint: ctx.marksFingerprint,
 				nodeId,
 				width: ctx.width
-			});
+			};
+			const cached = cache.get(key);
 			if (cached !== void 0) return cached;
 			const height = estimateBlockHeight(node, ctx, ctx2d);
-			cache.set({
-				font: ctx.font,
-				marksFingerprint: ctx.marksFingerprint,
-				nodeId,
-				width: ctx.width
-			}, height);
+			cache.set(key, height);
 			return height;
 		} };
 		$[1] = t1;
@@ -551,14 +542,14 @@ const parseFont = (font) => {
 		lineHeightPx
 	};
 };
-const scaleFont = (font, scale) => font.replace(FONT_SIZE_PX_RE, (_m, n) => `${Math.round(Number.parseFloat(n) * scale * 100) / 100}px`);
+const scaleFont = (font, scale) => font.replace(FONT_SIZE_UNIT_RE, (_m, n, unit) => `${Math.round(Number.parseFloat(n) * scale * 100) / 100}${unit}`);
 const collectPlainText = (node) => {
 	let out = "";
 	walkText(node, (t) => {
-		out += `${t} `;
+		out += t;
 		return true;
 	});
-	return out.trim();
+	return out;
 };
 
 //#endregion
@@ -620,7 +611,6 @@ function _temp$1(n) {
 
 //#endregion
 //#region src/react/page-overlay.tsx
-const THUMB_SCALE = .18;
 const STACK_GAP = 12;
 /**
 * Render-overlay shell mounted via `render.afterEditable`.
@@ -641,8 +631,6 @@ const PageOverlay = () => {
 	const visible = usePluginOption(BasePaginationPlugin, "previewVisible");
 	usePluginOption(BasePaginationPlugin, "pageSize");
 	usePluginOption(BasePaginationPlugin, "margins");
-	usePluginOption(BasePaginationPlugin, "headerVisible");
-	usePluginOption(BasePaginationPlugin, "footerVisible");
 	const value = useEditorValue();
 	let t0;
 	if ($[0] !== editor) {
@@ -755,10 +743,11 @@ const PageOverlay = () => {
 		let t15$1;
 		if ($[22] !== documentFooter || $[23] !== documentHeader || $[24] !== safeOptions) {
 			t15$1 = (page) => {
-				const previewHeight = page.rect.height * THUMB_SCALE;
-				const previewWidth = page.rect.width * THUMB_SCALE;
+				const scale = computeThumbScale(page.rect.width);
+				const previewHeight = page.rect.height * scale;
+				const previewWidth = page.rect.width * scale;
 				return /* @__PURE__ */ React.createElement("div", {
-					key: page.pageIndex,
+					key: `page-${page.pageIndex}`,
 					style: { width: "100%" }
 				}, /* @__PURE__ */ React.createElement("div", { style: {
 					color: "rgba(15,23,42,0.55)",
@@ -770,7 +759,7 @@ const PageOverlay = () => {
 					position: "relative",
 					width: previewWidth
 				} }, /* @__PURE__ */ React.createElement("div", { style: {
-					transform: `scale(${THUMB_SCALE})`,
+					transform: `scale(${scale})`,
 					transformOrigin: "top left"
 				} }, /* @__PURE__ */ React.createElement(PageFrame, {
 					chrome: {
@@ -862,6 +851,12 @@ const useResolvedOptions = (options) => {
 	} else t7 = $[9];
 	return t7;
 };
+const MAX_THUMB_SCALE = .18;
+const PANEL_INNER_WIDTH = 196;
+const computeThumbScale = (pageWidth) => {
+	if (pageWidth <= 0) return MAX_THUMB_SCALE;
+	return Math.min(MAX_THUMB_SCALE, PANEL_INNER_WIDTH / pageWidth);
+};
 function _temp(n) {
 	return n.type === HEADER_KEY;
 }
@@ -902,5 +897,5 @@ const PaginationPlugin = toTPlatePlugin(BasePaginationPlugin).extend(({ getOptio
 }));
 
 //#endregion
-export { FooterPlugin, FootnotePortal, HeaderPlugin, PageBreakPlugin, PageFrame, PageOverlay, PaginationPlugin, usePretextMeasurer };
+export { FooterPlugin, FootnotePortal, HeaderPlugin, PageBreakPlugin, PageFrame, PageOverlay, PaginationPlugin, computeThumbScale, usePretextMeasurer };
 //# sourceMappingURL=index.js.map

@@ -2,7 +2,11 @@
 
 import { BasePaginationPlugin } from '@platejs/pagination';
 import { LayoutTemplateIcon } from 'lucide-react';
-import { useEditorRef, usePluginOption } from 'platejs/react';
+import {
+  useEditorRef,
+  useEditorValue,
+  usePluginOption,
+} from 'platejs/react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
@@ -77,14 +81,6 @@ export function PaginationToolbarButton() {
     BasePaginationPlugin,
     'previewVisible'
   ) as boolean | undefined;
-  const headerVisible = usePluginOption(
-    BasePaginationPlugin,
-    'headerVisible'
-  ) as boolean | undefined;
-  const footerVisible = usePluginOption(
-    BasePaginationPlugin,
-    'footerVisible'
-  ) as boolean | undefined;
   const pageSize = usePluginOption(
     BasePaginationPlugin,
     'pageSize'
@@ -93,6 +89,14 @@ export function PaginationToolbarButton() {
     BasePaginationPlugin,
     'margins'
   ) as Margins | undefined;
+
+  const value = useEditorValue();
+  const headerPresent = (value as Array<{ type?: string }>).some(
+    (n) => n.type === 'header'
+  );
+  const footerPresent = (value as Array<{ type?: string }>).some(
+    (n) => n.type === 'footer'
+  );
 
   const tf = (
     editor.tf as unknown as { pagination?: PaginationTransforms }
@@ -131,13 +135,13 @@ export function PaginationToolbarButton() {
           Page preview
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
-          checked={!!headerVisible}
+          checked={headerPresent}
           onCheckedChange={() => tf.toggleHeader?.()}
         >
           Header
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
-          checked={!!footerVisible}
+          checked={footerPresent}
           onCheckedChange={() => tf.toggleFooter?.()}
         >
           Footer

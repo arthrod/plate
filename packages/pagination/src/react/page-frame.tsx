@@ -4,6 +4,8 @@ import type { TElement } from 'platejs';
 
 import type { Page } from '../lib/types';
 
+const HEADING_TYPE_RE = /^h([1-6])$/;
+
 export type PageFrameProps = {
   /** Resolved chrome heights from `BasePaginationOptions`. */
   chrome: { footerHeight: number; footnoteWell: number; headerHeight: number };
@@ -142,7 +144,7 @@ const BlockPreview = ({ node }: { node: TElement }): React.JSX.Element => {
   const text = collectInlineText(node);
   const type = node.type;
 
-  if (typeof type === 'string' && /^h([1-6])$/.test(type)) {
+  if (typeof type === 'string' && HEADING_TYPE_RE.test(type)) {
     const level = Number.parseInt(type.slice(1), 10);
     const sizes = [0, 28, 22, 18, 16, 14, 13];
 

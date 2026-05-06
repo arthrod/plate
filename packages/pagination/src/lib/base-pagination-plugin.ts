@@ -21,12 +21,17 @@ import {
   PAGE_BREAK_KEY,
   PAGINATION_KEY,
 } from './internal/keys';
+import { getEditorPages } from './internal/page-state';
 
 export type BasePaginationApi = {
   pagination: {
     getFootnotes: (pageIndex: number) => TElement[];
     getPageOf: (path: number[]) => number;
     getPages: () => Page[];
+    /** Whether a top-level `header` block currently exists in the doc. */
+    hasHeader: () => boolean;
+    /** Whether a top-level `footer` block currently exists in the doc. */
+    hasFooter: () => boolean;
   };
 };
 
@@ -39,9 +44,9 @@ export type BasePaginationTransforms = {
     setPageSize: (size: PageSize) => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
-    /** Toggle the document-level footer block; returns new visibility. */
+    /** Toggle the document-level footer block; returns new presence. */
     toggleFooter: () => boolean;
-    /** Toggle the document-level header block; returns new visibility. */
+    /** Toggle the document-level header block; returns new presence. */
     toggleHeader: () => boolean;
     /** Toggle the side preview panel; returns new visibility. */
     togglePreview: () => boolean;
@@ -62,14 +67,14 @@ export type BasePaginationConfig = PluginConfig<
  * The Slate document is unchanged; pagination is a render-only projection
  * layered onto the live editor via the Plate `render.afterEditable` slot.
  *
+ * Header/footer presence is derived from `editor.children` (single source of
+ * truth) — undo and paste survive correctly because we don't mirror the
+ * presence to a plugin option that lives outside Slate history.
+ *
  * The page-chrome element family (header, footer, page break) is composed
  * here on the Slate base so a Slate-only consumer registering
  * `BasePaginationPlugin` already gets the element schema. React-only deltas
  * (footnote sub-plugins, overlay rendering) live in `src/react`.
- *
- * The API/transforms surface bridges to the per-editor `WeakMap` populated
- * by `usePageLayout` on the React side; in a pure-Slate environment the API
- * resolves to `[]`/`-1` until a measurer-equipped consumer wires pages in.
  */
 export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
   key: PAGINATION_KEY,
@@ -86,15 +91,26 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
     },
     pageSize: 'A4',
     previewVisible: true,
-    headerVisible: false,
-    footerVisible: false,
   },
   plugins: [BaseHeaderPlugin, BaseFooterPlugin, BasePageBreakPlugin],
 })
+  .overrideEditor(({ editor, tf: { normalizeNode } }) => ({
+    transforms: {
+      normalizeNode: (entry) => {
+        const [, path] = entry;
+
+        if (path.length === 0) {
+          enforceHeaderFooterInvariants(editor as EditorLike);
+        }
+
+        return normalizeNode(entry);
+      },
+    },
+  }))
   .extendEditorApi<BasePaginationApi>(({ editor }) => ({
     pagination: {
       getFootnotes: (pageIndex) => {
-        const pages = readPages(editor);
+        const pages = getEditorPages(editor);
 
         return pages[pageIndex]?.footnotes ?? [];
       },
@@ -105,7 +121,7 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
 
         if (!top) return -1;
 
-        const pages = readPages(editor);
+        const pages = getEditorPages(editor);
 
         for (let i = 0; i < pages.length; i++) {
           if (pages[i].nodes.includes(top)) return i;
@@ -113,7 +129,11 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
 
         return -1;
       },
-      getPages: () => readPages(editor),
+      getPages: () => getEditorPages(editor),
+      hasFooter: () =>
+        (editor.children as TElement[]).some((n) => n.type === FOOTER_KEY),
+      hasHeader: () =>
+        (editor.children as TElement[]).some((n) => n.type === HEADER_KEY),
     },
   }))
   .extendEditorTransforms<BasePaginationTransforms>(
@@ -126,10 +146,10 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
           } as TElement);
         },
         setFooter: (content) => {
-          replaceFooter(editor, content);
+          replaceFooter(editor as EditorLike, content);
         },
         setHeader: (content) => {
-          replaceHeader(editor, content);
+          replaceHeader(editor as EditorLike, content);
         },
         setMargins: (margins) => {
           setOption('margins', margins);
@@ -138,22 +158,22 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
           setOption('pageSize', size);
         },
         toggleFooter: () => {
-          const next = !(getOptions().footerVisible ?? false);
+          const ed = editor as EditorLike;
+          const present = ed.children.some((n) => n.type === FOOTER_KEY);
 
-          if (next) ensureFooter(editor);
-          else removeByType(editor, FOOTER_KEY);
-          setOption('footerVisible', next);
+          if (present) removeByType(ed, FOOTER_KEY);
+          else ensureFooter(ed);
 
-          return next;
+          return !present;
         },
         toggleHeader: () => {
-          const next = !(getOptions().headerVisible ?? false);
+          const ed = editor as EditorLike;
+          const present = ed.children.some((n) => n.type === HEADER_KEY);
 
-          if (next) ensureHeader(editor);
-          else removeByType(editor, HEADER_KEY);
-          setOption('headerVisible', next);
+          if (present) removeByType(ed, HEADER_KEY);
+          else ensureHeader(ed);
 
-          return next;
+          return !present;
         },
         togglePreview: () => {
           const next = !(getOptions().previewVisible ?? true);
@@ -166,17 +186,11 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
     })
   );
 
-const readPages = (editor: object): Page[] => {
-  const slot = (editor as { __pagination_pages__?: Page[] })
-    .__pagination_pages__;
-
-  return Array.isArray(slot) ? slot : [];
-};
-
 type EditorLike = {
   children: TElement[];
   tf: {
     insertNodes: (n: TElement, opts?: { at?: number[] }) => void;
+    moveNodes: (opts: { at: number[]; to: number[] }) => void;
     removeNodes: (opts: { at: number[] }) => void;
   };
 };
@@ -239,5 +253,42 @@ const removeByType = (editor: EditorLike, type: string): void => {
     if (editor.children[i].type === type) {
       editor.tf.removeNodes({ at: [i] });
     }
+  }
+};
+
+/**
+ * Single header at index 0; single footer at the last index. Anything else
+ * is normalized away — keeps paste/undo from producing duplicates.
+ */
+const enforceHeaderFooterInvariants = (editor: EditorLike): void => {
+  const headerIdxs: number[] = [];
+  const footerIdxs: number[] = [];
+
+  editor.children.forEach((n, i) => {
+    if (n.type === HEADER_KEY) headerIdxs.push(i);
+    else if (n.type === FOOTER_KEY) footerIdxs.push(i);
+  });
+
+  // Drop duplicate headers (keep the first), then re-position to [0].
+  if (headerIdxs.length > 1) {
+    for (let i = headerIdxs.length - 1; i >= 1; i--) {
+      editor.tf.removeNodes({ at: [headerIdxs[i]] });
+    }
+  }
+  if (headerIdxs[0] !== undefined && headerIdxs[0] !== 0) {
+    editor.tf.moveNodes({ at: [headerIdxs[0]], to: [0] });
+  }
+
+  // Drop duplicate footers (keep the last), then re-position to last index.
+  if (footerIdxs.length > 1) {
+    for (let i = footerIdxs.length - 2; i >= 0; i--) {
+      editor.tf.removeNodes({ at: [footerIdxs[i]] });
+    }
+  }
+  const lastFooter = footerIdxs.at(-1);
+  const target = editor.children.length - 1;
+
+  if (lastFooter !== undefined && lastFooter !== target) {
+    editor.tf.moveNodes({ at: [lastFooter], to: [target] });
   }
 };

@@ -6,7 +6,7 @@ import type { TElement } from 'platejs';
  * same text but different bold/italic runs gets remeasured.
  */
 export const marksFingerprint = (node: TElement): string => {
-  const sorted: string[] = [];
+  const segments: string[] = [];
   walkLeaves(node, (leaf) => {
     const keys = Object.keys(leaf)
       .filter((k) => k !== 'text')
@@ -18,10 +18,10 @@ export const marksFingerprint = (node: TElement): string => {
       .map((k) => `${k}=${formatMark((leaf as Record<string, unknown>)[k])}`)
       .join(',');
 
-    sorted.push(segment);
+    segments.push(segment);
   });
 
-  return sorted.join('|');
+  return segments.join('|');
 };
 
 const formatMark = (value: unknown): string => {

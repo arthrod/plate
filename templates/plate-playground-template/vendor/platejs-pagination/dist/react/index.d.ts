@@ -1,4 +1,4 @@
-import { a as BasePaginationTransforms, d as Measurer, f as Page, n as BasePaginationApi, u as BasePaginationOptions } from "../index-DziMy3Up";
+import { a as BasePaginationTransforms, d as Measurer, f as Page, n as BasePaginationApi, u as BasePaginationOptions } from "../index-BmXRyAOt";
 import * as platejs0 from "platejs";
 import { TElement } from "platejs";
 import * as platejs_react0 from "platejs/react";
@@ -72,6 +72,7 @@ declare const PageFrame: ({
  * Updates reactively as the document changes via `useEditorValue`.
  */
 declare const PageOverlay: () => React.JSX.Element | null;
+declare const computeThumbScale: (pageWidth: number) => number;
 //#endregion
 //#region src/react/pagination-plugin.d.ts
 /**
@@ -107,5 +108,5 @@ declare const PaginationPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig
  */
 declare const usePretextMeasurer: (editorId?: string) => Measurer;
 //#endregion
-export { FooterPlugin, FootnotePortal, HeaderPlugin, PageBreakPlugin, PageFrame, PageFrameProps, PageOverlay, PaginationPlugin, usePretextMeasurer };
+export { FooterPlugin, FootnotePortal, HeaderPlugin, PageBreakPlugin, PageFrame, PageFrameProps, PageOverlay, PaginationPlugin, computeThumbScale, usePretextMeasurer };
 //# sourceMappingURL=index.d.ts.map

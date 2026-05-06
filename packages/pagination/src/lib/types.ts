@@ -100,16 +100,4 @@ export type BasePaginationOptions = {
    * `editor.tf.pagination.togglePreview()`. Defaults to `true`.
    */
   previewVisible?: boolean;
-  /**
-   * Whether the document-level header block is rendered in flow + mirrored
-   * onto each page. Toggled via `editor.tf.pagination.toggleHeader()` —
-   * the toggle inserts (or removes) a top-level `header` element at the
-   * start of `editor.children`. Defaults to `false`.
-   */
-  headerVisible?: boolean;
-  /**
-   * Same as `headerVisible` but for the document-level footer block at
-   * the end of `editor.children`. Defaults to `false`.
-   */
-  footerVisible?: boolean;
 };

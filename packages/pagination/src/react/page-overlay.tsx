@@ -1,11 +1,7 @@
 import * as React from 'react';
 
 import type { TElement } from 'platejs';
-import {
-  useEditorRef,
-  useEditorValue,
-  usePluginOption,
-} from 'platejs/react';
+import { useEditorRef, useEditorValue, usePluginOption } from 'platejs/react';
 
 import {
   type BasePaginationConfig,
@@ -16,7 +12,6 @@ import { FootnotePortal } from './footnote-portal';
 import { usePageLayout } from './internal/use-page-layout';
 import { PageFrame } from './page-frame';
 
-const THUMB_SCALE = 0.18;
 const STACK_GAP = 12;
 
 /**
@@ -37,20 +32,10 @@ export const PageOverlay = (): React.JSX.Element | null => {
   const visible = usePluginOption(BasePaginationPlugin, 'previewVisible');
   const pageSize = usePluginOption(BasePaginationPlugin, 'pageSize');
   const margins = usePluginOption(BasePaginationPlugin, 'margins');
-  const headerVisible = usePluginOption(
-    BasePaginationPlugin,
-    'headerVisible'
-  );
-  const footerVisible = usePluginOption(
-    BasePaginationPlugin,
-    'footerVisible'
-  );
   const value = useEditorValue();
 
   void pageSize;
   void margins;
-  void headerVisible;
-  void footerVisible;
 
   const options = editor.getOptions(BasePaginationPlugin) as
     | BasePaginationConfig['options']
@@ -124,14 +109,12 @@ export const PageOverlay = (): React.JSX.Element | null => {
           }}
         >
           {pages.map((page) => {
-            const previewHeight = page.rect.height * THUMB_SCALE;
-            const previewWidth = page.rect.width * THUMB_SCALE;
+            const scale = computeThumbScale(page.rect.width);
+            const previewHeight = page.rect.height * scale;
+            const previewWidth = page.rect.width * scale;
 
             return (
-              <div
-                key={page.pageIndex}
-                style={{ width: '100%' }}
-              >
+              <div key={`page-${page.pageIndex}`} style={{ width: '100%' }}>
                 <div
                   style={{
                     color: 'rgba(15,23,42,0.55)',
@@ -151,7 +134,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
                 >
                   <div
                     style={{
-                      transform: `scale(${THUMB_SCALE})`,
+                      transform: `scale(${scale})`,
                       transformOrigin: 'top left',
                     }}
                   >
@@ -205,3 +188,12 @@ const useResolvedOptions = (
       options?.previewVisible,
     ]
   );
+
+const MAX_THUMB_SCALE = 0.18;
+const PANEL_INNER_WIDTH = 196;
+
+export const computeThumbScale = (pageWidth: number): number => {
+  if (pageWidth <= 0) return MAX_THUMB_SCALE;
+
+  return Math.min(MAX_THUMB_SCALE, PANEL_INNER_WIDTH / pageWidth);
+};

@@ -7,9 +7,7 @@ export const PAGE_PRESETS: Record<string, { height: number; width: number }> = {
   Letter: { height: 1056, width: 816 },
 };
 
-const isLiteralSize = (
-  s: PageSize
-): s is { height: number; width: number } =>
+const isLiteralSize = (s: PageSize): s is { height: number; width: number } =>
   typeof s === 'object' && s !== null && 'width' in s && 'height' in s;
 
 export const resolvePageSize = (

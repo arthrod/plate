@@ -101,6 +101,29 @@ const BasePageBreakPlugin = createSlatePlugin({
 });
 
 //#endregion
+//#region src/lib/internal/page-state.ts
+/**
+* The latest pagination snapshot is stored on the editor instance under a
+* non-enumerable slot so `editor.api.pagination.*` queries can resolve
+* without going through React. `usePageLayout` writes the slot after each
+* pagination cycle; `BasePaginationPlugin.api.pagination.getPages` reads it.
+*
+* Writing onto the editor avoids a WeakMap allocation and keeps the read
+* path zero-overhead — the API just dereferences a property.
+*
+* Lives under `lib/internal` so the base (Slate-only) plugin can import it
+* without React depending on `lib`.
+*/
+const SLOT = "__pagination_pages__";
+const setEditorPages = (editor, pages) => {
+	editor[SLOT] = pages;
+};
+const getEditorPages = (editor) => {
+	const slot = editor[SLOT];
+	return Array.isArray(slot) ? slot : [];
+};
+
+//#endregion
 //#region src/lib/base-pagination-plugin.ts
 /**
 * Base orchestrator plugin for paginated layout.
@@ -109,14 +132,14 @@ const BasePageBreakPlugin = createSlatePlugin({
 * The Slate document is unchanged; pagination is a render-only projection
 * layered onto the live editor via the Plate `render.afterEditable` slot.
 *
+* Header/footer presence is derived from `editor.children` (single source of
+* truth) — undo and paste survive correctly because we don't mirror the
+* presence to a plugin option that lives outside Slate history.
+*
 * The page-chrome element family (header, footer, page break) is composed
 * here on the Slate base so a Slate-only consumer registering
 * `BasePaginationPlugin` already gets the element schema. React-only deltas
 * (footnote sub-plugins, overlay rendering) live in `src/react`.
-*
-* The API/transforms surface bridges to the per-editor `WeakMap` populated
-* by `usePageLayout` on the React side; in a pure-Slate environment the API
-* resolves to `[]`/`-1` until a measurer-equipped consumer wires pages in.
 */
 const BasePaginationPlugin = createTSlatePlugin({
 	key: PAGINATION_KEY,
@@ -132,28 +155,32 @@ const BasePaginationPlugin = createTSlatePlugin({
 			top: 72
 		},
 		pageSize: "A4",
-		previewVisible: true,
-		headerVisible: false,
-		footerVisible: false
+		previewVisible: true
 	},
 	plugins: [
 		BaseHeaderPlugin,
 		BaseFooterPlugin,
 		BasePageBreakPlugin
 	]
-}).extendEditorApi(({ editor }) => ({ pagination: {
+}).overrideEditor(({ editor, tf: { normalizeNode } }) => ({ transforms: { normalizeNode: (entry) => {
+	const [, path] = entry;
+	if (path.length === 0) enforceHeaderFooterInvariants(editor);
+	return normalizeNode(entry);
+} } })).extendEditorApi(({ editor }) => ({ pagination: {
 	getFootnotes: (pageIndex) => {
-		return readPages(editor)[pageIndex]?.footnotes ?? [];
+		return getEditorPages(editor)[pageIndex]?.footnotes ?? [];
 	},
 	getPageOf: (path) => {
 		if (path.length === 0) return -1;
 		const top = editor.children[path[0]];
 		if (!top) return -1;
-		const pages = readPages(editor);
+		const pages = getEditorPages(editor);
 		for (let i = 0; i < pages.length; i++) if (pages[i].nodes.includes(top)) return i;
 		return -1;
 	},
-	getPages: () => readPages(editor)
+	getPages: () => getEditorPages(editor),
+	hasFooter: () => editor.children.some((n) => n.type === FOOTER_KEY),
+	hasHeader: () => editor.children.some((n) => n.type === HEADER_KEY)
 } })).extendEditorTransforms(({ editor, getOptions, setOption }) => ({ pagination: {
 	insertPageBreak: () => {
 		editor.tf.insertNodes({
@@ -174,18 +201,18 @@ const BasePaginationPlugin = createTSlatePlugin({
 		setOption("pageSize", size);
 	},
 	toggleFooter: () => {
-		const next = !(getOptions().footerVisible ?? false);
-		if (next) ensureFooter(editor);
-		else removeByType(editor, FOOTER_KEY);
-		setOption("footerVisible", next);
-		return next;
+		const ed = editor;
+		const present = ed.children.some((n) => n.type === FOOTER_KEY);
+		if (present) removeByType(ed, FOOTER_KEY);
+		else ensureFooter(ed);
+		return !present;
 	},
 	toggleHeader: () => {
-		const next = !(getOptions().headerVisible ?? false);
-		if (next) ensureHeader(editor);
-		else removeByType(editor, HEADER_KEY);
-		setOption("headerVisible", next);
-		return next;
+		const ed = editor;
+		const present = ed.children.some((n) => n.type === HEADER_KEY);
+		if (present) removeByType(ed, HEADER_KEY);
+		else ensureHeader(ed);
+		return !present;
 	},
 	togglePreview: () => {
 		const next = !(getOptions().previewVisible ?? true);
@@ -193,10 +220,6 @@ const BasePaginationPlugin = createTSlatePlugin({
 		return next;
 	}
 } }));
-const readPages = (editor) => {
-	const slot = editor.__pagination_pages__;
-	return Array.isArray(slot) ? slot : [];
-};
 const replaceHeader = (editor, content) => {
 	const idx = editor.children.findIndex((n) => n.type === HEADER_KEY);
 	if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
@@ -230,6 +253,30 @@ const ensureFooter = (editor) => {
 const removeByType = (editor, type) => {
 	for (let i = editor.children.length - 1; i >= 0; i--) if (editor.children[i].type === type) editor.tf.removeNodes({ at: [i] });
 };
+/**
+* Single header at index 0; single footer at the last index. Anything else
+* is normalized away — keeps paste/undo from producing duplicates.
+*/
+const enforceHeaderFooterInvariants = (editor) => {
+	const headerIdxs = [];
+	const footerIdxs = [];
+	editor.children.forEach((n, i) => {
+		if (n.type === HEADER_KEY) headerIdxs.push(i);
+		else if (n.type === FOOTER_KEY) footerIdxs.push(i);
+	});
+	if (headerIdxs.length > 1) for (let i = headerIdxs.length - 1; i >= 1; i--) editor.tf.removeNodes({ at: [headerIdxs[i]] });
+	if (headerIdxs[0] !== void 0 && headerIdxs[0] !== 0) editor.tf.moveNodes({
+		at: [headerIdxs[0]],
+		to: [0]
+	});
+	if (footerIdxs.length > 1) for (let i = footerIdxs.length - 2; i >= 0; i--) editor.tf.removeNodes({ at: [footerIdxs[i]] });
+	const lastFooter = footerIdxs.at(-1);
+	const target = editor.children.length - 1;
+	if (lastFooter !== void 0 && lastFooter !== target) editor.tf.moveNodes({
+		at: [lastFooter],
+		to: [target]
+	});
+};
 
 //#endregion
 //#region src/lib/internal/marks-fingerprint.ts
@@ -239,14 +286,14 @@ const removeByType = (editor, type) => {
 * same text but different bold/italic runs gets remeasured.
 */
 const marksFingerprint = (node) => {
-	const sorted = [];
+	const segments = [];
 	walkLeaves(node, (leaf) => {
 		const keys = Object.keys(leaf).filter((k) => k !== "text").sort();
 		if (keys.length === 0) return;
 		const segment = keys.map((k) => `${k}=${formatMark(leaf[k])}`).join(",");
-		sorted.push(segment);
+		segments.push(segment);
 	});
-	return sorted.join("|");
+	return segments.join("|");
 };
 const formatMark = (value) => {
 	if (value === true) return "1";
@@ -334,5 +381,5 @@ const paginate = (doc, rect, ctx, measurer) => {
 };
 
 //#endregion
-export { BaseFooterPlugin as a, FOOTNOTE_DEFINITION_KEY as c, BaseHeaderPlugin as i, HEADER_KEY as l, BasePaginationPlugin as n, allocateFootnotes as o, BasePageBreakPlugin as r, FOOTER_KEY as s, paginate as t };
-//# sourceMappingURL=paginate-i8QIaby-.js.map
+export { BaseHeaderPlugin as a, FOOTER_KEY as c, BasePageBreakPlugin as i, FOOTNOTE_DEFINITION_KEY as l, BasePaginationPlugin as n, BaseFooterPlugin as o, setEditorPages as r, allocateFootnotes as s, paginate as t, HEADER_KEY as u };
+//# sourceMappingURL=paginate-c73WStbw.js.map

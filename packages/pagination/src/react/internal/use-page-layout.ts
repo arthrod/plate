@@ -8,7 +8,7 @@ import { allocateFootnotes } from '../../lib/allocate-footnotes';
 import { FOOTNOTE_DEFINITION_KEY } from '../../lib/internal/keys';
 import { resolvePageRect } from '../../lib/internal/page-size-presets';
 import { paginate } from '../../lib/paginate';
-import { setEditorPages } from './page-state';
+import { setEditorPages } from '../../lib/internal/page-state';
 import { usePretextMeasurer } from '../use-pretext-measurer';
 
 /**

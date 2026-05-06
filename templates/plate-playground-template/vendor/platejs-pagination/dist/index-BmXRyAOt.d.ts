@@ -94,18 +94,6 @@ type BasePaginationOptions = {
    * `editor.tf.pagination.togglePreview()`. Defaults to `true`.
    */
   previewVisible?: boolean;
-  /**
-   * Whether the document-level header block is rendered in flow + mirrored
-   * onto each page. Toggled via `editor.tf.pagination.toggleHeader()` —
-   * the toggle inserts (or removes) a top-level `header` element at the
-   * start of `editor.children`. Defaults to `false`.
-   */
-  headerVisible?: boolean;
-  /**
-   * Same as `headerVisible` but for the document-level footer block at
-   * the end of `editor.children`. Defaults to `false`.
-   */
-  footerVisible?: boolean;
 };
 //#endregion
 //#region src/lib/allocate-footnotes.d.ts
@@ -162,6 +150,10 @@ type BasePaginationApi = {
     getFootnotes: (pageIndex: number) => TElement[];
     getPageOf: (path: number[]) => number;
     getPages: () => Page[];
+    /** Whether a top-level `header` block currently exists in the doc. */
+    hasHeader: () => boolean;
+    /** Whether a top-level `footer` block currently exists in the doc. */
+    hasFooter: () => boolean;
   };
 };
 type BasePaginationTransforms = {
@@ -173,9 +165,9 @@ type BasePaginationTransforms = {
     setPageSize: (size: PageSize) => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
-    /** Toggle the document-level footer block; returns new visibility. */
+    /** Toggle the document-level footer block; returns new presence. */
     toggleFooter: () => boolean;
-    /** Toggle the document-level header block; returns new visibility. */
+    /** Toggle the document-level header block; returns new presence. */
     toggleHeader: () => boolean;
     /** Toggle the side preview panel; returns new visibility. */
     togglePreview: () => boolean;
@@ -189,20 +181,22 @@ type BasePaginationConfig = PluginConfig<typeof PAGINATION_KEY, BasePaginationOp
  * The Slate document is unchanged; pagination is a render-only projection
  * layered onto the live editor via the Plate `render.afterEditable` slot.
  *
+ * Header/footer presence is derived from `editor.children` (single source of
+ * truth) — undo and paste survive correctly because we don't mirror the
+ * presence to a plugin option that lives outside Slate history.
+ *
  * The page-chrome element family (header, footer, page break) is composed
  * here on the Slate base so a Slate-only consumer registering
  * `BasePaginationPlugin` already gets the element schema. React-only deltas
  * (footnote sub-plugins, overlay rendering) live in `src/react`.
- *
- * The API/transforms surface bridges to the per-editor `WeakMap` populated
- * by `usePageLayout` on the React side; in a pure-Slate environment the API
- * resolves to `[]`/`-1` until a measurer-equipped consumer wires pages in.
  */
 declare const BasePaginationPlugin: platejs3.SlatePlugin<PluginConfig<"pagination", BasePaginationOptions, {
   pagination: {
     getFootnotes: (pageIndex: number) => TElement[];
     getPageOf: (path: number[]) => number;
     getPages: () => Page[];
+    hasHeader: () => boolean;
+    hasFooter: () => boolean;
   };
 }, {
   pagination: {
@@ -240,4 +234,4 @@ declare const BasePaginationPlugin: platejs3.SlatePlugin<PluginConfig<"paginatio
 declare const paginate: (doc: TElement[], rect: PageRect, ctx: PageContext, measurer: Measurer) => Page[];
 //#endregion
 export { BasePaginationTransforms as a, BaseFooterPlugin as c, Measurer as d, Page as f, PageSize as g, PageRect as h, BasePaginationPlugin as i, allocateFootnotes as l, PageMargins as m, BasePaginationApi as n, BasePageBreakPlugin as o, PageContext as p, BasePaginationConfig as r, BaseHeaderPlugin as s, paginate as t, BasePaginationOptions as u };
-//# sourceMappingURL=index-DziMy3Up.d.ts.map
+//# sourceMappingURL=index-BmXRyAOt.d.ts.map

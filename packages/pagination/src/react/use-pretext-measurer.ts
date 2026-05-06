@@ -7,13 +7,14 @@ import type { Measurer, PageContext } from '../lib/types';
 import {
   type MeasureCache,
   createMeasureCache,
+  hashString,
 } from '../lib/internal/measure-cache';
 
 const FONT_SIZE_RE =
   /(\d+(?:\.\d+)?)(px|pt)(?:\/((?:\d+(?:\.\d+)?(?:px|pt)?)|(?:\d+(?:\.\d+)?)))?/;
 const PX_SUFFIX_RE = /px$/;
 const PT_SUFFIX_RE = /pt$/;
-const FONT_SIZE_PX_RE = /(\d+(?:\.\d+)?)px/;
+const FONT_SIZE_UNIT_RE = /(\d+(?:\.\d+)?)(px|pt)/;
 const WHITESPACE_RE = /\s+/;
 
 /**
@@ -41,26 +42,24 @@ export const usePretextMeasurer = (editorId?: string): Measurer =>
         const nodeId =
           (node as TElement & { id?: string | number }).id?.toString() ??
           fallbackNodeId(node);
+        const contentHash = hashString(
+          `${node.type ?? ''}|${collectPlainText(node)}`
+        );
 
-        const cached = cache.get({
+        const key = {
+          contentHash,
           font: ctx.font,
           marksFingerprint: ctx.marksFingerprint,
           nodeId,
           width: ctx.width,
-        });
+        };
+
+        const cached = cache.get(key);
         if (cached !== undefined) return cached;
 
         const height = estimateBlockHeight(node, ctx, ctx2d);
 
-        cache.set(
-          {
-            font: ctx.font,
-            marksFingerprint: ctx.marksFingerprint,
-            nodeId,
-            width: ctx.width,
-          },
-          height
-        );
+        cache.set(key, height);
 
         return height;
       },
@@ -256,18 +255,22 @@ const parseFont = (
 
 const scaleFont = (font: string, scale: number): string =>
   font.replace(
-    FONT_SIZE_PX_RE,
-    (_m, n) => `${Math.round(Number.parseFloat(n) * scale * 100) / 100}px`
+    FONT_SIZE_UNIT_RE,
+    (_m, n, unit) =>
+      `${Math.round(Number.parseFloat(n) * scale * 100) / 100}${unit}`
   );
 
 const collectPlainText = (node: TElement): string => {
+  // Concatenate leaf text exactly — adjacent formatted leaves form one
+  // word in the rendered DOM, so inserting an artificial space between
+  // them would over-count line breaks during measurement.
   let out = '';
 
   walkText(node, (t) => {
-    out += `${t} `;
+    out += t;
 
     return true;
   });
 
-  return out.trim();
+  return out;
 };
