@@ -129,4 +129,4 @@ packages/plate/docs/
 
 *.local*
 
-.omx/dogfood-output/
+.omx/
