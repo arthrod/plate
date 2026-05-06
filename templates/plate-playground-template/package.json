@@ -49,6 +49,7 @@
     "@platejs/math": "^53.0.0",
     "@platejs/media": "^53.0.1",
     "@platejs/mention": "^53.0.0",
+    "@platejs/pagination": "file:./vendor/platejs-pagination",
     "@platejs/resizable": "^53.0.0",
     "@platejs/selection": "^53.0.0",
     "@platejs/slash-command": "^53.0.0",

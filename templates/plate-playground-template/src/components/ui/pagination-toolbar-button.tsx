@@ -1,23 +1,32 @@
 'use client';
 
 import { LayoutTemplateIcon } from 'lucide-react';
+import { useEditorRef } from 'platejs/react';
 import { toast } from 'sonner';
-
-import { triggerPaginationStub } from '@/components/editor/plugins/pagination-kit';
 
 import { ToolbarButton } from './toolbar';
 
 export function PaginationToolbarButton() {
+  const editor = useEditorRef();
+
   return (
     <ToolbarButton
       data-plate-prevent-overlay
       onClick={() => {
-        triggerPaginationStub();
-        toast(
-          'Pagination preview — this feature will be enabled in a future update.'
-        );
+        const tf = (
+          editor.tf as unknown as {
+            pagination?: { insertPageBreak?: () => void };
+          }
+        ).pagination;
+
+        if (tf?.insertPageBreak) {
+          tf.insertPageBreak();
+          toast('Inserted page break.');
+        } else {
+          toast('Pagination plugin not loaded.');
+        }
       }}
-      tooltip="Pagination (preview)"
+      tooltip="Insert page break"
     >
       <LayoutTemplateIcon />
     </ToolbarButton>
