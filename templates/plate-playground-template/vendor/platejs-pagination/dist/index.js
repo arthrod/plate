@@ -1,4 +1,4 @@
-import { a as replaceHeader, b as BaseFooterPlugin, c as insertPageBreak, d as enforceHeaderFooterInvariants, f as hasFooterBlock, g as getPageOfPath, h as getPaginationPages, i as toggleFooter, l as ensureHeader, m as getPaginationFootnotes, n as BasePaginationPlugin, o as replaceFooter, p as hasHeaderBlock, r as toggleHeader, s as removeNodesByType, t as paginate, u as ensureFooter, v as BasePageBreakPlugin, x as allocateFootnotes, y as BaseHeaderPlugin } from "./paginate-1hlE8RNf.js";
+import { a as replaceHeader, b as BaseFooterPlugin, c as insertPageBreak, d as enforceHeaderFooterInvariants, f as hasFooterBlock, g as getPageOfPath, h as getPaginationPages, i as toggleFooter, l as ensureHeader, m as getPaginationFootnotes, n as BasePaginationPlugin, o as replaceFooter, p as hasHeaderBlock, r as toggleHeader, s as removeNodesByType, t as paginate, u as ensureFooter, v as BasePageBreakPlugin, x as allocateFootnotes, y as BaseHeaderPlugin } from "./paginate-BP3Ay61_.js";
 
 //#region src/lib/internal/units.ts
 /**

@@ -273,13 +273,20 @@ declare const hasFooterBlock: (editor: SlateEditor) => boolean;
 //#endregion
 //#region src/lib/transforms/enforceHeaderFooterInvariants.d.ts
 /**
- * Single header at index 0; single footer at the last index. Anything else
- * is normalized away — keeps paste/undo from producing duplicates.
+ * Single header at index 0; single footer somewhere in the doc. Dedupes
+ * stray copies and pulls a misplaced header to the top — keeps paste/undo
+ * from producing duplicates without fighting other plugins (notably any
+ * trailing-block plugin that requires the last child to be a paragraph).
  *
  * Performs at most one mutation per call and returns `true` when something
  * was changed. The caller (`normalizeNode` override) re-queues by short-
  * circuiting so Slate triggers the next iteration with fresh indices —
  * this prevents stale-index loops and infinite normalization passes.
+ *
+ * Footer position is intentionally unconstrained: pagination's `paginate()`
+ * locates the footer by type, not by tree index, so a trailing paragraph
+ * after the footer does not break correctness — and trying to keep the
+ * footer "last" would loop with plugins that always append a trailing block.
  */
 declare const enforceHeaderFooterInvariants: (editor: SlateEditor) => boolean;
 //#endregion
@@ -288,7 +295,14 @@ declare const enforceHeaderFooterInvariants: (editor: SlateEditor) => boolean;
 declare const ensureFooter: (editor: SlateEditor) => void;
 //#endregion
 //#region src/lib/transforms/ensureHeader.d.ts
-/** Insert a default header at index 0 when none exists. */
+/**
+ * Insert a default header at index 0 when none exists.
+ *
+ * Uses the package-local `HEADER_KEY` constant rather than `KEYS.header`
+ * from `platejs` — older published versions of `platejs` are missing the
+ * pagination keys in their `KEYS` export, which would silently produce
+ * `editor.getType(undefined) === ''` and insert nodes with an empty type.
+ */
 declare const ensureHeader: (editor: SlateEditor) => void;
 //#endregion
 //#region src/lib/transforms/insertPageBreak.d.ts
@@ -325,12 +339,24 @@ declare const replaceFooter: (editor: SlateEditor, content: Descendant[]) => voi
 declare const replaceHeader: (editor: SlateEditor, content: Descendant[]) => void;
 //#endregion
 //#region src/lib/transforms/toggleFooter.d.ts
-/** Toggle the document-level footer block; returns new presence. */
+/**
+ * Toggle the document-level footer block; returns new presence.
+ *
+ * Runs the insert/remove inside `withoutNormalizing` so the final tree shape
+ * is committed in one pass — that gives the `enforceHeaderFooterInvariants`
+ * normalizer a stable input to evaluate, instead of a half-applied state.
+ */
 declare const toggleFooter: (editor: SlateEditor) => boolean;
 //#endregion
 //#region src/lib/transforms/toggleHeader.d.ts
-/** Toggle the document-level header block; returns new presence. */
+/**
+ * Toggle the document-level header block; returns new presence.
+ *
+ * Runs the insert/remove inside `withoutNormalizing` so the final tree shape
+ * is committed in one pass — that gives the `enforceHeaderFooterInvariants`
+ * normalizer a stable input to evaluate, instead of a half-applied state.
+ */
 declare const toggleHeader: (editor: SlateEditor) => boolean;
 //#endregion
 export { Page as A, BaseFooterPlugin as C, BasePaginationOptions as D, BasePaginationConfig as E, PageMargins as M, PageRect as N, BasePaginationTransforms as O, PageSize as P, BaseHeaderPlugin as S, BasePaginationApi as T, pxToCm as _, removeNodesByType as a, BasePaginationPlugin as b, ensureFooter as c, hasHeaderBlock as d, getPaginationFootnotes as f, inToPx as g, cmToPx as h, replaceFooter as i, PageContext as j, Measurer as k, enforceHeaderFooterInvariants as l, getPageOfPath as m, toggleFooter as n, insertPageBreak as o, getPaginationPages as p, replaceHeader as r, ensureHeader as s, toggleHeader as t, hasFooterBlock as u, pxToIn as v, allocateFootnotes as w, BasePageBreakPlugin as x, paginate as y };
-//# sourceMappingURL=index-B2AxICXR.d.ts.map
+//# sourceMappingURL=index-BjxU94y9.d.ts.map

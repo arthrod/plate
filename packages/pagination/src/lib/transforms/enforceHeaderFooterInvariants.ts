@@ -1,19 +1,28 @@
 import type { SlateEditor, TElement } from 'platejs';
 
-import { KEYS } from 'platejs';
+import { FOOTER_KEY, HEADER_KEY } from '../internal/keys';
 
 /**
- * Single header at index 0; single footer at the last index. Anything else
- * is normalized away — keeps paste/undo from producing duplicates.
+ * Single header at index 0; single footer somewhere in the doc. Dedupes
+ * stray copies and pulls a misplaced header to the top — keeps paste/undo
+ * from producing duplicates without fighting other plugins (notably any
+ * trailing-block plugin that requires the last child to be a paragraph).
  *
  * Performs at most one mutation per call and returns `true` when something
  * was changed. The caller (`normalizeNode` override) re-queues by short-
  * circuiting so Slate triggers the next iteration with fresh indices —
  * this prevents stale-index loops and infinite normalization passes.
+ *
+ * Footer position is intentionally unconstrained: pagination's `paginate()`
+ * locates the footer by type, not by tree index, so a trailing paragraph
+ * after the footer does not break correctness — and trying to keep the
+ * footer "last" would loop with plugins that always append a trailing block.
  */
-export const enforceHeaderFooterInvariants = (editor: SlateEditor): boolean => {
-  const headerType = editor.getType(KEYS.header);
-  const footerType = editor.getType(KEYS.footer);
+export const enforceHeaderFooterInvariants = (
+  editor: SlateEditor
+): boolean => {
+  const headerType = editor.getType(HEADER_KEY);
+  const footerType = editor.getType(FOOTER_KEY);
   const headerIdxs: number[] = [];
   const footerIdxs: number[] = [];
 
@@ -34,15 +43,6 @@ export const enforceHeaderFooterInvariants = (editor: SlateEditor): boolean => {
   }
   if (footerIdxs.length > 1) {
     editor.tf.removeNodes({ at: [footerIdxs[0]] });
-
-    return true;
-  }
-
-  const target = editor.children.length - 1;
-  const lastFooter = footerIdxs.at(-1);
-
-  if (lastFooter !== undefined && lastFooter !== target) {
-    editor.tf.moveNodes({ at: [lastFooter], to: [target] });
 
     return true;
   }

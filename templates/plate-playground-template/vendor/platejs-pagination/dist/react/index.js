@@ -1,4 +1,4 @@
-import { C as FOOTNOTE_DEFINITION_KEY, S as FOOTER_KEY, _ as setEditorPages, b as BaseFooterPlugin, n as BasePaginationPlugin, t as paginate, v as BasePageBreakPlugin, w as HEADER_KEY, x as allocateFootnotes, y as BaseHeaderPlugin } from "../paginate-1hlE8RNf.js";
+import { C as FOOTNOTE_DEFINITION_KEY, S as FOOTER_KEY, _ as setEditorPages, b as BaseFooterPlugin, n as BasePaginationPlugin, t as paginate, v as BasePageBreakPlugin, w as HEADER_KEY, x as allocateFootnotes, y as BaseHeaderPlugin } from "../paginate-BP3Ay61_.js";
 import { toPlatePlugin, toTPlatePlugin, useEditorRef, useEditorValue, usePluginOption } from "platejs/react";
 import { c } from "react-compiler-runtime";
 import * as React from "react";
@@ -695,32 +695,33 @@ const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : us
 * Project the editor's children into the derived page sequence for variant A.
 *
 * Wraps `paginate()` + `allocateFootnotes()` in a `useMemo` keyed on the
-* editor children reference and the resolved options. The latest snapshot
-* is mirrored to the per-editor `WeakMap` so `editor.api.pagination.*`
-* queries resolve without a hook.
+* `value` snapshot and the resolved options. The latest snapshot is mirrored
+* to the LIVE editor instance so `editor.api.pagination.getPages()` resolves
+* without a hook — without this, callers outside the overlay subtree would
+* never see populated pages.
 */
-const usePageLayout = (editor, options) => {
+const usePageLayout = (editor, value, options) => {
 	const $ = c(12);
 	const measurer = usePretextMeasurer(editor.id);
 	let t0;
-	if ($[0] !== editor.children || $[1] !== measurer || $[2] !== options.footerHeight || $[3] !== options.footnoteWell || $[4] !== options.headerHeight || $[5] !== options.margins || $[6] !== options.pageSize) {
+	if ($[0] !== measurer || $[1] !== options.footerHeight || $[2] !== options.footnoteWell || $[3] !== options.headerHeight || $[4] !== options.margins || $[5] !== options.pageSize || $[6] !== value) {
 		const rect = resolvePageRect(options.pageSize, options.margins, {
 			footer: options.footerHeight,
 			footnoteWell: options.footnoteWell,
 			header: options.headerHeight
 		});
-		t0 = allocateFootnotes(paginate(editor.children, rect, {
+		t0 = allocateFootnotes(paginate(value, rect, {
 			font: "",
 			marksFingerprint: "",
 			width: rect.contentWidth
-		}, measurer), editor.children.filter(_temp$1));
-		$[0] = editor.children;
-		$[1] = measurer;
-		$[2] = options.footerHeight;
-		$[3] = options.footnoteWell;
-		$[4] = options.headerHeight;
-		$[5] = options.margins;
-		$[6] = options.pageSize;
+		}, measurer), value.filter(_temp$1));
+		$[0] = measurer;
+		$[1] = options.footerHeight;
+		$[2] = options.footnoteWell;
+		$[3] = options.headerHeight;
+		$[4] = options.margins;
+		$[5] = options.pageSize;
+		$[6] = value;
 		$[7] = t0;
 	} else t0 = $[7];
 	const pages = t0;
@@ -768,7 +769,7 @@ const STACK_GAP = 12;
 * mismatches when the page count differs between server and client.
 */
 const PageOverlay = () => {
-	const $ = c(39);
+	const $ = c(36);
 	const [mounted, setMounted] = React.useState(false);
 	let t0;
 	let t1;
@@ -814,53 +815,42 @@ const PageOverlay = () => {
 		$[9] = t2;
 	} else t2 = $[9];
 	const safeOptions = useResolvedOptions(t2);
+	const pages = usePageLayout(editor, value, safeOptions);
+	if (!mounted) return null;
+	if (!visible || pages.length === 0) {
+		let t3$1;
+		if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
+			t3$1 = /* @__PURE__ */ React.createElement(FootnotePortal, null);
+			$[10] = t3$1;
+		} else t3$1 = $[10];
+		return t3$1;
+	}
 	const t3 = value;
 	let t4;
-	if ($[10] !== editor.id || $[11] !== t3) {
-		t4 = {
-			children: t3,
-			id: editor.id
-		};
-		$[10] = editor.id;
+	if ($[11] !== t3) {
+		t4 = t3.find(_temp);
 		$[11] = t3;
 		$[12] = t4;
 	} else t4 = $[12];
-	const pages = usePageLayout(t4, safeOptions);
-	if (!mounted) return null;
-	if (!visible || pages.length === 0) {
-		let t5$1;
-		if ($[13] === Symbol.for("react.memo_cache_sentinel")) {
-			t5$1 = /* @__PURE__ */ React.createElement(FootnotePortal, null);
-			$[13] = t5$1;
-		} else t5$1 = $[13];
-		return t5$1;
-	}
+	const documentHeader = t4;
 	const t5 = value;
 	let t6;
-	if ($[14] !== t5) {
-		t6 = t5.find(_temp);
-		$[14] = t5;
-		$[15] = t6;
-	} else t6 = $[15];
-	const documentHeader = t6;
-	const t7 = value;
-	let t8;
-	if ($[16] !== t7) {
-		t8 = t7.find(_temp2);
-		$[16] = t7;
-		$[17] = t8;
-	} else t8 = $[17];
-	const documentFooter = t8;
-	let t9;
-	if ($[18] === Symbol.for("react.memo_cache_sentinel")) {
-		t9 = /* @__PURE__ */ React.createElement(FootnotePortal, null);
-		$[18] = t9;
-	} else t9 = $[18];
+	if ($[13] !== t5) {
+		t6 = t5.find(_temp2);
+		$[13] = t5;
+		$[14] = t6;
+	} else t6 = $[14];
+	const documentFooter = t6;
+	let t7;
+	if ($[15] === Symbol.for("react.memo_cache_sentinel")) {
+		t7 = /* @__PURE__ */ React.createElement(FootnotePortal, null);
+		$[15] = t7;
+	} else t7 = $[15];
 	let t10;
-	let t11;
-	let t12;
-	if ($[19] === Symbol.for("react.memo_cache_sentinel")) {
-		t10 = {
+	let t8;
+	let t9;
+	if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
+		t8 = {
 			background: "rgba(248, 250, 252, 0.96)",
 			border: "1px solid rgba(15,23,42,0.12)",
 			borderRadius: 8,
@@ -878,7 +868,7 @@ const PageOverlay = () => {
 			width: 220,
 			zIndex: 50
 		};
-		t11 = {
+		t9 = {
 			alignItems: "center",
 			color: "rgba(15,23,42,0.55)",
 			display: "flex",
@@ -889,36 +879,36 @@ const PageOverlay = () => {
 			marginBottom: 8,
 			textTransform: "uppercase"
 		};
-		t12 = /* @__PURE__ */ React.createElement("span", null, "Pages");
-		$[19] = t10;
-		$[20] = t11;
-		$[21] = t12;
+		t10 = /* @__PURE__ */ React.createElement("span", null, "Pages");
+		$[16] = t10;
+		$[17] = t8;
+		$[18] = t9;
 	} else {
-		t10 = $[19];
-		t11 = $[20];
-		t12 = $[21];
+		t10 = $[16];
+		t8 = $[17];
+		t9 = $[18];
 	}
-	const t13 = `${pages.length}`;
-	let t14;
-	if ($[22] !== t13) {
-		t14 = /* @__PURE__ */ React.createElement("div", { style: t11 }, t12, /* @__PURE__ */ React.createElement("span", null, t13));
-		$[22] = t13;
-		$[23] = t14;
-	} else t14 = $[23];
-	let t15;
-	if ($[24] === Symbol.for("react.memo_cache_sentinel")) {
-		t15 = {
+	const t11 = `${pages.length}`;
+	let t12;
+	if ($[19] !== t11) {
+		t12 = /* @__PURE__ */ React.createElement("div", { style: t9 }, t10, /* @__PURE__ */ React.createElement("span", null, t11));
+		$[19] = t11;
+		$[20] = t12;
+	} else t12 = $[20];
+	let t13;
+	if ($[21] === Symbol.for("react.memo_cache_sentinel")) {
+		t13 = {
 			display: "flex",
 			flexDirection: "column",
 			gap: STACK_GAP
 		};
-		$[24] = t15;
-	} else t15 = $[24];
-	let t16;
-	if ($[25] !== documentFooter || $[26] !== documentHeader || $[27] !== pages || $[28] !== safeOptions) {
-		let t17$1;
-		if ($[30] !== documentFooter || $[31] !== documentHeader || $[32] !== safeOptions) {
-			t17$1 = (page) => {
+		$[21] = t13;
+	} else t13 = $[21];
+	let t14;
+	if ($[22] !== documentFooter || $[23] !== documentHeader || $[24] !== pages || $[25] !== safeOptions) {
+		let t15$1;
+		if ($[27] !== documentFooter || $[28] !== documentHeader || $[29] !== safeOptions) {
+			t15$1 = (page) => {
 				const scale = computeThumbScale(page.rect.width);
 				const previewHeight = page.rect.height * scale;
 				const previewWidth = page.rect.width * scale;
@@ -952,35 +942,35 @@ const PageOverlay = () => {
 					top: 0
 				}))));
 			};
-			$[30] = documentFooter;
-			$[31] = documentHeader;
-			$[32] = safeOptions;
-			$[33] = t17$1;
-		} else t17$1 = $[33];
-		t16 = pages.map(t17$1);
-		$[25] = documentFooter;
-		$[26] = documentHeader;
-		$[27] = pages;
-		$[28] = safeOptions;
-		$[29] = t16;
-	} else t16 = $[29];
-	let t17;
-	if ($[34] !== t16) {
-		t17 = /* @__PURE__ */ React.createElement("div", { style: t15 }, t16);
-		$[34] = t16;
-		$[35] = t17;
-	} else t17 = $[35];
-	let t18;
-	if ($[36] !== t14 || $[37] !== t17) {
-		t18 = /* @__PURE__ */ React.createElement(React.Fragment, null, t9, /* @__PURE__ */ React.createElement("div", {
+			$[27] = documentFooter;
+			$[28] = documentHeader;
+			$[29] = safeOptions;
+			$[30] = t15$1;
+		} else t15$1 = $[30];
+		t14 = pages.map(t15$1);
+		$[22] = documentFooter;
+		$[23] = documentHeader;
+		$[24] = pages;
+		$[25] = safeOptions;
+		$[26] = t14;
+	} else t14 = $[26];
+	let t15;
+	if ($[31] !== t14) {
+		t15 = /* @__PURE__ */ React.createElement("div", { style: t13 }, t14);
+		$[31] = t14;
+		$[32] = t15;
+	} else t15 = $[32];
+	let t16;
+	if ($[33] !== t12 || $[34] !== t15) {
+		t16 = /* @__PURE__ */ React.createElement(React.Fragment, null, t7, /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-overlay": "",
-			style: t10
-		}, t14, t17));
-		$[36] = t14;
-		$[37] = t17;
-		$[38] = t18;
-	} else t18 = $[38];
-	return t18;
+			style: t8
+		}, t12, t15));
+		$[33] = t12;
+		$[34] = t15;
+		$[35] = t16;
+	} else t16 = $[35];
+	return t16;
 };
 const useResolvedOptions = (options) => {
 	const $ = c(10);

@@ -1,6 +1,6 @@
 import type { Descendant, SlateEditor, TElement } from 'platejs';
 
-import { KEYS } from 'platejs';
+import { HEADER_KEY } from '../internal/keys';
 
 /**
  * Replace the top-level header block with `content`, removing any existing
@@ -15,7 +15,7 @@ export const replaceHeader = (
   content: Descendant[]
 ): void => {
   editor.tf.withoutNormalizing(() => {
-    const headerType = editor.getType(KEYS.header);
+    const headerType = editor.getType(HEADER_KEY);
     const idx = (editor.children as TElement[]).findIndex(
       (n) => n.type === headerType
     );

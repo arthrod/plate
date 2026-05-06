@@ -1,4 +1,4 @@
-import { KEYS, createSlatePlugin, createTSlatePlugin } from "platejs";
+import { createSlatePlugin, createTSlatePlugin } from "platejs";
 
 //#region src/lib/internal/keys.ts
 /**
@@ -153,29 +153,36 @@ const getPaginationFootnotes = (editor, pageIndex) => getEditorPages(editor)[pag
 //#region src/lib/queries/hasChromeBlock.ts
 /** Whether a top-level `header` block currently exists in the doc. */
 const hasHeaderBlock = (editor) => {
-	const headerType = editor.getType(KEYS.header);
+	const headerType = editor.getType(HEADER_KEY);
 	return editor.children.some((n) => n.type === headerType);
 };
 /** Whether a top-level `footer` block currently exists in the doc. */
 const hasFooterBlock = (editor) => {
-	const footerType = editor.getType(KEYS.footer);
+	const footerType = editor.getType(FOOTER_KEY);
 	return editor.children.some((n) => n.type === footerType);
 };
 
 //#endregion
 //#region src/lib/transforms/enforceHeaderFooterInvariants.ts
 /**
-* Single header at index 0; single footer at the last index. Anything else
-* is normalized away — keeps paste/undo from producing duplicates.
+* Single header at index 0; single footer somewhere in the doc. Dedupes
+* stray copies and pulls a misplaced header to the top — keeps paste/undo
+* from producing duplicates without fighting other plugins (notably any
+* trailing-block plugin that requires the last child to be a paragraph).
 *
 * Performs at most one mutation per call and returns `true` when something
 * was changed. The caller (`normalizeNode` override) re-queues by short-
 * circuiting so Slate triggers the next iteration with fresh indices —
 * this prevents stale-index loops and infinite normalization passes.
+*
+* Footer position is intentionally unconstrained: pagination's `paginate()`
+* locates the footer by type, not by tree index, so a trailing paragraph
+* after the footer does not break correctness — and trying to keep the
+* footer "last" would loop with plugins that always append a trailing block.
 */
 const enforceHeaderFooterInvariants = (editor) => {
-	const headerType = editor.getType(KEYS.header);
-	const footerType = editor.getType(KEYS.footer);
+	const headerType = editor.getType(HEADER_KEY);
+	const footerType = editor.getType(FOOTER_KEY);
 	const headerIdxs = [];
 	const footerIdxs = [];
 	editor.children.forEach((n, i) => {
@@ -197,15 +204,6 @@ const enforceHeaderFooterInvariants = (editor) => {
 		editor.tf.removeNodes({ at: [footerIdxs[0]] });
 		return true;
 	}
-	const target = editor.children.length - 1;
-	const lastFooter = footerIdxs.at(-1);
-	if (lastFooter !== void 0 && lastFooter !== target) {
-		editor.tf.moveNodes({
-			at: [lastFooter],
-			to: [target]
-		});
-		return true;
-	}
 	return false;
 };
 
@@ -213,7 +211,7 @@ const enforceHeaderFooterInvariants = (editor) => {
 //#region src/lib/transforms/ensureFooter.ts
 /** Insert a default footer at the last index when none exists. */
 const ensureFooter = (editor) => {
-	const footerType = editor.getType(KEYS.footer);
+	const footerType = editor.getType(FOOTER_KEY);
 	if (editor.children.some((n) => n.type === footerType)) return;
 	editor.tf.insertNodes({
 		children: [{ text: "Footer" }],
@@ -223,9 +221,16 @@ const ensureFooter = (editor) => {
 
 //#endregion
 //#region src/lib/transforms/ensureHeader.ts
-/** Insert a default header at index 0 when none exists. */
+/**
+* Insert a default header at index 0 when none exists.
+*
+* Uses the package-local `HEADER_KEY` constant rather than `KEYS.header`
+* from `platejs` — older published versions of `platejs` are missing the
+* pagination keys in their `KEYS` export, which would silently produce
+* `editor.getType(undefined) === ''` and insert nodes with an empty type.
+*/
 const ensureHeader = (editor) => {
-	const headerType = editor.getType(KEYS.header);
+	const headerType = editor.getType(HEADER_KEY);
 	if (editor.children.some((n) => n.type === headerType)) return;
 	editor.tf.insertNodes({
 		children: [{ text: "Header" }],
@@ -239,7 +244,7 @@ const ensureHeader = (editor) => {
 const insertPageBreak = (editor) => {
 	editor.tf.insertNodes({
 		children: [{ text: "" }],
-		type: editor.getType(KEYS.pageBreak)
+		type: editor.getType(PAGE_BREAK_KEY)
 	});
 };
 
@@ -266,7 +271,7 @@ const removeNodesByType = (editor, type) => {
 */
 const replaceFooter = (editor, content) => {
 	editor.tf.withoutNormalizing(() => {
-		const footerType = editor.getType(KEYS.footer);
+		const footerType = editor.getType(FOOTER_KEY);
 		const idx = editor.children.findIndex((n) => n.type === footerType);
 		if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
 		editor.tf.insertNodes({
@@ -288,7 +293,7 @@ const replaceFooter = (editor, content) => {
 */
 const replaceHeader = (editor, content) => {
 	editor.tf.withoutNormalizing(() => {
-		const headerType = editor.getType(KEYS.header);
+		const headerType = editor.getType(HEADER_KEY);
 		const idx = editor.children.findIndex((n) => n.type === headerType);
 		if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
 		editor.tf.insertNodes({
@@ -300,23 +305,39 @@ const replaceHeader = (editor, content) => {
 
 //#endregion
 //#region src/lib/transforms/toggleFooter.ts
-/** Toggle the document-level footer block; returns new presence. */
+/**
+* Toggle the document-level footer block; returns new presence.
+*
+* Runs the insert/remove inside `withoutNormalizing` so the final tree shape
+* is committed in one pass — that gives the `enforceHeaderFooterInvariants`
+* normalizer a stable input to evaluate, instead of a half-applied state.
+*/
 const toggleFooter = (editor) => {
-	const footerType = editor.getType(KEYS.footer);
+	const footerType = editor.getType(FOOTER_KEY);
 	const present = editor.children.some((n) => n.type === footerType);
-	if (present) removeNodesByType(editor, footerType);
-	else ensureFooter(editor);
+	editor.tf.withoutNormalizing(() => {
+		if (present) removeNodesByType(editor, footerType);
+		else ensureFooter(editor);
+	});
 	return !present;
 };
 
 //#endregion
 //#region src/lib/transforms/toggleHeader.ts
-/** Toggle the document-level header block; returns new presence. */
+/**
+* Toggle the document-level header block; returns new presence.
+*
+* Runs the insert/remove inside `withoutNormalizing` so the final tree shape
+* is committed in one pass — that gives the `enforceHeaderFooterInvariants`
+* normalizer a stable input to evaluate, instead of a half-applied state.
+*/
 const toggleHeader = (editor) => {
-	const headerType = editor.getType(KEYS.header);
+	const headerType = editor.getType(HEADER_KEY);
 	const present = editor.children.some((n) => n.type === headerType);
-	if (present) removeNodesByType(editor, headerType);
-	else ensureHeader(editor);
+	editor.tf.withoutNormalizing(() => {
+		if (present) removeNodesByType(editor, headerType);
+		else ensureHeader(editor);
+	});
 	return !present;
 };
 
@@ -495,4 +516,4 @@ const paginate = (doc, rect, ctx, measurer) => {
 
 //#endregion
 export { FOOTNOTE_DEFINITION_KEY as C, FOOTER_KEY as S, setEditorPages as _, replaceHeader as a, BaseFooterPlugin as b, insertPageBreak as c, enforceHeaderFooterInvariants as d, hasFooterBlock as f, getPageOfPath as g, getPaginationPages as h, toggleFooter as i, ensureHeader as l, getPaginationFootnotes as m, BasePaginationPlugin as n, replaceFooter as o, hasHeaderBlock as p, toggleHeader as r, removeNodesByType as s, paginate as t, ensureFooter as u, BasePageBreakPlugin as v, HEADER_KEY as w, allocateFootnotes as x, BaseHeaderPlugin as y };
-//# sourceMappingURL=paginate-1hlE8RNf.js.map
+//# sourceMappingURL=paginate-BP3Ay61_.js.map

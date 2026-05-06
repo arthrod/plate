@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 
-import type { TElement } from 'platejs';
+import type { SlateEditor, TElement } from 'platejs';
 
 import type { BasePaginationOptions, Page } from '../../lib/types';
 
@@ -24,12 +24,14 @@ const useIsomorphicLayoutEffect =
  * Project the editor's children into the derived page sequence for variant A.
  *
  * Wraps `paginate()` + `allocateFootnotes()` in a `useMemo` keyed on the
- * editor children reference and the resolved options. The latest snapshot
- * is mirrored to the per-editor `WeakMap` so `editor.api.pagination.*`
- * queries resolve without a hook.
+ * `value` snapshot and the resolved options. The latest snapshot is mirrored
+ * to the LIVE editor instance so `editor.api.pagination.getPages()` resolves
+ * without a hook — without this, callers outside the overlay subtree would
+ * never see populated pages.
  */
 export const usePageLayout = (
-  editor: { id: string; children: TElement[] },
+  editor: SlateEditor,
+  value: TElement[],
   options: BasePaginationOptions
 ): Page[] => {
   const measurer = usePretextMeasurer(editor.id);
@@ -42,18 +44,16 @@ export const usePageLayout = (
     });
 
     const raw = paginate(
-      editor.children,
+      value,
       rect,
       { font: '', marksFingerprint: '', width: rect.contentWidth },
       measurer
     );
 
-    const definitions = editor.children.filter(
-      (n) => n.type === FOOTNOTE_DEFINITION_KEY
-    );
+    const definitions = value.filter((n) => n.type === FOOTNOTE_DEFINITION_KEY);
 
     return allocateFootnotes(raw, definitions);
-  }, [editor.children, measurer, options]);
+  }, [value, measurer, options]);
 
   useIsomorphicLayoutEffect(() => {
     setEditorPages(editor as object, pages);

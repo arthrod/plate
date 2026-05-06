@@ -62,10 +62,8 @@ export const PageOverlay = (): React.JSX.Element | null => {
     previewVisible: visible,
   });
   const pages = usePageLayout(
-    {
-      children: value as unknown as TElement[],
-      id: editor.id,
-    },
+    editor,
+    value as unknown as TElement[],
     safeOptions
   );
 

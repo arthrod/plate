@@ -1,6 +1,6 @@
 import type { Descendant, SlateEditor, TElement } from 'platejs';
 
-import { KEYS } from 'platejs';
+import { FOOTER_KEY } from '../internal/keys';
 
 /**
  * Replace the top-level footer block with `content`, removing any existing
@@ -15,7 +15,7 @@ export const replaceFooter = (
   content: Descendant[]
 ): void => {
   editor.tf.withoutNormalizing(() => {
-    const footerType = editor.getType(KEYS.footer);
+    const footerType = editor.getType(FOOTER_KEY);
     const idx = (editor.children as TElement[]).findIndex(
       (n) => n.type === footerType
     );
