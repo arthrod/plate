@@ -8,7 +8,5 @@ export * from './header-plugin';
 export * from './page-break-plugin';
 export * from './page-frame';
 export * from './page-overlay';
-export * from './page-static-editor';
 export * from './pagination-plugin';
-export * from './static-components';
 export * from './use-pretext-measurer';

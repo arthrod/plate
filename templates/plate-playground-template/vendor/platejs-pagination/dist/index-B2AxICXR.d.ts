@@ -1,4 +1,4 @@
-import * as platejs12 from "platejs";
+import * as platejs10 from "platejs";
 import { Descendant, PluginConfig, SlateEditor, TElement } from "platejs";
 
 //#region src/lib/internal/keys.d.ts
@@ -164,7 +164,7 @@ declare const allocateFootnotes: (pages: Page[], footnotes: TElement[]) => Page[
  * Authored once per document; the render-overlay clones it onto every page
  * and runs the footnote-well allocator above it.
  */
-declare const BaseFooterPlugin: platejs12.SlatePlugin<platejs12.PluginConfig<"footer", {}, {}, {}, {}>>;
+declare const BaseFooterPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"footer", {}, {}, {}, {}>>;
 //#endregion
 //#region src/lib/base-header-plugin.d.ts
 /**
@@ -172,7 +172,7 @@ declare const BaseFooterPlugin: platejs12.SlatePlugin<platejs12.PluginConfig<"fo
  *
  * Authored once per document; the render-overlay clones it onto every page.
  */
-declare const BaseHeaderPlugin: platejs12.SlatePlugin<platejs12.PluginConfig<"header", {}, {}, {}, {}>>;
+declare const BaseHeaderPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"header", {}, {}, {}, {}>>;
 //#endregion
 //#region src/lib/base-page-break-plugin.d.ts
 /**
@@ -180,7 +180,7 @@ declare const BaseHeaderPlugin: platejs12.SlatePlugin<platejs12.PluginConfig<"he
  *
  * The render-overlay paginator splits a page boundary at every break node.
  */
-declare const BasePageBreakPlugin: platejs12.SlatePlugin<platejs12.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
+declare const BasePageBreakPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
 //#endregion
 //#region src/lib/base-pagination-plugin.d.ts
 /**
@@ -199,9 +199,9 @@ declare const BasePageBreakPlugin: platejs12.SlatePlugin<platejs12.PluginConfig<
  * `BasePaginationPlugin` already gets the element schema. React-only deltas
  * (footnote sub-plugins, overlay rendering) live in `src/react`.
  */
-declare const BasePaginationPlugin: platejs12.SlatePlugin<platejs12.PluginConfig<"pagination", BasePaginationOptions, {
+declare const BasePaginationPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"pagination", BasePaginationOptions, {
   pagination: {
-    getFootnotes: (pageIndex: number) => platejs12.TElement[];
+    getFootnotes: (pageIndex: number) => platejs10.TElement[];
     getPageOf: (path: number[]) => number;
     getPages: () => Page[];
     hasHeader: () => boolean;
@@ -212,8 +212,8 @@ declare const BasePaginationPlugin: platejs12.SlatePlugin<platejs12.PluginConfig
     insertPageBreak: () => void;
     setMargins: (patch: Partial<PageMargins>) => void;
     setPageSize: (size: PageSize) => void;
-    setFooter: (content: platejs12.Descendant[]) => void;
-    setHeader: (content: platejs12.Descendant[]) => void;
+    setFooter: (content: platejs10.Descendant[]) => void;
+    setHeader: (content: platejs10.Descendant[]) => void;
     toggleFooter: () => boolean;
     toggleHeader: () => boolean;
     togglePreview: () => boolean;
@@ -263,7 +263,7 @@ declare const getPageOfPath: (editor: SlateEditor, path: number[]) => number;
  */
 declare const getPaginationPages: (editor: SlateEditor) => Page[];
 /** Return the footnotes allocated to a given page index. */
-declare const getPaginationFootnotes: (editor: SlateEditor, pageIndex: number) => platejs12.TElement[];
+declare const getPaginationFootnotes: (editor: SlateEditor, pageIndex: number) => platejs10.TElement[];
 //#endregion
 //#region src/lib/queries/hasChromeBlock.d.ts
 /** Whether a top-level `header` block currently exists in the doc. */
@@ -333,4 +333,4 @@ declare const toggleFooter: (editor: SlateEditor) => boolean;
 declare const toggleHeader: (editor: SlateEditor) => boolean;
 //#endregion
 export { Page as A, BaseFooterPlugin as C, BasePaginationOptions as D, BasePaginationConfig as E, PageMargins as M, PageRect as N, BasePaginationTransforms as O, PageSize as P, BaseHeaderPlugin as S, BasePaginationApi as T, pxToCm as _, removeNodesByType as a, BasePaginationPlugin as b, ensureFooter as c, hasHeaderBlock as d, getPaginationFootnotes as f, inToPx as g, cmToPx as h, replaceFooter as i, PageContext as j, Measurer as k, enforceHeaderFooterInvariants as l, getPageOfPath as m, toggleFooter as n, insertPageBreak as o, getPaginationPages as p, replaceHeader as r, ensureHeader as s, toggleHeader as t, hasFooterBlock as u, pxToIn as v, allocateFootnotes as w, BasePageBreakPlugin as x, paginate as y };
-//# sourceMappingURL=index-BNkqE3b_.d.ts.map
+//# sourceMappingURL=index-B2AxICXR.d.ts.map

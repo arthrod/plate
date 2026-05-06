@@ -1,12 +1,11 @@
 import * as React from 'react';
 
-import type { TElement } from 'platejs';
-
-import { PlateStatic } from 'platejs/static';
+import type { TElement, TText } from 'platejs';
 
 import type { Page, PageMargins } from '../lib/types';
 
-import { pageStaticEditor } from './page-static-editor';
+const HEADING_TYPE_RE = /^h([1-6])$/;
+const HEADING_SIZES = [0, 28, 22, 18, 16, 14, 13] as const;
 
 export type PageFrameProps = {
   /**
@@ -31,9 +30,13 @@ export type PageFrameProps = {
 
 /**
  * Single page chrome rendered by the overlay: header band, content rect,
- * footnote well, footer band — with content rendered via `<PlateStatic>`
- * so marks, lists, links, and any user-registered node types preserve their
- * styling instead of being collapsed to plain text.
+ * footnote well, footer band — with content rendered by a small recursive
+ * preview renderer that mirrors the live block types and inline marks.
+ *
+ * The thumbnail is intentionally lossy (no plugin parity), but it preserves
+ * heading hierarchy and basic mark styling (bold, italic, code, underline,
+ * strikethrough) so the preview reads as a faithful map of the document
+ * rather than a flattened text dump.
  */
 export const PageFrame = ({
   chrome,
@@ -84,9 +87,7 @@ export const PageFrame = ({
             top: 0,
           }}
         >
-          {documentHeader ? (
-            <PlateStatic editor={pageStaticEditor} value={[documentHeader]} />
-          ) : null}
+          {documentHeader ? <BlockPreview node={documentHeader} /> : null}
         </div>
       ) : null}
 
@@ -106,10 +107,12 @@ export const PageFrame = ({
             top: footnoteWellTop,
           }}
         >
-          <PlateStatic
-            editor={pageStaticEditor}
-            value={page.footnotes as TElement[]}
-          />
+          {page.footnotes.map((def, i) => (
+            <div key={(def as { id?: string }).id ?? i}>
+              {`[${(def as { identifier?: string }).identifier ?? i + 1}] `}
+              <InlinePreview node={def} />
+            </div>
+          ))}
         </div>
       ) : null}
 
@@ -132,9 +135,7 @@ export const PageFrame = ({
           }}
         >
           <span>
-            {documentFooter ? (
-              <PlateStatic editor={pageStaticEditor} value={[documentFooter]} />
-            ) : null}
+            {documentFooter ? <InlinePreview node={documentFooter} /> : null}
           </span>
           <span style={{ float: 'right' }}>{`${page.pageIndex + 1}`}</span>
         </div>
@@ -151,8 +152,145 @@ export const PageFrame = ({
           top: headerOffset + chrome.margins.top,
         }}
       >
-        <PlateStatic editor={pageStaticEditor} value={page.nodes} />
+        {page.nodes.map((node, i) => (
+          <BlockPreview key={(node as { id?: string }).id ?? i} node={node} />
+        ))}
       </div>
     </div>
   );
+};
+
+/** Renders a single block with type-aware styling and mark-aware inlines. */
+const BlockPreview = ({ node }: { node: TElement }): React.JSX.Element => {
+  const type = node.type;
+
+  if (typeof type === 'string' && HEADING_TYPE_RE.test(type)) {
+    const level = Number.parseInt(type.slice(1), 10);
+
+    return (
+      <div
+        style={{
+          fontSize: HEADING_SIZES[level] ?? 16,
+          fontWeight: 700,
+          lineHeight: 1.25,
+          margin: '12px 0 8px',
+        }}
+      >
+        <InlinePreview node={node} />
+      </div>
+    );
+  }
+  if (type === 'blockquote') {
+    return (
+      <div
+        style={{
+          borderLeft: '3px solid rgba(15,23,42,0.2)',
+          color: 'rgba(15,23,42,0.7)',
+          fontSize: 14,
+          fontStyle: 'italic',
+          lineHeight: 1.5,
+          margin: '8px 0',
+          paddingLeft: 12,
+        }}
+      >
+        <InlinePreview node={node} />
+      </div>
+    );
+  }
+  if (type === 'code_block') {
+    return (
+      <div
+        style={{
+          background: 'rgba(15,23,42,0.05)',
+          fontFamily: 'ui-monospace, monospace',
+          fontSize: 12,
+          lineHeight: 1.4,
+          margin: '8px 0',
+          padding: 8,
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        <InlinePreview node={node} />
+      </div>
+    );
+  }
+  if (type === 'ul' || type === 'ol') {
+    const Tag = type === 'ol' ? 'ol' : 'ul';
+
+    return (
+      <Tag
+        style={{
+          fontSize: 14,
+          lineHeight: 1.5,
+          margin: '6px 0',
+          paddingLeft: 24,
+        }}
+      >
+        {(node.children as TElement[]).map((child, i) => (
+          <li key={(child as { id?: string }).id ?? i}>
+            <InlinePreview node={child} />
+          </li>
+        ))}
+      </Tag>
+    );
+  }
+
+  return (
+    <div style={{ fontSize: 14, lineHeight: 1.5, margin: '6px 0' }}>
+      <InlinePreview node={node} />
+    </div>
+  );
+};
+
+type InlineNode = (TElement | TText | { children?: unknown[]; text?: string }) &
+  Record<string, unknown>;
+
+/**
+ * Renders the inline content of `node` with mark-aware styling. Text leaves
+ * apply bold/italic/underline/strikethrough/code; nested elements (links,
+ * mentions, etc.) recurse so styled inlines flow into the parent line box.
+ */
+const InlinePreview = ({ node }: { node: InlineNode }): React.JSX.Element => {
+  const children = (node.children as InlineNode[] | undefined) ?? [];
+
+  return (
+    <>
+      {children.map((child, i) => {
+        if (typeof child.text === 'string') {
+          return <Leaf key={i} leaf={child} />;
+        }
+
+        return <InlinePreview key={i} node={child} />;
+      })}
+    </>
+  );
+};
+
+const Leaf = ({ leaf }: { leaf: InlineNode }): React.ReactNode => {
+  const text = (leaf.text as string) || '';
+  if (!text) return null;
+
+  let element: React.ReactNode = text;
+
+  if (leaf.code) {
+    element = (
+      <code
+        style={{
+          background: 'rgba(15,23,42,0.06)',
+          borderRadius: 2,
+          fontFamily: 'ui-monospace, monospace',
+          fontSize: '0.92em',
+          padding: '0 2px',
+        }}
+      >
+        {element}
+      </code>
+    );
+  }
+  if (leaf.bold) element = <strong>{element}</strong>;
+  if (leaf.italic) element = <em>{element}</em>;
+  if (leaf.underline) element = <u>{element}</u>;
+  if (leaf.strikethrough) element = <s>{element}</s>;
+
+  return element;
 };

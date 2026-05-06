@@ -1,10 +1,8 @@
 import { C as FOOTNOTE_DEFINITION_KEY, S as FOOTER_KEY, _ as setEditorPages, b as BaseFooterPlugin, n as BasePaginationPlugin, t as paginate, v as BasePageBreakPlugin, w as HEADER_KEY, x as allocateFootnotes, y as BaseHeaderPlugin } from "../paginate-1hlE8RNf.js";
-import { createSlateEditor } from "platejs";
 import { toPlatePlugin, toTPlatePlugin, useEditorRef, useEditorValue, usePluginOption } from "platejs/react";
 import { c } from "react-compiler-runtime";
 import * as React from "react";
 import { useEffect, useLayoutEffect } from "react";
-import { PlateStatic, SlateElement, SlateLeaf } from "platejs/static";
 import { FootnoteDefinitionPlugin, FootnoteInputPlugin, FootnoteReferencePlugin } from "@platejs/footnote/react";
 
 //#region src/react/footer-plugin.ts
@@ -53,83 +51,8 @@ const HeaderPlugin = toPlatePlugin(BaseHeaderPlugin);
 const PageBreakPlugin = toPlatePlugin(BasePageBreakPlugin);
 
 //#endregion
-//#region src/react/static-components.tsx
-/**
-* Static (SSR-safe) component map for the pagination overlay's mini-render.
-*
-* The overlay paints non-interactive thumbnails of each page, so the content
-* is rendered with `<PlateStatic>` rather than `<Plate>`. This map provides
-* faithful styling for the node types the preview is most likely to see —
-* paragraphs, headings, header/footer, basic marks. Unknown types fall
-* through to the default `SlateElement`/`SlateLeaf` renderer.
-*
-* Consumers can extend this map by composing with their own components
-* before passing it to `createSlateEditor`.
-*/
-const HeaderElementStatic = (props) => {
-	const $ = c(3);
-	let t0;
-	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-		t0 = {
-			borderBottom: "1px dashed rgba(15,23,42,0.1)",
-			padding: "4px 0"
-		};
-		$[0] = t0;
-	} else t0 = $[0];
-	let t1;
-	if ($[1] !== props) {
-		t1 = /* @__PURE__ */ React.createElement(SlateElement, {
-			...props,
-			style: t0
-		}, props.children);
-		$[1] = props;
-		$[2] = t1;
-	} else t1 = $[2];
-	return t1;
-};
-const FooterElementStatic = (props) => {
-	const $ = c(3);
-	let t0;
-	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-		t0 = {
-			borderTop: "1px dashed rgba(15,23,42,0.1)",
-			padding: "4px 0"
-		};
-		$[0] = t0;
-	} else t0 = $[0];
-	let t1;
-	if ($[1] !== props) {
-		t1 = /* @__PURE__ */ React.createElement(SlateElement, {
-			...props,
-			style: t0
-		}, props.children);
-		$[1] = props;
-		$[2] = t1;
-	} else t1 = $[2];
-	return t1;
-};
-const ParagraphElementStatic = (props) => {
-	const $ = c(3);
-	let t0;
-	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-		t0 = {
-			fontSize: 14,
-			lineHeight: 1.5,
-			margin: "6px 0"
-		};
-		$[0] = t0;
-	} else t0 = $[0];
-	let t1;
-	if ($[1] !== props) {
-		t1 = /* @__PURE__ */ React.createElement(SlateElement, {
-			...props,
-			style: t0
-		}, props.children);
-		$[1] = props;
-		$[2] = t1;
-	} else t1 = $[2];
-	return t1;
-};
+//#region src/react/page-frame.tsx
+const HEADING_TYPE_RE = /^h([1-6])$/;
 const HEADING_SIZES = [
 	0,
 	28,
@@ -139,79 +62,15 @@ const HEADING_SIZES = [
 	14,
 	13
 ];
-const makeHeadingStatic = (level) => function HeadingStatic(props) {
-	return /* @__PURE__ */ React.createElement(SlateElement, {
-		...props,
-		style: {
-			fontSize: HEADING_SIZES[level],
-			fontWeight: 700,
-			lineHeight: 1.25,
-			margin: "10px 0 6px"
-		}
-	}, props.children);
-};
-const BoldLeafStatic = (props) => {
-	const $ = c(2);
-	let t0;
-	if ($[0] !== props) {
-		t0 = /* @__PURE__ */ React.createElement(SlateLeaf, {
-			...props,
-			as: "strong"
-		}, props.children);
-		$[0] = props;
-		$[1] = t0;
-	} else t0 = $[1];
-	return t0;
-};
-const ItalicLeafStatic = (props) => {
-	const $ = c(2);
-	let t0;
-	if ($[0] !== props) {
-		t0 = /* @__PURE__ */ React.createElement(SlateLeaf, {
-			...props,
-			as: "em"
-		}, props.children);
-		$[0] = props;
-		$[1] = t0;
-	} else t0 = $[1];
-	return t0;
-};
-const paginationStaticComponents = {
-	bold: BoldLeafStatic,
-	footer: FooterElementStatic,
-	h1: makeHeadingStatic(1),
-	h2: makeHeadingStatic(2),
-	h3: makeHeadingStatic(3),
-	h4: makeHeadingStatic(4),
-	h5: makeHeadingStatic(5),
-	h6: makeHeadingStatic(6),
-	header: HeaderElementStatic,
-	italic: ItalicLeafStatic,
-	p: ParagraphElementStatic
-};
-
-//#endregion
-//#region src/react/page-static-editor.ts
-/**
-* Singleton static editor used by `<PlateStatic>` inside the overlay.
-*
-* `createSlateEditor` has no browser deps, so this is SSR-safe. The same
-* instance is reused for every page thumbnail — node refs stay stable
-* across renders, which lets the memoized `ElementStatic`/`LeafStatic`
-* skip re-renders for unchanged subtrees.
-*/
-const pageStaticEditor = createSlateEditor({
-	components: paginationStaticComponents,
-	plugins: [BasePaginationPlugin]
-});
-
-//#endregion
-//#region src/react/page-frame.tsx
 /**
 * Single page chrome rendered by the overlay: header band, content rect,
-* footnote well, footer band — with content rendered via `<PlateStatic>`
-* so marks, lists, links, and any user-registered node types preserve their
-* styling instead of being collapsed to plain text.
+* footnote well, footer band — with content rendered by a small recursive
+* preview renderer that mirrors the live block types and inline marks.
+*
+* The thumbnail is intentionally lossy (no plugin parity), but it preserves
+* heading hierarchy and basic mark styling (bold, italic, code, underline,
+* strikethrough) so the preview reads as a faithful map of the document
+* rather than a flattened text dump.
 */
 const PageFrame = (t0) => {
 	const $ = c(39);
@@ -220,9 +79,10 @@ const PageFrame = (t0) => {
 	const headerOffset = chrome.headerHeight;
 	const footnoteWellTop = rect.height - chrome.footerHeight - chrome.footnoteWell;
 	const footerTop = rect.height - chrome.footerHeight;
-	let t1;
+	const t1 = page.pageIndex;
+	let t2;
 	if ($[0] !== rect.height || $[1] !== rect.width || $[2] !== top) {
-		t1 = {
+		t2 = {
 			background: "#ffffff",
 			border: "1px solid rgba(15,23,42,0.15)",
 			borderRadius: 2,
@@ -237,11 +97,11 @@ const PageFrame = (t0) => {
 		$[0] = rect.height;
 		$[1] = rect.width;
 		$[2] = top;
-		$[3] = t1;
-	} else t1 = $[3];
-	let t2;
+		$[3] = t2;
+	} else t2 = $[3];
+	let t3;
 	if ($[4] !== chrome.headerHeight || $[5] !== chrome.margins.left || $[6] !== chrome.margins.right || $[7] !== documentHeader) {
-		t2 = chrome.headerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
+		t3 = chrome.headerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "header",
 			style: {
 				borderBottom: "1px dashed rgba(15,23,42,0.1)",
@@ -257,19 +117,16 @@ const PageFrame = (t0) => {
 				right: 0,
 				top: 0
 			}
-		}, documentHeader ? /* @__PURE__ */ React.createElement(PlateStatic, {
-			editor: pageStaticEditor,
-			value: [documentHeader]
-		}) : null) : null;
+		}, documentHeader ? /* @__PURE__ */ React.createElement(BlockPreview, { node: documentHeader }) : null) : null;
 		$[4] = chrome.headerHeight;
 		$[5] = chrome.margins.left;
 		$[6] = chrome.margins.right;
 		$[7] = documentHeader;
-		$[8] = t2;
-	} else t2 = $[8];
-	let t3;
+		$[8] = t3;
+	} else t3 = $[8];
+	let t4;
 	if ($[9] !== chrome.footnoteWell || $[10] !== chrome.margins.left || $[11] !== chrome.margins.right || $[12] !== footnoteWellTop || $[13] !== page.footnotes) {
-		t3 = chrome.footnoteWell > 0 && page.footnotes.length > 0 ? /* @__PURE__ */ React.createElement("div", {
+		t4 = chrome.footnoteWell > 0 && page.footnotes.length > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "footnote-well",
 			style: {
 				borderTop: "1px solid rgba(15,23,42,0.1)",
@@ -283,20 +140,17 @@ const PageFrame = (t0) => {
 				right: chrome.margins.right,
 				top: footnoteWellTop
 			}
-		}, /* @__PURE__ */ React.createElement(PlateStatic, {
-			editor: pageStaticEditor,
-			value: page.footnotes
-		})) : null;
+		}, page.footnotes.map(_temp$2)) : null;
 		$[9] = chrome.footnoteWell;
 		$[10] = chrome.margins.left;
 		$[11] = chrome.margins.right;
 		$[12] = footnoteWellTop;
 		$[13] = page.footnotes;
-		$[14] = t3;
-	} else t3 = $[14];
-	let t4;
+		$[14] = t4;
+	} else t4 = $[14];
+	let t5;
 	if ($[15] !== chrome.footerHeight || $[16] !== chrome.margins.left || $[17] !== chrome.margins.right || $[18] !== documentFooter || $[19] !== footerTop || $[20] !== page.pageIndex) {
-		t4 = chrome.footerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
+		t5 = chrome.footerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "footer",
 			style: {
 				borderTop: "1px dashed rgba(15,23,42,0.1)",
@@ -312,72 +166,303 @@ const PageFrame = (t0) => {
 				right: 0,
 				top: footerTop
 			}
-		}, /* @__PURE__ */ React.createElement("span", null, documentFooter ? /* @__PURE__ */ React.createElement(PlateStatic, {
-			editor: pageStaticEditor,
-			value: [documentFooter]
-		}) : null), /* @__PURE__ */ React.createElement("span", { style: { float: "right" } }, `${page.pageIndex + 1}`)) : null;
+		}, /* @__PURE__ */ React.createElement("span", null, documentFooter ? /* @__PURE__ */ React.createElement(InlinePreview, { node: documentFooter }) : null), /* @__PURE__ */ React.createElement("span", { style: { float: "right" } }, `${page.pageIndex + 1}`)) : null;
 		$[15] = chrome.footerHeight;
 		$[16] = chrome.margins.left;
 		$[17] = chrome.margins.right;
 		$[18] = documentFooter;
 		$[19] = footerTop;
 		$[20] = page.pageIndex;
-		$[21] = t4;
-	} else t4 = $[21];
-	const t5 = headerOffset + chrome.margins.top;
-	let t6;
-	if ($[22] !== chrome.margins.left || $[23] !== chrome.margins.right || $[24] !== rect.contentHeight || $[25] !== t5) {
-		t6 = {
+		$[21] = t5;
+	} else t5 = $[21];
+	const t6 = headerOffset + chrome.margins.top;
+	let t7;
+	if ($[22] !== chrome.margins.left || $[23] !== chrome.margins.right || $[24] !== rect.contentHeight || $[25] !== t6) {
+		t7 = {
 			height: rect.contentHeight,
 			left: chrome.margins.left,
 			overflow: "hidden",
 			position: "absolute",
 			right: chrome.margins.right,
-			top: t5
+			top: t6
 		};
 		$[22] = chrome.margins.left;
 		$[23] = chrome.margins.right;
 		$[24] = rect.contentHeight;
-		$[25] = t5;
-		$[26] = t6;
-	} else t6 = $[26];
-	let t7;
-	if ($[27] !== page.nodes) {
-		t7 = /* @__PURE__ */ React.createElement(PlateStatic, {
-			editor: pageStaticEditor,
-			value: page.nodes
-		});
-		$[27] = page.nodes;
-		$[28] = t7;
-	} else t7 = $[28];
+		$[25] = t6;
+		$[26] = t7;
+	} else t7 = $[26];
 	let t8;
-	if ($[29] !== t6 || $[30] !== t7) {
-		t8 = /* @__PURE__ */ React.createElement("div", {
-			"data-plate-pagination-slot": "content",
-			style: t6
-		}, t7);
-		$[29] = t6;
-		$[30] = t7;
-		$[31] = t8;
-	} else t8 = $[31];
+	if ($[27] !== page.nodes) {
+		t8 = page.nodes.map(_temp2$1);
+		$[27] = page.nodes;
+		$[28] = t8;
+	} else t8 = $[28];
 	let t9;
-	if ($[32] !== page.pageIndex || $[33] !== t1 || $[34] !== t2 || $[35] !== t3 || $[36] !== t4 || $[37] !== t8) {
+	if ($[29] !== t7 || $[30] !== t8) {
 		t9 = /* @__PURE__ */ React.createElement("div", {
+			"data-plate-pagination-slot": "content",
+			style: t7
+		}, t8);
+		$[29] = t7;
+		$[30] = t8;
+		$[31] = t9;
+	} else t9 = $[31];
+	let t10;
+	if ($[32] !== page.pageIndex || $[33] !== t2 || $[34] !== t3 || $[35] !== t4 || $[36] !== t5 || $[37] !== t9) {
+		t10 = /* @__PURE__ */ React.createElement("div", {
 			"aria-hidden": "true",
-			"data-page-index": page.pageIndex,
+			"data-page-index": t1,
 			"data-plate-pagination-page": "",
-			style: t1
-		}, t2, t3, t4, t8);
+			style: t2
+		}, t3, t4, t5, t9);
 		$[32] = page.pageIndex;
-		$[33] = t1;
-		$[34] = t2;
-		$[35] = t3;
-		$[36] = t4;
-		$[37] = t8;
-		$[38] = t9;
-	} else t9 = $[38];
-	return t9;
+		$[33] = t2;
+		$[34] = t3;
+		$[35] = t4;
+		$[36] = t5;
+		$[37] = t9;
+		$[38] = t10;
+	} else t10 = $[38];
+	return t10;
 };
+/** Renders a single block with type-aware styling and mark-aware inlines. */
+const BlockPreview = (t0) => {
+	const $ = c(22);
+	const { node } = t0;
+	const type = node.type;
+	if (typeof type === "string" && HEADING_TYPE_RE.test(type)) {
+		const t1$1 = HEADING_SIZES[Number.parseInt(type.slice(1), 10)] ?? 16;
+		let t2$1;
+		if ($[0] !== t1$1) {
+			t2$1 = {
+				fontSize: t1$1,
+				fontWeight: 700,
+				lineHeight: 1.25,
+				margin: "12px 0 8px"
+			};
+			$[0] = t1$1;
+			$[1] = t2$1;
+		} else t2$1 = $[1];
+		let t3;
+		if ($[2] !== node) {
+			t3 = /* @__PURE__ */ React.createElement(InlinePreview, { node });
+			$[2] = node;
+			$[3] = t3;
+		} else t3 = $[3];
+		let t4;
+		if ($[4] !== t2$1 || $[5] !== t3) {
+			t4 = /* @__PURE__ */ React.createElement("div", { style: t2$1 }, t3);
+			$[4] = t2$1;
+			$[5] = t3;
+			$[6] = t4;
+		} else t4 = $[6];
+		return t4;
+	}
+	if (type === "blockquote") {
+		let t1$1;
+		if ($[7] === Symbol.for("react.memo_cache_sentinel")) {
+			t1$1 = {
+				borderLeft: "3px solid rgba(15,23,42,0.2)",
+				color: "rgba(15,23,42,0.7)",
+				fontSize: 14,
+				fontStyle: "italic",
+				lineHeight: 1.5,
+				margin: "8px 0",
+				paddingLeft: 12
+			};
+			$[7] = t1$1;
+		} else t1$1 = $[7];
+		let t2$1;
+		if ($[8] !== node) {
+			t2$1 = /* @__PURE__ */ React.createElement("div", { style: t1$1 }, /* @__PURE__ */ React.createElement(InlinePreview, { node }));
+			$[8] = node;
+			$[9] = t2$1;
+		} else t2$1 = $[9];
+		return t2$1;
+	}
+	if (type === "code_block") {
+		let t1$1;
+		if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
+			t1$1 = {
+				background: "rgba(15,23,42,0.05)",
+				fontFamily: "ui-monospace, monospace",
+				fontSize: 12,
+				lineHeight: 1.4,
+				margin: "8px 0",
+				padding: 8,
+				whiteSpace: "pre-wrap"
+			};
+			$[10] = t1$1;
+		} else t1$1 = $[10];
+		let t2$1;
+		if ($[11] !== node) {
+			t2$1 = /* @__PURE__ */ React.createElement("div", { style: t1$1 }, /* @__PURE__ */ React.createElement(InlinePreview, { node }));
+			$[11] = node;
+			$[12] = t2$1;
+		} else t2$1 = $[12];
+		return t2$1;
+	}
+	if (type === "ul" || type === "ol") {
+		const Tag = type === "ol" ? "ol" : "ul";
+		let t1$1;
+		if ($[13] === Symbol.for("react.memo_cache_sentinel")) {
+			t1$1 = {
+				fontSize: 14,
+				lineHeight: 1.5,
+				margin: "6px 0",
+				paddingLeft: 24
+			};
+			$[13] = t1$1;
+		} else t1$1 = $[13];
+		const t2$1 = node.children;
+		let t3;
+		if ($[14] !== t2$1) {
+			t3 = t2$1.map(_temp3);
+			$[14] = t2$1;
+			$[15] = t3;
+		} else t3 = $[15];
+		let t4;
+		if ($[16] !== Tag || $[17] !== t3) {
+			t4 = /* @__PURE__ */ React.createElement(Tag, { style: t1$1 }, t3);
+			$[16] = Tag;
+			$[17] = t3;
+			$[18] = t4;
+		} else t4 = $[18];
+		return t4;
+	}
+	let t1;
+	if ($[19] === Symbol.for("react.memo_cache_sentinel")) {
+		t1 = {
+			fontSize: 14,
+			lineHeight: 1.5,
+			margin: "6px 0"
+		};
+		$[19] = t1;
+	} else t1 = $[19];
+	let t2;
+	if ($[20] !== node) {
+		t2 = /* @__PURE__ */ React.createElement("div", { style: t1 }, /* @__PURE__ */ React.createElement(InlinePreview, { node }));
+		$[20] = node;
+		$[21] = t2;
+	} else t2 = $[21];
+	return t2;
+};
+/**
+* Renders the inline content of `node` with mark-aware styling. Text leaves
+* apply bold/italic/underline/strikethrough/code; nested elements (links,
+* mentions, etc.) recurse so styled inlines flow into the parent line box.
+*/
+const InlinePreview = (t0) => {
+	const $ = c(6);
+	const { node } = t0;
+	let t1;
+	if ($[0] !== node.children) {
+		t1 = node.children ?? [];
+		$[0] = node.children;
+		$[1] = t1;
+	} else t1 = $[1];
+	const children = t1;
+	let t2;
+	if ($[2] !== children) {
+		t2 = children.map(_temp4);
+		$[2] = children;
+		$[3] = t2;
+	} else t2 = $[3];
+	let t3;
+	if ($[4] !== t2) {
+		t3 = /* @__PURE__ */ React.createElement(React.Fragment, null, t2);
+		$[4] = t2;
+		$[5] = t3;
+	} else t3 = $[5];
+	return t3;
+};
+const Leaf = (t0) => {
+	const $ = c(11);
+	const { leaf } = t0;
+	const text = leaf.text || "";
+	if (!text) return null;
+	let element = text;
+	if (leaf.code) {
+		let t1;
+		if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+			t1 = {
+				background: "rgba(15,23,42,0.06)",
+				borderRadius: 2,
+				fontFamily: "ui-monospace, monospace",
+				fontSize: "0.92em",
+				padding: "0 2px"
+			};
+			$[0] = t1;
+		} else t1 = $[0];
+		let t2;
+		if ($[1] !== element) {
+			t2 = /* @__PURE__ */ React.createElement("code", { style: t1 }, element);
+			$[1] = element;
+			$[2] = t2;
+		} else t2 = $[2];
+		element = t2;
+	}
+	if (leaf.bold) {
+		let t1;
+		if ($[3] !== element) {
+			t1 = /* @__PURE__ */ React.createElement("strong", null, element);
+			$[3] = element;
+			$[4] = t1;
+		} else t1 = $[4];
+		element = t1;
+	}
+	if (leaf.italic) {
+		let t1;
+		if ($[5] !== element) {
+			t1 = /* @__PURE__ */ React.createElement("em", null, element);
+			$[5] = element;
+			$[6] = t1;
+		} else t1 = $[6];
+		element = t1;
+	}
+	if (leaf.underline) {
+		let t1;
+		if ($[7] !== element) {
+			t1 = /* @__PURE__ */ React.createElement("u", null, element);
+			$[7] = element;
+			$[8] = t1;
+		} else t1 = $[8];
+		element = t1;
+	}
+	if (leaf.strikethrough) {
+		let t1;
+		if ($[9] !== element) {
+			t1 = /* @__PURE__ */ React.createElement("s", null, element);
+			$[9] = element;
+			$[10] = t1;
+		} else t1 = $[10];
+		element = t1;
+	}
+	return element;
+};
+function _temp$2(def, i) {
+	return /* @__PURE__ */ React.createElement("div", { key: def.id ?? i }, `[${def.identifier ?? i + 1}] `, /* @__PURE__ */ React.createElement(InlinePreview, { node: def }));
+}
+function _temp2$1(node, i_0) {
+	return /* @__PURE__ */ React.createElement(BlockPreview, {
+		key: node.id ?? i_0,
+		node
+	});
+}
+function _temp3(child, i) {
+	return /* @__PURE__ */ React.createElement("li", { key: child.id ?? i }, /* @__PURE__ */ React.createElement(InlinePreview, { node: child }));
+}
+function _temp4(child, i) {
+	if (typeof child.text === "string") return /* @__PURE__ */ React.createElement(Leaf, {
+		key: i,
+		leaf: child
+	});
+	return /* @__PURE__ */ React.createElement(InlinePreview, {
+		key: i,
+		node: child
+	});
+}
 
 //#endregion
 //#region src/lib/internal/page-size-presets.ts
@@ -784,12 +869,12 @@ const PageOverlay = () => {
 			color: "rgba(15,23,42,0.85)",
 			fontFamily: "system-ui, sans-serif",
 			fontSize: 12,
-			maxHeight: "calc(100vh - 32px)",
+			maxHeight: "calc(100vh - 96px)",
 			overflowY: "auto",
 			padding: 12,
 			position: "fixed",
 			right: 16,
-			top: 16,
+			top: 80,
 			width: 220,
 			zIndex: 50
 		};
@@ -984,5 +1069,5 @@ const PaginationPlugin = toTPlatePlugin(BasePaginationPlugin).extend(({ getOptio
 }));
 
 //#endregion
-export { BoldLeafStatic, FooterElementStatic, FooterPlugin, FootnotePortal, HeaderElementStatic, HeaderPlugin, ItalicLeafStatic, PageBreakPlugin, PageFrame, PageOverlay, PaginationPlugin, ParagraphElementStatic, computeThumbScale, makeHeadingStatic, pageStaticEditor, paginationStaticComponents, usePretextMeasurer };
+export { FooterPlugin, FootnotePortal, HeaderPlugin, PageBreakPlugin, PageFrame, PageOverlay, PaginationPlugin, computeThumbScale, usePretextMeasurer };
 //# sourceMappingURL=index.js.map
