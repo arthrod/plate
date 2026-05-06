@@ -22,6 +22,9 @@ export type PageFrameProps = {
  * Single page chrome rendered by the overlay: header band, content rect,
  * footnote well, footer band — plus a faithful mini-rendering of each block
  * in the body so the panel doubles as a content-aware preview.
+ *
+ * Header and footer bands are inset by the resolved page margins so they
+ * match the content column width, not the full paper width.
  */
 export const PageFrame = ({
   chrome,
@@ -31,10 +34,18 @@ export const PageFrame = ({
   top,
 }: PageFrameProps): React.JSX.Element => {
   const { rect } = page;
-  const headerOffset = chrome.headerHeight;
+  // Resolved margin px values (always available on rect.margins).
+  const ml = rect.margins.left;
+  const mr = rect.margins.right;
+
+  // Vertical offsets (all relative to the top of the page div).
+  // Header occupies [0, chrome.headerHeight).
+  // Content starts at margins.top (which already includes headerHeight in the
+  // reservation) and ends at margins.top + contentHeight.
+  const contentTop = rect.margins.top + chrome.headerHeight;
   const footnoteWellTop =
-    rect.height - chrome.footerHeight - chrome.footnoteWell;
-  const footerTop = rect.height - chrome.footerHeight;
+    rect.height - rect.margins.bottom - chrome.footerHeight - chrome.footnoteWell;
+  const footerTop = rect.height - rect.margins.bottom - chrome.footerHeight;
 
   return (
     <div
@@ -43,9 +54,9 @@ export const PageFrame = ({
       data-plate-pagination-page=""
       style={{
         background: '#ffffff',
-        border: '1px solid rgba(15,23,42,0.15)',
+        border: '1px solid rgba(15,23,42,0.2)',
         borderRadius: 2,
-        boxShadow: '0 1px 2px rgba(15,23,42,0.08)',
+        boxShadow: '0 2px 4px rgba(15,23,42,0.12)',
         height: rect.height,
         left: 0,
         pointerEvents: 'none',
@@ -58,15 +69,20 @@ export const PageFrame = ({
         <div
           data-plate-pagination-slot="header"
           style={{
-            borderBottom: '1px dashed rgba(15,23,42,0.1)',
-            color: 'rgba(15,23,42,0.55)',
+            alignItems: 'center',
+            background: 'rgba(248,250,252,0.9)',
+            borderBottom: '1px solid rgba(15,23,42,0.15)',
+            boxSizing: 'border-box',
+            color: 'rgba(15,23,42,0.6)',
+            display: 'flex',
             fontSize: 12,
             height: chrome.headerHeight,
-            left: 0,
-            padding: '8px 16px',
+            left: ml,
+            overflow: 'hidden',
+            padding: '4px 8px',
             position: 'absolute',
-            right: 0,
-            top: 0,
+            right: mr,
+            top: rect.margins.top,
           }}
         >
           {documentHeader ? collectInlineText(documentHeader) : null}
@@ -77,15 +93,16 @@ export const PageFrame = ({
         <div
           data-plate-pagination-slot="footnote-well"
           style={{
-            borderTop: '1px solid rgba(15,23,42,0.1)',
+            borderTop: '1px solid rgba(15,23,42,0.15)',
+            boxSizing: 'border-box',
             color: 'rgba(15,23,42,0.7)',
             fontSize: 11,
             height: chrome.footnoteWell,
-            left: 16,
+            left: ml,
             overflow: 'hidden',
             padding: '4px 0',
             position: 'absolute',
-            right: 16,
+            right: mr,
             top: footnoteWellTop,
           }}
         >
@@ -102,38 +119,44 @@ export const PageFrame = ({
         <div
           data-plate-pagination-slot="footer"
           style={{
-            borderTop: '1px dashed rgba(15,23,42,0.1)',
-            color: 'rgba(15,23,42,0.55)',
+            alignItems: 'center',
+            background: 'rgba(248,250,252,0.9)',
+            borderTop: '1px solid rgba(15,23,42,0.15)',
+            boxSizing: 'border-box',
+            color: 'rgba(15,23,42,0.6)',
+            display: 'flex',
             fontSize: 12,
             height: chrome.footerHeight,
-            left: 0,
-            padding: '8px 16px',
+            justifyContent: 'space-between',
+            left: ml,
+            overflow: 'hidden',
+            padding: '4px 8px',
             position: 'absolute',
-            right: 0,
+            right: mr,
             top: footerTop,
           }}
         >
           <span>
             {documentFooter ? collectInlineText(documentFooter) : null}
           </span>
-          <span style={{ float: 'right' }}>{`${page.pageIndex + 1}`}</span>
+          <span>{`${page.pageIndex + 1}`}</span>
         </div>
       ) : null}
 
       <div
         data-plate-pagination-slot="content"
         style={{
+          boxSizing: 'border-box',
           height: rect.contentHeight,
-          left: 24,
+          left: ml,
           overflow: 'hidden',
-          padding: '0 16px',
           position: 'absolute',
-          right: 24,
-          top: headerOffset + 16,
+          right: mr,
+          top: contentTop,
         }}
       >
         {page.nodes.map((node, i) => (
-          <BlockPreview key={(node as { id?: string }).id ?? i} node={node} />
+
         ))}
       </div>
     </div>

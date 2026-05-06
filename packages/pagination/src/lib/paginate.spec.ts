@@ -9,6 +9,7 @@ const RECT: PageRect = {
   contentHeight: 100,
   contentWidth: 600,
   height: 200,
+  margins: { bottom: 20, left: 40, right: 40, top: 20 },
   width: 800,
 };
 

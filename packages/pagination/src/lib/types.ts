@@ -1,19 +1,36 @@
 import type { TElement } from 'platejs';
 
-/** Page geometry in CSS pixels. */
+/** Page geometry in CSS pixels (all values already resolved to px). */
 export type PageRect = {
   contentHeight: number;
   contentWidth: number;
   height: number;
+  /** Resolved margin box in px — available for chrome inset calculations. */
+  margins: { bottom: number; left: number; right: number; top: number };
   width: number;
 };
 
-/** Page margin box in CSS pixels. */
+/**
+ * A margin dimension that can be expressed as:
+ * - A plain `number` (interpreted as CSS pixels, for backward compatibility).
+ * - A CSS string with an explicit unit: `'2.54cm'`, `'1in'`, `'12pt'`,
+ *   `'72px'`.
+ *
+ * Supported units and their conversions to CSS pixels at 96 DPI:
+ * - `px` — identity (1px = 1px)
+ * - `in` — 1in = 96px
+ * - `cm` — 1cm ≈ 37.795px  (96 / 2.54)
+ * - `mm` — 1mm ≈ 3.7795px  (96 / 25.4)
+ * - `pt` — 1pt ≈ 1.333px   (96 / 72)
+ */
+export type MarginValue = number | string;
+
+/** Page margin box. Each side accepts a {@link MarginValue}. */
 export type PageMargins = {
-  bottom: number;
-  left: number;
-  right: number;
-  top: number;
+  bottom: MarginValue;
+  left: MarginValue;
+  right: MarginValue;
+  top: MarginValue;
 };
 
 /**

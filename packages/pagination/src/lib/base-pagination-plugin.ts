@@ -99,8 +99,15 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
       normalizeNode: (entry) => {
         const [, path] = entry;
 
+        // Only check header/footer invariants at the root level.
+        // IMPORTANT: fixOneHeaderFooterInvariant makes AT MOST one Slate
+        // transform per call and returns `true` when it does. We must
+        // `return` immediately after so Slate can re-enter normalizeNode
+        // until the document is stable. Making more than one transform in a
+        // single normalizeNode call causes the infinite-loop "126 iterations"
+        // error because Slate keeps seeing an un-normalized state.
         if (path.length === 0) {
-          enforceHeaderFooterInvariants(editor as EditorLike);
+          if (fixOneHeaderFooterInvariant(editor as EditorLike)) return;
         }
 
         return normalizeNode(entry);
@@ -257,10 +264,19 @@ const removeByType = (editor: EditorLike, type: string): void => {
 };
 
 /**
- * Single header at index 0; single footer at the last index. Anything else
- * is normalized away — keeps paste/undo from producing duplicates.
+ * Fix exactly ONE header/footer invariant per call and return `true` when
+ * a fix was applied. Slate's normalizeNode contract requires that at most
+ * one transform is made per invocation; the caller must return immediately
+ * after this returns `true` so Slate re-enters normalizeNode.
+ *
+ * Invariants enforced (in priority order so the first violated one wins):
+ *   1. At most one header — remove the last duplicate.
+ *   2. At most one footer — remove the first duplicate.
+ *   3. Header must be at index 0 — move it.
+ *   4. Footer must be at the last index — move it.
  */
-const enforceHeaderFooterInvariants = (editor: EditorLike): void => {
+const fixOneHeaderFooterInvariant = (editor: EditorLike): boolean => {
+  // Collect current indices fresh on every call (children may have changed).
   const headerIdxs: number[] = [];
   const footerIdxs: number[] = [];
 
@@ -269,26 +285,37 @@ const enforceHeaderFooterInvariants = (editor: EditorLike): void => {
     else if (n.type === FOOTER_KEY) footerIdxs.push(i);
   });
 
-  // Drop duplicate headers (keep the first), then re-position to [0].
+  // 1. Remove a duplicate header (keep the first, remove last duplicate).
   if (headerIdxs.length > 1) {
-    for (let i = headerIdxs.length - 1; i >= 1; i--) {
-      editor.tf.removeNodes({ at: [headerIdxs[i]] });
-    }
+    editor.tf.removeNodes({ at: [headerIdxs[headerIdxs.length - 1]] });
+
+    return true;
   }
+
+  // 2. Remove a duplicate footer (keep the last, remove first duplicate).
+  if (footerIdxs.length > 1) {
+    editor.tf.removeNodes({ at: [footerIdxs[0]] });
+
+    return true;
+  }
+
+  // 3. Header not at index 0 — move it (indices are now stable: at most one
+  //    header and one footer remain).
   if (headerIdxs[0] !== undefined && headerIdxs[0] !== 0) {
     editor.tf.moveNodes({ at: [headerIdxs[0]], to: [0] });
+
+    return true;
   }
 
-  // Drop duplicate footers (keep the last), then re-position to last index.
-  if (footerIdxs.length > 1) {
-    for (let i = footerIdxs.length - 2; i >= 0; i--) {
-      editor.tf.removeNodes({ at: [footerIdxs[i]] });
-    }
-  }
-  const lastFooter = footerIdxs.at(-1);
+  // 4. Footer not at the last index — recompute target after potential moves.
   const target = editor.children.length - 1;
+  const footerIdx = footerIdxs[0];
 
-  if (lastFooter !== undefined && lastFooter !== target) {
-    editor.tf.moveNodes({ at: [lastFooter], to: [target] });
+  if (footerIdx !== undefined && footerIdx !== target) {
+    editor.tf.moveNodes({ at: [footerIdx], to: [target] });
+
+    return true;
   }
+
+  return false;
 };
