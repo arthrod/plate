@@ -2,13 +2,24 @@ import * as React from 'react';
 
 import type { TElement } from 'platejs';
 
-import type { Page } from '../lib/types';
+import { PlateStatic } from 'platejs/static';
 
-const HEADING_TYPE_RE = /^h([1-6])$/;
+import type { Page, PageMargins } from '../lib/types';
+
+import { pageStaticEditor } from './page-static-editor';
 
 export type PageFrameProps = {
-  /** Resolved chrome heights from `BasePaginationOptions`. */
-  chrome: { footerHeight: number; footnoteWell: number; headerHeight: number };
+  /**
+   * Resolved chrome heights and margin box from `BasePaginationOptions`.
+   * Margins are passed through so header/footer/content slots respect the
+   * authored page geometry instead of hardcoded insets.
+   */
+  chrome: {
+    footerHeight: number;
+    footnoteWell: number;
+    headerHeight: number;
+    margins: PageMargins;
+  };
   /** First-class footer element copied off the document, if any. */
   documentFooter?: TElement;
   /** First-class header element copied off the document, if any. */
@@ -20,8 +31,9 @@ export type PageFrameProps = {
 
 /**
  * Single page chrome rendered by the overlay: header band, content rect,
- * footnote well, footer band — plus a faithful mini-rendering of each block
- * in the body so the panel doubles as a content-aware preview.
+ * footnote well, footer band — with content rendered via `<PlateStatic>`
+ * so marks, lists, links, and any user-registered node types preserve their
+ * styling instead of being collapsed to plain text.
  */
 export const PageFrame = ({
   chrome,
@@ -63,13 +75,18 @@ export const PageFrame = ({
             fontSize: 12,
             height: chrome.headerHeight,
             left: 0,
-            padding: '8px 16px',
+            paddingBottom: 8,
+            paddingLeft: chrome.margins.left,
+            paddingRight: chrome.margins.right,
+            paddingTop: 8,
             position: 'absolute',
             right: 0,
             top: 0,
           }}
         >
-          {documentHeader ? collectInlineText(documentHeader) : null}
+          {documentHeader ? (
+            <PlateStatic editor={pageStaticEditor} value={[documentHeader]} />
+          ) : null}
         </div>
       ) : null}
 
@@ -81,20 +98,18 @@ export const PageFrame = ({
             color: 'rgba(15,23,42,0.7)',
             fontSize: 11,
             height: chrome.footnoteWell,
-            left: 16,
+            left: chrome.margins.left,
             overflow: 'hidden',
             padding: '4px 0',
             position: 'absolute',
-            right: 16,
+            right: chrome.margins.right,
             top: footnoteWellTop,
           }}
         >
-          {page.footnotes.map((def, i) => (
-            <div key={(def as { id?: string }).id ?? i}>
-              {`[${(def as { identifier?: string }).identifier ?? i + 1}] `}
-              {collectInlineText(def)}
-            </div>
-          ))}
+          <PlateStatic
+            editor={pageStaticEditor}
+            value={page.footnotes as TElement[]}
+          />
         </div>
       ) : null}
 
@@ -107,14 +122,19 @@ export const PageFrame = ({
             fontSize: 12,
             height: chrome.footerHeight,
             left: 0,
-            padding: '8px 16px',
+            paddingBottom: 8,
+            paddingLeft: chrome.margins.left,
+            paddingRight: chrome.margins.right,
+            paddingTop: 8,
             position: 'absolute',
             right: 0,
             top: footerTop,
           }}
         >
           <span>
-            {documentFooter ? collectInlineText(documentFooter) : null}
+            {documentFooter ? (
+              <PlateStatic editor={pageStaticEditor} value={[documentFooter]} />
+            ) : null}
           </span>
           <span style={{ float: 'right' }}>{`${page.pageIndex + 1}`}</span>
         </div>
@@ -124,112 +144,15 @@ export const PageFrame = ({
         data-plate-pagination-slot="content"
         style={{
           height: rect.contentHeight,
-          left: 24,
+          left: chrome.margins.left,
           overflow: 'hidden',
-          padding: '0 16px',
           position: 'absolute',
-          right: 24,
-          top: headerOffset + 16,
+          right: chrome.margins.right,
+          top: headerOffset + chrome.margins.top,
         }}
       >
-        {page.nodes.map((node, i) => (
-          <BlockPreview key={(node as { id?: string }).id ?? i} node={node} />
-        ))}
+        <PlateStatic editor={pageStaticEditor} value={page.nodes} />
       </div>
     </div>
   );
-};
-
-const BlockPreview = ({ node }: { node: TElement }): React.JSX.Element => {
-  const text = collectInlineText(node);
-  const type = node.type;
-
-  if (typeof type === 'string' && HEADING_TYPE_RE.test(type)) {
-    const level = Number.parseInt(type.slice(1), 10);
-    const sizes = [0, 28, 22, 18, 16, 14, 13];
-
-    return (
-      <div
-        style={{
-          fontSize: sizes[level] ?? 16,
-          fontWeight: 700,
-          lineHeight: 1.25,
-          margin: '12px 0 8px',
-        }}
-      >
-        {text}
-      </div>
-    );
-  }
-  if (type === 'blockquote') {
-    return (
-      <div
-        style={{
-          borderLeft: '3px solid rgba(15,23,42,0.2)',
-          color: 'rgba(15,23,42,0.7)',
-          fontSize: 14,
-          fontStyle: 'italic',
-          lineHeight: 1.5,
-          margin: '8px 0',
-          paddingLeft: 12,
-        }}
-      >
-        {text}
-      </div>
-    );
-  }
-  if (type === 'code_block') {
-    return (
-      <div
-        style={{
-          background: 'rgba(15,23,42,0.05)',
-          fontFamily: 'ui-monospace, monospace',
-          fontSize: 12,
-          lineHeight: 1.4,
-          margin: '8px 0',
-          padding: 8,
-          whiteSpace: 'pre-wrap',
-        }}
-      >
-        {text}
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={{
-        fontSize: 14,
-        lineHeight: 1.5,
-        margin: '6px 0',
-      }}
-    >
-      {text || ' '}
-    </div>
-  );
-};
-
-const collectInlineText = (node: TElement | undefined): string => {
-  if (!node) return '';
-  let out = '';
-  walk(node, (t) => {
-    out += t;
-  });
-
-  return out;
-};
-
-const walk = (
-  node: { children?: unknown[]; text?: string },
-  visit: (text: string) => void
-): void => {
-  if (typeof node.text === 'string') {
-    visit(node.text);
-
-    return;
-  }
-  if (!Array.isArray(node.children)) return;
-  for (const child of node.children) {
-    walk(child as { children?: unknown[]; text?: string }, visit);
-  }
 };

@@ -26,22 +26,41 @@ const STACK_GAP = 12;
  * still mounts (so the toggle stays reactive) but renders nothing.
  *
  * Updates reactively as the document changes via `useEditorValue`.
+ *
+ * Hydration: the underlying measurer falls back to font-derived heights on
+ * SSR which can disagree with client-side layout, so the panel waits for
+ * `useEffect` (client-only) before painting. This avoids React #418 hydration
+ * mismatches when the page count differs between server and client.
  */
 export const PageOverlay = (): React.JSX.Element | null => {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const editor = useEditorRef();
   const visible = usePluginOption(BasePaginationPlugin, 'previewVisible');
   const pageSize = usePluginOption(BasePaginationPlugin, 'pageSize');
   const margins = usePluginOption(BasePaginationPlugin, 'margins');
+  const footerHeight = usePluginOption(BasePaginationPlugin, 'footerHeight');
+  const footnoteWell = usePluginOption(BasePaginationPlugin, 'footnoteWell');
+  const headerHeight = usePluginOption(BasePaginationPlugin, 'headerHeight');
+  const includeFootnoteSubPlugins = usePluginOption(
+    BasePaginationPlugin,
+    'includeFootnoteSubPlugins'
+  );
   const value = useEditorValue();
 
-  void pageSize;
-  void margins;
-
-  const options = editor.getOptions(BasePaginationPlugin) as
-    | BasePaginationConfig['options']
-    | undefined;
-
-  const safeOptions = useResolvedOptions(options);
+  const safeOptions = useResolvedOptions({
+    footerHeight,
+    footnoteWell,
+    headerHeight,
+    includeFootnoteSubPlugins,
+    margins,
+    pageSize,
+    previewVisible: visible,
+  });
   const pages = usePageLayout(
     {
       children: value as unknown as TElement[],
@@ -50,6 +69,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
     safeOptions
   );
 
+  if (!mounted) return null;
   if (!visible || pages.length === 0) {
     return <FootnotePortal />;
   }
@@ -134,8 +154,10 @@ export const PageOverlay = (): React.JSX.Element | null => {
                 >
                   <div
                     style={{
+                      height: page.rect.height,
                       transform: `scale(${scale})`,
                       transformOrigin: 'top left',
+                      width: page.rect.width,
                     }}
                   >
                     <PageFrame
@@ -143,6 +165,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
                         footerHeight: safeOptions.footerHeight,
                         footnoteWell: safeOptions.footnoteWell,
                         headerHeight: safeOptions.headerHeight,
+                        margins: safeOptions.margins,
                       }}
                       documentFooter={documentFooter}
                       documentHeader={documentHeader}
@@ -161,31 +184,31 @@ export const PageOverlay = (): React.JSX.Element | null => {
 };
 
 const useResolvedOptions = (
-  options: BasePaginationConfig['options'] | undefined
+  options: Partial<BasePaginationConfig['options']>
 ): BasePaginationConfig['options'] =>
   React.useMemo<BasePaginationConfig['options']>(
     () => ({
-      footerHeight: options?.footerHeight ?? 48,
-      footnoteWell: options?.footnoteWell ?? 0,
-      headerHeight: options?.headerHeight ?? 48,
-      includeFootnoteSubPlugins: options?.includeFootnoteSubPlugins ?? true,
-      margins: options?.margins ?? {
+      footerHeight: options.footerHeight ?? 48,
+      footnoteWell: options.footnoteWell ?? 0,
+      headerHeight: options.headerHeight ?? 48,
+      includeFootnoteSubPlugins: options.includeFootnoteSubPlugins ?? true,
+      margins: options.margins ?? {
         bottom: 72,
         left: 72,
         right: 72,
         top: 72,
       },
-      pageSize: options?.pageSize ?? 'A4',
-      previewVisible: options?.previewVisible ?? true,
+      pageSize: options.pageSize ?? 'A4',
+      previewVisible: options.previewVisible ?? true,
     }),
     [
-      options?.footerHeight,
-      options?.footnoteWell,
-      options?.headerHeight,
-      options?.includeFootnoteSubPlugins,
-      options?.margins,
-      options?.pageSize,
-      options?.previewVisible,
+      options.footerHeight,
+      options.footnoteWell,
+      options.headerHeight,
+      options.includeFootnoteSubPlugins,
+      options.margins,
+      options.pageSize,
+      options.previewVisible,
     ]
   );
 

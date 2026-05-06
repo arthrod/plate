@@ -1,8 +1,10 @@
-import { a as BaseHeaderPlugin, c as FOOTER_KEY, i as BasePageBreakPlugin, l as FOOTNOTE_DEFINITION_KEY, n as BasePaginationPlugin, o as BaseFooterPlugin, r as setEditorPages, s as allocateFootnotes, t as paginate, u as HEADER_KEY } from "../paginate-c73WStbw.js";
+import { C as FOOTNOTE_DEFINITION_KEY, S as FOOTER_KEY, _ as setEditorPages, b as BaseFooterPlugin, n as BasePaginationPlugin, t as paginate, v as BasePageBreakPlugin, w as HEADER_KEY, x as allocateFootnotes, y as BaseHeaderPlugin } from "../paginate-1hlE8RNf.js";
+import { createSlateEditor } from "platejs";
 import { toPlatePlugin, toTPlatePlugin, useEditorRef, useEditorValue, usePluginOption } from "platejs/react";
 import { c } from "react-compiler-runtime";
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
+import { PlateStatic, SlateElement, SlateLeaf } from "platejs/static";
 import { FootnoteDefinitionPlugin, FootnoteInputPlugin, FootnoteReferencePlugin } from "@platejs/footnote/react";
 
 //#region src/react/footer-plugin.ts
@@ -51,24 +53,176 @@ const HeaderPlugin = toPlatePlugin(BaseHeaderPlugin);
 const PageBreakPlugin = toPlatePlugin(BasePageBreakPlugin);
 
 //#endregion
+//#region src/react/static-components.tsx
+/**
+* Static (SSR-safe) component map for the pagination overlay's mini-render.
+*
+* The overlay paints non-interactive thumbnails of each page, so the content
+* is rendered with `<PlateStatic>` rather than `<Plate>`. This map provides
+* faithful styling for the node types the preview is most likely to see —
+* paragraphs, headings, header/footer, basic marks. Unknown types fall
+* through to the default `SlateElement`/`SlateLeaf` renderer.
+*
+* Consumers can extend this map by composing with their own components
+* before passing it to `createSlateEditor`.
+*/
+const HeaderElementStatic = (props) => {
+	const $ = c(3);
+	let t0;
+	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+		t0 = {
+			borderBottom: "1px dashed rgba(15,23,42,0.1)",
+			padding: "4px 0"
+		};
+		$[0] = t0;
+	} else t0 = $[0];
+	let t1;
+	if ($[1] !== props) {
+		t1 = /* @__PURE__ */ React.createElement(SlateElement, {
+			...props,
+			style: t0
+		}, props.children);
+		$[1] = props;
+		$[2] = t1;
+	} else t1 = $[2];
+	return t1;
+};
+const FooterElementStatic = (props) => {
+	const $ = c(3);
+	let t0;
+	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+		t0 = {
+			borderTop: "1px dashed rgba(15,23,42,0.1)",
+			padding: "4px 0"
+		};
+		$[0] = t0;
+	} else t0 = $[0];
+	let t1;
+	if ($[1] !== props) {
+		t1 = /* @__PURE__ */ React.createElement(SlateElement, {
+			...props,
+			style: t0
+		}, props.children);
+		$[1] = props;
+		$[2] = t1;
+	} else t1 = $[2];
+	return t1;
+};
+const ParagraphElementStatic = (props) => {
+	const $ = c(3);
+	let t0;
+	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+		t0 = {
+			fontSize: 14,
+			lineHeight: 1.5,
+			margin: "6px 0"
+		};
+		$[0] = t0;
+	} else t0 = $[0];
+	let t1;
+	if ($[1] !== props) {
+		t1 = /* @__PURE__ */ React.createElement(SlateElement, {
+			...props,
+			style: t0
+		}, props.children);
+		$[1] = props;
+		$[2] = t1;
+	} else t1 = $[2];
+	return t1;
+};
+const HEADING_SIZES = [
+	0,
+	28,
+	22,
+	18,
+	16,
+	14,
+	13
+];
+const makeHeadingStatic = (level) => function HeadingStatic(props) {
+	return /* @__PURE__ */ React.createElement(SlateElement, {
+		...props,
+		style: {
+			fontSize: HEADING_SIZES[level],
+			fontWeight: 700,
+			lineHeight: 1.25,
+			margin: "10px 0 6px"
+		}
+	}, props.children);
+};
+const BoldLeafStatic = (props) => {
+	const $ = c(2);
+	let t0;
+	if ($[0] !== props) {
+		t0 = /* @__PURE__ */ React.createElement(SlateLeaf, {
+			...props,
+			as: "strong"
+		}, props.children);
+		$[0] = props;
+		$[1] = t0;
+	} else t0 = $[1];
+	return t0;
+};
+const ItalicLeafStatic = (props) => {
+	const $ = c(2);
+	let t0;
+	if ($[0] !== props) {
+		t0 = /* @__PURE__ */ React.createElement(SlateLeaf, {
+			...props,
+			as: "em"
+		}, props.children);
+		$[0] = props;
+		$[1] = t0;
+	} else t0 = $[1];
+	return t0;
+};
+const paginationStaticComponents = {
+	bold: BoldLeafStatic,
+	footer: FooterElementStatic,
+	h1: makeHeadingStatic(1),
+	h2: makeHeadingStatic(2),
+	h3: makeHeadingStatic(3),
+	h4: makeHeadingStatic(4),
+	h5: makeHeadingStatic(5),
+	h6: makeHeadingStatic(6),
+	header: HeaderElementStatic,
+	italic: ItalicLeafStatic,
+	p: ParagraphElementStatic
+};
+
+//#endregion
+//#region src/react/page-static-editor.ts
+/**
+* Singleton static editor used by `<PlateStatic>` inside the overlay.
+*
+* `createSlateEditor` has no browser deps, so this is SSR-safe. The same
+* instance is reused for every page thumbnail — node refs stay stable
+* across renders, which lets the memoized `ElementStatic`/`LeafStatic`
+* skip re-renders for unchanged subtrees.
+*/
+const pageStaticEditor = createSlateEditor({
+	components: paginationStaticComponents,
+	plugins: [BasePaginationPlugin]
+});
+
+//#endregion
 //#region src/react/page-frame.tsx
-const HEADING_TYPE_RE = /^h([1-6])$/;
 /**
 * Single page chrome rendered by the overlay: header band, content rect,
-* footnote well, footer band — plus a faithful mini-rendering of each block
-* in the body so the panel doubles as a content-aware preview.
+* footnote well, footer band — with content rendered via `<PlateStatic>`
+* so marks, lists, links, and any user-registered node types preserve their
+* styling instead of being collapsed to plain text.
 */
 const PageFrame = (t0) => {
-	const $ = c(31);
+	const $ = c(39);
 	const { chrome, documentFooter, documentHeader, page, top } = t0;
 	const { rect } = page;
 	const headerOffset = chrome.headerHeight;
 	const footnoteWellTop = rect.height - chrome.footerHeight - chrome.footnoteWell;
 	const footerTop = rect.height - chrome.footerHeight;
-	const t1 = page.pageIndex;
-	let t2;
+	let t1;
 	if ($[0] !== rect.height || $[1] !== rect.width || $[2] !== top) {
-		t2 = {
+		t1 = {
 			background: "#ffffff",
 			border: "1px solid rgba(15,23,42,0.15)",
 			borderRadius: 2,
@@ -83,11 +237,11 @@ const PageFrame = (t0) => {
 		$[0] = rect.height;
 		$[1] = rect.width;
 		$[2] = top;
-		$[3] = t2;
-	} else t2 = $[3];
-	let t3;
-	if ($[4] !== chrome.headerHeight || $[5] !== documentHeader) {
-		t3 = chrome.headerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
+		$[3] = t1;
+	} else t1 = $[3];
+	let t2;
+	if ($[4] !== chrome.headerHeight || $[5] !== chrome.margins.left || $[6] !== chrome.margins.right || $[7] !== documentHeader) {
+		t2 = chrome.headerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "header",
 			style: {
 				borderBottom: "1px dashed rgba(15,23,42,0.1)",
@@ -95,41 +249,54 @@ const PageFrame = (t0) => {
 				fontSize: 12,
 				height: chrome.headerHeight,
 				left: 0,
-				padding: "8px 16px",
+				paddingBottom: 8,
+				paddingLeft: chrome.margins.left,
+				paddingRight: chrome.margins.right,
+				paddingTop: 8,
 				position: "absolute",
 				right: 0,
 				top: 0
 			}
-		}, documentHeader ? collectInlineText(documentHeader) : null) : null;
+		}, documentHeader ? /* @__PURE__ */ React.createElement(PlateStatic, {
+			editor: pageStaticEditor,
+			value: [documentHeader]
+		}) : null) : null;
 		$[4] = chrome.headerHeight;
-		$[5] = documentHeader;
-		$[6] = t3;
-	} else t3 = $[6];
-	let t4;
-	if ($[7] !== chrome.footnoteWell || $[8] !== footnoteWellTop || $[9] !== page.footnotes) {
-		t4 = chrome.footnoteWell > 0 && page.footnotes.length > 0 ? /* @__PURE__ */ React.createElement("div", {
+		$[5] = chrome.margins.left;
+		$[6] = chrome.margins.right;
+		$[7] = documentHeader;
+		$[8] = t2;
+	} else t2 = $[8];
+	let t3;
+	if ($[9] !== chrome.footnoteWell || $[10] !== chrome.margins.left || $[11] !== chrome.margins.right || $[12] !== footnoteWellTop || $[13] !== page.footnotes) {
+		t3 = chrome.footnoteWell > 0 && page.footnotes.length > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "footnote-well",
 			style: {
 				borderTop: "1px solid rgba(15,23,42,0.1)",
 				color: "rgba(15,23,42,0.7)",
 				fontSize: 11,
 				height: chrome.footnoteWell,
-				left: 16,
+				left: chrome.margins.left,
 				overflow: "hidden",
 				padding: "4px 0",
 				position: "absolute",
-				right: 16,
+				right: chrome.margins.right,
 				top: footnoteWellTop
 			}
-		}, page.footnotes.map(_temp$2)) : null;
-		$[7] = chrome.footnoteWell;
-		$[8] = footnoteWellTop;
-		$[9] = page.footnotes;
-		$[10] = t4;
-	} else t4 = $[10];
-	let t5;
-	if ($[11] !== chrome.footerHeight || $[12] !== documentFooter || $[13] !== footerTop || $[14] !== page.pageIndex) {
-		t5 = chrome.footerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
+		}, /* @__PURE__ */ React.createElement(PlateStatic, {
+			editor: pageStaticEditor,
+			value: page.footnotes
+		})) : null;
+		$[9] = chrome.footnoteWell;
+		$[10] = chrome.margins.left;
+		$[11] = chrome.margins.right;
+		$[12] = footnoteWellTop;
+		$[13] = page.footnotes;
+		$[14] = t3;
+	} else t3 = $[14];
+	let t4;
+	if ($[15] !== chrome.footerHeight || $[16] !== chrome.margins.left || $[17] !== chrome.margins.right || $[18] !== documentFooter || $[19] !== footerTop || $[20] !== page.pageIndex) {
+		t4 = chrome.footerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "footer",
 			style: {
 				borderTop: "1px dashed rgba(15,23,42,0.1)",
@@ -137,202 +304,80 @@ const PageFrame = (t0) => {
 				fontSize: 12,
 				height: chrome.footerHeight,
 				left: 0,
-				padding: "8px 16px",
+				paddingBottom: 8,
+				paddingLeft: chrome.margins.left,
+				paddingRight: chrome.margins.right,
+				paddingTop: 8,
 				position: "absolute",
 				right: 0,
 				top: footerTop
 			}
-		}, /* @__PURE__ */ React.createElement("span", null, documentFooter ? collectInlineText(documentFooter) : null), /* @__PURE__ */ React.createElement("span", { style: { float: "right" } }, `${page.pageIndex + 1}`)) : null;
-		$[11] = chrome.footerHeight;
-		$[12] = documentFooter;
-		$[13] = footerTop;
-		$[14] = page.pageIndex;
-		$[15] = t5;
-	} else t5 = $[15];
-	const t6 = headerOffset + 16;
-	let t7;
-	if ($[16] !== rect.contentHeight || $[17] !== t6) {
-		t7 = {
+		}, /* @__PURE__ */ React.createElement("span", null, documentFooter ? /* @__PURE__ */ React.createElement(PlateStatic, {
+			editor: pageStaticEditor,
+			value: [documentFooter]
+		}) : null), /* @__PURE__ */ React.createElement("span", { style: { float: "right" } }, `${page.pageIndex + 1}`)) : null;
+		$[15] = chrome.footerHeight;
+		$[16] = chrome.margins.left;
+		$[17] = chrome.margins.right;
+		$[18] = documentFooter;
+		$[19] = footerTop;
+		$[20] = page.pageIndex;
+		$[21] = t4;
+	} else t4 = $[21];
+	const t5 = headerOffset + chrome.margins.top;
+	let t6;
+	if ($[22] !== chrome.margins.left || $[23] !== chrome.margins.right || $[24] !== rect.contentHeight || $[25] !== t5) {
+		t6 = {
 			height: rect.contentHeight,
-			left: 24,
+			left: chrome.margins.left,
 			overflow: "hidden",
-			padding: "0 16px",
 			position: "absolute",
-			right: 24,
-			top: t6
+			right: chrome.margins.right,
+			top: t5
 		};
-		$[16] = rect.contentHeight;
-		$[17] = t6;
-		$[18] = t7;
-	} else t7 = $[18];
+		$[22] = chrome.margins.left;
+		$[23] = chrome.margins.right;
+		$[24] = rect.contentHeight;
+		$[25] = t5;
+		$[26] = t6;
+	} else t6 = $[26];
+	let t7;
+	if ($[27] !== page.nodes) {
+		t7 = /* @__PURE__ */ React.createElement(PlateStatic, {
+			editor: pageStaticEditor,
+			value: page.nodes
+		});
+		$[27] = page.nodes;
+		$[28] = t7;
+	} else t7 = $[28];
 	let t8;
-	if ($[19] !== page.nodes) {
-		t8 = page.nodes.map(_temp2$1);
-		$[19] = page.nodes;
-		$[20] = t8;
-	} else t8 = $[20];
-	let t9;
-	if ($[21] !== t7 || $[22] !== t8) {
-		t9 = /* @__PURE__ */ React.createElement("div", {
+	if ($[29] !== t6 || $[30] !== t7) {
+		t8 = /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "content",
-			style: t7
-		}, t8);
-		$[21] = t7;
-		$[22] = t8;
-		$[23] = t9;
-	} else t9 = $[23];
-	let t10;
-	if ($[24] !== page.pageIndex || $[25] !== t2 || $[26] !== t3 || $[27] !== t4 || $[28] !== t5 || $[29] !== t9) {
-		t10 = /* @__PURE__ */ React.createElement("div", {
+			style: t6
+		}, t7);
+		$[29] = t6;
+		$[30] = t7;
+		$[31] = t8;
+	} else t8 = $[31];
+	let t9;
+	if ($[32] !== page.pageIndex || $[33] !== t1 || $[34] !== t2 || $[35] !== t3 || $[36] !== t4 || $[37] !== t8) {
+		t9 = /* @__PURE__ */ React.createElement("div", {
 			"aria-hidden": "true",
-			"data-page-index": t1,
+			"data-page-index": page.pageIndex,
 			"data-plate-pagination-page": "",
-			style: t2
-		}, t3, t4, t5, t9);
-		$[24] = page.pageIndex;
-		$[25] = t2;
-		$[26] = t3;
-		$[27] = t4;
-		$[28] = t5;
-		$[29] = t9;
-		$[30] = t10;
-	} else t10 = $[30];
-	return t10;
+			style: t1
+		}, t2, t3, t4, t8);
+		$[32] = page.pageIndex;
+		$[33] = t1;
+		$[34] = t2;
+		$[35] = t3;
+		$[36] = t4;
+		$[37] = t8;
+		$[38] = t9;
+	} else t9 = $[38];
+	return t9;
 };
-const BlockPreview = (t0) => {
-	const $ = c(17);
-	const { node } = t0;
-	let t1;
-	if ($[0] !== node) {
-		t1 = collectInlineText(node);
-		$[0] = node;
-		$[1] = t1;
-	} else t1 = $[1];
-	const text = t1;
-	const type = node.type;
-	if (typeof type === "string" && HEADING_TYPE_RE.test(type)) {
-		const level = Number.parseInt(type.slice(1), 10);
-		let t2$1;
-		if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
-			t2$1 = [
-				0,
-				28,
-				22,
-				18,
-				16,
-				14,
-				13
-			];
-			$[2] = t2$1;
-		} else t2$1 = $[2];
-		const t3$1 = t2$1[level] ?? 16;
-		let t4$1;
-		if ($[3] !== t3$1) {
-			t4$1 = {
-				fontSize: t3$1,
-				fontWeight: 700,
-				lineHeight: 1.25,
-				margin: "12px 0 8px"
-			};
-			$[3] = t3$1;
-			$[4] = t4$1;
-		} else t4$1 = $[4];
-		let t5;
-		if ($[5] !== t4$1 || $[6] !== text) {
-			t5 = /* @__PURE__ */ React.createElement("div", { style: t4$1 }, text);
-			$[5] = t4$1;
-			$[6] = text;
-			$[7] = t5;
-		} else t5 = $[7];
-		return t5;
-	}
-	if (type === "blockquote") {
-		let t2$1;
-		if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
-			t2$1 = {
-				borderLeft: "3px solid rgba(15,23,42,0.2)",
-				color: "rgba(15,23,42,0.7)",
-				fontSize: 14,
-				fontStyle: "italic",
-				lineHeight: 1.5,
-				margin: "8px 0",
-				paddingLeft: 12
-			};
-			$[8] = t2$1;
-		} else t2$1 = $[8];
-		let t3$1;
-		if ($[9] !== text) {
-			t3$1 = /* @__PURE__ */ React.createElement("div", { style: t2$1 }, text);
-			$[9] = text;
-			$[10] = t3$1;
-		} else t3$1 = $[10];
-		return t3$1;
-	}
-	if (type === "code_block") {
-		let t2$1;
-		if ($[11] === Symbol.for("react.memo_cache_sentinel")) {
-			t2$1 = {
-				background: "rgba(15,23,42,0.05)",
-				fontFamily: "ui-monospace, monospace",
-				fontSize: 12,
-				lineHeight: 1.4,
-				margin: "8px 0",
-				padding: 8,
-				whiteSpace: "pre-wrap"
-			};
-			$[11] = t2$1;
-		} else t2$1 = $[11];
-		let t3$1;
-		if ($[12] !== text) {
-			t3$1 = /* @__PURE__ */ React.createElement("div", { style: t2$1 }, text);
-			$[12] = text;
-			$[13] = t3$1;
-		} else t3$1 = $[13];
-		return t3$1;
-	}
-	let t2;
-	if ($[14] === Symbol.for("react.memo_cache_sentinel")) {
-		t2 = {
-			fontSize: 14,
-			lineHeight: 1.5,
-			margin: "6px 0"
-		};
-		$[14] = t2;
-	} else t2 = $[14];
-	const t3 = text || "\xA0";
-	let t4;
-	if ($[15] !== t3) {
-		t4 = /* @__PURE__ */ React.createElement("div", { style: t2 }, t3);
-		$[15] = t3;
-		$[16] = t4;
-	} else t4 = $[16];
-	return t4;
-};
-const collectInlineText = (node) => {
-	if (!node) return "";
-	let out = "";
-	walk(node, (t) => {
-		out += t;
-	});
-	return out;
-};
-const walk = (node, visit) => {
-	if (typeof node.text === "string") {
-		visit(node.text);
-		return;
-	}
-	if (!Array.isArray(node.children)) return;
-	for (const child of node.children) walk(child, visit);
-};
-function _temp$2(def, i) {
-	return /* @__PURE__ */ React.createElement("div", { key: def.id ?? i }, `[${def.identifier ?? i + 1}] `, collectInlineText(def));
-}
-function _temp2$1(node, i_0) {
-	return /* @__PURE__ */ React.createElement(BlockPreview, {
-		key: node.id ?? i_0,
-		node
-	});
-}
 
 //#endregion
 //#region src/lib/internal/page-size-presets.ts
@@ -555,6 +600,13 @@ const collectPlainText = (node) => {
 //#endregion
 //#region src/react/internal/use-page-layout.ts
 /**
+* Isomorphic `useLayoutEffect`: client-side it runs synchronously before
+* paint (so `editor.api.pagination.getPages()` sees fresh data on the same
+* tick); SSR falls back to `useEffect` to dodge React's layout-effect
+* warning when there is no DOM yet.
+*/
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+/**
 * Project the editor's children into the derived page sequence for variant A.
 *
 * Wraps `paginate()` + `allocateFootnotes()` in a `useMemo` keyed on the
@@ -602,7 +654,7 @@ const usePageLayout = (editor, options) => {
 		t1 = $[10];
 		t2 = $[11];
 	}
-	useEffect(t1, t2);
+	useIsomorphicLayoutEffect(t1, t2);
 	return pages;
 };
 function _temp$1(n) {
@@ -624,67 +676,106 @@ const STACK_GAP = 12;
 * still mounts (so the toggle stays reactive) but renders nothing.
 *
 * Updates reactively as the document changes via `useEditorValue`.
+*
+* Hydration: the underlying measurer falls back to font-derived heights on
+* SSR which can disagree with client-side layout, so the panel waits for
+* `useEffect` (client-only) before painting. This avoids React #418 hydration
+* mismatches when the page count differs between server and client.
 */
 const PageOverlay = () => {
-	const $ = c(31);
+	const $ = c(39);
+	const [mounted, setMounted] = React.useState(false);
+	let t0;
+	let t1;
+	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+		t0 = () => {
+			setMounted(true);
+		};
+		t1 = [];
+		$[0] = t0;
+		$[1] = t1;
+	} else {
+		t0 = $[0];
+		t1 = $[1];
+	}
+	React.useEffect(t0, t1);
 	const editor = useEditorRef();
 	const visible = usePluginOption(BasePaginationPlugin, "previewVisible");
-	usePluginOption(BasePaginationPlugin, "pageSize");
-	usePluginOption(BasePaginationPlugin, "margins");
+	const pageSize = usePluginOption(BasePaginationPlugin, "pageSize");
+	const margins = usePluginOption(BasePaginationPlugin, "margins");
+	const footerHeight = usePluginOption(BasePaginationPlugin, "footerHeight");
+	const footnoteWell = usePluginOption(BasePaginationPlugin, "footnoteWell");
+	const headerHeight = usePluginOption(BasePaginationPlugin, "headerHeight");
+	const includeFootnoteSubPlugins = usePluginOption(BasePaginationPlugin, "includeFootnoteSubPlugins");
 	const value = useEditorValue();
-	let t0;
-	if ($[0] !== editor) {
-		t0 = editor.getOptions(BasePaginationPlugin);
-		$[0] = editor;
-		$[1] = t0;
-	} else t0 = $[1];
-	const safeOptions = useResolvedOptions(t0);
-	const t1 = value;
 	let t2;
-	if ($[2] !== editor.id || $[3] !== t1) {
+	if ($[2] !== footerHeight || $[3] !== footnoteWell || $[4] !== headerHeight || $[5] !== includeFootnoteSubPlugins || $[6] !== margins || $[7] !== pageSize || $[8] !== visible) {
 		t2 = {
-			children: t1,
-			id: editor.id
+			footerHeight,
+			footnoteWell,
+			headerHeight,
+			includeFootnoteSubPlugins,
+			margins,
+			pageSize,
+			previewVisible: visible
 		};
-		$[2] = editor.id;
-		$[3] = t1;
-		$[4] = t2;
-	} else t2 = $[4];
-	const pages = usePageLayout(t2, safeOptions);
-	if (!visible || pages.length === 0) {
-		let t3$1;
-		if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
-			t3$1 = /* @__PURE__ */ React.createElement(FootnotePortal, null);
-			$[5] = t3$1;
-		} else t3$1 = $[5];
-		return t3$1;
-	}
+		$[2] = footerHeight;
+		$[3] = footnoteWell;
+		$[4] = headerHeight;
+		$[5] = includeFootnoteSubPlugins;
+		$[6] = margins;
+		$[7] = pageSize;
+		$[8] = visible;
+		$[9] = t2;
+	} else t2 = $[9];
+	const safeOptions = useResolvedOptions(t2);
 	const t3 = value;
 	let t4;
-	if ($[6] !== t3) {
-		t4 = t3.find(_temp);
-		$[6] = t3;
-		$[7] = t4;
-	} else t4 = $[7];
-	const documentHeader = t4;
+	if ($[10] !== editor.id || $[11] !== t3) {
+		t4 = {
+			children: t3,
+			id: editor.id
+		};
+		$[10] = editor.id;
+		$[11] = t3;
+		$[12] = t4;
+	} else t4 = $[12];
+	const pages = usePageLayout(t4, safeOptions);
+	if (!mounted) return null;
+	if (!visible || pages.length === 0) {
+		let t5$1;
+		if ($[13] === Symbol.for("react.memo_cache_sentinel")) {
+			t5$1 = /* @__PURE__ */ React.createElement(FootnotePortal, null);
+			$[13] = t5$1;
+		} else t5$1 = $[13];
+		return t5$1;
+	}
 	const t5 = value;
 	let t6;
-	if ($[8] !== t5) {
-		t6 = t5.find(_temp2);
-		$[8] = t5;
-		$[9] = t6;
-	} else t6 = $[9];
-	const documentFooter = t6;
-	let t7;
-	if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
-		t7 = /* @__PURE__ */ React.createElement(FootnotePortal, null);
-		$[10] = t7;
-	} else t7 = $[10];
-	let t10;
+	if ($[14] !== t5) {
+		t6 = t5.find(_temp);
+		$[14] = t5;
+		$[15] = t6;
+	} else t6 = $[15];
+	const documentHeader = t6;
+	const t7 = value;
 	let t8;
+	if ($[16] !== t7) {
+		t8 = t7.find(_temp2);
+		$[16] = t7;
+		$[17] = t8;
+	} else t8 = $[17];
+	const documentFooter = t8;
 	let t9;
-	if ($[11] === Symbol.for("react.memo_cache_sentinel")) {
-		t8 = {
+	if ($[18] === Symbol.for("react.memo_cache_sentinel")) {
+		t9 = /* @__PURE__ */ React.createElement(FootnotePortal, null);
+		$[18] = t9;
+	} else t9 = $[18];
+	let t10;
+	let t11;
+	let t12;
+	if ($[19] === Symbol.for("react.memo_cache_sentinel")) {
+		t10 = {
 			background: "rgba(248, 250, 252, 0.96)",
 			border: "1px solid rgba(15,23,42,0.12)",
 			borderRadius: 8,
@@ -702,7 +793,7 @@ const PageOverlay = () => {
 			width: 220,
 			zIndex: 50
 		};
-		t9 = {
+		t11 = {
 			alignItems: "center",
 			color: "rgba(15,23,42,0.55)",
 			display: "flex",
@@ -713,36 +804,36 @@ const PageOverlay = () => {
 			marginBottom: 8,
 			textTransform: "uppercase"
 		};
-		t10 = /* @__PURE__ */ React.createElement("span", null, "Pages");
-		$[11] = t10;
-		$[12] = t8;
-		$[13] = t9;
+		t12 = /* @__PURE__ */ React.createElement("span", null, "Pages");
+		$[19] = t10;
+		$[20] = t11;
+		$[21] = t12;
 	} else {
-		t10 = $[11];
-		t8 = $[12];
-		t9 = $[13];
+		t10 = $[19];
+		t11 = $[20];
+		t12 = $[21];
 	}
-	const t11 = `${pages.length}`;
-	let t12;
-	if ($[14] !== t11) {
-		t12 = /* @__PURE__ */ React.createElement("div", { style: t9 }, t10, /* @__PURE__ */ React.createElement("span", null, t11));
-		$[14] = t11;
-		$[15] = t12;
-	} else t12 = $[15];
-	let t13;
-	if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
-		t13 = {
+	const t13 = `${pages.length}`;
+	let t14;
+	if ($[22] !== t13) {
+		t14 = /* @__PURE__ */ React.createElement("div", { style: t11 }, t12, /* @__PURE__ */ React.createElement("span", null, t13));
+		$[22] = t13;
+		$[23] = t14;
+	} else t14 = $[23];
+	let t15;
+	if ($[24] === Symbol.for("react.memo_cache_sentinel")) {
+		t15 = {
 			display: "flex",
 			flexDirection: "column",
 			gap: STACK_GAP
 		};
-		$[16] = t13;
-	} else t13 = $[16];
-	let t14;
-	if ($[17] !== documentFooter || $[18] !== documentHeader || $[19] !== pages || $[20] !== safeOptions) {
-		let t15$1;
-		if ($[22] !== documentFooter || $[23] !== documentHeader || $[24] !== safeOptions) {
-			t15$1 = (page) => {
+		$[24] = t15;
+	} else t15 = $[24];
+	let t16;
+	if ($[25] !== documentFooter || $[26] !== documentHeader || $[27] !== pages || $[28] !== safeOptions) {
+		let t17$1;
+		if ($[30] !== documentFooter || $[31] !== documentHeader || $[32] !== safeOptions) {
+			t17$1 = (page) => {
 				const scale = computeThumbScale(page.rect.width);
 				const previewHeight = page.rect.height * scale;
 				const previewWidth = page.rect.width * scale;
@@ -759,13 +850,16 @@ const PageOverlay = () => {
 					position: "relative",
 					width: previewWidth
 				} }, /* @__PURE__ */ React.createElement("div", { style: {
+					height: page.rect.height,
 					transform: `scale(${scale})`,
-					transformOrigin: "top left"
+					transformOrigin: "top left",
+					width: page.rect.width
 				} }, /* @__PURE__ */ React.createElement(PageFrame, {
 					chrome: {
 						footerHeight: safeOptions.footerHeight,
 						footnoteWell: safeOptions.footnoteWell,
-						headerHeight: safeOptions.headerHeight
+						headerHeight: safeOptions.headerHeight,
+						margins: safeOptions.margins
 					},
 					documentFooter,
 					documentHeader,
@@ -773,62 +867,55 @@ const PageOverlay = () => {
 					top: 0
 				}))));
 			};
-			$[22] = documentFooter;
-			$[23] = documentHeader;
-			$[24] = safeOptions;
-			$[25] = t15$1;
-		} else t15$1 = $[25];
-		t14 = pages.map(t15$1);
-		$[17] = documentFooter;
-		$[18] = documentHeader;
-		$[19] = pages;
-		$[20] = safeOptions;
-		$[21] = t14;
-	} else t14 = $[21];
-	let t15;
-	if ($[26] !== t14) {
-		t15 = /* @__PURE__ */ React.createElement("div", { style: t13 }, t14);
-		$[26] = t14;
-		$[27] = t15;
-	} else t15 = $[27];
-	let t16;
-	if ($[28] !== t12 || $[29] !== t15) {
-		t16 = /* @__PURE__ */ React.createElement(React.Fragment, null, t7, /* @__PURE__ */ React.createElement("div", {
+			$[30] = documentFooter;
+			$[31] = documentHeader;
+			$[32] = safeOptions;
+			$[33] = t17$1;
+		} else t17$1 = $[33];
+		t16 = pages.map(t17$1);
+		$[25] = documentFooter;
+		$[26] = documentHeader;
+		$[27] = pages;
+		$[28] = safeOptions;
+		$[29] = t16;
+	} else t16 = $[29];
+	let t17;
+	if ($[34] !== t16) {
+		t17 = /* @__PURE__ */ React.createElement("div", { style: t15 }, t16);
+		$[34] = t16;
+		$[35] = t17;
+	} else t17 = $[35];
+	let t18;
+	if ($[36] !== t14 || $[37] !== t17) {
+		t18 = /* @__PURE__ */ React.createElement(React.Fragment, null, t9, /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-overlay": "",
-			style: t8
-		}, t12, t15));
-		$[28] = t12;
-		$[29] = t15;
-		$[30] = t16;
-	} else t16 = $[30];
-	return t16;
+			style: t10
+		}, t14, t17));
+		$[36] = t14;
+		$[37] = t17;
+		$[38] = t18;
+	} else t18 = $[38];
+	return t18;
 };
 const useResolvedOptions = (options) => {
 	const $ = c(10);
-	options?.footerHeight;
-	options?.footnoteWell;
-	options?.headerHeight;
-	options?.includeFootnoteSubPlugins;
-	options?.margins;
-	options?.pageSize;
-	options?.previewVisible;
-	const t0 = options?.footerHeight ?? 48;
-	const t1 = options?.footnoteWell ?? 0;
-	const t2 = options?.headerHeight ?? 48;
-	const t3 = options?.includeFootnoteSubPlugins ?? true;
+	const t0 = options.footerHeight ?? 48;
+	const t1 = options.footnoteWell ?? 0;
+	const t2 = options.headerHeight ?? 48;
+	const t3 = options.includeFootnoteSubPlugins ?? true;
 	let t4;
-	if ($[0] !== options?.margins) {
-		t4 = options?.margins ?? {
+	if ($[0] !== options.margins) {
+		t4 = options.margins ?? {
 			bottom: 72,
 			left: 72,
 			right: 72,
 			top: 72
 		};
-		$[0] = options?.margins;
+		$[0] = options.margins;
 		$[1] = t4;
 	} else t4 = $[1];
-	const t5 = options?.pageSize ?? "A4";
-	const t6 = options?.previewVisible ?? true;
+	const t5 = options.pageSize ?? "A4";
+	const t6 = options.previewVisible ?? true;
 	let t7;
 	if ($[2] !== t0 || $[3] !== t1 || $[4] !== t2 || $[5] !== t3 || $[6] !== t4 || $[7] !== t5 || $[8] !== t6) {
 		t7 = {
@@ -897,5 +984,5 @@ const PaginationPlugin = toTPlatePlugin(BasePaginationPlugin).extend(({ getOptio
 }));
 
 //#endregion
-export { FooterPlugin, FootnotePortal, HeaderPlugin, PageBreakPlugin, PageFrame, PageOverlay, PaginationPlugin, computeThumbScale, usePretextMeasurer };
+export { BoldLeafStatic, FooterElementStatic, FooterPlugin, FootnotePortal, HeaderElementStatic, HeaderPlugin, ItalicLeafStatic, PageBreakPlugin, PageFrame, PageOverlay, PaginationPlugin, ParagraphElementStatic, computeThumbScale, makeHeadingStatic, pageStaticEditor, paginationStaticComponents, usePretextMeasurer };
 //# sourceMappingURL=index.js.map

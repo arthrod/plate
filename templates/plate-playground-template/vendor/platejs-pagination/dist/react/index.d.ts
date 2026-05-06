@@ -1,11 +1,12 @@
-import { a as BasePaginationTransforms, d as Measurer, f as Page, n as BasePaginationApi, u as BasePaginationOptions } from "../index-BmXRyAOt";
-import * as platejs0 from "platejs";
+import { A as Page, D as BasePaginationOptions, M as PageMargins, O as BasePaginationTransforms, P as PageSize, T as BasePaginationApi, k as Measurer } from "../index-BNkqE3b_";
+import * as platejs1 from "platejs";
 import { TElement } from "platejs";
-import * as platejs_react0 from "platejs/react";
+import * as platejs_react1 from "platejs/react";
 import * as React from "react";
+import { SlateElementProps, SlateLeafProps } from "platejs/static";
 
 //#region src/react/footer-plugin.d.ts
-declare const FooterPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"footer", {}, {}, {}, {}>>;
+declare const FooterPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"footer", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/footnote-portal.d.ts
 /**
@@ -23,18 +24,23 @@ declare const FooterPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"fo
 declare const FootnotePortal: () => React.JSX.Element;
 //#endregion
 //#region src/react/header-plugin.d.ts
-declare const HeaderPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"header", {}, {}, {}, {}>>;
+declare const HeaderPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"header", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/page-break-plugin.d.ts
-declare const PageBreakPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
+declare const PageBreakPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/page-frame.d.ts
 type PageFrameProps = {
-  /** Resolved chrome heights from `BasePaginationOptions`. */
+  /**
+   * Resolved chrome heights and margin box from `BasePaginationOptions`.
+   * Margins are passed through so header/footer/content slots respect the
+   * authored page geometry instead of hardcoded insets.
+   */
   chrome: {
     footerHeight: number;
     footnoteWell: number;
     headerHeight: number;
+    margins: PageMargins;
   };
   /** First-class footer element copied off the document, if any. */
   documentFooter?: TElement;
@@ -46,8 +52,9 @@ type PageFrameProps = {
 };
 /**
  * Single page chrome rendered by the overlay: header band, content rect,
- * footnote well, footer band — plus a faithful mini-rendering of each block
- * in the body so the panel doubles as a content-aware preview.
+ * footnote well, footer band — with content rendered via `<PlateStatic>`
+ * so marks, lists, links, and any user-registered node types preserve their
+ * styling instead of being collapsed to plain text.
  */
 declare const PageFrame: ({
   chrome,
@@ -70,9 +77,44 @@ declare const PageFrame: ({
  * still mounts (so the toggle stays reactive) but renders nothing.
  *
  * Updates reactively as the document changes via `useEditorValue`.
+ *
+ * Hydration: the underlying measurer falls back to font-derived heights on
+ * SSR which can disagree with client-side layout, so the panel waits for
+ * `useEffect` (client-only) before painting. This avoids React #418 hydration
+ * mismatches when the page count differs between server and client.
  */
 declare const PageOverlay: () => React.JSX.Element | null;
 declare const computeThumbScale: (pageWidth: number) => number;
+//#endregion
+//#region src/react/page-static-editor.d.ts
+/**
+ * Singleton static editor used by `<PlateStatic>` inside the overlay.
+ *
+ * `createSlateEditor` has no browser deps, so this is SSR-safe. The same
+ * instance is reused for every page thumbnail — node refs stay stable
+ * across renders, which lets the memoized `ElementStatic`/`LeafStatic`
+ * skip re-renders for unchanged subtrees.
+ */
+declare const pageStaticEditor: platejs1.TSlateEditor<platejs1.Value, platejs1.SlatePlugin<platejs1.PluginConfig<"pagination", BasePaginationOptions, {
+  pagination: {
+    getFootnotes: (pageIndex: number) => platejs1.TElement[];
+    getPageOf: (path: number[]) => number;
+    getPages: () => Page[];
+    hasHeader: () => boolean;
+    hasFooter: () => boolean;
+  };
+}, {
+  pagination: {
+    insertPageBreak: () => void;
+    setMargins: (patch: Partial<PageMargins>) => void;
+    setPageSize: (size: PageSize) => void;
+    setFooter: (content: platejs1.Descendant[]) => void;
+    setHeader: (content: platejs1.Descendant[]) => void;
+    toggleFooter: () => boolean;
+    toggleHeader: () => boolean;
+    togglePreview: () => boolean;
+  };
+}, {}>>>;
 //#endregion
 //#region src/react/pagination-plugin.d.ts
 /**
@@ -90,7 +132,40 @@ declare const computeThumbScale: (pageWidth: number) => number;
  *   `footnoteDefinition` blocks (CodeRabbit Design Choice 2). The visible
  *   copy is rendered inside each page's footnote well by `PageFrame`.
  */
-declare const PaginationPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"pagination", BasePaginationOptions, BasePaginationApi, BasePaginationTransforms, {}>>;
+declare const PaginationPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"pagination", BasePaginationOptions, BasePaginationApi, BasePaginationTransforms, {}>>;
+//#endregion
+//#region src/react/static-components.d.ts
+/**
+ * Static (SSR-safe) component map for the pagination overlay's mini-render.
+ *
+ * The overlay paints non-interactive thumbnails of each page, so the content
+ * is rendered with `<PlateStatic>` rather than `<Plate>`. This map provides
+ * faithful styling for the node types the preview is most likely to see —
+ * paragraphs, headings, header/footer, basic marks. Unknown types fall
+ * through to the default `SlateElement`/`SlateLeaf` renderer.
+ *
+ * Consumers can extend this map by composing with their own components
+ * before passing it to `createSlateEditor`.
+ */
+declare const HeaderElementStatic: (props: SlateElementProps) => React.JSX.Element;
+declare const FooterElementStatic: (props: SlateElementProps) => React.JSX.Element;
+declare const ParagraphElementStatic: (props: SlateElementProps) => React.JSX.Element;
+declare const makeHeadingStatic: (level: 1 | 2 | 3 | 4 | 5 | 6) => (props: SlateElementProps) => React.JSX.Element;
+declare const BoldLeafStatic: (props: SlateLeafProps) => React.JSX.Element;
+declare const ItalicLeafStatic: (props: SlateLeafProps) => React.JSX.Element;
+declare const paginationStaticComponents: {
+  bold: (props: SlateLeafProps) => React.JSX.Element;
+  footer: (props: SlateElementProps) => React.JSX.Element;
+  h1: (props: SlateElementProps) => React.JSX.Element;
+  h2: (props: SlateElementProps) => React.JSX.Element;
+  h3: (props: SlateElementProps) => React.JSX.Element;
+  h4: (props: SlateElementProps) => React.JSX.Element;
+  h5: (props: SlateElementProps) => React.JSX.Element;
+  h6: (props: SlateElementProps) => React.JSX.Element;
+  header: (props: SlateElementProps) => React.JSX.Element;
+  italic: (props: SlateLeafProps) => React.JSX.Element;
+  p: (props: SlateElementProps) => React.JSX.Element;
+};
 //#endregion
 //#region src/react/use-pretext-measurer.d.ts
 /**
@@ -108,5 +183,5 @@ declare const PaginationPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig
  */
 declare const usePretextMeasurer: (editorId?: string) => Measurer;
 //#endregion
-export { FooterPlugin, FootnotePortal, HeaderPlugin, PageBreakPlugin, PageFrame, PageFrameProps, PageOverlay, PaginationPlugin, computeThumbScale, usePretextMeasurer };
+export { BoldLeafStatic, FooterElementStatic, FooterPlugin, FootnotePortal, HeaderElementStatic, HeaderPlugin, ItalicLeafStatic, PageBreakPlugin, PageFrame, PageFrameProps, PageOverlay, PaginationPlugin, ParagraphElementStatic, computeThumbScale, makeHeadingStatic, pageStaticEditor, paginationStaticComponents, usePretextMeasurer };
 //# sourceMappingURL=index.d.ts.map

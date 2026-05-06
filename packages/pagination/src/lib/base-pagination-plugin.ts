@@ -65,11 +65,11 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
       normalizeNode: (entry) => {
         const [, path] = entry;
 
-        if (path.length === 0) {
-          enforceHeaderFooterInvariants(editor);
+        if (path.length === 0 && enforceHeaderFooterInvariants(editor)) {
+          return;
         }
 
-        return normalizeNode(entry);
+        normalizeNode(entry);
       },
     },
   }))
@@ -88,8 +88,8 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
         insertPageBreak: () => insertPageBreak(editor),
         setFooter: (content) => replaceFooter(editor, content),
         setHeader: (content) => replaceHeader(editor, content),
-        setMargins: (margins) => {
-          setOption('margins', margins);
+        setMargins: (patch) => {
+          setOption('margins', { ...getOptions().margins, ...patch });
         },
         setPageSize: (size) => {
           setOption('pageSize', size);

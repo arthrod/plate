@@ -121,8 +121,13 @@ export type BasePaginationApi = {
 export type BasePaginationTransforms = {
   pagination: {
     insertPageBreak: () => void;
-    /** Replace the in-flow `<w:pgMar>`-style margins. */
-    setMargins: (margins: PageMargins) => void;
+    /**
+     * Patch the in-flow `<w:pgMar>`-style margins. Only the keys provided
+     * are updated; omitted sides keep their current values, so per-axis UI
+     * can call e.g. `setMargins({ top: cmToPx(2.5) })` without rebuilding
+     * the full margin box.
+     */
+    setMargins: (patch: Partial<PageMargins>) => void;
     /** Replace the resolved page size (preset key or `{width,height}`). */
     setPageSize: (size: PageSize) => void;
     setFooter: (content: Descendant[]) => void;

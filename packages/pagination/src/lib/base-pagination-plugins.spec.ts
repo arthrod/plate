@@ -234,6 +234,21 @@ describe('BasePaginationPlugins', () => {
     expect(editor.getOption(BasePaginationPlugin, 'pageSize')).toBe('Letter');
   });
 
+  it('setMargins merges a partial patch instead of replacing all sides', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+    } as any);
+
+    (editor.tf as any).pagination.setMargins({ top: 95 });
+
+    expect(editor.getOption(BasePaginationPlugin, 'margins')).toEqual({
+      bottom: 72,
+      left: 72,
+      right: 72,
+      top: 95,
+    });
+  });
+
   it('togglePreview flips and returns previewVisible', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
@@ -274,5 +289,46 @@ describe('BasePaginationPlugins', () => {
     expect(footers).toHaveLength(1);
     expect((editor.children[0] as any).type).toBe(KEYS.header);
     expect((editor.children.at(-1) as any).type).toBe(KEYS.footer);
+  });
+
+  it('normalizeNode converges without throwing when toggling the footer on a live doc', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+      value: [{ children: [{ text: 'body' }], type: KEYS.p }],
+    } as any);
+
+    expect(() => {
+      (editor.tf as any).pagination.toggleFooter();
+    }).not.toThrow();
+
+    expect((editor.children.at(-1) as any).type).toBe(KEYS.footer);
+
+    expect(() => {
+      (editor.tf as any).pagination.toggleFooter();
+    }).not.toThrow();
+
+    expect((editor.children as any[]).some((n) => n.type === KEYS.footer)).toBe(
+      false
+    );
+  });
+
+  it('normalizeNode collapses two pasted headers to a single header at index 0', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+      value: [
+        { children: [{ text: 'body' }], type: KEYS.p },
+        { children: [{ text: 'h1' }], type: KEYS.header },
+        { children: [{ text: 'h2' }], type: KEYS.header },
+      ],
+    } as any);
+
+    editor.tf.normalize({ force: true });
+
+    const headers = (editor.children as any[]).filter(
+      (n) => n.type === KEYS.header
+    );
+
+    expect(headers).toHaveLength(1);
+    expect((editor.children[0] as any).type).toBe(KEYS.header);
   });
 });

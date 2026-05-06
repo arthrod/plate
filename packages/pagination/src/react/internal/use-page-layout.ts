@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import type { TElement } from 'platejs';
 
@@ -10,6 +10,15 @@ import { resolvePageRect } from '../../lib/internal/page-size-presets';
 import { paginate } from '../../lib/paginate';
 import { setEditorPages } from '../../lib/internal/page-state';
 import { usePretextMeasurer } from '../use-pretext-measurer';
+
+/**
+ * Isomorphic `useLayoutEffect`: client-side it runs synchronously before
+ * paint (so `editor.api.pagination.getPages()` sees fresh data on the same
+ * tick); SSR falls back to `useEffect` to dodge React's layout-effect
+ * warning when there is no DOM yet.
+ */
+const useIsomorphicLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 /**
  * Project the editor's children into the derived page sequence for variant A.
@@ -46,7 +55,7 @@ export const usePageLayout = (
     return allocateFootnotes(raw, definitions);
   }, [editor.children, measurer, options]);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     setEditorPages(editor as object, pages);
   }, [editor, pages]);
 

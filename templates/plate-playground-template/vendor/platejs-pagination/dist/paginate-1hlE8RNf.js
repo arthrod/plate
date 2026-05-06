@@ -1,4 +1,4 @@
-import { createSlatePlugin, createTSlatePlugin } from "platejs";
+import { KEYS, createSlatePlugin, createTSlatePlugin } from "platejs";
 
 //#region src/lib/internal/keys.ts
 /**
@@ -124,6 +124,203 @@ const getEditorPages = (editor) => {
 };
 
 //#endregion
+//#region src/lib/queries/getPageOfPath.ts
+/**
+* Map a top-level Slate path to its derived page index. Returns `-1` when
+* the path is empty or the top block is not present in the page snapshot.
+*/
+const getPageOfPath = (editor, path) => {
+	if (path.length === 0) return -1;
+	const top = editor.children[path[0]];
+	if (!top) return -1;
+	const pages = getEditorPages(editor);
+	for (let i = 0; i < pages.length; i++) if (pages[i].nodes.includes(top)) return i;
+	return -1;
+};
+
+//#endregion
+//#region src/lib/queries/getPaginationPages.ts
+/**
+* Read the latest derived page sequence stored on the editor by the React
+* pagination overlay. Returns an empty array when no pagination cycle has
+* run yet.
+*/
+const getPaginationPages = (editor) => getEditorPages(editor);
+/** Return the footnotes allocated to a given page index. */
+const getPaginationFootnotes = (editor, pageIndex) => getEditorPages(editor)[pageIndex]?.footnotes ?? [];
+
+//#endregion
+//#region src/lib/queries/hasChromeBlock.ts
+/** Whether a top-level `header` block currently exists in the doc. */
+const hasHeaderBlock = (editor) => {
+	const headerType = editor.getType(KEYS.header);
+	return editor.children.some((n) => n.type === headerType);
+};
+/** Whether a top-level `footer` block currently exists in the doc. */
+const hasFooterBlock = (editor) => {
+	const footerType = editor.getType(KEYS.footer);
+	return editor.children.some((n) => n.type === footerType);
+};
+
+//#endregion
+//#region src/lib/transforms/enforceHeaderFooterInvariants.ts
+/**
+* Single header at index 0; single footer at the last index. Anything else
+* is normalized away — keeps paste/undo from producing duplicates.
+*
+* Performs at most one mutation per call and returns `true` when something
+* was changed. The caller (`normalizeNode` override) re-queues by short-
+* circuiting so Slate triggers the next iteration with fresh indices —
+* this prevents stale-index loops and infinite normalization passes.
+*/
+const enforceHeaderFooterInvariants = (editor) => {
+	const headerType = editor.getType(KEYS.header);
+	const footerType = editor.getType(KEYS.footer);
+	const headerIdxs = [];
+	const footerIdxs = [];
+	editor.children.forEach((n, i) => {
+		if (n.type === headerType) headerIdxs.push(i);
+		else if (n.type === footerType) footerIdxs.push(i);
+	});
+	if (headerIdxs.length > 1) {
+		editor.tf.removeNodes({ at: [headerIdxs.at(-1)] });
+		return true;
+	}
+	if (headerIdxs[0] !== void 0 && headerIdxs[0] !== 0) {
+		editor.tf.moveNodes({
+			at: [headerIdxs[0]],
+			to: [0]
+		});
+		return true;
+	}
+	if (footerIdxs.length > 1) {
+		editor.tf.removeNodes({ at: [footerIdxs[0]] });
+		return true;
+	}
+	const target = editor.children.length - 1;
+	const lastFooter = footerIdxs.at(-1);
+	if (lastFooter !== void 0 && lastFooter !== target) {
+		editor.tf.moveNodes({
+			at: [lastFooter],
+			to: [target]
+		});
+		return true;
+	}
+	return false;
+};
+
+//#endregion
+//#region src/lib/transforms/ensureFooter.ts
+/** Insert a default footer at the last index when none exists. */
+const ensureFooter = (editor) => {
+	const footerType = editor.getType(KEYS.footer);
+	if (editor.children.some((n) => n.type === footerType)) return;
+	editor.tf.insertNodes({
+		children: [{ text: "Footer" }],
+		type: footerType
+	}, { at: [editor.children.length] });
+};
+
+//#endregion
+//#region src/lib/transforms/ensureHeader.ts
+/** Insert a default header at index 0 when none exists. */
+const ensureHeader = (editor) => {
+	const headerType = editor.getType(KEYS.header);
+	if (editor.children.some((n) => n.type === headerType)) return;
+	editor.tf.insertNodes({
+		children: [{ text: "Header" }],
+		type: headerType
+	}, { at: [0] });
+};
+
+//#endregion
+//#region src/lib/transforms/insertPageBreak.ts
+/** Insert a hard page-break void at the current selection. */
+const insertPageBreak = (editor) => {
+	editor.tf.insertNodes({
+		children: [{ text: "" }],
+		type: editor.getType(KEYS.pageBreak)
+	});
+};
+
+//#endregion
+//#region src/lib/transforms/removeNodesByType.ts
+/**
+* Remove every top-level child whose `type` matches `type`. Iterates from the
+* end so removed indices don't invalidate the loop.
+*/
+const removeNodesByType = (editor, type) => {
+	const children = editor.children;
+	for (let i = children.length - 1; i >= 0; i--) if (children[i].type === type) editor.tf.removeNodes({ at: [i] });
+};
+
+//#endregion
+//#region src/lib/transforms/replaceFooter.ts
+/**
+* Replace the top-level footer block with `content`, removing any existing
+* footer first and reinserting at the end of the doc.
+*
+* Wrapped in `withoutNormalizing` so the remove + insert lands as one atomic
+* step — otherwise the intermediate "no footer" state can fight with the
+* `enforceHeaderFooterInvariants` normalizer and stall.
+*/
+const replaceFooter = (editor, content) => {
+	editor.tf.withoutNormalizing(() => {
+		const footerType = editor.getType(KEYS.footer);
+		const idx = editor.children.findIndex((n) => n.type === footerType);
+		if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
+		editor.tf.insertNodes({
+			children: content,
+			type: footerType
+		}, { at: [editor.children.length] });
+	});
+};
+
+//#endregion
+//#region src/lib/transforms/replaceHeader.ts
+/**
+* Replace the top-level header block with `content`, removing any existing
+* header first and reinserting at index 0.
+*
+* Wrapped in `withoutNormalizing` so the remove + insert lands as one atomic
+* step — otherwise the intermediate "no header" state can fight with the
+* `enforceHeaderFooterInvariants` normalizer and stall.
+*/
+const replaceHeader = (editor, content) => {
+	editor.tf.withoutNormalizing(() => {
+		const headerType = editor.getType(KEYS.header);
+		const idx = editor.children.findIndex((n) => n.type === headerType);
+		if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
+		editor.tf.insertNodes({
+			children: content,
+			type: headerType
+		}, { at: [0] });
+	});
+};
+
+//#endregion
+//#region src/lib/transforms/toggleFooter.ts
+/** Toggle the document-level footer block; returns new presence. */
+const toggleFooter = (editor) => {
+	const footerType = editor.getType(KEYS.footer);
+	const present = editor.children.some((n) => n.type === footerType);
+	if (present) removeNodesByType(editor, footerType);
+	else ensureFooter(editor);
+	return !present;
+};
+
+//#endregion
+//#region src/lib/transforms/toggleHeader.ts
+/** Toggle the document-level header block; returns new presence. */
+const toggleHeader = (editor) => {
+	const headerType = editor.getType(KEYS.header);
+	const present = editor.children.some((n) => n.type === headerType);
+	if (present) removeNodesByType(editor, headerType);
+	else ensureHeader(editor);
+	return !present;
+};
+
+//#endregion
 //#region src/lib/base-pagination-plugin.ts
 /**
 * Base orchestrator plugin for paginated layout.
@@ -164,119 +361,35 @@ const BasePaginationPlugin = createTSlatePlugin({
 	]
 }).overrideEditor(({ editor, tf: { normalizeNode } }) => ({ transforms: { normalizeNode: (entry) => {
 	const [, path] = entry;
-	if (path.length === 0) enforceHeaderFooterInvariants(editor);
-	return normalizeNode(entry);
+	if (path.length === 0 && enforceHeaderFooterInvariants(editor)) return;
+	normalizeNode(entry);
 } } })).extendEditorApi(({ editor }) => ({ pagination: {
-	getFootnotes: (pageIndex) => {
-		return getEditorPages(editor)[pageIndex]?.footnotes ?? [];
-	},
-	getPageOf: (path) => {
-		if (path.length === 0) return -1;
-		const top = editor.children[path[0]];
-		if (!top) return -1;
-		const pages = getEditorPages(editor);
-		for (let i = 0; i < pages.length; i++) if (pages[i].nodes.includes(top)) return i;
-		return -1;
-	},
-	getPages: () => getEditorPages(editor),
-	hasFooter: () => editor.children.some((n) => n.type === FOOTER_KEY),
-	hasHeader: () => editor.children.some((n) => n.type === HEADER_KEY)
+	getFootnotes: (pageIndex) => getPaginationFootnotes(editor, pageIndex),
+	getPageOf: (path) => getPageOfPath(editor, path),
+	getPages: () => getPaginationPages(editor),
+	hasFooter: () => hasFooterBlock(editor),
+	hasHeader: () => hasHeaderBlock(editor)
 } })).extendEditorTransforms(({ editor, getOptions, setOption }) => ({ pagination: {
-	insertPageBreak: () => {
-		editor.tf.insertNodes({
-			children: [{ text: "" }],
-			type: PAGE_BREAK_KEY
+	insertPageBreak: () => insertPageBreak(editor),
+	setFooter: (content) => replaceFooter(editor, content),
+	setHeader: (content) => replaceHeader(editor, content),
+	setMargins: (patch) => {
+		setOption("margins", {
+			...getOptions().margins,
+			...patch
 		});
-	},
-	setFooter: (content) => {
-		replaceFooter(editor, content);
-	},
-	setHeader: (content) => {
-		replaceHeader(editor, content);
-	},
-	setMargins: (margins) => {
-		setOption("margins", margins);
 	},
 	setPageSize: (size) => {
 		setOption("pageSize", size);
 	},
-	toggleFooter: () => {
-		const ed = editor;
-		const present = ed.children.some((n) => n.type === FOOTER_KEY);
-		if (present) removeByType(ed, FOOTER_KEY);
-		else ensureFooter(ed);
-		return !present;
-	},
-	toggleHeader: () => {
-		const ed = editor;
-		const present = ed.children.some((n) => n.type === HEADER_KEY);
-		if (present) removeByType(ed, HEADER_KEY);
-		else ensureHeader(ed);
-		return !present;
-	},
+	toggleFooter: () => toggleFooter(editor),
+	toggleHeader: () => toggleHeader(editor),
 	togglePreview: () => {
 		const next = !(getOptions().previewVisible ?? true);
 		setOption("previewVisible", next);
 		return next;
 	}
 } }));
-const replaceHeader = (editor, content) => {
-	const idx = editor.children.findIndex((n) => n.type === HEADER_KEY);
-	if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
-	editor.tf.insertNodes({
-		children: content,
-		type: HEADER_KEY
-	}, { at: [0] });
-};
-const replaceFooter = (editor, content) => {
-	const idx = editor.children.findIndex((n) => n.type === FOOTER_KEY);
-	if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
-	editor.tf.insertNodes({
-		children: content,
-		type: FOOTER_KEY
-	}, { at: [editor.children.length] });
-};
-const ensureHeader = (editor) => {
-	if (editor.children.some((n) => n.type === HEADER_KEY)) return;
-	editor.tf.insertNodes({
-		children: [{ text: "Header" }],
-		type: HEADER_KEY
-	}, { at: [0] });
-};
-const ensureFooter = (editor) => {
-	if (editor.children.some((n) => n.type === FOOTER_KEY)) return;
-	editor.tf.insertNodes({
-		children: [{ text: "Footer" }],
-		type: FOOTER_KEY
-	}, { at: [editor.children.length] });
-};
-const removeByType = (editor, type) => {
-	for (let i = editor.children.length - 1; i >= 0; i--) if (editor.children[i].type === type) editor.tf.removeNodes({ at: [i] });
-};
-/**
-* Single header at index 0; single footer at the last index. Anything else
-* is normalized away — keeps paste/undo from producing duplicates.
-*/
-const enforceHeaderFooterInvariants = (editor) => {
-	const headerIdxs = [];
-	const footerIdxs = [];
-	editor.children.forEach((n, i) => {
-		if (n.type === HEADER_KEY) headerIdxs.push(i);
-		else if (n.type === FOOTER_KEY) footerIdxs.push(i);
-	});
-	if (headerIdxs.length > 1) for (let i = headerIdxs.length - 1; i >= 1; i--) editor.tf.removeNodes({ at: [headerIdxs[i]] });
-	if (headerIdxs[0] !== void 0 && headerIdxs[0] !== 0) editor.tf.moveNodes({
-		at: [headerIdxs[0]],
-		to: [0]
-	});
-	if (footerIdxs.length > 1) for (let i = footerIdxs.length - 2; i >= 0; i--) editor.tf.removeNodes({ at: [footerIdxs[i]] });
-	const lastFooter = footerIdxs.at(-1);
-	const target = editor.children.length - 1;
-	if (lastFooter !== void 0 && lastFooter !== target) editor.tf.moveNodes({
-		at: [lastFooter],
-		to: [target]
-	});
-};
 
 //#endregion
 //#region src/lib/internal/marks-fingerprint.ts
@@ -381,5 +494,5 @@ const paginate = (doc, rect, ctx, measurer) => {
 };
 
 //#endregion
-export { BaseHeaderPlugin as a, FOOTER_KEY as c, BasePageBreakPlugin as i, FOOTNOTE_DEFINITION_KEY as l, BasePaginationPlugin as n, BaseFooterPlugin as o, setEditorPages as r, allocateFootnotes as s, paginate as t, HEADER_KEY as u };
-//# sourceMappingURL=paginate-c73WStbw.js.map
+export { FOOTNOTE_DEFINITION_KEY as C, FOOTER_KEY as S, setEditorPages as _, replaceHeader as a, BaseFooterPlugin as b, insertPageBreak as c, enforceHeaderFooterInvariants as d, hasFooterBlock as f, getPageOfPath as g, getPaginationPages as h, toggleFooter as i, ensureHeader as l, getPaginationFootnotes as m, BasePaginationPlugin as n, replaceFooter as o, hasHeaderBlock as p, toggleHeader as r, removeNodesByType as s, paginate as t, ensureFooter as u, BasePageBreakPlugin as v, HEADER_KEY as w, allocateFootnotes as x, BaseHeaderPlugin as y };
+//# sourceMappingURL=paginate-1hlE8RNf.js.map

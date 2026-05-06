@@ -11,6 +11,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./react": "./dist/react/index.js",
+    "./static": "./dist/static/index.js",
     "./package.json": "./package.json"
   },
   "files": ["dist/**/*"],
