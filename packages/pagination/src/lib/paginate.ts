@@ -1,7 +1,13 @@
-import { KEYS, type TElement } from 'platejs';
+import type { TElement } from 'platejs';
 
 import type { Measurer, Page, PageContext, PageRect } from './types';
 
+import {
+  FOOTER_KEY,
+  FOOTNOTE_DEFINITION_KEY,
+  HEADER_KEY,
+  PAGE_BREAK_KEY,
+} from './internal/keys';
 import { marksFingerprint } from './internal/marks-fingerprint';
 
 /**
@@ -49,14 +55,14 @@ export const paginate = (
   };
 
   for (const node of doc) {
-    if (node.type === KEYS.pageBreak) {
+    if (node.type === PAGE_BREAK_KEY) {
       flush();
       continue;
     }
     if (
-      node.type === KEYS.header ||
-      node.type === KEYS.footer ||
-      node.type === KEYS.footnoteDefinition
+      node.type === HEADER_KEY ||
+      node.type === FOOTER_KEY ||
+      node.type === FOOTNOTE_DEFINITION_KEY
     ) {
       continue;
     }

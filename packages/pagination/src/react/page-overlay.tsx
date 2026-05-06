@@ -1,50 +1,65 @@
 import * as React from 'react';
 
-import { KEYS, type TElement } from 'platejs';
-import { useEditorRef } from 'platejs/react';
+import type { TElement } from 'platejs';
+import {
+  useEditorRef,
+  useEditorValue,
+  usePluginOption,
+} from 'platejs/react';
 
 import {
   type BasePaginationConfig,
   BasePaginationPlugin,
 } from '../lib/base-pagination-plugin';
+import { FOOTER_KEY, HEADER_KEY } from '../lib/internal/keys';
 import { FootnotePortal } from './footnote-portal';
 import { usePageLayout } from './internal/use-page-layout';
 import { PageFrame } from './page-frame';
+
+const THUMB_SCALE = 0.18;
+const STACK_GAP = 12;
 
 /**
  * Render-overlay shell mounted via `render.afterEditable`.
  *
  * Variant A — CodeRabbit Design Choice 1: pages are derived at render time
- * and painted as an overlay panel on top of the live editor. The Slate
+ * and painted as a side-panel preview on top of the live editor. The Slate
  * document is never mutated by this component.
  *
- * The overlay is a fixed-position card on the right of the viewport showing
- * a stack of `PageFrame` thumbnails plus a "Page n of m" indicator. This
- * makes pagination visible without fighting the editor's text rendering.
+ * Visibility is controlled by the plugin option `previewVisible`, toggled
+ * via `editor.tf.pagination.togglePreview()`. When hidden the component
+ * still mounts (so the toggle stays reactive) but renders nothing.
+ *
+ * Updates reactively as the document changes via `useEditorValue`.
  */
 export const PageOverlay = (): React.JSX.Element | null => {
   const editor = useEditorRef();
+  const visible = usePluginOption(BasePaginationPlugin, 'previewVisible');
+  const value = useEditorValue();
+
   const options = editor.getOptions(BasePaginationPlugin) as
     | BasePaginationConfig['options']
     | undefined;
 
   const safeOptions = useResolvedOptions(options);
   const pages = usePageLayout(
-    editor as { id: string; children: TElement[] },
+    {
+      children: value as unknown as TElement[],
+      id: editor.id,
+    },
     safeOptions
   );
 
-  if (pages.length === 0) return null;
+  if (!visible || pages.length === 0) {
+    return <FootnotePortal />;
+  }
 
-  const documentHeader = editor.children.find((n) => n.type === KEYS.header) as
-    | TElement
-    | undefined;
-  const documentFooter = editor.children.find((n) => n.type === KEYS.footer) as
-    | TElement
-    | undefined;
-
-  const thumbScale = 0.18;
-  const stackGap = 12;
+  const documentHeader = (value as TElement[]).find(
+    (n) => n.type === HEADER_KEY
+  );
+  const documentFooter = (value as TElement[]).find(
+    (n) => n.type === FOOTER_KEY
+  );
 
   return (
     <>
@@ -90,19 +105,17 @@ export const PageOverlay = (): React.JSX.Element | null => {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: stackGap,
+            gap: STACK_GAP,
           }}
         >
           {pages.map((page) => {
-            const previewHeight = page.rect.height * thumbScale;
+            const previewHeight = page.rect.height * THUMB_SCALE;
+            const previewWidth = page.rect.width * THUMB_SCALE;
 
             return (
               <div
                 key={page.pageIndex}
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                }}
+                style={{ width: '100%' }}
               >
                 <div
                   style={{
@@ -118,11 +131,12 @@ export const PageOverlay = (): React.JSX.Element | null => {
                     height: previewHeight,
                     overflow: 'hidden',
                     position: 'relative',
+                    width: previewWidth,
                   }}
                 >
                   <div
                     style={{
-                      transform: `scale(${thumbScale})`,
+                      transform: `scale(${THUMB_SCALE})`,
                       transformOrigin: 'top left',
                     }}
                   >
@@ -164,6 +178,7 @@ const useResolvedOptions = (
         top: 72,
       },
       pageSize: options?.pageSize ?? 'A4',
+      previewVisible: options?.previewVisible ?? true,
     }),
     [
       options?.footerHeight,
@@ -172,5 +187,6 @@ const useResolvedOptions = (
       options?.includeFootnoteSubPlugins,
       options?.margins,
       options?.pageSize,
+      options?.previewVisible,
     ]
   );

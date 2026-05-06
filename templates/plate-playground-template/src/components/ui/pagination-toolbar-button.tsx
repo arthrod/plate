@@ -14,21 +14,18 @@ export function PaginationToolbarButton() {
       data-plate-prevent-overlay
       onClick={() => {
         const tf = editor.tf as unknown as {
-          insertNodes: (n: unknown) => void;
-          pagination?: { insertPageBreak?: () => void };
+          pagination?: { togglePreview?: () => boolean };
         };
 
-        if (tf.pagination?.insertPageBreak) {
-          tf.pagination.insertPageBreak();
-        } else {
-          tf.insertNodes({
-            children: [{ text: '' }],
-            type: 'pageBreak',
-          });
+        if (tf.pagination?.togglePreview) {
+          const visible = tf.pagination.togglePreview();
+          toast(visible ? 'Page preview shown' : 'Page preview hidden');
+
+          return;
         }
-        toast('Inserted page break.');
+        toast('Pagination plugin not available');
       }}
-      tooltip="Insert page break"
+      tooltip="Toggle page preview"
     >
       <LayoutTemplateIcon />
     </ToolbarButton>

@@ -1,5 +1,5 @@
 import * as platejs3 from "platejs";
-import { Descendant, KEYS, PluginConfig, TElement } from "platejs";
+import { Descendant, PluginConfig, TElement } from "platejs";
 
 //#region src/lib/types.d.ts
 /** Page geometry in CSS pixels. */
@@ -83,6 +83,11 @@ type BasePaginationOptions = {
    * is treated as a downstream registration key.
    */
   pageSize: 'A4' | 'Letter' | (string & {});
+  /**
+   * Whether the side preview panel is visible. Toggled at runtime via
+   * `editor.tf.pagination.togglePreview()`. Defaults to `true`.
+   */
+  previewVisible?: boolean;
 };
 //#endregion
 //#region src/lib/allocate-footnotes.d.ts
@@ -124,6 +129,15 @@ declare const BaseHeaderPlugin: platejs3.SlatePlugin<platejs3.PluginConfig<"head
  */
 declare const BasePageBreakPlugin: platejs3.SlatePlugin<platejs3.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
 //#endregion
+//#region src/lib/internal/keys.d.ts
+/**
+ * Plugin keys hard-coded inside the package so the published `platejs`
+ * `KEYS` object isn't required to know about them. The workspace `KEYS`
+ * also exposes these (`KEYS.pagination`, `KEYS.pageBreak`) for downstream
+ * consumers that prefer the central registry — keep these strings in sync.
+ */
+declare const PAGINATION_KEY = "pagination";
+//#endregion
 //#region src/lib/base-pagination-plugin.d.ts
 type BasePaginationApi = {
   pagination: {
@@ -137,9 +151,11 @@ type BasePaginationTransforms = {
     insertPageBreak: () => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
+    /** Toggle the side preview panel; returns the new visibility. */
+    togglePreview: () => boolean;
   };
 };
-type BasePaginationConfig = PluginConfig<typeof KEYS.pagination, BasePaginationOptions, BasePaginationApi, BasePaginationTransforms>;
+type BasePaginationConfig = PluginConfig<typeof PAGINATION_KEY, BasePaginationOptions, BasePaginationApi, BasePaginationTransforms>;
 /**
  * Base orchestrator plugin for paginated layout.
  *
@@ -167,6 +183,7 @@ declare const BasePaginationPlugin: platejs3.SlatePlugin<PluginConfig<"paginatio
     insertPageBreak: () => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
+    togglePreview: () => boolean;
   };
 }, {}>>;
 //#endregion
@@ -193,4 +210,4 @@ declare const BasePaginationPlugin: platejs3.SlatePlugin<PluginConfig<"paginatio
 declare const paginate: (doc: TElement[], rect: PageRect, ctx: PageContext, measurer: Measurer) => Page[];
 //#endregion
 export { BasePaginationTransforms as a, BaseFooterPlugin as c, Measurer as d, Page as f, PageRect as h, BasePaginationPlugin as i, allocateFootnotes as l, PageMargins as m, BasePaginationApi as n, BasePageBreakPlugin as o, PageContext as p, BasePaginationConfig as r, BaseHeaderPlugin as s, paginate as t, BasePaginationOptions as u };
-//# sourceMappingURL=index-DwcqOEv5.d.ts.map
+//# sourceMappingURL=index-DflHVnvF.d.ts.map

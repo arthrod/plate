@@ -1,6 +1,8 @@
-import { KEYS, type TElement } from 'platejs';
+import type { TElement } from 'platejs';
 
 import type { Page } from './types';
+
+import { FOOTNOTE_REFERENCE_KEY } from './internal/keys';
 
 /**
  * Greedy assignment of footnote definitions to per-page footer wells.
@@ -54,7 +56,7 @@ const collectReferenceIds = (
   visit: (identifier: string) => void
 ): void => {
   if (
-    node.type === KEYS.footnoteReference &&
+    node.type === FOOTNOTE_REFERENCE_KEY &&
     typeof node.identifier === 'string'
   ) {
     visit(node.identifier);

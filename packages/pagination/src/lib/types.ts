@@ -86,4 +86,9 @@ export type BasePaginationOptions = {
    * is treated as a downstream registration key.
    */
   pageSize: 'A4' | 'Letter' | (string & {});
+  /**
+   * Whether the side preview panel is visible. Toggled at runtime via
+   * `editor.tf.pagination.togglePreview()`. Defaults to `true`.
+   */
+  previewVisible?: boolean;
 };

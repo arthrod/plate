@@ -1,4 +1,6 @@
-import { createSlatePlugin, KEYS } from 'platejs';
+import { createSlatePlugin } from 'platejs';
+
+import { HEADER_KEY } from './internal/keys';
 
 /**
  * Block-level page-header element.
@@ -6,7 +8,7 @@ import { createSlatePlugin, KEYS } from 'platejs';
  * Authored once per document; the render-overlay clones it onto every page.
  */
 export const BaseHeaderPlugin = createSlatePlugin({
-  key: KEYS.header,
+  key: HEADER_KEY,
   node: {
     isElement: true,
   },

@@ -1,6 +1,5 @@
 import {
   type Descendant,
-  KEYS,
   type PluginConfig,
   type TElement,
   createTSlatePlugin,
@@ -11,6 +10,7 @@ import type { BasePaginationOptions, Page } from './types';
 import { BaseFooterPlugin } from './base-footer-plugin';
 import { BaseHeaderPlugin } from './base-header-plugin';
 import { BasePageBreakPlugin } from './base-page-break-plugin';
+import { PAGE_BREAK_KEY, PAGINATION_KEY } from './internal/keys';
 
 export type BasePaginationApi = {
   pagination: {
@@ -25,11 +25,13 @@ export type BasePaginationTransforms = {
     insertPageBreak: () => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
+    /** Toggle the side preview panel; returns the new visibility. */
+    togglePreview: () => boolean;
   };
 };
 
 export type BasePaginationConfig = PluginConfig<
-  typeof KEYS.pagination,
+  typeof PAGINATION_KEY,
   BasePaginationOptions,
   BasePaginationApi,
   BasePaginationTransforms
@@ -52,7 +54,7 @@ export type BasePaginationConfig = PluginConfig<
  * resolves to `[]`/`-1` until a measurer-equipped consumer wires pages in.
  */
 export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
-  key: KEYS.pagination,
+  key: PAGINATION_KEY,
   options: {
     footerHeight: 48,
     footnoteWell: 0,
@@ -65,6 +67,7 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
       top: 72,
     },
     pageSize: 'A4',
+    previewVisible: true,
   },
   plugins: [BaseHeaderPlugin, BaseFooterPlugin, BasePageBreakPlugin],
 })
@@ -93,22 +96,31 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
       getPages: () => readPages(editor),
     },
   }))
-  .extendEditorTransforms<BasePaginationTransforms>(({ editor }) => ({
-    pagination: {
-      insertPageBreak: () => {
-        editor.tf.insertNodes({
-          children: [{ text: '' }],
-          type: KEYS.pageBreak,
-        } as TElement);
+  .extendEditorTransforms<BasePaginationTransforms>(
+    ({ editor, getOptions, setOption }) => ({
+      pagination: {
+        insertPageBreak: () => {
+          editor.tf.insertNodes({
+            children: [{ text: '' }],
+            type: PAGE_BREAK_KEY,
+          } as TElement);
+        },
+        setFooter: (content) => {
+          replaceTopLevelByType(editor, 'footer', content);
+        },
+        setHeader: (content) => {
+          replaceTopLevelByType(editor, 'header', content);
+        },
+        togglePreview: () => {
+          const next = !(getOptions().previewVisible ?? true);
+
+          setOption('previewVisible', next);
+
+          return next;
+        },
       },
-      setFooter: (content) => {
-        replaceTopLevelByType(editor, KEYS.footer, content);
-      },
-      setHeader: (content) => {
-        replaceTopLevelByType(editor, KEYS.header, content);
-      },
-    },
-  }));
+    })
+  );
 
 const readPages = (editor: object): Page[] => {
   const slot = (editor as { __pagination_pages__?: Page[] })

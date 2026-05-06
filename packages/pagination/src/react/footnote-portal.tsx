@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { KEYS } from 'platejs';
+import { FOOTNOTE_DEFINITION_KEY } from '../lib/internal/keys';
 
 /**
  * Variant A — CodeRabbit Design Choice 2: footnote definitions stay in the
@@ -16,7 +16,7 @@ import { KEYS } from 'platejs';
  */
 export const FootnotePortal = (): React.JSX.Element => (
   <style data-plate-pagination-footnote-style="">{`
-    [data-slate-node="element"][data-slate-type="${KEYS.footnoteDefinition}"] {
+    [data-slate-node="element"][data-slate-type="${FOOTNOTE_DEFINITION_KEY}"] {
       visibility: hidden;
       pointer-events: none;
       position: absolute;

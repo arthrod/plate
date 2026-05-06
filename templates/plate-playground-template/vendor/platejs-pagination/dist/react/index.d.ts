@@ -1,4 +1,4 @@
-import { a as BasePaginationTransforms, d as Measurer, f as Page, n as BasePaginationApi, u as BasePaginationOptions } from "../index-DwcqOEv5";
+import { a as BasePaginationTransforms, d as Measurer, f as Page, n as BasePaginationApi, u as BasePaginationOptions } from "../index-DflHVnvF";
 import * as platejs0 from "platejs";
 import { TElement } from "platejs";
 import * as platejs_react0 from "platejs/react";
@@ -36,20 +36,18 @@ type PageFrameProps = {
     footnoteWell: number;
     headerHeight: number;
   };
-  /** First-class header element copied off the document, if any. */
-  documentFooter?: TElement;
   /** First-class footer element copied off the document, if any. */
+  documentFooter?: TElement;
+  /** First-class header element copied off the document, if any. */
   documentHeader?: TElement;
   page: Page;
   /** Vertical position of the page in the overlay coordinate space. */
   top: number;
 };
 /**
- * Single page chrome rendered by the overlay: header band, content rect
- * outline, footnote well, footer band.
- *
- * Variant A renders this purely as an overlay; it never wraps the live
- * editor children, so editing remains uninterrupted.
+ * Single page chrome rendered by the overlay: header band, content rect,
+ * footnote well, footer band — plus a faithful mini-rendering of each block
+ * in the body so the panel doubles as a content-aware preview.
  */
 declare const PageFrame: ({
   chrome,
@@ -64,12 +62,14 @@ declare const PageFrame: ({
  * Render-overlay shell mounted via `render.afterEditable`.
  *
  * Variant A — CodeRabbit Design Choice 1: pages are derived at render time
- * and painted as an overlay panel on top of the live editor. The Slate
+ * and painted as a side-panel preview on top of the live editor. The Slate
  * document is never mutated by this component.
  *
- * The overlay is a fixed-position card on the right of the viewport showing
- * a stack of `PageFrame` thumbnails plus a "Page n of m" indicator. This
- * makes pagination visible without fighting the editor's text rendering.
+ * Visibility is controlled by the plugin option `previewVisible`, toggled
+ * via `editor.tf.pagination.togglePreview()`. When hidden the component
+ * still mounts (so the toggle stays reactive) but renders nothing.
+ *
+ * Updates reactively as the document changes via `useEditorValue`.
  */
 declare const PageOverlay: () => React.JSX.Element | null;
 //#endregion

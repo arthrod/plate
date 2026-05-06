@@ -1,4 +1,6 @@
-import { createSlatePlugin, KEYS } from 'platejs';
+import { createSlatePlugin } from 'platejs';
+
+import { FOOTER_KEY } from './internal/keys';
 
 /**
  * Block-level page-footer element.
@@ -7,7 +9,7 @@ import { createSlatePlugin, KEYS } from 'platejs';
  * and runs the footnote-well allocator above it.
  */
 export const BaseFooterPlugin = createSlatePlugin({
-  key: KEYS.footer,
+  key: FOOTER_KEY,
   node: {
     isElement: true,
   },

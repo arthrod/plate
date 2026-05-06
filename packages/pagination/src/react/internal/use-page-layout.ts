@@ -1,10 +1,11 @@
 import { useEffect, useMemo } from 'react';
 
-import { KEYS, type TElement } from 'platejs';
+import type { TElement } from 'platejs';
 
 import type { BasePaginationOptions, Page } from '../../lib/types';
 
 import { allocateFootnotes } from '../../lib/allocate-footnotes';
+import { FOOTNOTE_DEFINITION_KEY } from '../../lib/internal/keys';
 import { resolvePageRect } from '../../lib/internal/page-size-presets';
 import { paginate } from '../../lib/paginate';
 import { setEditorPages } from './page-state';
@@ -39,7 +40,7 @@ export const usePageLayout = (
     );
 
     const definitions = editor.children.filter(
-      (n) => n.type === KEYS.footnoteDefinition
+      (n) => n.type === FOOTNOTE_DEFINITION_KEY
     );
 
     return allocateFootnotes(raw, definitions);

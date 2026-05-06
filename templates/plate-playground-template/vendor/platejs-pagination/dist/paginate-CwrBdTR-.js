@@ -1,5 +1,20 @@
-import { KEYS, createSlatePlugin, createTSlatePlugin } from "platejs";
+import { createSlatePlugin, createTSlatePlugin } from "platejs";
 
+//#region src/lib/internal/keys.ts
+/**
+* Plugin keys hard-coded inside the package so the published `platejs`
+* `KEYS` object isn't required to know about them. The workspace `KEYS`
+* also exposes these (`KEYS.pagination`, `KEYS.pageBreak`) for downstream
+* consumers that prefer the central registry — keep these strings in sync.
+*/
+const PAGINATION_KEY = "pagination";
+const PAGE_BREAK_KEY = "pageBreak";
+const HEADER_KEY = "header";
+const FOOTER_KEY = "footer";
+const FOOTNOTE_REFERENCE_KEY = "footnoteReference";
+const FOOTNOTE_DEFINITION_KEY = "footnoteDefinition";
+
+//#endregion
 //#region src/lib/allocate-footnotes.ts
 /**
 * Greedy assignment of footnote definitions to per-page footer wells.
@@ -37,7 +52,7 @@ const allocateFootnotes = (pages, footnotes) => {
 	});
 };
 const collectReferenceIds = (node, visit) => {
-	if (node.type === KEYS.footnoteReference && typeof node.identifier === "string") {
+	if (node.type === FOOTNOTE_REFERENCE_KEY && typeof node.identifier === "string") {
 		visit(node.identifier);
 		return;
 	}
@@ -54,7 +69,7 @@ const collectReferenceIds = (node, visit) => {
 * and runs the footnote-well allocator above it.
 */
 const BaseFooterPlugin = createSlatePlugin({
-	key: KEYS.footer,
+	key: FOOTER_KEY,
 	node: { isElement: true }
 });
 
@@ -66,7 +81,7 @@ const BaseFooterPlugin = createSlatePlugin({
 * Authored once per document; the render-overlay clones it onto every page.
 */
 const BaseHeaderPlugin = createSlatePlugin({
-	key: KEYS.header,
+	key: HEADER_KEY,
 	node: { isElement: true }
 });
 
@@ -78,7 +93,7 @@ const BaseHeaderPlugin = createSlatePlugin({
 * The render-overlay paginator splits a page boundary at every break node.
 */
 const BasePageBreakPlugin = createSlatePlugin({
-	key: KEYS.pageBreak,
+	key: PAGE_BREAK_KEY,
 	node: {
 		isElement: true,
 		isVoid: true
@@ -104,7 +119,7 @@ const BasePageBreakPlugin = createSlatePlugin({
 * resolves to `[]`/`-1` until a measurer-equipped consumer wires pages in.
 */
 const BasePaginationPlugin = createTSlatePlugin({
-	key: KEYS.pagination,
+	key: PAGINATION_KEY,
 	options: {
 		footerHeight: 48,
 		footnoteWell: 0,
@@ -116,7 +131,8 @@ const BasePaginationPlugin = createTSlatePlugin({
 			right: 72,
 			top: 72
 		},
-		pageSize: "A4"
+		pageSize: "A4",
+		previewVisible: true
 	},
 	plugins: [
 		BaseHeaderPlugin,
@@ -136,18 +152,23 @@ const BasePaginationPlugin = createTSlatePlugin({
 		return -1;
 	},
 	getPages: () => readPages(editor)
-} })).extendEditorTransforms(({ editor }) => ({ pagination: {
+} })).extendEditorTransforms(({ editor, getOptions, setOption }) => ({ pagination: {
 	insertPageBreak: () => {
 		editor.tf.insertNodes({
 			children: [{ text: "" }],
-			type: KEYS.pageBreak
+			type: PAGE_BREAK_KEY
 		});
 	},
 	setFooter: (content) => {
-		replaceTopLevelByType(editor, KEYS.footer, content);
+		replaceTopLevelByType(editor, "footer", content);
 	},
 	setHeader: (content) => {
-		replaceTopLevelByType(editor, KEYS.header, content);
+		replaceTopLevelByType(editor, "header", content);
+	},
+	togglePreview: () => {
+		const next = !(getOptions().previewVisible ?? true);
+		setOption("previewVisible", next);
+		return next;
 	}
 } }));
 const readPages = (editor) => {
@@ -235,11 +256,11 @@ const paginate = (doc, rect, ctx, measurer) => {
 		pageIndex += 1;
 	};
 	for (const node of doc) {
-		if (node.type === KEYS.pageBreak) {
+		if (node.type === PAGE_BREAK_KEY) {
 			flush();
 			continue;
 		}
-		if (node.type === KEYS.header || node.type === KEYS.footer || node.type === KEYS.footnoteDefinition) continue;
+		if (node.type === HEADER_KEY || node.type === FOOTER_KEY || node.type === FOOTNOTE_DEFINITION_KEY) continue;
 		const nodeFingerprint = marksFingerprint(node) || ctx.marksFingerprint;
 		const height = measurer.measure(node, {
 			font: ctx.font,
@@ -266,5 +287,5 @@ const paginate = (doc, rect, ctx, measurer) => {
 };
 
 //#endregion
-export { BaseFooterPlugin as a, BaseHeaderPlugin as i, BasePaginationPlugin as n, allocateFootnotes as o, BasePageBreakPlugin as r, paginate as t };
-//# sourceMappingURL=paginate-BwWv3TAR.js.map
+export { BaseFooterPlugin as a, FOOTNOTE_DEFINITION_KEY as c, BaseHeaderPlugin as i, HEADER_KEY as l, BasePaginationPlugin as n, allocateFootnotes as o, BasePageBreakPlugin as r, FOOTER_KEY as s, paginate as t };
+//# sourceMappingURL=paginate-CwrBdTR-.js.map

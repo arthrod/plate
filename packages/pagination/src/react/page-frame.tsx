@@ -7,9 +7,9 @@ import type { Page } from '../lib/types';
 export type PageFrameProps = {
   /** Resolved chrome heights from `BasePaginationOptions`. */
   chrome: { footerHeight: number; footnoteWell: number; headerHeight: number };
-  /** First-class header element copied off the document, if any. */
-  documentFooter?: TElement;
   /** First-class footer element copied off the document, if any. */
+  documentFooter?: TElement;
+  /** First-class header element copied off the document, if any. */
   documentHeader?: TElement;
   page: Page;
   /** Vertical position of the page in the overlay coordinate space. */
@@ -17,11 +17,9 @@ export type PageFrameProps = {
 };
 
 /**
- * Single page chrome rendered by the overlay: header band, content rect
- * outline, footnote well, footer band.
- *
- * Variant A renders this purely as an overlay; it never wraps the live
- * editor children, so editing remains uninterrupted.
+ * Single page chrome rendered by the overlay: header band, content rect,
+ * footnote well, footer band — plus a faithful mini-rendering of each block
+ * in the body so the panel doubles as a content-aware preview.
  */
 export const PageFrame = ({
   chrome,
@@ -124,12 +122,87 @@ export const PageFrame = ({
         data-plate-pagination-slot="content"
         style={{
           height: rect.contentHeight,
-          left: 0,
+          left: 24,
+          overflow: 'hidden',
+          padding: '0 16px',
           position: 'absolute',
-          right: 0,
-          top: headerOffset,
+          right: 24,
+          top: headerOffset + 16,
         }}
-      />
+      >
+        {page.nodes.map((node, i) => (
+          <BlockPreview key={(node as { id?: string }).id ?? i} node={node} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const BlockPreview = ({ node }: { node: TElement }): React.JSX.Element => {
+  const text = collectInlineText(node);
+  const type = node.type;
+
+  if (typeof type === 'string' && /^h([1-6])$/.test(type)) {
+    const level = Number.parseInt(type.slice(1), 10);
+    const sizes = [0, 28, 22, 18, 16, 14, 13];
+
+    return (
+      <div
+        style={{
+          fontSize: sizes[level] ?? 16,
+          fontWeight: 700,
+          lineHeight: 1.25,
+          margin: '12px 0 8px',
+        }}
+      >
+        {text}
+      </div>
+    );
+  }
+  if (type === 'blockquote') {
+    return (
+      <div
+        style={{
+          borderLeft: '3px solid rgba(15,23,42,0.2)',
+          color: 'rgba(15,23,42,0.7)',
+          fontSize: 14,
+          fontStyle: 'italic',
+          lineHeight: 1.5,
+          margin: '8px 0',
+          paddingLeft: 12,
+        }}
+      >
+        {text}
+      </div>
+    );
+  }
+  if (type === 'code_block') {
+    return (
+      <div
+        style={{
+          background: 'rgba(15,23,42,0.05)',
+          fontFamily: 'ui-monospace, monospace',
+          fontSize: 12,
+          lineHeight: 1.4,
+          margin: '8px 0',
+          padding: 8,
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        {text}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        fontSize: 14,
+        lineHeight: 1.5,
+        margin: '6px 0',
+      }}
+    >
+      {text || ' '}
     </div>
   );
 };

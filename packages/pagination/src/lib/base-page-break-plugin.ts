@@ -1,4 +1,6 @@
-import { createSlatePlugin, KEYS } from 'platejs';
+import { createSlatePlugin } from 'platejs';
+
+import { PAGE_BREAK_KEY } from './internal/keys';
 
 /**
  * Hard page-break element.
@@ -6,7 +8,7 @@ import { createSlatePlugin, KEYS } from 'platejs';
  * The render-overlay paginator splits a page boundary at every break node.
  */
 export const BasePageBreakPlugin = createSlatePlugin({
-  key: KEYS.pageBreak,
+  key: PAGE_BREAK_KEY,
   node: {
     isElement: true,
     isVoid: true,
