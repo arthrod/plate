@@ -17,6 +17,15 @@ type PageMargins = {
   top: number;
 };
 /**
+ * Page size resolves to a preset key (`'A4'`, `'Letter'`, `'Legal'`) or a
+ * literal `{ width, height }` in CSS pixels. The string-`(string & {})`
+ * branch is reserved for future registry-based presets.
+ */
+type PageSize = 'A4' | 'Legal' | 'Letter' | (string & {}) | {
+  height: number;
+  width: number;
+};
+/**
  * Resolved layout context for one paginated page.
  *
  * Variant A (render-overlay) consumes pages as a derived view of the live
@@ -78,16 +87,25 @@ type BasePaginationOptions = {
   includeFootnoteSubPlugins?: boolean;
   /** Page margin box. */
   margins: PageMargins;
-  /**
-   * Page size token. `'A4'` and `'Letter'` are pre-resolved; any other string
-   * is treated as a downstream registration key.
-   */
-  pageSize: 'A4' | 'Letter' | (string & {});
+  /** Resolved page size — preset key or literal `{ width, height }` in CSS pixels. */
+  pageSize: PageSize;
   /**
    * Whether the side preview panel is visible. Toggled at runtime via
    * `editor.tf.pagination.togglePreview()`. Defaults to `true`.
    */
   previewVisible?: boolean;
+  /**
+   * Whether the document-level header block is rendered in flow + mirrored
+   * onto each page. Toggled via `editor.tf.pagination.toggleHeader()` —
+   * the toggle inserts (or removes) a top-level `header` element at the
+   * start of `editor.children`. Defaults to `false`.
+   */
+  headerVisible?: boolean;
+  /**
+   * Same as `headerVisible` but for the document-level footer block at
+   * the end of `editor.children`. Defaults to `false`.
+   */
+  footerVisible?: boolean;
 };
 //#endregion
 //#region src/lib/allocate-footnotes.d.ts
@@ -149,9 +167,17 @@ type BasePaginationApi = {
 type BasePaginationTransforms = {
   pagination: {
     insertPageBreak: () => void;
+    /** Replace the in-flow `<w:pgMar>`-style margins. */
+    setMargins: (margins: PageMargins) => void;
+    /** Replace the resolved page size (preset key or `{width,height}`). */
+    setPageSize: (size: PageSize) => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
-    /** Toggle the side preview panel; returns the new visibility. */
+    /** Toggle the document-level footer block; returns new visibility. */
+    toggleFooter: () => boolean;
+    /** Toggle the document-level header block; returns new visibility. */
+    toggleHeader: () => boolean;
+    /** Toggle the side preview panel; returns new visibility. */
     togglePreview: () => boolean;
   };
 };
@@ -181,8 +207,12 @@ declare const BasePaginationPlugin: platejs3.SlatePlugin<PluginConfig<"paginatio
 }, {
   pagination: {
     insertPageBreak: () => void;
+    setMargins: (margins: PageMargins) => void;
+    setPageSize: (size: PageSize) => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
+    toggleFooter: () => boolean;
+    toggleHeader: () => boolean;
     togglePreview: () => boolean;
   };
 }, {}>>;
@@ -209,5 +239,5 @@ declare const BasePaginationPlugin: platejs3.SlatePlugin<PluginConfig<"paginatio
  */
 declare const paginate: (doc: TElement[], rect: PageRect, ctx: PageContext, measurer: Measurer) => Page[];
 //#endregion
-export { BasePaginationTransforms as a, BaseFooterPlugin as c, Measurer as d, Page as f, PageRect as h, BasePaginationPlugin as i, allocateFootnotes as l, PageMargins as m, BasePaginationApi as n, BasePageBreakPlugin as o, PageContext as p, BasePaginationConfig as r, BaseHeaderPlugin as s, paginate as t, BasePaginationOptions as u };
-//# sourceMappingURL=index-DflHVnvF.d.ts.map
+export { BasePaginationTransforms as a, BaseFooterPlugin as c, Measurer as d, Page as f, PageSize as g, PageRect as h, BasePaginationPlugin as i, allocateFootnotes as l, PageMargins as m, BasePaginationApi as n, BasePageBreakPlugin as o, PageContext as p, BasePaginationConfig as r, BaseHeaderPlugin as s, paginate as t, BasePaginationOptions as u };
+//# sourceMappingURL=index-DziMy3Up.d.ts.map

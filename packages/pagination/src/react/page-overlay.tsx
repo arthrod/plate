@@ -35,7 +35,22 @@ const STACK_GAP = 12;
 export const PageOverlay = (): React.JSX.Element | null => {
   const editor = useEditorRef();
   const visible = usePluginOption(BasePaginationPlugin, 'previewVisible');
+  const pageSize = usePluginOption(BasePaginationPlugin, 'pageSize');
+  const margins = usePluginOption(BasePaginationPlugin, 'margins');
+  const headerVisible = usePluginOption(
+    BasePaginationPlugin,
+    'headerVisible'
+  );
+  const footerVisible = usePluginOption(
+    BasePaginationPlugin,
+    'footerVisible'
+  );
   const value = useEditorValue();
+
+  void pageSize;
+  void margins;
+  void headerVisible;
+  void footerVisible;
 
   const options = editor.getOptions(BasePaginationPlugin) as
     | BasePaginationConfig['options']

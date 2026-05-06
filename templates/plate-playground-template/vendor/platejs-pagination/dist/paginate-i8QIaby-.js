@@ -132,7 +132,9 @@ const BasePaginationPlugin = createTSlatePlugin({
 			top: 72
 		},
 		pageSize: "A4",
-		previewVisible: true
+		previewVisible: true,
+		headerVisible: false,
+		footerVisible: false
 	},
 	plugins: [
 		BaseHeaderPlugin,
@@ -160,10 +162,30 @@ const BasePaginationPlugin = createTSlatePlugin({
 		});
 	},
 	setFooter: (content) => {
-		replaceTopLevelByType(editor, "footer", content);
+		replaceFooter(editor, content);
 	},
 	setHeader: (content) => {
-		replaceTopLevelByType(editor, "header", content);
+		replaceHeader(editor, content);
+	},
+	setMargins: (margins) => {
+		setOption("margins", margins);
+	},
+	setPageSize: (size) => {
+		setOption("pageSize", size);
+	},
+	toggleFooter: () => {
+		const next = !(getOptions().footerVisible ?? false);
+		if (next) ensureFooter(editor);
+		else removeByType(editor, FOOTER_KEY);
+		setOption("footerVisible", next);
+		return next;
+	},
+	toggleHeader: () => {
+		const next = !(getOptions().headerVisible ?? false);
+		if (next) ensureHeader(editor);
+		else removeByType(editor, HEADER_KEY);
+		setOption("headerVisible", next);
+		return next;
 	},
 	togglePreview: () => {
 		const next = !(getOptions().previewVisible ?? true);
@@ -175,13 +197,38 @@ const readPages = (editor) => {
 	const slot = editor.__pagination_pages__;
 	return Array.isArray(slot) ? slot : [];
 };
-const replaceTopLevelByType = (editor, type, content) => {
-	const idx = editor.children.findIndex((n) => n.type === type);
+const replaceHeader = (editor, content) => {
+	const idx = editor.children.findIndex((n) => n.type === HEADER_KEY);
 	if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
 	editor.tf.insertNodes({
 		children: content,
-		type
-	}, { at: [idx >= 0 ? idx : 0] });
+		type: HEADER_KEY
+	}, { at: [0] });
+};
+const replaceFooter = (editor, content) => {
+	const idx = editor.children.findIndex((n) => n.type === FOOTER_KEY);
+	if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
+	editor.tf.insertNodes({
+		children: content,
+		type: FOOTER_KEY
+	}, { at: [editor.children.length] });
+};
+const ensureHeader = (editor) => {
+	if (editor.children.some((n) => n.type === HEADER_KEY)) return;
+	editor.tf.insertNodes({
+		children: [{ text: "Header" }],
+		type: HEADER_KEY
+	}, { at: [0] });
+};
+const ensureFooter = (editor) => {
+	if (editor.children.some((n) => n.type === FOOTER_KEY)) return;
+	editor.tf.insertNodes({
+		children: [{ text: "Footer" }],
+		type: FOOTER_KEY
+	}, { at: [editor.children.length] });
+};
+const removeByType = (editor, type) => {
+	for (let i = editor.children.length - 1; i >= 0; i--) if (editor.children[i].type === type) editor.tf.removeNodes({ at: [i] });
 };
 
 //#endregion
@@ -288,4 +335,4 @@ const paginate = (doc, rect, ctx, measurer) => {
 
 //#endregion
 export { BaseFooterPlugin as a, FOOTNOTE_DEFINITION_KEY as c, BaseHeaderPlugin as i, HEADER_KEY as l, BasePaginationPlugin as n, allocateFootnotes as o, BasePageBreakPlugin as r, FOOTER_KEY as s, paginate as t };
-//# sourceMappingURL=paginate-CwrBdTR-.js.map
+//# sourceMappingURL=paginate-i8QIaby-.js.map

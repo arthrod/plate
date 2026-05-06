@@ -17,6 +17,18 @@ export type PageMargins = {
 };
 
 /**
+ * Page size resolves to a preset key (`'A4'`, `'Letter'`, `'Legal'`) or a
+ * literal `{ width, height }` in CSS pixels. The string-`(string & {})`
+ * branch is reserved for future registry-based presets.
+ */
+export type PageSize =
+  | 'A4'
+  | 'Legal'
+  | 'Letter'
+  | (string & {})
+  | { height: number; width: number };
+
+/**
  * Resolved layout context for one paginated page.
  *
  * Variant A (render-overlay) consumes pages as a derived view of the live
@@ -81,14 +93,23 @@ export type BasePaginationOptions = {
   includeFootnoteSubPlugins?: boolean;
   /** Page margin box. */
   margins: PageMargins;
-  /**
-   * Page size token. `'A4'` and `'Letter'` are pre-resolved; any other string
-   * is treated as a downstream registration key.
-   */
-  pageSize: 'A4' | 'Letter' | (string & {});
+  /** Resolved page size — preset key or literal `{ width, height }` in CSS pixels. */
+  pageSize: PageSize;
   /**
    * Whether the side preview panel is visible. Toggled at runtime via
    * `editor.tf.pagination.togglePreview()`. Defaults to `true`.
    */
   previewVisible?: boolean;
+  /**
+   * Whether the document-level header block is rendered in flow + mirrored
+   * onto each page. Toggled via `editor.tf.pagination.toggleHeader()` —
+   * the toggle inserts (or removes) a top-level `header` element at the
+   * start of `editor.children`. Defaults to `false`.
+   */
+  headerVisible?: boolean;
+  /**
+   * Same as `headerVisible` but for the document-level footer block at
+   * the end of `editor.children`. Defaults to `false`.
+   */
+  footerVisible?: boolean;
 };

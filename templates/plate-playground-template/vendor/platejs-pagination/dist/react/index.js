@@ -1,4 +1,4 @@
-import { a as BaseFooterPlugin, c as FOOTNOTE_DEFINITION_KEY, i as BaseHeaderPlugin, l as HEADER_KEY, n as BasePaginationPlugin, o as allocateFootnotes, r as BasePageBreakPlugin, s as FOOTER_KEY, t as paginate } from "../paginate-CwrBdTR-.js";
+import { a as BaseFooterPlugin, c as FOOTNOTE_DEFINITION_KEY, i as BaseHeaderPlugin, l as HEADER_KEY, n as BasePaginationPlugin, o as allocateFootnotes, r as BasePageBreakPlugin, s as FOOTER_KEY, t as paginate } from "../paginate-i8QIaby-.js";
 import { toPlatePlugin, toTPlatePlugin, useEditorRef, useEditorValue, usePluginOption } from "platejs/react";
 import { c } from "react-compiler-runtime";
 import * as React from "react";
@@ -341,21 +341,27 @@ const PAGE_PRESETS = {
 		height: 1123,
 		width: 794
 	},
-	Letter: {
-		height: 1056,
-		width: 816
-	},
 	Legal: {
 		height: 1344,
 		width: 816
+	},
+	Letter: {
+		height: 1056,
+		width: 816
 	}
 };
+const isLiteralSize = (s) => typeof s === "object" && s !== null && "width" in s && "height" in s;
+const resolvePageSize = (pageSize) => {
+	if (isLiteralSize(pageSize)) return pageSize;
+	return PAGE_PRESETS[pageSize] ?? PAGE_PRESETS.A4;
+};
 const resolvePageRect = (pageSize, margins, reservations) => {
-	const preset = PAGE_PRESETS[pageSize] ?? PAGE_PRESETS.A4;
+	const preset = resolvePageSize(pageSize);
 	const contentWidth = preset.width - margins.left - margins.right;
+	const contentHeight = preset.height - margins.top - margins.bottom - reservations.header - reservations.footer - reservations.footnoteWell;
 	return {
-		contentHeight: preset.height - margins.top - margins.bottom - reservations.header - reservations.footer - reservations.footnoteWell,
-		contentWidth,
+		contentHeight: Math.max(contentHeight, 0),
+		contentWidth: Math.max(contentWidth, 0),
 		height: preset.height,
 		width: preset.width
 	};
@@ -633,6 +639,10 @@ const PageOverlay = () => {
 	const $ = c(31);
 	const editor = useEditorRef();
 	const visible = usePluginOption(BasePaginationPlugin, "previewVisible");
+	usePluginOption(BasePaginationPlugin, "pageSize");
+	usePluginOption(BasePaginationPlugin, "margins");
+	usePluginOption(BasePaginationPlugin, "headerVisible");
+	usePluginOption(BasePaginationPlugin, "footerVisible");
 	const value = useEditorValue();
 	let t0;
 	if ($[0] !== editor) {

@@ -1,4 +1,4 @@
-import { a as BasePaginationTransforms, d as Measurer, f as Page, n as BasePaginationApi, u as BasePaginationOptions } from "../index-DflHVnvF";
+import { a as BasePaginationTransforms, d as Measurer, f as Page, n as BasePaginationApi, u as BasePaginationOptions } from "../index-DziMy3Up";
 import * as platejs0 from "platejs";
 import { TElement } from "platejs";
 import * as platejs_react0 from "platejs/react";
