@@ -1,4 +1,6 @@
-import type { TElement } from 'platejs';
+import type { Descendant, PluginConfig, TElement } from 'platejs';
+
+import type { PAGINATION_KEY } from './internal/keys';
 
 /** Page geometry in CSS pixels. */
 export type PageRect = {
@@ -101,3 +103,43 @@ export type BasePaginationOptions = {
    */
   previewVisible?: boolean;
 };
+
+/** Editor-API surface contributed by `BasePaginationPlugin`. */
+export type BasePaginationApi = {
+  pagination: {
+    getFootnotes: (pageIndex: number) => TElement[];
+    getPageOf: (path: number[]) => number;
+    getPages: () => Page[];
+    /** Whether a top-level `header` block currently exists in the doc. */
+    hasHeader: () => boolean;
+    /** Whether a top-level `footer` block currently exists in the doc. */
+    hasFooter: () => boolean;
+  };
+};
+
+/** Editor transforms contributed by `BasePaginationPlugin`. */
+export type BasePaginationTransforms = {
+  pagination: {
+    insertPageBreak: () => void;
+    /** Replace the in-flow `<w:pgMar>`-style margins. */
+    setMargins: (margins: PageMargins) => void;
+    /** Replace the resolved page size (preset key or `{width,height}`). */
+    setPageSize: (size: PageSize) => void;
+    setFooter: (content: Descendant[]) => void;
+    setHeader: (content: Descendant[]) => void;
+    /** Toggle the document-level footer block; returns new presence. */
+    toggleFooter: () => boolean;
+    /** Toggle the document-level header block; returns new presence. */
+    toggleHeader: () => boolean;
+    /** Toggle the side preview panel; returns new visibility. */
+    togglePreview: () => boolean;
+  };
+};
+
+/** Plugin config tuple for `BasePaginationPlugin`. */
+export type BasePaginationConfig = PluginConfig<
+  typeof PAGINATION_KEY,
+  BasePaginationOptions,
+  BasePaginationApi,
+  BasePaginationTransforms
+>;
