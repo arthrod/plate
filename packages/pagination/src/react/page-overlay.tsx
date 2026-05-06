@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { KEYS, type TElement } from 'platejs';
-import { useEditorRef, useEditorContainerRef } from 'platejs/react';
+import { useEditorRef } from 'platejs/react';
 
 import {
   type BasePaginationConfig,
@@ -11,24 +11,19 @@ import { FootnotePortal } from './footnote-portal';
 import { usePageLayout } from './internal/use-page-layout';
 import { PageFrame } from './page-frame';
 
-const PAGE_GAP = 24;
-
 /**
  * Render-overlay shell mounted via `render.afterEditable`.
  *
  * Variant A — CodeRabbit Design Choice 1: pages are derived at render time
- * and painted as an overlay on top of the live editor. This component owns
- * the per-page frames and the absolute positioning math; nothing touches
- * Slate state.
+ * and painted as an overlay panel on top of the live editor. The Slate
+ * document is never mutated by this component.
  *
- * The container is `pointer-events: none` so the underlying editor receives
- * mouse/keyboard events normally. Each `PageFrame` paints its own chrome
- * (header band, footer band, footnote well) at a Y offset matching the
- * cumulative measured height of preceding pages.
+ * The overlay is a fixed-position card on the right of the viewport showing
+ * a stack of `PageFrame` thumbnails plus a "Page n of m" indicator. This
+ * makes pagination visible without fighting the editor's text rendering.
  */
 export const PageOverlay = (): React.JSX.Element | null => {
   const editor = useEditorRef();
-  const containerRef = useEditorContainerRef();
   const options = editor.getOptions(BasePaginationPlugin) as
     | BasePaginationConfig['options']
     | undefined;
@@ -39,7 +34,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
     safeOptions
   );
 
-  if (!safeOptions || pages.length === 0) return null;
+  if (pages.length === 0) return null;
 
   const documentHeader = editor.children.find((n) => n.type === KEYS.header) as
     | TElement
@@ -48,11 +43,8 @@ export const PageOverlay = (): React.JSX.Element | null => {
     | TElement
     | undefined;
 
-  const containerRect = containerRef.current?.getBoundingClientRect();
-  const offsetTop = containerRect?.top ?? 0;
-  const offsetLeft = containerRect?.left ?? 0;
-
-  let cumulative = 0;
+  const thumbScale = 0.18;
+  const stackGap = 12;
 
   return (
     <>
@@ -60,32 +52,97 @@ export const PageOverlay = (): React.JSX.Element | null => {
       <div
         data-plate-pagination-overlay=""
         style={{
-          left: offsetLeft,
-          pointerEvents: 'none',
+          background: 'rgba(248, 250, 252, 0.96)',
+          border: '1px solid rgba(15,23,42,0.12)',
+          borderRadius: 8,
+          bottom: 16,
+          boxShadow: '0 8px 24px rgba(15,23,42,0.12)',
+          color: 'rgba(15,23,42,0.85)',
+          fontFamily: 'system-ui, sans-serif',
+          fontSize: 12,
+          maxHeight: 'calc(100vh - 32px)',
+          overflowY: 'auto',
+          padding: 12,
           position: 'fixed',
-          top: offsetTop,
-          zIndex: 0,
+          right: 16,
+          top: 16,
+          width: 220,
+          zIndex: 50,
         }}
       >
-        {pages.map((page) => {
-          const top = cumulative;
-          cumulative += page.rect.height + PAGE_GAP;
+        <div
+          style={{
+            alignItems: 'center',
+            color: 'rgba(15,23,42,0.55)',
+            display: 'flex',
+            fontSize: 11,
+            fontWeight: 600,
+            justifyContent: 'space-between',
+            letterSpacing: 0.4,
+            marginBottom: 8,
+            textTransform: 'uppercase',
+          }}
+        >
+          <span>Pages</span>
+          <span>{`${pages.length}`}</span>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: stackGap,
+          }}
+        >
+          {pages.map((page) => {
+            const previewHeight = page.rect.height * thumbScale;
 
-          return (
-            <PageFrame
-              key={page.pageIndex}
-              chrome={{
-                footerHeight: safeOptions.footerHeight,
-                footnoteWell: safeOptions.footnoteWell,
-                headerHeight: safeOptions.headerHeight,
-              }}
-              documentFooter={documentFooter}
-              documentHeader={documentHeader}
-              page={page}
-              top={top}
-            />
-          );
-        })}
+            return (
+              <div
+                key={page.pageIndex}
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                }}
+              >
+                <div
+                  style={{
+                    color: 'rgba(15,23,42,0.55)',
+                    fontSize: 10,
+                    marginBottom: 4,
+                  }}
+                >
+                  {`Page ${page.pageIndex + 1}`}
+                </div>
+                <div
+                  style={{
+                    height: previewHeight,
+                    overflow: 'hidden',
+                    position: 'relative',
+                  }}
+                >
+                  <div
+                    style={{
+                      transform: `scale(${thumbScale})`,
+                      transformOrigin: 'top left',
+                    }}
+                  >
+                    <PageFrame
+                      chrome={{
+                        footerHeight: safeOptions.footerHeight,
+                        footnoteWell: safeOptions.footnoteWell,
+                        headerHeight: safeOptions.headerHeight,
+                      }}
+                      documentFooter={documentFooter}
+                      documentHeader={documentHeader}
+                      page={page}
+                      top={0}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );

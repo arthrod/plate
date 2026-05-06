@@ -64,14 +64,12 @@ declare const PageFrame: ({
  * Render-overlay shell mounted via `render.afterEditable`.
  *
  * Variant A — CodeRabbit Design Choice 1: pages are derived at render time
- * and painted as an overlay on top of the live editor. This component owns
- * the per-page frames and the absolute positioning math; nothing touches
- * Slate state.
+ * and painted as an overlay panel on top of the live editor. The Slate
+ * document is never mutated by this component.
  *
- * The container is `pointer-events: none` so the underlying editor receives
- * mouse/keyboard events normally. Each `PageFrame` paints its own chrome
- * (header band, footer band, footnote well) at a Y offset matching the
- * cumulative measured height of preceding pages.
+ * The overlay is a fixed-position card on the right of the viewport showing
+ * a stack of `PageFrame` thumbnails plus a "Page n of m" indicator. This
+ * makes pagination visible without fighting the editor's text rendering.
  */
 declare const PageOverlay: () => React.JSX.Element | null;
 //#endregion

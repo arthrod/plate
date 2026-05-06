@@ -13,18 +13,20 @@ export function PaginationToolbarButton() {
     <ToolbarButton
       data-plate-prevent-overlay
       onClick={() => {
-        const tf = (
-          editor.tf as unknown as {
-            pagination?: { insertPageBreak?: () => void };
-          }
-        ).pagination;
+        const tf = editor.tf as unknown as {
+          insertNodes: (n: unknown) => void;
+          pagination?: { insertPageBreak?: () => void };
+        };
 
-        if (tf?.insertPageBreak) {
-          tf.insertPageBreak();
-          toast('Inserted page break.');
+        if (tf.pagination?.insertPageBreak) {
+          tf.pagination.insertPageBreak();
         } else {
-          toast('Pagination plugin not loaded.');
+          tf.insertNodes({
+            children: [{ text: '' }],
+            type: 'pageBreak',
+          });
         }
+        toast('Inserted page break.');
       }}
       tooltip="Insert page break"
     >
