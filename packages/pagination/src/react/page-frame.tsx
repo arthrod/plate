@@ -39,10 +39,10 @@ export const PageFrame = ({
   const mr = rect.margins.right;
 
   // Vertical offsets (all relative to the top of the page div).
-  // Header occupies [0, chrome.headerHeight).
-  // Content starts at margins.top (which already includes headerHeight in the
-  // reservation) and ends at margins.top + contentHeight.
-  const contentTop = rect.margins.top + chrome.headerHeight;
+  // Header occupies [0, chrome.headerHeight) — sits inside the top-margin zone.
+  // Content starts at margins.top (the full top-margin reservation, which must
+  // be large enough to accommodate the header band) and spans contentHeight px.
+  const contentTop = rect.margins.top;
   const footnoteWellTop =
     rect.height - rect.margins.bottom - chrome.footerHeight - chrome.footnoteWell;
   const footerTop = rect.height - rect.margins.bottom - chrome.footerHeight;
@@ -82,7 +82,7 @@ export const PageFrame = ({
             padding: '4px 8px',
             position: 'absolute',
             right: mr,
-            top: rect.margins.top,
+            top: 0,
           }}
         >
           {documentHeader ? collectInlineText(documentHeader) : null}
@@ -156,11 +156,11 @@ export const PageFrame = ({
         }}
       >
         {page.nodes.map((node, i) => (
-
+          <BlockPreview key={(node as TElement & { id?: string }).id ?? i} node={node} />
         ))}
       </div>
     </div>
-  );
+
 };
 
 const BlockPreview = ({ node }: { node: TElement }): React.JSX.Element => {
