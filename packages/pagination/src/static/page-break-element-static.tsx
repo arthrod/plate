@@ -25,6 +25,7 @@ export function PageBreakElementStatic(props: SlateElementProps) {
           display: 'flex',
           gap: 8,
           pageBreakAfter: 'always',
+          breakAfter: 'page',
           padding: '8px 0',
           userSelect: 'none',
         }}
