@@ -4,12 +4,15 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "depset": "bunx depset@latest @platejs --yes && bunx depset@latest platejs --yes",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "dev": "next dev",
-    "lint": "biome check src biome.jsonc components.json tsconfig.json eslint.config.mjs next.config.ts postcss.config.mjs && eslint",
-    "lint:fix": "biome check src biome.jsonc components.json tsconfig.json eslint.config.mjs next.config.ts postcss.config.mjs --fix --unsafe",
+    "lint": "biome check src biome.jsonc components.json tsconfig.json eslint.config.mjs next.config.ts postcss.config.mjs && eslint .",
+    "lint:fix": "biome check src biome.jsonc components.json tsconfig.json eslint.config.mjs next.config.ts postcss.config.mjs --fix --unsafe && eslint . --fix",
     "prepare": "bun x skiller@latest apply || true",
     "preview": "next build && next start",
+    "preview:cf": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },
@@ -102,6 +105,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
+    "@opennextjs/cloudflare": "^1.19.6",
     "@tailwindcss/postcss": "4.2.4",
     "@types/node": "^25.6.0",
     "@types/react": "19.2.14",
@@ -114,7 +118,8 @@
     "postcss": "^8.5.12",
     "tailwindcss": "4.2.4",
     "typescript": "6.0.3",
-    "ultracite": "7.6.2"
+    "ultracite": "7.6.2",
+    "wrangler": "^4.87.0"
   },
   "packageManager": "bun@1.3.3"
 }
