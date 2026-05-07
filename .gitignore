@@ -129,4 +129,11 @@ packages/plate/docs/
 
 *.local*
 
+<<<<<<< HEAD
 .omx/dogfood-output/
+=======
+.omx/
+
+# Stakpak session files
+.stakpak/session*
+>>>>>>> 0f8f4927d (chore: ci)
