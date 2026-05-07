@@ -1,11 +1,12 @@
 import * as React from 'react';
 
-import type { TElement, TText } from 'platejs';
+import type { AnyEditorPlugin, TElement } from 'platejs';
+import type { PlateEditor } from 'platejs/react';
+import { PlateStatic, createStaticEditor } from 'platejs/static';
 
-import type { Page, PageMargins } from '../lib/types';
+import type { Page, PageBorder, PageMargins } from '../lib/types';
 
-const HEADING_TYPE_RE = /^h([1-6])$/;
-const HEADING_SIZES = [0, 28, 22, 18, 16, 14, 13] as const;
+import { PAGINATION_KEY } from '../lib/internal/keys';
 
 export type PageFrameProps = {
   /**
@@ -18,11 +19,14 @@ export type PageFrameProps = {
     footnoteWell: number;
     headerHeight: number;
     margins: PageMargins;
+    pageBorder: PageBorder;
   };
   /** First-class footer element copied off the document, if any. */
   documentFooter?: TElement;
   /** First-class header element copied off the document, if any. */
   documentHeader?: TElement;
+  editor: PlateEditor;
+  footnotesInFooter: boolean;
   page: Page;
   /** Vertical position of the page in the overlay coordinate space. */
   top: number;
@@ -30,18 +34,15 @@ export type PageFrameProps = {
 
 /**
  * Single page chrome rendered by the overlay: header band, content rect,
- * footnote well, footer band — with content rendered by a small recursive
- * preview renderer that mirrors the live block types and inline marks.
- *
- * The thumbnail is intentionally lossy (no plugin parity), but it preserves
- * heading hierarchy and basic mark styling (bold, italic, code, underline,
- * strikethrough) so the preview reads as a faithful map of the document
- * rather than a flattened text dump.
+ * footnote well, footer band — with content rendered through `PlateStatic`
+ * using the live editor's plugin list, minus editor-chrome render hooks.
  */
 export const PageFrame = ({
   chrome,
   documentFooter,
   documentHeader,
+  editor,
+  footnotesInFooter,
   page,
   top,
 }: PageFrameProps): React.JSX.Element => {
@@ -50,6 +51,17 @@ export const PageFrame = ({
   const footnoteWellTop =
     rect.height - chrome.footerHeight - chrome.footnoteWell;
   const footerTop = rect.height - chrome.footerHeight;
+  // Clone once per live editor so page thumbnails reuse the same static
+  // plugin graph without recreating it for every page render.
+  const staticPlugins = React.useMemo(
+    () => getStaticPreviewPlugins(editor),
+    [editor]
+  );
+  const pageBorder = chrome.pageBorder;
+  const border =
+    pageBorder.style === 'none' || pageBorder.width === 0
+      ? 'none'
+      : `${pageBorder.width}px ${pageBorder.style} ${pageBorder.color}`;
 
   return (
     <div
@@ -58,9 +70,9 @@ export const PageFrame = ({
       data-plate-pagination-page=""
       style={{
         background: '#ffffff',
-        border: '1px solid rgba(15,23,42,0.15)',
-        borderRadius: 2,
-        boxShadow: '0 1px 2px rgba(15,23,42,0.08)',
+        border,
+        borderRadius: pageBorder.radius,
+        boxShadow: pageBorder.shadow,
         height: rect.height,
         left: 0,
         pointerEvents: 'none',
@@ -87,11 +99,15 @@ export const PageFrame = ({
             top: 0,
           }}
         >
-          {documentHeader ? <BlockPreview node={documentHeader} /> : null}
+          {documentHeader ? (
+            <StaticPageValue plugins={staticPlugins} value={[documentHeader]} />
+          ) : null}
         </div>
       ) : null}
 
-      {chrome.footnoteWell > 0 && page.footnotes.length > 0 ? (
+      {footnotesInFooter &&
+      chrome.footnoteWell > 0 &&
+      page.footnotes.length > 0 ? (
         <div
           data-plate-pagination-slot="footnote-well"
           style={{
@@ -107,12 +123,7 @@ export const PageFrame = ({
             top: footnoteWellTop,
           }}
         >
-          {page.footnotes.map((def, i) => (
-            <div key={(def as { id?: string }).id ?? i}>
-              {`[${(def as { identifier?: string }).identifier ?? i + 1}] `}
-              <InlinePreview node={def} />
-            </div>
-          ))}
+          <StaticPageValue plugins={staticPlugins} value={page.footnotes} />
         </div>
       ) : null}
 
@@ -134,9 +145,9 @@ export const PageFrame = ({
             top: footerTop,
           }}
         >
-          <span>
-            {documentFooter ? <InlinePreview node={documentFooter} /> : null}
-          </span>
+          {documentFooter ? (
+            <StaticPageValue plugins={staticPlugins} value={[documentFooter]} />
+          ) : null}
           <span style={{ float: 'right' }}>{`${page.pageIndex + 1}`}</span>
         </div>
       ) : null}
@@ -152,145 +163,72 @@ export const PageFrame = ({
           top: headerOffset + chrome.margins.top,
         }}
       >
-        {page.nodes.map((node, i) => (
-          <BlockPreview key={(node as { id?: string }).id ?? i} node={node} />
-        ))}
+        <StaticPageValue plugins={staticPlugins} value={page.nodes} />
       </div>
     </div>
   );
 };
 
-/** Renders a single block with type-aware styling and mark-aware inlines. */
-const BlockPreview = ({ node }: { node: TElement }): React.JSX.Element => {
-  const type = node.type;
-
-  if (typeof type === 'string' && HEADING_TYPE_RE.test(type)) {
-    const level = Number.parseInt(type.slice(1), 10);
-
-    return (
-      <div
-        style={{
-          fontSize: HEADING_SIZES[level] ?? 16,
-          fontWeight: 700,
-          lineHeight: 1.25,
-          margin: '12px 0 8px',
-        }}
-      >
-        <InlinePreview node={node} />
-      </div>
-    );
-  }
-  if (type === 'blockquote') {
-    return (
-      <div
-        style={{
-          borderLeft: '3px solid rgba(15,23,42,0.2)',
-          color: 'rgba(15,23,42,0.7)',
-          fontSize: 14,
-          fontStyle: 'italic',
-          lineHeight: 1.5,
-          margin: '8px 0',
-          paddingLeft: 12,
-        }}
-      >
-        <InlinePreview node={node} />
-      </div>
-    );
-  }
-  if (type === 'code_block') {
-    return (
-      <div
-        style={{
-          background: 'rgba(15,23,42,0.05)',
-          fontFamily: 'ui-monospace, monospace',
-          fontSize: 12,
-          lineHeight: 1.4,
-          margin: '8px 0',
-          padding: 8,
-          whiteSpace: 'pre-wrap',
-        }}
-      >
-        <InlinePreview node={node} />
-      </div>
-    );
-  }
-  if (type === 'ul' || type === 'ol') {
-    const Tag = type === 'ol' ? 'ol' : 'ul';
-
-    return (
-      <Tag
-        style={{
-          fontSize: 14,
-          lineHeight: 1.5,
-          margin: '6px 0',
-          paddingLeft: 24,
-        }}
-      >
-        {(node.children as TElement[]).map((child, i) => (
-          <li key={(child as { id?: string }).id ?? i}>
-            <InlinePreview node={child} />
-          </li>
-        ))}
-      </Tag>
-    );
-  }
+const StaticPageValue = ({
+  plugins,
+  value,
+}: {
+  plugins: AnyEditorPlugin[];
+  value: TElement[];
+}): React.JSX.Element => {
+  const editor = React.useMemo(
+    () => createStaticEditor({ plugins, value }),
+    [plugins, value]
+  );
 
   return (
-    <div style={{ fontSize: 14, lineHeight: 1.5, margin: '6px 0' }}>
-      <InlinePreview node={node} />
-    </div>
+    <PlateStatic
+      className="slate-editor"
+      editor={editor}
+      style={{ fontSize: 'inherit', lineHeight: 'inherit' }}
+      value={value}
+    />
   );
 };
 
-type InlineNode = (TElement | TText | { children?: unknown[]; text?: string }) &
-  Record<string, unknown>;
+const getStaticPreviewPlugins = (editor: PlateEditor): AnyEditorPlugin[] =>
+  editor.meta.pluginList
+    .map(toStaticPreviewPlugin)
+    .filter((plugin): plugin is AnyEditorPlugin => plugin !== null);
 
-/**
- * Renders the inline content of `node` with mark-aware styling. Text leaves
- * apply bold/italic/underline/strikethrough/code; nested elements (links,
- * mentions, etc.) recurse so styled inlines flow into the parent line box.
- */
-const InlinePreview = ({ node }: { node: InlineNode }): React.JSX.Element => {
-  const children = (node.children as InlineNode[] | undefined) ?? [];
+const toStaticPreviewPlugin = (
+  plugin: AnyEditorPlugin
+): AnyEditorPlugin | null => {
+  if (plugin.key === PAGINATION_KEY || plugin.editOnly) return null;
 
-  return (
-    <>
-      {children.map((child, i) => {
-        if (typeof child.text === 'string') {
-          return <Leaf key={i} leaf={child} />;
+  return {
+    ...plugin,
+    __extensions: [],
+    inject: plugin.inject?.nodeProps?.transformProps
+      ? {
+          ...plugin.inject,
+          nodeProps: {
+            ...plugin.inject.nodeProps,
+            transformProps: undefined,
+          },
         }
-
-        return <InlinePreview key={i} node={child} />;
-      })}
-    </>
-  );
-};
-
-const Leaf = ({ leaf }: { leaf: InlineNode }): React.ReactNode => {
-  const text = (leaf.text as string) || '';
-  if (!text) return null;
-
-  let element: React.ReactNode = text;
-
-  if (leaf.code) {
-    element = (
-      <code
-        style={{
-          background: 'rgba(15,23,42,0.06)',
-          borderRadius: 2,
-          fontFamily: 'ui-monospace, monospace',
-          fontSize: '0.92em',
-          padding: '0 2px',
-        }}
-      >
-        {element}
-      </code>
-    );
-  }
-  if (leaf.bold) element = <strong>{element}</strong>;
-  if (leaf.italic) element = <em>{element}</em>;
-  if (leaf.underline) element = <u>{element}</u>;
-  if (leaf.strikethrough) element = <s>{element}</s>;
-
-  return element;
+      : plugin.inject,
+    node: {
+      ...plugin.node,
+      component: undefined,
+    },
+    render: {
+      ...plugin.render,
+      aboveEditable: undefined,
+      aboveNodes: undefined,
+      aboveSlate: undefined,
+      afterContainer: undefined,
+      afterEditable: undefined,
+      beforeContainer: undefined,
+      beforeEditable: undefined,
+      belowNodes: undefined,
+      belowRootNodes: undefined,
+      node: undefined,
+    },
+  } as AnyEditorPlugin;
 };

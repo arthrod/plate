@@ -1,4 +1,4 @@
-import { createSlateEditor, KEYS } from 'platejs';
+import { createSlateEditor, createSlatePlugin, KEYS } from 'platejs';
 
 import {
   BaseFooterPlugin,
@@ -52,8 +52,17 @@ describe('BasePaginationPlugins', () => {
     });
     expect(plugin.options.headerHeight).toBe(48);
     expect(plugin.options.footerHeight).toBe(48);
+    expect(plugin.options.footnotePlacement).toBe('footer');
     expect(plugin.options.footnoteWell).toBe(0);
     expect(plugin.options.includeFootnoteSubPlugins).toBe(true);
+    expect(plugin.options.pageBorder).toEqual({
+      color: 'rgba(15,23,42,0.15)',
+      radius: 2,
+      shadow: '0 1px 2px rgba(15,23,42,0.08)',
+      style: 'solid',
+      width: 1,
+    });
+    expect(plugin.options.previewWidth).toBe(220);
     expect(plugin.options.previewVisible).toBe(true);
   });
 
@@ -73,10 +82,13 @@ describe('BasePaginationPlugins', () => {
 
     expect(tf).toBeDefined();
     expect(typeof tf.insertPageBreak).toBe('function');
+    expect(typeof tf.setFootnotePlacement).toBe('function');
     expect(typeof tf.setHeader).toBe('function');
     expect(typeof tf.setFooter).toBe('function');
     expect(typeof tf.setMargins).toBe('function');
+    expect(typeof tf.setPageBorder).toBe('function');
     expect(typeof tf.setPageSize).toBe('function');
+    expect(typeof tf.setPreviewWidth).toBe('function');
     expect(typeof tf.toggleHeader).toBe('function');
     expect(typeof tf.toggleFooter).toBe('function');
     expect(typeof tf.togglePreview).toBe('function');
@@ -234,6 +246,47 @@ describe('BasePaginationPlugins', () => {
     expect(editor.getOption(BasePaginationPlugin, 'pageSize')).toBe('Letter');
   });
 
+  it('setPageBorder / setPreviewWidth update layout options', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+    } as any);
+
+    (editor.tf as any).pagination.setPageBorder({
+      color: 'rgba(0,0,0,0.2)',
+      width: 2,
+    });
+    (editor.tf as any).pagination.setPreviewWidth(320);
+
+    expect(editor.getOption(BasePaginationPlugin, 'pageBorder')).toEqual({
+      color: 'rgba(0,0,0,0.2)',
+      radius: 2,
+      shadow: '0 1px 2px rgba(15,23,42,0.08)',
+      style: 'solid',
+      width: 2,
+    });
+    expect(editor.getOption(BasePaginationPlugin, 'previewWidth')).toBe(320);
+  });
+
+  it('setFootnotePlacement moves footnotes between page footer and document end modes', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+    } as any);
+
+    (editor.tf as any).pagination.setFootnotePlacement('documentEnd');
+
+    expect(editor.getOption(BasePaginationPlugin, 'footnotePlacement')).toBe(
+      'documentEnd'
+    );
+    expect(editor.getOption(BasePaginationPlugin, 'footnoteWell')).toBe(0);
+
+    (editor.tf as any).pagination.setFootnotePlacement('footer');
+
+    expect(editor.getOption(BasePaginationPlugin, 'footnotePlacement')).toBe(
+      'footer'
+    );
+    expect(editor.getOption(BasePaginationPlugin, 'footnoteWell')).toBe(96);
+  });
+
   it('setMargins merges a partial patch instead of replacing all sides', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
@@ -310,6 +363,47 @@ describe('BasePaginationPlugins', () => {
     expect((editor.children as any[]).some((n) => n.type === KEYS.footer)).toBe(
       false
     );
+  });
+
+  it('does not loop when another normalizer appends a trailing paragraph after the footer', () => {
+    const TrailingParagraphPlugin = createSlatePlugin({
+      key: 'pagination-test-trailing-paragraph',
+    }).overrideEditor(({ editor, tf: { normalizeNode } }) => ({
+      transforms: {
+        normalizeNode: (entry) => {
+          const [, path] = entry;
+
+          if (path.length === 0) {
+            const last = editor.children.at(-1) as { type?: string };
+
+            if (last.type !== KEYS.p) {
+              editor.tf.insertNodes(
+                { children: [{ text: '' }], type: KEYS.p },
+                { at: [editor.children.length] }
+              );
+
+              return;
+            }
+          }
+
+          normalizeNode(entry);
+        },
+      },
+    }));
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin, TrailingParagraphPlugin],
+      value: [{ children: [{ text: 'body' }], type: KEYS.p }],
+    } as any);
+
+    expect(() => {
+      (editor.tf as any).pagination.toggleFooter();
+      editor.tf.normalize({ force: true });
+    }).not.toThrow();
+
+    expect(
+      (editor.children as any[]).filter((n) => n.type === KEYS.footer)
+    ).toHaveLength(1);
+    expect((editor.children.at(-1) as any).type).toBe(KEYS.p);
   });
 
   it('normalizeNode collapses two pasted headers to a single header at index 0', () => {

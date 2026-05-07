@@ -1,6 +1,12 @@
 import type { TElement } from 'platejs';
 
-import type { Measurer, Page, PageContext, PageRect } from './types';
+import type {
+  BasePaginationOptions,
+  Measurer,
+  Page,
+  PageContext,
+  PageRect,
+} from './types';
 
 import {
   FOOTER_KEY,
@@ -9,6 +15,15 @@ import {
   PAGE_BREAK_KEY,
 } from './internal/keys';
 import { marksFingerprint } from './internal/marks-fingerprint';
+
+export type PaginateOptions = Partial<
+  Pick<BasePaginationOptions, 'footnotePlacement'>
+> & {
+  ctx: PageContext;
+  doc: TElement[];
+  measurer: Measurer;
+  rect: PageRect;
+};
 
 /**
  * Derive the page sequence from a flat list of top-level blocks.
@@ -19,8 +34,9 @@ import { marksFingerprint } from './internal/marks-fingerprint';
  * (`type === KEYS.pageBreak`) are hard splits. Pages are derived; this
  * never mutates Slate state.
  *
- * Top-level `header`, `footer`, and `footnoteDefinition` blocks are
- * skipped — they render via the page chrome / footer well, not the body.
+ * Top-level `header` and `footer` blocks are skipped because they render via
+ * the page chrome. `footnoteDefinition` blocks are skipped only when
+ * footnotes render in page footer wells.
  *
  * @param doc Top-level Slate blocks (`editor.children`).
  * @param rect Resolved page geometry (see `resolvePageRect`).
@@ -29,19 +45,22 @@ import { marksFingerprint } from './internal/marks-fingerprint';
  * @param measurer Pluggable height oracle. Inject a fake monospace one
  *   in tests; the React layer wires the DOM-backed measurer.
  */
-export const paginate = (
-  doc: TElement[],
-  rect: PageRect,
-  ctx: PageContext,
-  measurer: Measurer
-): Page[] => {
+export const paginate = ({
+  ctx,
+  doc,
+  footnotePlacement = 'footer',
+  measurer,
+  rect,
+}: PaginateOptions): Page[] => {
   const pages: Page[] = [];
   let current: TElement[] = [];
   let used = 0;
   let pageIndex = 0;
 
-  const flush = (): void => {
-    if (current.length === 0 && pages.length > 0) return;
+  const flush = (forceBlankPage = false): void => {
+    if (current.length === 0 && pages.length > 0 && !forceBlankPage) {
+      return;
+    }
 
     pages.push({
       footnotes: [],
@@ -56,13 +75,17 @@ export const paginate = (
 
   for (const node of doc) {
     if (node.type === PAGE_BREAK_KEY) {
-      flush();
+      // Explicit author break: emit a blank page if we're already at a
+      // boundary (e.g. consecutive `<page-break/>` voids), otherwise close
+      // the current page. Without `forceBlankPage`, the second break would
+      // be silently dropped because `current` is empty.
+      flush(true);
       continue;
     }
     if (
       node.type === HEADER_KEY ||
       node.type === FOOTER_KEY ||
-      node.type === FOOTNOTE_DEFINITION_KEY
+      (footnotePlacement === 'footer' && node.type === FOOTNOTE_DEFINITION_KEY)
     ) {
       continue;
     }

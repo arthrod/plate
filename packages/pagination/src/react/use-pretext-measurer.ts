@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 
 import type { TElement } from 'platejs';
 
+import { KEYS } from 'platejs';
+
 import type { Measurer, PageContext } from '../lib/types';
 
 import {
@@ -183,39 +185,36 @@ const estimateLineCountFallback = (
   return Math.max(1, Math.ceil(text.length / charsPerLine));
 };
 
+const HEADING_KEYS_LARGE: readonly string[] = [KEYS.h1];
+const HEADING_KEYS_MEDIUM: readonly string[] = [KEYS.h2];
+const HEADING_KEYS_SMALL: readonly string[] = [KEYS.h3];
+const HEADING_KEYS_TINY: readonly string[] = [KEYS.h4, KEYS.h5, KEYS.h6];
+const HEADING_KEYS_ALL: readonly string[] = [
+  ...HEADING_KEYS_LARGE,
+  ...HEADING_KEYS_MEDIUM,
+  ...HEADING_KEYS_SMALL,
+  ...HEADING_KEYS_TINY,
+];
+const QUOTE_OR_CODE_KEYS: readonly string[] = [KEYS.blockquote, KEYS.codeBlock];
+
 const blockScale = (type: string | undefined): number => {
-  switch (type) {
-    case 'h1':
-      return 2;
-    case 'h2':
-      return 1.5;
-    case 'h3':
-      return 1.25;
-    case 'h4':
-    case 'h5':
-    case 'h6':
-      return 1.1;
-    default:
-      return 1;
-  }
+  if (type === undefined) return 1;
+  if (HEADING_KEYS_LARGE.includes(type)) return 2;
+  if (HEADING_KEYS_MEDIUM.includes(type)) return 1.5;
+  if (HEADING_KEYS_SMALL.includes(type)) return 1.25;
+  if (HEADING_KEYS_TINY.includes(type)) return 1.1;
+
+  return 1;
 };
 
 const blockSpacing = (type: string | undefined, fontSizePx: number): number => {
   // Margin-top + margin-bottom approximation per block type.
-  switch (type) {
-    case 'h1':
-    case 'h2':
-    case 'h3':
-    case 'h4':
-    case 'h5':
-    case 'h6':
-      return fontSizePx * 1.2;
-    case 'blockquote':
-    case 'code_block':
-      return fontSizePx;
-    default:
-      return fontSizePx * 0.5;
+  if (type !== undefined) {
+    if (HEADING_KEYS_ALL.includes(type)) return fontSizePx * 1.2;
+    if (QUOTE_OR_CODE_KEYS.includes(type)) return fontSizePx;
   }
+
+  return fontSizePx * 0.5;
 };
 
 const parseFont = (

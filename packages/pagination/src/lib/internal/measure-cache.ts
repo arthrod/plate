@@ -33,8 +33,12 @@ export const createMeasureCache = (
 ): MeasureCache => {
   const store = new Map<string, number>();
 
+  // `\x1f` (Unit Separator) is reserved for record-internal field separation
+  // and never appears in user-visible text, so we avoid collisions when
+  // `nodeId` or `font` legitimately contain spaces (font family names like
+  // "Helvetica Neue" do).
   const composeKey = (k: MeasureCacheKey): string =>
-    `${k.nodeId} ${k.marksFingerprint} ${k.font} ${k.width} ${k.contentHash}`;
+    `${k.nodeId}\x1f${k.marksFingerprint}\x1f${k.font}\x1f${k.width}\x1f${k.contentHash}`;
 
   return {
     clear: () => store.clear(),

@@ -371,6 +371,9 @@ importers:
       '@platejs/mention':
         specifier: workspace:^
         version: link:../../packages/mention
+      '@platejs/pagination':
+        specifier: workspace:^
+        version: link:../../packages/pagination
       '@platejs/playwright':
         specifier: workspace:^
         version: link:../../packages/playwright

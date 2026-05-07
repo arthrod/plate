@@ -18,6 +18,18 @@ export type PageMargins = {
   top: number;
 };
 
+/** Page sheet border styling in CSS pixels. */
+export type PageBorder = {
+  color: string;
+  radius: number;
+  shadow: string;
+  style: 'dashed' | 'none' | 'solid';
+  width: number;
+};
+
+/** Where footnote definitions render in the paginated view. */
+export type FootnotePlacement = 'documentEnd' | 'footer';
+
 /**
  * Page size resolves to a preset key (`'A4'`, `'Letter'`, `'Legal'`) or a
  * literal `{ width, height }` in CSS pixels. The string-`(string & {})`
@@ -82,6 +94,11 @@ export type Measurer = {
 export type BasePaginationOptions = {
   /** Footer slot height in CSS pixels. */
   footerHeight: number;
+  /**
+   * Whether footnote definitions render in each page footer well or remain as
+   * end-of-document definition blocks.
+   */
+  footnotePlacement: FootnotePlacement;
   /** Footnote well height in CSS pixels (allocated bottom of each page). */
   footnoteWell: number;
   /** Header slot height in CSS pixels. */
@@ -95,8 +112,12 @@ export type BasePaginationOptions = {
   includeFootnoteSubPlugins?: boolean;
   /** Page margin box. */
   margins: PageMargins;
+  /** Page sheet border styling. */
+  pageBorder: PageBorder;
   /** Resolved page size — preset key or literal `{ width, height }` in CSS pixels. */
   pageSize: PageSize;
+  /** Side preview panel width in CSS pixels. */
+  previewWidth: number;
   /**
    * Whether the side preview panel is visible. Toggled at runtime via
    * `editor.tf.pagination.togglePreview()`. Defaults to `true`.
@@ -121,6 +142,8 @@ export type BasePaginationApi = {
 export type BasePaginationTransforms = {
   pagination: {
     insertPageBreak: () => void;
+    /** Move footnote definitions between per-page footer wells and document end. */
+    setFootnotePlacement: (placement: FootnotePlacement) => void;
     /**
      * Patch the in-flow `<w:pgMar>`-style margins. Only the keys provided
      * are updated; omitted sides keep their current values, so per-axis UI
@@ -128,8 +151,12 @@ export type BasePaginationTransforms = {
      * the full margin box.
      */
     setMargins: (patch: Partial<PageMargins>) => void;
+    /** Patch the rendered page sheet border. */
+    setPageBorder: (patch: Partial<PageBorder>) => void;
     /** Replace the resolved page size (preset key or `{width,height}`). */
     setPageSize: (size: PageSize) => void;
+    /** Resize the page preview side panel. */
+    setPreviewWidth: (width: number) => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
     /** Toggle the document-level footer block; returns new presence. */

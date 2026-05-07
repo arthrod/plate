@@ -33,7 +33,7 @@ function readConfig() {
  * Handles only top-level `key: "value"` and `key: value` patterns.
  */
 function getTopLevelValue(text, key) {
-  const re = new RegExp(`^${key}:\\s*["\']?([^"'\\n#]+)["\']?`, 'm');
+  const re = new RegExp(`^${key}:\\s*["']?([^"'\\n#]+)["']?`, 'm');
   const m = text.match(re);
   return m ? m[1].trim() : undefined;
 }
@@ -44,7 +44,7 @@ function hasLine(text, needle) {
 }
 
 /** Collect all values of a YAML list under a given parent key. */
-function getListValues(text, parentKey) {
+function _getListValues(text, parentKey) {
   // Find the block that starts after `parentKey:` and collect `  - value` lines
   const startRe = new RegExp(`^${parentKey}:\\s*$`, 'm');
   const startMatch = startRe.exec(text);
@@ -80,7 +80,9 @@ test('config file is valid UTF-8 text', () => {
 test('config declares the CodeRabbit schema reference', () => {
   const content = readConfig();
   assert.ok(
-    content.includes('$schema=https://coderabbit.ai/integrations/schema.v2.json'),
+    content.includes(
+      '$schema=https://coderabbit.ai/integrations/schema.v2.json'
+    ),
     'schema URL must be present'
   );
 });
@@ -151,10 +153,7 @@ test('reviews.high_level_summary is enabled', () => {
 
 test('reviews.poem is disabled', () => {
   const content = readConfig();
-  assert.ok(
-    hasLine(content, '  poem: false'),
-    'poem must be disabled'
-  );
+  assert.ok(hasLine(content, '  poem: false'), 'poem must be disabled');
 });
 
 test('reviews.collapse_walkthrough is enabled', () => {
@@ -224,9 +223,18 @@ test('labeling_instructions includes documentation label', () => {
 test('path_filters excludes lock files', () => {
   const content = readConfig();
   assert.ok(hasLine(content, '    - "!**/*.lock"'), 'must exclude *.lock');
-  assert.ok(hasLine(content, '    - "!**/pnpm-lock.yaml"'), 'must exclude pnpm-lock.yaml');
-  assert.ok(hasLine(content, '    - "!**/yarn.lock"'), 'must exclude yarn.lock');
-  assert.ok(hasLine(content, '    - "!**/package-lock.json"'), 'must exclude package-lock.json');
+  assert.ok(
+    hasLine(content, '    - "!**/pnpm-lock.yaml"'),
+    'must exclude pnpm-lock.yaml'
+  );
+  assert.ok(
+    hasLine(content, '    - "!**/yarn.lock"'),
+    'must exclude yarn.lock'
+  );
+  assert.ok(
+    hasLine(content, '    - "!**/package-lock.json"'),
+    'must exclude package-lock.json'
+  );
 });
 
 test('path_filters excludes build and dist artifacts', () => {
@@ -234,32 +242,62 @@ test('path_filters excludes build and dist artifacts', () => {
   assert.ok(hasLine(content, '    - "!**/dist/**"'), 'must exclude dist/');
   assert.ok(hasLine(content, '    - "!**/.turbo/**"'), 'must exclude .turbo/');
   assert.ok(hasLine(content, '    - "!**/.next/**"'), 'must exclude .next/');
-  assert.ok(hasLine(content, '    - "!**/.contentlayer/**"'), 'must exclude .contentlayer/');
-  assert.ok(hasLine(content, '    - "!**/*.tsbuildinfo"'), 'must exclude *.tsbuildinfo');
+  assert.ok(
+    hasLine(content, '    - "!**/.contentlayer/**"'),
+    'must exclude .contentlayer/'
+  );
+  assert.ok(
+    hasLine(content, '    - "!**/*.tsbuildinfo"'),
+    'must exclude *.tsbuildinfo'
+  );
 });
 
 test('path_filters excludes node_modules and coverage', () => {
   const content = readConfig();
-  assert.ok(hasLine(content, '    - "!**/node_modules/**"'), 'must exclude node_modules/');
-  assert.ok(hasLine(content, '    - "!**/coverage/**"'), 'must exclude coverage/');
+  assert.ok(
+    hasLine(content, '    - "!**/node_modules/**"'),
+    'must exclude node_modules/'
+  );
+  assert.ok(
+    hasLine(content, '    - "!**/coverage/**"'),
+    'must exclude coverage/'
+  );
 });
 
 test('path_filters excludes snapshot files', () => {
   const content = readConfig();
-  assert.ok(hasLine(content, '    - "!**/__snapshots__/**"'), 'must exclude __snapshots__/');
-  assert.ok(hasLine(content, '    - "!**/*.snap"'), 'must exclude *.snap files');
+  assert.ok(
+    hasLine(content, '    - "!**/__snapshots__/**"'),
+    'must exclude __snapshots__/'
+  );
+  assert.ok(
+    hasLine(content, '    - "!**/*.snap"'),
+    'must exclude *.snap files'
+  );
 });
 
 test('path_filters excludes CI-controlled template and registry paths', () => {
   const content = readConfig();
-  assert.ok(hasLine(content, '    - "!templates/**"'), 'must exclude templates/');
-  assert.ok(hasLine(content, '    - "!apps/www/public/r/**"'), 'must exclude apps/www/public/r/');
-  assert.ok(hasLine(content, '    - "!apps/www/.contentlayer/**"'), 'must exclude apps/www/.contentlayer/');
+  assert.ok(
+    hasLine(content, '    - "!templates/**"'),
+    'must exclude templates/'
+  );
+  assert.ok(
+    hasLine(content, '    - "!apps/www/public/r/**"'),
+    'must exclude apps/www/public/r/'
+  );
+  assert.ok(
+    hasLine(content, '    - "!apps/www/.contentlayer/**"'),
+    'must exclude apps/www/.contentlayer/'
+  );
 });
 
 test('path_filters excludes CHANGELOG.md files', () => {
   const content = readConfig();
-  assert.ok(hasLine(content, '    - "!**/CHANGELOG.md"'), 'must exclude CHANGELOG.md');
+  assert.ok(
+    hasLine(content, '    - "!**/CHANGELOG.md"'),
+    'must exclude CHANGELOG.md'
+  );
 });
 
 test('path_filters contains exactly 17 exclusion entries', () => {
@@ -268,8 +306,12 @@ test('path_filters contains exactly 17 exclusion entries', () => {
   const start = content.indexOf('  path_filters:');
   const end = content.indexOf('  path_instructions:', start);
   const block = content.slice(start, end);
-  const entries = (block.match(/^\s+-\s+"/gm) || []);
-  assert.equal(entries.length, 17, `expected 17 path_filters entries, got ${entries.length}`);
+  const entries = block.match(/^\s+-\s+"/gm) || [];
+  assert.equal(
+    entries.length,
+    17,
+    `expected 17 path_filters entries, got ${entries.length}`
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -396,10 +438,14 @@ test('path_instructions covers templates with reject-manual-edits policy', () =>
   );
 });
 
-test('path_instructions contains exactly 8 entries', () => {
+test('path_instructions contains exactly 9 entries', () => {
   const content = readConfig();
-  const entries = (content.match(/^\s+- path:/gm) || []);
-  assert.equal(entries.length, 9, `expected 9 path_instructions entries, got ${entries.length}`);
+  const entries = content.match(/^\s+- path:/gm) || [];
+  assert.equal(
+    entries.length,
+    9,
+    `expected 9 path_instructions entries, got ${entries.length}`
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -408,8 +454,11 @@ test('path_instructions contains exactly 8 entries', () => {
 
 test('auto_review is enabled', () => {
   const content = readConfig();
+  const idx = content.indexOf('  auto_review:');
+  assert.ok(idx !== -1, 'auto_review block must be present');
+  const block = content.slice(idx, idx + 220);
   assert.ok(
-    hasLine(content, '    enabled: true'),
+    block.includes('enabled: true'),
     'auto_review.enabled must be true'
   );
 });
@@ -617,7 +666,10 @@ test('all path_filter entries are negation patterns (prefixed with !)', () => {
 test('high_level_summary_placeholder references @coderabbitai', () => {
   const content = readConfig();
   assert.ok(
-    hasLine(content, '  high_level_summary_placeholder: "@coderabbitai summary"'),
+    hasLine(
+      content,
+      '  high_level_summary_placeholder: "@coderabbitai summary"'
+    ),
     'high_level_summary_placeholder must be "@coderabbitai summary"'
   );
 });

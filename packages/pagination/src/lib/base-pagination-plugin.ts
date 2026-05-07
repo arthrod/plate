@@ -17,6 +17,7 @@ import {
   hasFooterBlock,
   hasHeaderBlock,
 } from './queries';
+import { PAGINATION_OPTION_DEFAULTS } from './resolve-options';
 import {
   enforceHeaderFooterInvariants,
   insertPageBreak,
@@ -44,20 +45,7 @@ import {
  */
 export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
   key: PAGINATION_KEY,
-  options: {
-    footerHeight: 48,
-    footnoteWell: 0,
-    headerHeight: 48,
-    includeFootnoteSubPlugins: true,
-    margins: {
-      bottom: 72,
-      left: 72,
-      right: 72,
-      top: 72,
-    },
-    pageSize: 'A4',
-    previewVisible: true,
-  },
+  options: PAGINATION_OPTION_DEFAULTS,
   plugins: [BaseHeaderPlugin, BaseFooterPlugin, BasePageBreakPlugin],
 })
   .overrideEditor(({ editor, tf: { normalizeNode } }) => ({
@@ -86,13 +74,26 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
     ({ editor, getOptions, setOption }) => ({
       pagination: {
         insertPageBreak: () => insertPageBreak(editor),
+        setFootnotePlacement: (placement) => {
+          setOption('footnotePlacement', placement);
+          setOption(
+            'footnoteWell',
+            placement === 'footer' ? getOptions().footnoteWell || 96 : 0
+          );
+        },
         setFooter: (content) => replaceFooter(editor, content),
         setHeader: (content) => replaceHeader(editor, content),
         setMargins: (patch) => {
           setOption('margins', { ...getOptions().margins, ...patch });
         },
+        setPageBorder: (patch) => {
+          setOption('pageBorder', { ...getOptions().pageBorder, ...patch });
+        },
         setPageSize: (size) => {
           setOption('pageSize', size);
+        },
+        setPreviewWidth: (width) => {
+          setOption('previewWidth', width);
         },
         toggleFooter: () => toggleFooter(editor),
         toggleHeader: () => toggleHeader(editor),

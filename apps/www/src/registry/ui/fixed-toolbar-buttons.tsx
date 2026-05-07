@@ -42,6 +42,7 @@ import { MarkToolbarButton } from './mark-toolbar-button';
 import { MediaToolbarButton } from './media-toolbar-button';
 import { ModeToolbarButton } from './mode-toolbar-button';
 import { MoreToolbarButton } from './more-toolbar-button';
+import { PaginationToolbarButton } from './pagination-toolbar-button';
 import { TableToolbarButton } from './table-toolbar-button';
 import { ToggleToolbarButton } from './toggle-toolbar-button';
 import { ToolbarGroup } from './toolbar';
@@ -159,6 +160,7 @@ export function FixedToolbarButtons() {
           <HighlighterIcon />
         </MarkToolbarButton>
         <CommentToolbarButton />
+        <PaginationToolbarButton />
       </ToolbarGroup>
 
       <ToolbarGroup>

@@ -43,17 +43,23 @@ export const usePageLayout = (
       header: options.headerHeight,
     });
 
-    const raw = paginate(
-      value,
+    const raw = paginate({
+      ctx: { font: '', marksFingerprint: '', width: rect.contentWidth },
+      doc: value,
+      footnotePlacement: options.footnotePlacement,
+      measurer,
       rect,
-      { font: '', marksFingerprint: '', width: rect.contentWidth },
-      measurer
-    );
+    });
 
-    const definitions = value.filter((n) => n.type === FOOTNOTE_DEFINITION_KEY);
+    if (options.footnotePlacement === 'documentEnd') {
+      return raw;
+    }
+
+    const footnoteDefinitionType = editor.getType(FOOTNOTE_DEFINITION_KEY);
+    const definitions = value.filter((n) => n.type === footnoteDefinitionType);
 
     return allocateFootnotes(raw, definitions);
-  }, [value, measurer, options]);
+  }, [editor, value, measurer, options]);
 
   useIsomorphicLayoutEffect(() => {
     setEditorPages(editor as object, pages);

@@ -621,7 +621,7 @@ export const TableElement = withHOC(
     const deferColumnResize =
       colSizes.length * props.element.children.length >
       TABLE_DEFERRED_COLUMN_RESIZE_CELL_COUNT;
-    const tablePath = useElementSelector(([, path]) => path, [], {
+    const tablePath = useElementSelector((entry) => entry?.[1] ?? [], [], {
       key: KEYS.table,
     });
     const tableRef = React.useRef<HTMLTableElement>(null);
@@ -1148,11 +1148,11 @@ export function TableRowElement({
   const { element } = props;
   const readOnly = useReadOnly();
   const editor = useEditorRef();
-  const rowIndex = useElementSelector(([, path]) => path.at(-1) as number, [], {
+  const rowIndex = useElementSelector((entry) => entry?.[1].at(-1) ?? 0, [], {
     key: KEYS.tr,
   });
   const rowSize = useElementSelector(
-    ([node]) => (node as TTableRowElement).size,
+    (entry) => (entry?.[0] as TTableRowElement | undefined)?.size,
     [],
     {
       key: KEYS.tr,
@@ -1283,14 +1283,14 @@ export function TableCellElement({
   const readOnly = useReadOnly();
   const element = props.element;
 
-  const tableId = useElementSelector(([node]) => node.id as string, [], {
+  const tableId = useElementSelector((entry) => entry?.[0].id as string, [], {
     key: KEYS.table,
   });
-  const rowId = useElementSelector(([node]) => node.id as string, [], {
+  const rowId = useElementSelector((entry) => entry?.[0].id as string, [], {
     key: KEYS.tr,
   });
-  const isSelectingTable = useBlockSelected(tableId);
-  const isSelectingRow = useBlockSelected(rowId) || isSelectingTable;
+  const isSelectingTable = useBlockSelected(tableId ?? '');
+  const isSelectingRow = useBlockSelected(rowId ?? '') || isSelectingTable;
   const isSelectionAreaVisible = usePluginOption(
     BlockSelectionPlugin,
     'isSelectionAreaVisible'

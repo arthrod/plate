@@ -24,6 +24,7 @@ import { EmojiKit } from '@/registry/components/editor/plugins/emoji-kit';
 import { ExitBreakKit } from '@/registry/components/editor/plugins/exit-break-kit';
 import { FixedToolbarKit } from '@/registry/components/editor/plugins/fixed-toolbar-kit';
 import { FloatingToolbarKit } from '@/registry/components/editor/plugins/floating-toolbar-kit';
+import { FootnoteKit } from '@/registry/components/editor/plugins/footnote-kit';
 import { FontKit } from '@/registry/components/editor/plugins/font-kit';
 import { LineHeightKit } from '@/registry/components/editor/plugins/line-height-kit';
 import { LinkKit } from '@/registry/components/editor/plugins/link-kit';
@@ -32,6 +33,7 @@ import { MarkdownKit } from '@/registry/components/editor/plugins/markdown-kit';
 import { MathKit } from '@/registry/components/editor/plugins/math-kit';
 import { MediaKit } from '@/registry/components/editor/plugins/media-kit';
 import { MentionKit } from '@/registry/components/editor/plugins/mention-kit';
+import { PaginationKit } from '@/registry/components/editor/plugins/pagination-kit';
 import { SlashKit } from '@/registry/components/editor/plugins/slash-kit';
 import { SuggestionKit } from '@/registry/components/editor/plugins/suggestion-kit';
 import { TableKit } from '@/registry/components/editor/plugins/table-kit';
@@ -69,6 +71,8 @@ export const EditorKit = [
   ...DiscussionKit,
   ...CommentKit,
   ...SuggestionKit,
+  ...FootnoteKit,
+  ...PaginationKit,
 
   // Editing
   ...SlashKit,

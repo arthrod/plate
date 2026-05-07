@@ -15,7 +15,26 @@ import type { Page } from '../types';
 export const SLOT = '__pagination_pages__' as const;
 
 export const setEditorPages = (editor: object, pages: Page[]): void => {
-  (editor as Record<string, Page[]>)[SLOT] = pages;
+  // Use a non-enumerable, writable property so:
+  //  - `JSON.stringify(editor)`, `Object.keys(editor)`, debug logs, and any
+  //    Plate dev-tools that walk the editor do not reveal the slot;
+  //  - subsequent updates can overwrite the same hidden slot without
+  //    re-defining it.
+  const target = editor as Record<string, Page[]>;
+  const desc = Object.getOwnPropertyDescriptor(target, SLOT);
+
+  if (desc?.writable) {
+    target[SLOT] = pages;
+
+    return;
+  }
+
+  Object.defineProperty(target, SLOT, {
+    configurable: true,
+    enumerable: false,
+    value: pages,
+    writable: true,
+  });
 };
 
 export const getEditorPages = (editor: object): Page[] => {

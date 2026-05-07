@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { FOOTNOTE_DEFINITION_KEY } from '../lib/internal/keys';
-
 /**
  * Variant A — CodeRabbit Design Choice 2: footnote definitions stay in the
  * Slate tree so editing/selection/keyboard nav are unaffected, but in-flow
@@ -14,9 +12,18 @@ import { FOOTNOTE_DEFINITION_KEY } from '../lib/internal/keys';
  * inside the well is intentionally out of scope for variant A — `print`
  * mode (follow-up) renders real DOM in the well via a `createPortal`.
  */
-export const FootnotePortal = (): React.JSX.Element => (
-  <style data-plate-pagination-footnote-style="">{`
-    [data-slate-node="element"][data-slate-type="${FOOTNOTE_DEFINITION_KEY}"] {
+export const FootnotePortal = ({
+  enabled,
+  footnoteDefinitionType,
+}: {
+  enabled: boolean;
+  footnoteDefinitionType: string;
+}): React.JSX.Element | null => {
+  if (!enabled) return null;
+
+  return (
+    <style data-plate-pagination-footnote-style="">{`
+    [data-slate-node="element"][data-slate-type="${footnoteDefinitionType}"] {
       visibility: hidden;
       pointer-events: none;
       position: absolute;
@@ -26,4 +33,5 @@ export const FootnotePortal = (): React.JSX.Element => (
       overflow: hidden;
     }
   `}</style>
-);
+  );
+};

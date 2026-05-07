@@ -18,9 +18,7 @@ import { FOOTER_KEY, HEADER_KEY } from '../internal/keys';
  * after the footer does not break correctness — and trying to keep the
  * footer "last" would loop with plugins that always append a trailing block.
  */
-export const enforceHeaderFooterInvariants = (
-  editor: SlateEditor
-): boolean => {
+export const enforceHeaderFooterInvariants = (editor: SlateEditor): boolean => {
   const headerType = editor.getType(HEADER_KEY);
   const footerType = editor.getType(FOOTER_KEY);
   const headerIdxs: number[] = [];

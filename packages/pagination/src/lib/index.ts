@@ -8,7 +8,7 @@ export * from './base-header-plugin';
 export * from './base-page-break-plugin';
 export * from './base-pagination-plugin';
 export * from './paginate';
+export * from './resolve-options';
 export * from './types';
-export * from './internal/units';
 export * from './queries/index';
 export * from './transforms/index';

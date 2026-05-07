@@ -12,7 +12,11 @@ import { SlateElement } from 'platejs/static';
  * identify it correctly. The interactive overlay that repeats it on every
  * page chrome lives in `src/react` and is not imported here.
  */
-export function HeaderElementStatic(props: SlateElementProps) {
+export function HeaderElementStatic({
+  children,
+  style,
+  ...props
+}: SlateElementProps) {
   return (
     <SlateElement
       {...props}
@@ -20,9 +24,10 @@ export function HeaderElementStatic(props: SlateElementProps) {
       style={{
         borderBottom: '1px solid rgba(0,0,0,0.12)',
         padding: '8px 0',
+        ...style,
       }}
     >
-      {props.children}
+      {children}
     </SlateElement>
   );
 }

@@ -643,6 +643,7 @@ export const registryKits: Registry['items'] = [
       'code-drawing-kit',
       'column-kit',
       'comment-kit',
+      'copilot-kit',
       'cursor-overlay-kit',
       'date-kit',
       'discussion-kit',
@@ -662,6 +663,7 @@ export const registryKits: Registry['items'] = [
       'math-kit',
       'media-kit',
       'mention-kit',
+      'pagination-kit',
       'slash-kit',
       'suggestion-kit',
       'table-kit',
@@ -754,6 +756,17 @@ export const registryKits: Registry['items'] = [
     ],
     name: 'footnote-kit',
     registryDependencies: ['footnote-node'],
+    type: 'registry:component',
+  },
+  {
+    dependencies: ['@platejs/pagination'],
+    files: [
+      {
+        path: 'components/editor/plugins/pagination-kit.tsx',
+        type: 'registry:component',
+      },
+    ],
+    name: 'pagination-kit',
     type: 'registry:component',
   },
   {

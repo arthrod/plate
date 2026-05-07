@@ -7,7 +7,12 @@ import {
   type BasePaginationConfig,
   BasePaginationPlugin,
 } from '../lib/base-pagination-plugin';
-import { FOOTER_KEY, HEADER_KEY } from '../lib/internal/keys';
+import {
+  FOOTER_KEY,
+  FOOTNOTE_DEFINITION_KEY,
+  HEADER_KEY,
+} from '../lib/internal/keys';
+import { resolvePaginationOptions } from '../lib/resolve-options';
 import { FootnotePortal } from './footnote-portal';
 import { usePageLayout } from './internal/use-page-layout';
 import { PageFrame } from './page-frame';
@@ -42,8 +47,14 @@ export const PageOverlay = (): React.JSX.Element | null => {
   const editor = useEditorRef();
   const visible = usePluginOption(BasePaginationPlugin, 'previewVisible');
   const pageSize = usePluginOption(BasePaginationPlugin, 'pageSize');
+  const pageBorder = usePluginOption(BasePaginationPlugin, 'pageBorder');
+  const previewWidth = usePluginOption(BasePaginationPlugin, 'previewWidth');
   const margins = usePluginOption(BasePaginationPlugin, 'margins');
   const footerHeight = usePluginOption(BasePaginationPlugin, 'footerHeight');
+  const footnotePlacement = usePluginOption(
+    BasePaginationPlugin,
+    'footnotePlacement'
+  );
   const footnoteWell = usePluginOption(BasePaginationPlugin, 'footnoteWell');
   const headerHeight = usePluginOption(BasePaginationPlugin, 'headerHeight');
   const includeFootnoteSubPlugins = usePluginOption(
@@ -52,15 +63,33 @@ export const PageOverlay = (): React.JSX.Element | null => {
   );
   const value = useEditorValue();
 
-  const safeOptions = useResolvedOptions({
-    footerHeight,
-    footnoteWell,
-    headerHeight,
-    includeFootnoteSubPlugins,
-    margins,
-    pageSize,
-    previewVisible: visible,
-  });
+  const safeOptions = React.useMemo<BasePaginationConfig['options']>(
+    () =>
+      resolvePaginationOptions({
+        footerHeight,
+        footnotePlacement,
+        footnoteWell,
+        headerHeight,
+        includeFootnoteSubPlugins,
+        margins,
+        pageBorder,
+        pageSize,
+        previewWidth,
+        previewVisible: visible,
+      }),
+    [
+      footerHeight,
+      footnotePlacement,
+      footnoteWell,
+      headerHeight,
+      includeFootnoteSubPlugins,
+      margins,
+      pageBorder,
+      pageSize,
+      previewWidth,
+      visible,
+    ]
+  );
   const pages = usePageLayout(
     editor,
     value as unknown as TElement[],
@@ -68,22 +97,58 @@ export const PageOverlay = (): React.JSX.Element | null => {
   );
 
   if (!mounted) return null;
+  const footnoteDefinitionType = editor.getType(FOOTNOTE_DEFINITION_KEY);
+  const footnotesInFooter = safeOptions.footnotePlacement === 'footer';
+  const footnotePortal = (
+    <FootnotePortal
+      enabled={footnotesInFooter}
+      footnoteDefinitionType={footnoteDefinitionType}
+    />
+  );
+
   if (!visible || pages.length === 0) {
-    return <FootnotePortal />;
+    return footnotePortal;
   }
 
+  const headerType = editor.getType(HEADER_KEY);
+  const footerType = editor.getType(FOOTER_KEY);
   const documentHeader = (value as TElement[]).find(
-    (n) => n.type === HEADER_KEY
+    (n) => n.type === headerType
   );
   const documentFooter = (value as TElement[]).find(
-    (n) => n.type === FOOTER_KEY
+    (n) => n.type === footerType
   );
+  const handleResizePointerDown = (
+    event: React.PointerEvent<HTMLDivElement>
+  ) => {
+    if (event.button !== 0) return;
+
+    event.preventDefault();
+
+    const startX = event.clientX;
+    const startWidth = safeOptions.previewWidth;
+
+    const handlePointerMove = (moveEvent: PointerEvent) => {
+      const width = clampPreviewWidth(startWidth + startX - moveEvent.clientX);
+
+      editor.setOption(BasePaginationPlugin, 'previewWidth', width);
+    };
+    const handlePointerUp = () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+  };
 
   return (
     <>
-      <FootnotePortal />
+      {footnotePortal}
       <div
+        aria-label="Page preview"
         data-plate-pagination-overlay=""
+        role="region"
         style={{
           background: 'rgba(248, 250, 252, 0.96)',
           border: '1px solid rgba(15,23,42,0.12)',
@@ -99,10 +164,29 @@ export const PageOverlay = (): React.JSX.Element | null => {
           position: 'fixed',
           right: 16,
           top: 80,
-          width: 220,
+          width: clampPreviewWidth(safeOptions.previewWidth),
           zIndex: 50,
         }}
       >
+        <div
+          aria-label="Resize page preview"
+          aria-orientation="vertical"
+          aria-valuemax={MAX_PREVIEW_WIDTH}
+          aria-valuemin={MIN_PREVIEW_WIDTH}
+          aria-valuenow={clampPreviewWidth(safeOptions.previewWidth)}
+          data-plate-pagination-resize-handle=""
+          onPointerDown={handleResizePointerDown}
+          role="separator"
+          style={{
+            bottom: 0,
+            cursor: 'ew-resize',
+            left: -4,
+            position: 'absolute',
+            top: 0,
+            touchAction: 'none',
+            width: 8,
+          }}
+        />
         <div
           style={{
             alignItems: 'center',
@@ -127,7 +211,10 @@ export const PageOverlay = (): React.JSX.Element | null => {
           }}
         >
           {pages.map((page) => {
-            const scale = computeThumbScale(page.rect.width);
+            const scale = computeThumbScale(
+              page.rect.width,
+              safeOptions.previewWidth - PANEL_PADDING_X
+            );
             const previewHeight = page.rect.height * scale;
             const previewWidth = page.rect.width * scale;
 
@@ -164,9 +251,12 @@ export const PageOverlay = (): React.JSX.Element | null => {
                         footnoteWell: safeOptions.footnoteWell,
                         headerHeight: safeOptions.headerHeight,
                         margins: safeOptions.margins,
+                        pageBorder: safeOptions.pageBorder,
                       }}
                       documentFooter={documentFooter}
                       documentHeader={documentHeader}
+                      editor={editor}
+                      footnotesInFooter={footnotesInFooter}
                       page={page}
                       top={0}
                     />
@@ -181,40 +271,19 @@ export const PageOverlay = (): React.JSX.Element | null => {
   );
 };
 
-const useResolvedOptions = (
-  options: Partial<BasePaginationConfig['options']>
-): BasePaginationConfig['options'] =>
-  React.useMemo<BasePaginationConfig['options']>(
-    () => ({
-      footerHeight: options.footerHeight ?? 48,
-      footnoteWell: options.footnoteWell ?? 0,
-      headerHeight: options.headerHeight ?? 48,
-      includeFootnoteSubPlugins: options.includeFootnoteSubPlugins ?? true,
-      margins: options.margins ?? {
-        bottom: 72,
-        left: 72,
-        right: 72,
-        top: 72,
-      },
-      pageSize: options.pageSize ?? 'A4',
-      previewVisible: options.previewVisible ?? true,
-    }),
-    [
-      options.footerHeight,
-      options.footnoteWell,
-      options.headerHeight,
-      options.includeFootnoteSubPlugins,
-      options.margins,
-      options.pageSize,
-      options.previewVisible,
-    ]
-  );
-
 const MAX_THUMB_SCALE = 0.18;
-const PANEL_INNER_WIDTH = 196;
+const PANEL_PADDING_X = 24;
+const MAX_PREVIEW_WIDTH = 420;
+const MIN_PREVIEW_WIDTH = 180;
 
-export const computeThumbScale = (pageWidth: number): number => {
+const clampPreviewWidth = (width: number): number =>
+  Math.min(MAX_PREVIEW_WIDTH, Math.max(MIN_PREVIEW_WIDTH, width));
+
+export const computeThumbScale = (
+  pageWidth: number,
+  panelInnerWidth = 196
+): number => {
   if (pageWidth <= 0) return MAX_THUMB_SCALE;
 
-  return Math.min(MAX_THUMB_SCALE, PANEL_INNER_WIDTH / pageWidth);
+  return Math.min(MAX_THUMB_SCALE, panelInnerWidth / pageWidth);
 };
