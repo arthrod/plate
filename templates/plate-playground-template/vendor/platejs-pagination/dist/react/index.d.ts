@@ -1,12 +1,12 @@
 import { A as Page, D as BasePaginationTransforms, E as BasePaginationOptions, N as PageMargins, j as PageBorder, k as Measurer, w as BasePaginationApi } from "../index-fQ6tvSMT";
-import * as platejs1 from "platejs";
+import * as platejs0 from "platejs";
 import { SlateEditor, TElement } from "platejs";
-import * as platejs_react1 from "platejs/react";
+import * as platejs_react0 from "platejs/react";
 import { PlateEditor } from "platejs/react";
 import * as React from "react";
 
 //#region src/react/footer-plugin.d.ts
-declare const FooterPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"footer", {}, {}, {}, {}>>;
+declare const FooterPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"footer", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/footnote-portal.d.ts
 /**
@@ -30,7 +30,7 @@ declare const FootnotePortal: ({
 }) => React.JSX.Element | null;
 //#endregion
 //#region src/react/header-plugin.d.ts
-declare const HeaderPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"header", {}, {}, {}, {}>>;
+declare const HeaderPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"header", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/margins-dialog.d.ts
 /**
@@ -53,7 +53,7 @@ declare const MarginsDialog: ({
 }) => React.JSX.Element | null;
 //#endregion
 //#region src/react/page-break-plugin.d.ts
-declare const PageBreakPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
+declare const PageBreakPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/page-frame.d.ts
 type PageFrameProps = {
@@ -131,7 +131,7 @@ declare const PageOverlay: () => React.JSX.Element | null;
  *   `footnoteDefinition` blocks (CodeRabbit Design Choice 2). The visible
  *   copy is rendered inside each page's footnote well by `PageFrame`.
  */
-declare const PaginationPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"pagination", BasePaginationOptions, BasePaginationApi, BasePaginationTransforms, {}>>;
+declare const PaginationPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"pagination", BasePaginationOptions, BasePaginationApi, BasePaginationTransforms, {}>>;
 //#endregion
 //#region src/react/pagination-toolbar.d.ts
 /**

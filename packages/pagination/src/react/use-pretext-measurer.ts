@@ -91,21 +91,28 @@ const measureBlockHeight = (
     return metrics.lineHeightPx;
   }
 
-  if (hasMixedMarks(node)) {
-    const items: RichInlineItem[] = collectLeaves(node).map((leaf) => ({
-      font: applyLeafMarks(metrics.font, leaf.marks),
-      text: leaf.text,
-    }));
-    const prepared = prepareRichInline(items);
-    const stats = measureRichInlineStats(prepared, width);
+  // Pretext requires a DOM canvas / OffscreenCanvas — both absent during
+  // Next.js SSR. Guard with a try/catch so the SSR build still produces a
+  // height (one line) instead of throwing during prerender.
+  try {
+    if (hasMixedMarks(node)) {
+      const items: RichInlineItem[] = collectLeaves(node).map((leaf) => ({
+        font: applyLeafMarks(metrics.font, leaf.marks),
+        text: leaf.text,
+      }));
+      const prepared = prepareRichInline(items);
+      const stats = measureRichInlineStats(prepared, width);
 
-    return Math.max(1, stats.lineCount) * metrics.lineHeightPx;
+      return Math.max(1, stats.lineCount) * metrics.lineHeightPx;
+    }
+
+    const prepared = prepare(text, metrics.font);
+    const result = layout(prepared, width, metrics.lineHeightPx);
+
+    return result.height;
+  } catch {
+    return metrics.lineHeightPx;
   }
-
-  const prepared = prepare(text, metrics.font);
-  const result = layout(prepared, width, metrics.lineHeightPx);
-
-  return result.height;
 };
 
 const scrapeBlockMetrics = (

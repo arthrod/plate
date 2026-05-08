@@ -652,14 +652,18 @@ const usePretextMeasurer = (editor) => {
 };
 const measureBlockHeight = (node, text, metrics, width) => {
 	if (text.length === 0) return metrics.lineHeightPx;
-	if (hasMixedMarks(node)) {
-		const stats = measureRichInlineStats(prepareRichInline(collectLeaves(node).map((leaf) => ({
-			font: applyLeafMarks(metrics.font, leaf.marks),
-			text: leaf.text
-		}))), width);
-		return Math.max(1, stats.lineCount) * metrics.lineHeightPx;
+	try {
+		if (hasMixedMarks(node)) {
+			const stats = measureRichInlineStats(prepareRichInline(collectLeaves(node).map((leaf) => ({
+				font: applyLeafMarks(metrics.font, leaf.marks),
+				text: leaf.text
+			}))), width);
+			return Math.max(1, stats.lineCount) * metrics.lineHeightPx;
+		}
+		return layout(prepare(text, metrics.font), width, metrics.lineHeightPx).height;
+	} catch {
+		return metrics.lineHeightPx;
 	}
-	return layout(prepare(text, metrics.font), width, metrics.lineHeightPx).height;
 };
 const scrapeBlockMetrics = (editor, node, fallbackFont) => {
 	if (typeof window === "undefined") return fallbackMetrics(fallbackFont);
