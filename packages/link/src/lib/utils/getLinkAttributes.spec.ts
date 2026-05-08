@@ -2,7 +2,7 @@ import { getLinkAttributes } from './getLinkAttributes';
 
 describe('getLinkAttributes', () => {
   const mockEditor: any = {
-    getOptions: jest.fn().mockReturnValue({
+    getOptions: () => ({
       allowedSchemes: ['http', 'https'],
       dangerouslySkipSanitization: false,
       defaultLinkAttributes: {},
@@ -24,7 +24,7 @@ describe('getLinkAttributes', () => {
 
   it('should not overwrite existing rel but append to it when target is _blank', () => {
     const mockEditorWithRel: any = {
-      getOptions: jest.fn().mockReturnValue({
+      getOptions: () => ({
         allowedSchemes: ['http', 'https'],
         dangerouslySkipSanitization: false,
         defaultLinkAttributes: { rel: 'nofollow' },
