@@ -10,15 +10,16 @@ import { SlateElement } from "platejs/static";
 * identify it correctly. The interactive overlay that repeats it on every
 * page chrome lives in `src/react` and is not imported here.
 */
-function FooterElementStatic(props) {
+function FooterElementStatic({ children, style, ...props }) {
 	return /* @__PURE__ */ React.createElement(SlateElement, {
 		...props,
 		as: "footer",
 		style: {
 			borderTop: "1px solid rgba(0,0,0,0.12)",
-			padding: "8px 0"
+			padding: "8px 0",
+			...style
 		}
-	}, props.children);
+	}, children);
 }
 
 //#endregion
@@ -31,15 +32,16 @@ function FooterElementStatic(props) {
 * identify it correctly. The interactive overlay that repeats it on every
 * page chrome lives in `src/react` and is not imported here.
 */
-function HeaderElementStatic(props) {
+function HeaderElementStatic({ children, style, ...props }) {
 	return /* @__PURE__ */ React.createElement(SlateElement, {
 		...props,
 		as: "header",
 		style: {
 			borderBottom: "1px solid rgba(0,0,0,0.12)",
-			padding: "8px 0"
+			padding: "8px 0",
+			...style
 		}
-	}, props.children);
+	}, children);
 }
 
 //#endregion

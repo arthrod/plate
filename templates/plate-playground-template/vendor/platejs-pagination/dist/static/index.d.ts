@@ -11,7 +11,11 @@ import { SlateElementProps } from "platejs/static";
  * identify it correctly. The interactive overlay that repeats it on every
  * page chrome lives in `src/react` and is not imported here.
  */
-declare function FooterElementStatic(props: SlateElementProps): React.JSX.Element;
+declare function FooterElementStatic({
+  children,
+  style,
+  ...props
+}: SlateElementProps): React.JSX.Element;
 //#endregion
 //#region src/static/header-element-static.d.ts
 /**
@@ -22,7 +26,11 @@ declare function FooterElementStatic(props: SlateElementProps): React.JSX.Elemen
  * identify it correctly. The interactive overlay that repeats it on every
  * page chrome lives in `src/react` and is not imported here.
  */
-declare function HeaderElementStatic(props: SlateElementProps): React.JSX.Element;
+declare function HeaderElementStatic({
+  children,
+  style,
+  ...props
+}: SlateElementProps): React.JSX.Element;
 //#endregion
 //#region src/static/page-break-element-static.d.ts
 /**

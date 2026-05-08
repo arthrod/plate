@@ -116,7 +116,17 @@ const BasePageBreakPlugin = createSlatePlugin({
 */
 const SLOT = "__pagination_pages__";
 const setEditorPages = (editor, pages) => {
-	editor[SLOT] = pages;
+	const target = editor;
+	if (Object.getOwnPropertyDescriptor(target, SLOT)?.writable) {
+		target[SLOT] = pages;
+		return;
+	}
+	Object.defineProperty(target, SLOT, {
+		configurable: true,
+		enumerable: false,
+		value: pages,
+		writable: true
+	});
 };
 const getEditorPages = (editor) => {
 	const slot = editor[SLOT];
@@ -160,6 +170,61 @@ const hasHeaderBlock = (editor) => {
 const hasFooterBlock = (editor) => {
 	const footerType = editor.getType(FOOTER_KEY);
 	return editor.children.some((n) => n.type === footerType);
+};
+
+//#endregion
+//#region src/lib/resolve-options.ts
+/**
+* Defaults for pagination options. Single source of truth for the option
+* shape consumed by `paginate()`, `resolvePageRect()`, and the React
+* overlay. The base plugin spreads these into its `options` block; the
+* React wrapper consumes them via {@link resolvePaginationOptions}
+* instead of re-defining defaults inside a hook.
+*/
+const PAGINATION_OPTION_DEFAULTS = {
+	footerHeight: 48,
+	footnotePlacement: "footer",
+	footnoteWell: 0,
+	headerHeight: 48,
+	includeFootnoteSubPlugins: true,
+	margins: {
+		bottom: 72,
+		left: 72,
+		right: 72,
+		top: 72
+	},
+	mode: "standard",
+	pageSize: "A4",
+	pageBorder: {
+		color: "rgba(15,23,42,0.15)",
+		radius: 2,
+		shadow: "0 1px 2px rgba(15,23,42,0.08)",
+		style: "solid",
+		width: 1
+	},
+	previewWidth: 220,
+	previewVisible: true
+};
+/**
+* Resolve a partial options bag against {@link PAGINATION_OPTION_DEFAULTS}.
+* Used by the React overlay/layout hook so defaults live in `src/lib`
+* rather than being redefined inside a React wrapper.
+*/
+const resolvePaginationOptions = (partial) => {
+	const p = partial ?? {};
+	return {
+		footerHeight: p.footerHeight ?? PAGINATION_OPTION_DEFAULTS.footerHeight,
+		footnotePlacement: p.footnotePlacement ?? PAGINATION_OPTION_DEFAULTS.footnotePlacement,
+		footnoteWell: p.footnoteWell ?? PAGINATION_OPTION_DEFAULTS.footnoteWell,
+		headerHeight: p.headerHeight ?? PAGINATION_OPTION_DEFAULTS.headerHeight,
+		includeFootnoteSubPlugins: p.includeFootnoteSubPlugins ?? PAGINATION_OPTION_DEFAULTS.includeFootnoteSubPlugins,
+		margins: p.margins ?? PAGINATION_OPTION_DEFAULTS.margins,
+		mode: p.mode ?? PAGINATION_OPTION_DEFAULTS.mode,
+		pageBorder: p.pageBorder ?? PAGINATION_OPTION_DEFAULTS.pageBorder,
+		pageSize: p.pageSize ?? PAGINATION_OPTION_DEFAULTS.pageSize,
+		previewWidth: p.previewWidth ?? PAGINATION_OPTION_DEFAULTS.previewWidth,
+		previewVisible: p.previewVisible ?? PAGINATION_OPTION_DEFAULTS.previewVisible
+	};
 };
 
 //#endregion
@@ -263,7 +328,7 @@ const removeNodesByType = (editor, type) => {
 //#region src/lib/transforms/replaceFooter.ts
 /**
 * Replace the top-level footer block with `content`, removing any existing
-* footer first and reinserting at the end of the doc.
+* footer(s) first and reinserting at the end of the doc.
 *
 * Wrapped in `withoutNormalizing` so the remove + insert lands as one atomic
 * step — otherwise the intermediate "no footer" state can fight with the
@@ -272,8 +337,7 @@ const removeNodesByType = (editor, type) => {
 const replaceFooter = (editor, content) => {
 	editor.tf.withoutNormalizing(() => {
 		const footerType = editor.getType(FOOTER_KEY);
-		const idx = editor.children.findIndex((n) => n.type === footerType);
-		if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
+		removeNodesByType(editor, footerType);
 		editor.tf.insertNodes({
 			children: content,
 			type: footerType
@@ -285,7 +349,7 @@ const replaceFooter = (editor, content) => {
 //#region src/lib/transforms/replaceHeader.ts
 /**
 * Replace the top-level header block with `content`, removing any existing
-* header first and reinserting at index 0.
+* header(s) first and reinserting at index 0.
 *
 * Wrapped in `withoutNormalizing` so the remove + insert lands as one atomic
 * step — otherwise the intermediate "no header" state can fight with the
@@ -294,8 +358,7 @@ const replaceFooter = (editor, content) => {
 const replaceHeader = (editor, content) => {
 	editor.tf.withoutNormalizing(() => {
 		const headerType = editor.getType(HEADER_KEY);
-		const idx = editor.children.findIndex((n) => n.type === headerType);
-		if (idx >= 0) editor.tf.removeNodes({ at: [idx] });
+		removeNodesByType(editor, headerType);
 		editor.tf.insertNodes({
 			children: content,
 			type: headerType
@@ -361,20 +424,7 @@ const toggleHeader = (editor) => {
 */
 const BasePaginationPlugin = createTSlatePlugin({
 	key: PAGINATION_KEY,
-	options: {
-		footerHeight: 48,
-		footnoteWell: 0,
-		headerHeight: 48,
-		includeFootnoteSubPlugins: true,
-		margins: {
-			bottom: 72,
-			left: 72,
-			right: 72,
-			top: 72
-		},
-		pageSize: "A4",
-		previewVisible: true
-	},
+	options: PAGINATION_OPTION_DEFAULTS,
 	plugins: [
 		BaseHeaderPlugin,
 		BaseFooterPlugin,
@@ -392,6 +442,10 @@ const BasePaginationPlugin = createTSlatePlugin({
 	hasHeader: () => hasHeaderBlock(editor)
 } })).extendEditorTransforms(({ editor, getOptions, setOption }) => ({ pagination: {
 	insertPageBreak: () => insertPageBreak(editor),
+	setFootnotePlacement: (placement) => {
+		setOption("footnotePlacement", placement);
+		setOption("footnoteWell", placement === "footer" ? getOptions().footnoteWell || 96 : 0);
+	},
 	setFooter: (content) => replaceFooter(editor, content),
 	setHeader: (content) => replaceHeader(editor, content),
 	setMargins: (patch) => {
@@ -400,8 +454,20 @@ const BasePaginationPlugin = createTSlatePlugin({
 			...patch
 		});
 	},
+	setMode: (mode) => {
+		setOption("mode", mode);
+	},
+	setPageBorder: (patch) => {
+		setOption("pageBorder", {
+			...getOptions().pageBorder,
+			...patch
+		});
+	},
 	setPageSize: (size) => {
 		setOption("pageSize", size);
+	},
+	setPreviewWidth: (width) => {
+		setOption("previewWidth", width);
 	},
 	toggleFooter: () => toggleFooter(editor),
 	toggleHeader: () => toggleHeader(editor),
@@ -456,8 +522,9 @@ const walkLeaves = (node, visit) => {
 * (`type === KEYS.pageBreak`) are hard splits. Pages are derived; this
 * never mutates Slate state.
 *
-* Top-level `header`, `footer`, and `footnoteDefinition` blocks are
-* skipped — they render via the page chrome / footer well, not the body.
+* Top-level `header` and `footer` blocks are skipped because they render via
+* the page chrome. `footnoteDefinition` blocks are skipped only when
+* footnotes render in page footer wells.
 *
 * @param doc Top-level Slate blocks (`editor.children`).
 * @param rect Resolved page geometry (see `resolvePageRect`).
@@ -466,13 +533,13 @@ const walkLeaves = (node, visit) => {
 * @param measurer Pluggable height oracle. Inject a fake monospace one
 *   in tests; the React layer wires the DOM-backed measurer.
 */
-const paginate = (doc, rect, ctx, measurer) => {
+const paginate = ({ ctx, doc, footnotePlacement = "footer", measurer, rect }) => {
 	const pages = [];
 	let current = [];
 	let used = 0;
 	let pageIndex = 0;
-	const flush = () => {
-		if (current.length === 0 && pages.length > 0) return;
+	const flush = (forceBlankPage = false) => {
+		if (current.length === 0 && pages.length > 0 && !forceBlankPage) return;
 		pages.push({
 			footnotes: [],
 			nodes: current,
@@ -485,10 +552,10 @@ const paginate = (doc, rect, ctx, measurer) => {
 	};
 	for (const node of doc) {
 		if (node.type === PAGE_BREAK_KEY) {
-			flush();
+			flush(true);
 			continue;
 		}
-		if (node.type === HEADER_KEY || node.type === FOOTER_KEY || node.type === FOOTNOTE_DEFINITION_KEY) continue;
+		if (node.type === HEADER_KEY || node.type === FOOTER_KEY || footnotePlacement === "footer" && node.type === FOOTNOTE_DEFINITION_KEY) continue;
 		const nodeFingerprint = marksFingerprint(node) || ctx.marksFingerprint;
 		const height = measurer.measure(node, {
 			font: ctx.font,
@@ -515,5 +582,5 @@ const paginate = (doc, rect, ctx, measurer) => {
 };
 
 //#endregion
-export { FOOTNOTE_DEFINITION_KEY as C, FOOTER_KEY as S, setEditorPages as _, replaceHeader as a, BaseFooterPlugin as b, insertPageBreak as c, enforceHeaderFooterInvariants as d, hasFooterBlock as f, getPageOfPath as g, getPaginationPages as h, toggleFooter as i, ensureHeader as l, getPaginationFootnotes as m, BasePaginationPlugin as n, replaceFooter as o, hasHeaderBlock as p, toggleHeader as r, removeNodesByType as s, paginate as t, ensureFooter as u, BasePageBreakPlugin as v, HEADER_KEY as w, allocateFootnotes as x, BaseHeaderPlugin as y };
-//# sourceMappingURL=paginate-BP3Ay61_.js.map
+export { allocateFootnotes as C, PAGINATION_KEY as D, HEADER_KEY as E, BaseFooterPlugin as S, FOOTNOTE_DEFINITION_KEY as T, getPaginationPages as _, replaceHeader as a, BasePageBreakPlugin as b, insertPageBreak as c, enforceHeaderFooterInvariants as d, PAGINATION_OPTION_DEFAULTS as f, getPaginationFootnotes as g, hasHeaderBlock as h, toggleFooter as i, ensureHeader as l, hasFooterBlock as m, BasePaginationPlugin as n, replaceFooter as o, resolvePaginationOptions as p, toggleHeader as r, removeNodesByType as s, paginate as t, ensureFooter as u, getPageOfPath as v, FOOTER_KEY as w, BaseHeaderPlugin as x, setEditorPages as y };
+//# sourceMappingURL=paginate-Cla4sKzV.js.map

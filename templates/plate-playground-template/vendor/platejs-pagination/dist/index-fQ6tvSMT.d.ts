@@ -1,4 +1,4 @@
-import * as platejs10 from "platejs";
+import * as platejs5 from "platejs";
 import { Descendant, PluginConfig, SlateEditor, TElement } from "platejs";
 
 //#region src/lib/internal/keys.d.ts
@@ -26,6 +26,29 @@ type PageMargins = {
   right: number;
   top: number;
 };
+/** Page sheet border styling in CSS pixels. */
+type PageBorder = {
+  color: string;
+  radius: number;
+  shadow: string;
+  style: 'dashed' | 'none' | 'solid';
+  width: number;
+};
+/** Where footnote definitions render in the paginated view. */
+type FootnotePlacement = 'documentEnd' | 'footer';
+/**
+ * Visualisation mode.
+ *
+ * - `standard` — continuous-flow editor: header chrome on top, body, optional
+ *   end-of-doc footnote well, hybrid sticky/anchored footer chrome.
+ * - `paged` — paged editor with per-page chrome (header, footer, footnote
+ *   well) painted via the PageOverlay; print mode reuses the same paginate()
+ *   selector to emit real `<section class="page">` elements.
+ *
+ * `@media print` always forces `paged` regardless of the configured mode so
+ * a Standard-mode session prints with proper page breaks.
+ */
+type PaginationMode = 'paged' | 'standard';
 /**
  * Page size resolves to a preset key (`'A4'`, `'Letter'`, `'Legal'`) or a
  * literal `{ width, height }` in CSS pixels. The string-`(string & {})`
@@ -84,6 +107,11 @@ type Measurer = {
 type BasePaginationOptions = {
   /** Footer slot height in CSS pixels. */
   footerHeight: number;
+  /**
+   * Whether footnote definitions render in each page footer well or remain as
+   * end-of-document definition blocks.
+   */
+  footnotePlacement: FootnotePlacement;
   /** Footnote well height in CSS pixels (allocated bottom of each page). */
   footnoteWell: number;
   /** Header slot height in CSS pixels. */
@@ -97,8 +125,17 @@ type BasePaginationOptions = {
   includeFootnoteSubPlugins?: boolean;
   /** Page margin box. */
   margins: PageMargins;
+  /**
+   * Visualisation mode. Defaults to `standard` (continuous flow); flip to
+   * `paged` to render the editor with per-page chrome.
+   */
+  mode: PaginationMode;
+  /** Page sheet border styling. */
+  pageBorder: PageBorder;
   /** Resolved page size — preset key or literal `{ width, height }` in CSS pixels. */
   pageSize: PageSize;
+  /** Side preview panel width in CSS pixels. */
+  previewWidth: number;
   /**
    * Whether the side preview panel is visible. Toggled at runtime via
    * `editor.tf.pagination.togglePreview()`. Defaults to `true`.
@@ -121,6 +158,8 @@ type BasePaginationApi = {
 type BasePaginationTransforms = {
   pagination: {
     insertPageBreak: () => void;
+    /** Move footnote definitions between per-page footer wells and document end. */
+    setFootnotePlacement: (placement: FootnotePlacement) => void;
     /**
      * Patch the in-flow `<w:pgMar>`-style margins. Only the keys provided
      * are updated; omitted sides keep their current values, so per-axis UI
@@ -128,8 +167,14 @@ type BasePaginationTransforms = {
      * the full margin box.
      */
     setMargins: (patch: Partial<PageMargins>) => void;
+    /** Patch the rendered page sheet border. */
+    setPageBorder: (patch: Partial<PageBorder>) => void;
+    /** Switch between continuous-flow and paged visualisations. */
+    setMode: (mode: PaginationMode) => void;
     /** Replace the resolved page size (preset key or `{width,height}`). */
     setPageSize: (size: PageSize) => void;
+    /** Resize the page preview side panel. */
+    setPreviewWidth: (width: number) => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
     /** Toggle the document-level footer block; returns new presence. */
@@ -164,7 +209,7 @@ declare const allocateFootnotes: (pages: Page[], footnotes: TElement[]) => Page[
  * Authored once per document; the render-overlay clones it onto every page
  * and runs the footnote-well allocator above it.
  */
-declare const BaseFooterPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"footer", {}, {}, {}, {}>>;
+declare const BaseFooterPlugin: platejs5.SlatePlugin<platejs5.PluginConfig<"footer", {}, {}, {}, {}>>;
 //#endregion
 //#region src/lib/base-header-plugin.d.ts
 /**
@@ -172,7 +217,7 @@ declare const BaseFooterPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"fo
  *
  * Authored once per document; the render-overlay clones it onto every page.
  */
-declare const BaseHeaderPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"header", {}, {}, {}, {}>>;
+declare const BaseHeaderPlugin: platejs5.SlatePlugin<platejs5.PluginConfig<"header", {}, {}, {}, {}>>;
 //#endregion
 //#region src/lib/base-page-break-plugin.d.ts
 /**
@@ -180,7 +225,7 @@ declare const BaseHeaderPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"he
  *
  * The render-overlay paginator splits a page boundary at every break node.
  */
-declare const BasePageBreakPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
+declare const BasePageBreakPlugin: platejs5.SlatePlugin<platejs5.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
 //#endregion
 //#region src/lib/base-pagination-plugin.d.ts
 /**
@@ -199,9 +244,9 @@ declare const BasePageBreakPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<
  * `BasePaginationPlugin` already gets the element schema. React-only deltas
  * (footnote sub-plugins, overlay rendering) live in `src/react`.
  */
-declare const BasePaginationPlugin: platejs10.SlatePlugin<platejs10.PluginConfig<"pagination", BasePaginationOptions, {
+declare const BasePaginationPlugin: platejs5.SlatePlugin<platejs5.PluginConfig<"pagination", BasePaginationOptions, {
   pagination: {
-    getFootnotes: (pageIndex: number) => platejs10.TElement[];
+    getFootnotes: (pageIndex: number) => platejs5.TElement[];
     getPageOf: (path: number[]) => number;
     getPages: () => Page[];
     hasHeader: () => boolean;
@@ -210,10 +255,14 @@ declare const BasePaginationPlugin: platejs10.SlatePlugin<platejs10.PluginConfig
 }, {
   pagination: {
     insertPageBreak: () => void;
+    setFootnotePlacement: (placement: FootnotePlacement) => void;
     setMargins: (patch: Partial<PageMargins>) => void;
+    setPageBorder: (patch: Partial<PageBorder>) => void;
+    setMode: (mode: PaginationMode) => void;
     setPageSize: (size: PageSize) => void;
-    setFooter: (content: platejs10.Descendant[]) => void;
-    setHeader: (content: platejs10.Descendant[]) => void;
+    setPreviewWidth: (width: number) => void;
+    setFooter: (content: platejs5.Descendant[]) => void;
+    setHeader: (content: platejs5.Descendant[]) => void;
     toggleFooter: () => boolean;
     toggleHeader: () => boolean;
     togglePreview: () => boolean;
@@ -221,6 +270,12 @@ declare const BasePaginationPlugin: platejs10.SlatePlugin<platejs10.PluginConfig
 }, {}>>;
 //#endregion
 //#region src/lib/paginate.d.ts
+type PaginateOptions = Partial<Pick<BasePaginationOptions, 'footnotePlacement'>> & {
+  ctx: PageContext;
+  doc: TElement[];
+  measurer: Measurer;
+  rect: PageRect;
+};
 /**
  * Derive the page sequence from a flat list of top-level blocks.
  *
@@ -230,8 +285,9 @@ declare const BasePaginationPlugin: platejs10.SlatePlugin<platejs10.PluginConfig
  * (`type === KEYS.pageBreak`) are hard splits. Pages are derived; this
  * never mutates Slate state.
  *
- * Top-level `header`, `footer`, and `footnoteDefinition` blocks are
- * skipped — they render via the page chrome / footer well, not the body.
+ * Top-level `header` and `footer` blocks are skipped because they render via
+ * the page chrome. `footnoteDefinition` blocks are skipped only when
+ * footnotes render in page footer wells.
  *
  * @param doc Top-level Slate blocks (`editor.children`).
  * @param rect Resolved page geometry (see `resolvePageRect`).
@@ -240,13 +296,29 @@ declare const BasePaginationPlugin: platejs10.SlatePlugin<platejs10.PluginConfig
  * @param measurer Pluggable height oracle. Inject a fake monospace one
  *   in tests; the React layer wires the DOM-backed measurer.
  */
-declare const paginate: (doc: TElement[], rect: PageRect, ctx: PageContext, measurer: Measurer) => Page[];
+declare const paginate: ({
+  ctx,
+  doc,
+  footnotePlacement,
+  measurer,
+  rect
+}: PaginateOptions) => Page[];
 //#endregion
-//#region src/lib/internal/units.d.ts
-declare const cmToPx: (cm: number) => number;
-declare const inToPx: (inches: number) => number;
-declare const pxToCm: (px: number) => number;
-declare const pxToIn: (px: number) => number;
+//#region src/lib/resolve-options.d.ts
+/**
+ * Defaults for pagination options. Single source of truth for the option
+ * shape consumed by `paginate()`, `resolvePageRect()`, and the React
+ * overlay. The base plugin spreads these into its `options` block; the
+ * React wrapper consumes them via {@link resolvePaginationOptions}
+ * instead of re-defining defaults inside a hook.
+ */
+declare const PAGINATION_OPTION_DEFAULTS: BasePaginationOptions;
+/**
+ * Resolve a partial options bag against {@link PAGINATION_OPTION_DEFAULTS}.
+ * Used by the React overlay/layout hook so defaults live in `src/lib`
+ * rather than being redefined inside a React wrapper.
+ */
+declare const resolvePaginationOptions: (partial: Partial<BasePaginationOptions> | undefined) => BasePaginationOptions;
 //#endregion
 //#region src/lib/queries/getPageOfPath.d.ts
 /**
@@ -263,7 +335,7 @@ declare const getPageOfPath: (editor: SlateEditor, path: number[]) => number;
  */
 declare const getPaginationPages: (editor: SlateEditor) => Page[];
 /** Return the footnotes allocated to a given page index. */
-declare const getPaginationFootnotes: (editor: SlateEditor, pageIndex: number) => platejs10.TElement[];
+declare const getPaginationFootnotes: (editor: SlateEditor, pageIndex: number) => platejs5.TElement[];
 //#endregion
 //#region src/lib/queries/hasChromeBlock.d.ts
 /** Whether a top-level `header` block currently exists in the doc. */
@@ -319,7 +391,7 @@ declare const removeNodesByType: (editor: SlateEditor, type: string) => void;
 //#region src/lib/transforms/replaceFooter.d.ts
 /**
  * Replace the top-level footer block with `content`, removing any existing
- * footer first and reinserting at the end of the doc.
+ * footer(s) first and reinserting at the end of the doc.
  *
  * Wrapped in `withoutNormalizing` so the remove + insert lands as one atomic
  * step — otherwise the intermediate "no footer" state can fight with the
@@ -330,7 +402,7 @@ declare const replaceFooter: (editor: SlateEditor, content: Descendant[]) => voi
 //#region src/lib/transforms/replaceHeader.d.ts
 /**
  * Replace the top-level header block with `content`, removing any existing
- * header first and reinserting at index 0.
+ * header(s) first and reinserting at index 0.
  *
  * Wrapped in `withoutNormalizing` so the remove + insert lands as one atomic
  * step — otherwise the intermediate "no header" state can fight with the
@@ -358,5 +430,5 @@ declare const toggleFooter: (editor: SlateEditor) => boolean;
  */
 declare const toggleHeader: (editor: SlateEditor) => boolean;
 //#endregion
-export { Page as A, BaseFooterPlugin as C, BasePaginationOptions as D, BasePaginationConfig as E, PageMargins as M, PageRect as N, BasePaginationTransforms as O, PageSize as P, BaseHeaderPlugin as S, BasePaginationApi as T, pxToCm as _, removeNodesByType as a, BasePaginationPlugin as b, ensureFooter as c, hasHeaderBlock as d, getPaginationFootnotes as f, inToPx as g, cmToPx as h, replaceFooter as i, PageContext as j, Measurer as k, enforceHeaderFooterInvariants as l, getPageOfPath as m, toggleFooter as n, insertPageBreak as o, getPaginationPages as p, replaceHeader as r, ensureHeader as s, toggleHeader as t, hasFooterBlock as u, pxToIn as v, allocateFootnotes as w, BasePageBreakPlugin as x, paginate as y };
-//# sourceMappingURL=index-BjxU94y9.d.ts.map
+export { Page as A, allocateFootnotes as C, BasePaginationTransforms as D, BasePaginationOptions as E, PageSize as F, PaginationMode as I, PageContext as M, PageMargins as N, FootnotePlacement as O, PageRect as P, BaseFooterPlugin as S, BasePaginationConfig as T, PaginateOptions as _, removeNodesByType as a, BasePageBreakPlugin as b, ensureFooter as c, hasHeaderBlock as d, getPaginationFootnotes as f, resolvePaginationOptions as g, PAGINATION_OPTION_DEFAULTS as h, replaceFooter as i, PageBorder as j, Measurer as k, enforceHeaderFooterInvariants as l, getPageOfPath as m, toggleFooter as n, insertPageBreak as o, getPaginationPages as p, replaceHeader as r, ensureHeader as s, toggleHeader as t, hasFooterBlock as u, paginate as v, BasePaginationApi as w, BaseHeaderPlugin as x, BasePaginationPlugin as y };
+//# sourceMappingURL=index-fQ6tvSMT.d.ts.map

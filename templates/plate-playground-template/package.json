@@ -21,6 +21,7 @@
     "@ai-sdk/gateway": "^3.0.105",
     "@ai-sdk/react": "3",
     "@ariakit/react": "^0.4.26",
+    "@chenglou/pretext": "0.0.6",
     "@emoji-mart/data": "1.2.1",
     "@faker-js/faker": "^10.4.0",
     "@platejs/ai": "^53.0.3",
