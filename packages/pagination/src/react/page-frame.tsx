@@ -65,7 +65,6 @@ export const PageFrame = ({
 
   return (
     <div
-      aria-hidden="true"
       data-page-index={page.pageIndex}
       data-plate-pagination-page=""
       style={{
@@ -75,7 +74,6 @@ export const PageFrame = ({
         boxShadow: pageBorder.shadow,
         height: rect.height,
         left: 0,
-        pointerEvents: 'none',
         position: 'absolute',
         top,
         width: rect.width,

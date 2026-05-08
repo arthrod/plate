@@ -30,12 +30,14 @@ type PaginationOptions = {
   footerVisible?: boolean;
   headerVisible?: boolean;
   margins?: Margins;
+  mode?: 'paged' | 'standard';
   pageSize?: PageSize | { height: number; width: number };
   previewVisible?: boolean;
 };
 
 type PaginationTransforms = {
   setMargins?: (m: Margins) => void;
+  setMode?: (mode: 'paged' | 'standard') => void;
   setPageSize?: (s: PageSize) => void;
   toggleFooter?: () => boolean;
   toggleHeader?: () => boolean;
@@ -77,10 +79,9 @@ export function PaginationToolbarButton() {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 
-  const previewVisible = usePluginOption(
-    BasePaginationPlugin,
-    'previewVisible'
-  ) as boolean | undefined;
+  const mode = usePluginOption(BasePaginationPlugin, 'mode') as
+    | PaginationOptions['mode']
+    | undefined;
   const pageSize = usePluginOption(
     BasePaginationPlugin,
     'pageSize'
@@ -120,7 +121,7 @@ export function PaginationToolbarButton() {
         <ToolbarButton
           data-plate-prevent-overlay
           isDropdown
-          pressed={!!previewVisible}
+          pressed={mode === 'paged'}
           tooltip="Pagination"
         >
           <LayoutTemplateIcon />
@@ -129,19 +130,23 @@ export function PaginationToolbarButton() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>Display</DropdownMenuLabel>
         <DropdownMenuCheckboxItem
-          checked={!!previewVisible}
-          onCheckedChange={() => tf.togglePreview?.()}
+          checked={mode === 'paged'}
+          onCheckedChange={(next) =>
+            tf.setMode?.(next ? 'paged' : 'standard')
+          }
         >
-          Page preview
+          Page view
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={headerPresent}
+          disabled={mode !== 'paged'}
           onCheckedChange={() => tf.toggleHeader?.()}
         >
           Header
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={footerPresent}
+          disabled={mode !== 'paged'}
           onCheckedChange={() => tf.toggleFooter?.()}
         >
           Footer

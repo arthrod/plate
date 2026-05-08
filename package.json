@@ -10,6 +10,7 @@
     "build:watch": "ROARR_LOG=true turbowatch ./tooling/config/turbowatch.config.ts | roarr",
     "check": "pnpm lint && pnpm typecheck && pnpm test:all && pnpm test:slowest",
     "check:push": "pnpm lint && pnpm typecheck && pnpm test:all",
+    "deploy:pagination": "rm -rf packages/pagination/dist && pnpm --filter @platejs/pagination build && rm -rf templates/plate-playground-template/vendor/platejs-pagination/dist && cp -r packages/pagination/dist templates/plate-playground-template/vendor/platejs-pagination/dist && rm -rf templates/plate-playground-template/.next templates/plate-playground-template/.open-next templates/plate-playground-template/node_modules/@platejs/pagination && cd templates/plate-playground-template && bun install --force && bun run deploy",
     "deps:check": "npx npm-check-updates@latest --configFileName config/ncurc.yml --workspaces --root --mergeConfig",
     "deps:update": "npx npm-check-updates@latest --configFileName config/ncurc.yml -u --workspaces --root --mergeConfig",
     "dev": "turbo --filter=www dev",

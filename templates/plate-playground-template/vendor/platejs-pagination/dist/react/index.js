@@ -307,7 +307,6 @@ const PageFrame = (t0) => {
 			boxShadow: pageBorder.shadow,
 			height: rect.height,
 			left: 0,
-			pointerEvents: "none",
 			position: "absolute",
 			top,
 			width: rect.width
@@ -449,7 +448,6 @@ const PageFrame = (t0) => {
 	let t10;
 	if ($[42] !== page.pageIndex || $[43] !== t2 || $[44] !== t3 || $[45] !== t4 || $[46] !== t5 || $[47] !== t9) {
 		t10 = /* @__PURE__ */ React.createElement("div", {
-			"aria-hidden": "true",
 			"data-page-index": page.pageIndex,
 			"data-plate-pagination-page": "",
 			style: t2
@@ -633,7 +631,7 @@ const usePretextMeasurer = (editor) => {
 		t1 = { measure: (node, ctx) => {
 			const metrics = scrapeBlockMetrics(editor, node, ctx.font);
 			const nodeId = node.id?.toString() ?? fallbackNodeId(node);
-			const text = collectPlainText$1(node);
+			const text = collectPlainText(node);
 			const cacheKey = {
 				contentHash: hashString(`${node.type ?? ""}|${text}`),
 				font: metrics.font,
@@ -717,7 +715,7 @@ const collectLeaves = (node) => {
 	walk(node);
 	return out;
 };
-const collectPlainText$1 = (node) => {
+const collectPlainText = (node) => {
 	let out = "";
 	for (const leaf of collectLeaves(node)) out += leaf.text;
 	return out;
@@ -924,679 +922,138 @@ const usePageLayout = (editor, value, options) => {
 
 //#endregion
 //#region src/react/page-overlay.tsx
-const STACK_GAP = 12;
+const PAGE_GAP = 24;
 /**
-* Render-overlay shell mounted via `render.afterEditable`.
+* Paged view (variant A — full takeover).
 *
-* Variant A — CodeRabbit Design Choice 1: pages are derived at render time
-* and painted as a side-panel preview on top of the live editor. The Slate
-* document is never mutated by this component.
+* - `mode === 'paged'`: hides the live `<Editable />` via a global
+*   `data-plate-pagination-mode="paged"` attribute on `<body>` (consumer
+*   stylesheet uses `body[data-plate-pagination-mode='paged'] [data-slate-editor] { display: none }`)
+*   and stacks `PageFrame`s vertically. Content inside each frame is
+*   rendered via `PlateStatic` (read-only) so users see the document laid
+*   out exactly as it will print.
+* - `mode === 'standard'`: renders absolutely nothing (besides the
+*   {@link FootnotePortal} which hides in-flow footnote definitions when
+*   the option opts in). The editor stays in continuous-flow mode.
 *
-* Visibility is controlled by the plugin option `previewVisible`, toggled
-* via `editor.tf.pagination.togglePreview()`. When hidden the component
-* still mounts (so the toggle stays reactive) but renders nothing.
-*
-* Updates reactively as the document changes via `useEditorValue`.
-*
-* Hydration: the underlying measurer falls back to font-derived heights on
-* SSR which can disagree with client-side layout, so the panel waits for
-* `useEffect` (client-only) before painting. This avoids React #418 hydration
-* mismatches when the page count differs between server and client.
+* The `afterEditable` slot is the right home for the paged view because
+* it sits inside the Plate provider (so `usePluginOption`/`useEditorRef`
+* work) and runs after the Editable mounts, so the global attribute hook
+* applies before the live editor would otherwise show through.
 */
 const PageOverlay = () => {
-	const $ = c(83);
 	const [mounted, setMounted] = React.useState(false);
-	let t0;
-	let t1;
-	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-		t0 = () => {
-			setMounted(true);
-		};
-		t1 = [];
-		$[0] = t0;
-		$[1] = t1;
-	} else {
-		t0 = $[0];
-		t1 = $[1];
-	}
-	React.useEffect(t0, t1);
+	React.useEffect(() => {
+		setMounted(true);
+	}, []);
 	const editor = useEditorRef();
-	const visible = usePluginOption(BasePaginationPlugin, "previewVisible");
+	const mode = usePluginOption(BasePaginationPlugin, "mode");
 	const pageSize = usePluginOption(BasePaginationPlugin, "pageSize");
 	const pageBorder = usePluginOption(BasePaginationPlugin, "pageBorder");
-	const previewWidth = usePluginOption(BasePaginationPlugin, "previewWidth");
 	const margins = usePluginOption(BasePaginationPlugin, "margins");
 	const footerHeight = usePluginOption(BasePaginationPlugin, "footerHeight");
 	const footnotePlacement = usePluginOption(BasePaginationPlugin, "footnotePlacement");
 	const footnoteWell = usePluginOption(BasePaginationPlugin, "footnoteWell");
 	const headerHeight = usePluginOption(BasePaginationPlugin, "headerHeight");
 	const includeFootnoteSubPlugins = usePluginOption(BasePaginationPlugin, "includeFootnoteSubPlugins");
+	const previewVisible = usePluginOption(BasePaginationPlugin, "previewVisible");
+	const previewWidth = usePluginOption(BasePaginationPlugin, "previewWidth");
 	const value = useEditorValue();
-	let t2;
-	if ($[2] !== footerHeight || $[3] !== footnotePlacement || $[4] !== footnoteWell || $[5] !== headerHeight || $[6] !== includeFootnoteSubPlugins || $[7] !== margins || $[8] !== pageBorder || $[9] !== pageSize || $[10] !== previewWidth || $[11] !== visible) {
-		t2 = resolvePaginationOptions({
-			footerHeight,
-			footnotePlacement,
-			footnoteWell,
-			headerHeight,
-			includeFootnoteSubPlugins,
-			margins,
-			pageBorder,
-			pageSize,
-			previewWidth,
-			previewVisible: visible
-		});
-		$[2] = footerHeight;
-		$[3] = footnotePlacement;
-		$[4] = footnoteWell;
-		$[5] = headerHeight;
-		$[6] = includeFootnoteSubPlugins;
-		$[7] = margins;
-		$[8] = pageBorder;
-		$[9] = pageSize;
-		$[10] = previewWidth;
-		$[11] = visible;
-		$[12] = t2;
-	} else t2 = $[12];
-	const safeOptions = t2;
+	const safeOptions = React.useMemo(() => resolvePaginationOptions({
+		footerHeight,
+		footnotePlacement,
+		footnoteWell,
+		headerHeight,
+		includeFootnoteSubPlugins,
+		margins,
+		mode,
+		pageBorder,
+		pageSize,
+		previewVisible,
+		previewWidth
+	}), [
+		footerHeight,
+		footnotePlacement,
+		footnoteWell,
+		headerHeight,
+		includeFootnoteSubPlugins,
+		margins,
+		mode,
+		pageBorder,
+		pageSize,
+		previewVisible,
+		previewWidth
+	]);
 	const pages = usePageLayout(editor, value, safeOptions);
+	const isPaged = mode === "paged";
+	React.useEffect(() => {
+		const body = document.body;
+		if (isPaged) body.dataset.platePaginationMode = "paged";
+		else delete body.dataset.platePaginationMode;
+		return () => {
+			delete body.dataset.platePaginationMode;
+		};
+	}, [isPaged]);
 	if (!mounted) return null;
-	let t3;
-	if ($[13] !== editor) {
-		t3 = editor.getType(FOOTNOTE_DEFINITION_KEY);
-		$[13] = editor;
-		$[14] = t3;
-	} else t3 = $[14];
-	const footnoteDefinitionType = t3;
+	const footnoteDefinitionType = editor.getType(FOOTNOTE_DEFINITION_KEY);
 	const footnotesInFooter = safeOptions.footnotePlacement === "footer";
-	let t4;
-	if ($[15] !== footnoteDefinitionType || $[16] !== footnotesInFooter) {
-		t4 = /* @__PURE__ */ React.createElement(FootnotePortal, {
-			enabled: footnotesInFooter,
-			footnoteDefinitionType
-		});
-		$[15] = footnoteDefinitionType;
-		$[16] = footnotesInFooter;
-		$[17] = t4;
-	} else t4 = $[17];
-	const footnotePortal = t4;
-	if (!visible || pages.length === 0) return footnotePortal;
-	let t5;
-	if ($[18] !== editor) {
-		t5 = editor.getType(HEADER_KEY);
-		$[18] = editor;
-		$[19] = t5;
-	} else t5 = $[19];
-	const headerType = t5;
-	let t6;
-	if ($[20] !== editor) {
-		t6 = editor.getType(FOOTER_KEY);
-		$[20] = editor;
-		$[21] = t6;
-	} else t6 = $[21];
-	const footerType = t6;
-	const t7 = value;
-	let t8;
-	if ($[22] !== headerType || $[23] !== t7) {
-		let t9$1;
-		if ($[25] !== headerType) {
-			t9$1 = (n) => n.type === headerType;
-			$[25] = headerType;
-			$[26] = t9$1;
-		} else t9$1 = $[26];
-		t8 = t7.find(t9$1);
-		$[22] = headerType;
-		$[23] = t7;
-		$[24] = t8;
-	} else t8 = $[24];
-	const documentHeader = t8;
-	const t9 = value;
-	let t10;
-	if ($[27] !== footerType || $[28] !== t9) {
-		let t11$1;
-		if ($[30] !== footerType) {
-			t11$1 = (n_0) => n_0.type === footerType;
-			$[30] = footerType;
-			$[31] = t11$1;
-		} else t11$1 = $[31];
-		t10 = t9.find(t11$1);
-		$[27] = footerType;
-		$[28] = t9;
-		$[29] = t10;
-	} else t10 = $[29];
-	const documentFooter = t10;
-	let t11;
-	if ($[32] !== editor || $[33] !== safeOptions.previewWidth) {
-		t11 = (event) => {
-			if (event.button !== 0) return;
-			event.preventDefault();
-			const startX = event.clientX;
-			const startWidth = safeOptions.previewWidth;
-			const handlePointerMove = (moveEvent) => {
-				const width = clampPreviewWidth(startWidth + startX - moveEvent.clientX);
-				editor.setOption(BasePaginationPlugin, "previewWidth", width);
-			};
-			const handlePointerUp = () => {
-				window.removeEventListener("pointermove", handlePointerMove);
-				window.removeEventListener("pointerup", handlePointerUp);
-			};
-			window.addEventListener("pointermove", handlePointerMove);
-			window.addEventListener("pointerup", handlePointerUp);
-		};
-		$[32] = editor;
-		$[33] = safeOptions.previewWidth;
-		$[34] = t11;
-	} else t11 = $[34];
-	const handleResizePointerDown = t11;
-	let t12;
-	if ($[35] !== safeOptions.previewWidth) {
-		t12 = clampPreviewWidth(safeOptions.previewWidth);
-		$[35] = safeOptions.previewWidth;
-		$[36] = t12;
-	} else t12 = $[36];
-	let t13;
-	if ($[37] !== t12) {
-		t13 = {
-			background: "rgba(248, 250, 252, 0.96)",
-			border: "1px solid rgba(15,23,42,0.12)",
-			borderRadius: 8,
-			bottom: 16,
-			boxShadow: "0 8px 24px rgba(15,23,42,0.12)",
-			color: "rgba(15,23,42,0.85)",
-			fontFamily: "system-ui, sans-serif",
-			fontSize: 12,
-			maxHeight: "calc(100vh - 96px)",
-			overflowY: "auto",
-			padding: 12,
-			position: "fixed",
-			right: 16,
-			top: 80,
-			width: t12,
-			zIndex: 50
-		};
-		$[37] = t12;
-		$[38] = t13;
-	} else t13 = $[38];
-	let t14;
-	if ($[39] !== safeOptions.previewWidth) {
-		t14 = clampPreviewWidth(safeOptions.previewWidth);
-		$[39] = safeOptions.previewWidth;
-		$[40] = t14;
-	} else t14 = $[40];
-	let t15;
-	if ($[41] === Symbol.for("react.memo_cache_sentinel")) {
-		t15 = {
-			bottom: 0,
-			cursor: "ew-resize",
-			left: -4,
-			position: "absolute",
-			top: 0,
-			touchAction: "none",
-			width: 8
-		};
-		$[41] = t15;
-	} else t15 = $[41];
-	let t16;
-	if ($[42] !== handleResizePointerDown || $[43] !== t14) {
-		t16 = /* @__PURE__ */ React.createElement("div", {
-			"aria-label": "Resize page preview",
-			"aria-orientation": "vertical",
-			"aria-valuemax": MAX_PREVIEW_WIDTH,
-			"aria-valuemin": MIN_PREVIEW_WIDTH,
-			"aria-valuenow": t14,
-			"data-plate-pagination-resize-handle": "",
-			onPointerDown: handleResizePointerDown,
-			role: "separator",
-			style: t15
-		});
-		$[42] = handleResizePointerDown;
-		$[43] = t14;
-		$[44] = t16;
-	} else t16 = $[44];
-	let t17;
-	let t18;
-	if ($[45] === Symbol.for("react.memo_cache_sentinel")) {
-		t17 = {
-			alignItems: "center",
-			color: "rgba(15,23,42,0.55)",
-			display: "flex",
-			fontSize: 11,
-			fontWeight: 600,
-			justifyContent: "space-between",
-			letterSpacing: .4,
-			marginBottom: 8,
-			textTransform: "uppercase"
-		};
-		t18 = /* @__PURE__ */ React.createElement("span", null, "Pages");
-		$[45] = t17;
-		$[46] = t18;
-	} else {
-		t17 = $[45];
-		t18 = $[46];
-	}
-	const t19 = `${pages.length}`;
-	let t20;
-	if ($[47] !== t19) {
-		t20 = /* @__PURE__ */ React.createElement("div", { style: t17 }, t18, /* @__PURE__ */ React.createElement("span", null, t19));
-		$[47] = t19;
-		$[48] = t20;
-	} else t20 = $[48];
-	let t21;
-	if ($[49] === Symbol.for("react.memo_cache_sentinel")) {
-		t21 = {
-			display: "flex",
-			flexDirection: "column",
-			gap: STACK_GAP
-		};
-		$[49] = t21;
-	} else t21 = $[49];
-	let t22;
-	if ($[50] !== documentFooter || $[51] !== documentHeader || $[52] !== editor || $[53] !== footnotesInFooter || $[54] !== pages || $[55] !== safeOptions.footerHeight || $[56] !== safeOptions.footnoteWell || $[57] !== safeOptions.headerHeight || $[58] !== safeOptions.margins || $[59] !== safeOptions.pageBorder || $[60] !== safeOptions.previewWidth) {
-		let t23$1;
-		if ($[62] !== documentFooter || $[63] !== documentHeader || $[64] !== editor || $[65] !== footnotesInFooter || $[66] !== safeOptions.footerHeight || $[67] !== safeOptions.footnoteWell || $[68] !== safeOptions.headerHeight || $[69] !== safeOptions.margins || $[70] !== safeOptions.pageBorder || $[71] !== safeOptions.previewWidth) {
-			t23$1 = (page) => {
-				const scale = computeThumbScale(page.rect.width, safeOptions.previewWidth - PANEL_PADDING_X);
-				const previewHeight = page.rect.height * scale;
-				const previewWidth_0 = page.rect.width * scale;
-				return /* @__PURE__ */ React.createElement("div", {
-					key: `page-${page.pageIndex}`,
-					style: { width: "100%" }
-				}, /* @__PURE__ */ React.createElement("div", { style: {
-					color: "rgba(15,23,42,0.55)",
-					fontSize: 10,
-					marginBottom: 4
-				} }, `Page ${page.pageIndex + 1}`), /* @__PURE__ */ React.createElement("div", { style: {
-					height: previewHeight,
-					overflow: "hidden",
-					position: "relative",
-					width: previewWidth_0
-				} }, /* @__PURE__ */ React.createElement("div", { style: {
-					height: page.rect.height,
-					transform: `scale(${scale})`,
-					transformOrigin: "top left",
-					width: page.rect.width
-				} }, /* @__PURE__ */ React.createElement(PageFrame, {
-					chrome: {
-						footerHeight: safeOptions.footerHeight,
-						footnoteWell: safeOptions.footnoteWell,
-						headerHeight: safeOptions.headerHeight,
-						margins: safeOptions.margins,
-						pageBorder: safeOptions.pageBorder
-					},
-					documentFooter,
-					documentHeader,
-					editor,
-					footnotesInFooter,
-					page,
-					top: 0
-				}))));
-			};
-			$[62] = documentFooter;
-			$[63] = documentHeader;
-			$[64] = editor;
-			$[65] = footnotesInFooter;
-			$[66] = safeOptions.footerHeight;
-			$[67] = safeOptions.footnoteWell;
-			$[68] = safeOptions.headerHeight;
-			$[69] = safeOptions.margins;
-			$[70] = safeOptions.pageBorder;
-			$[71] = safeOptions.previewWidth;
-			$[72] = t23$1;
-		} else t23$1 = $[72];
-		t22 = pages.map(t23$1);
-		$[50] = documentFooter;
-		$[51] = documentHeader;
-		$[52] = editor;
-		$[53] = footnotesInFooter;
-		$[54] = pages;
-		$[55] = safeOptions.footerHeight;
-		$[56] = safeOptions.footnoteWell;
-		$[57] = safeOptions.headerHeight;
-		$[58] = safeOptions.margins;
-		$[59] = safeOptions.pageBorder;
-		$[60] = safeOptions.previewWidth;
-		$[61] = t22;
-	} else t22 = $[61];
-	let t23;
-	if ($[73] !== t22) {
-		t23 = /* @__PURE__ */ React.createElement("div", { style: t21 }, t22);
-		$[73] = t22;
-		$[74] = t23;
-	} else t23 = $[74];
-	let t24;
-	if ($[75] !== t13 || $[76] !== t16 || $[77] !== t20 || $[78] !== t23) {
-		t24 = /* @__PURE__ */ React.createElement("div", {
-			"aria-label": "Page preview",
-			"data-plate-pagination-overlay": "",
-			role: "region",
-			style: t13
-		}, t16, t20, t23);
-		$[75] = t13;
-		$[76] = t16;
-		$[77] = t20;
-		$[78] = t23;
-		$[79] = t24;
-	} else t24 = $[79];
-	let t25;
-	if ($[80] !== footnotePortal || $[81] !== t24) {
-		t25 = /* @__PURE__ */ React.createElement(React.Fragment, null, footnotePortal, t24);
-		$[80] = footnotePortal;
-		$[81] = t24;
-		$[82] = t25;
-	} else t25 = $[82];
-	return t25;
-};
-const MAX_THUMB_SCALE = .18;
-const PANEL_PADDING_X = 24;
-const MAX_PREVIEW_WIDTH = 420;
-const MIN_PREVIEW_WIDTH = 180;
-const clampPreviewWidth = (width) => Math.min(MAX_PREVIEW_WIDTH, Math.max(MIN_PREVIEW_WIDTH, width));
-const computeThumbScale = (pageWidth, panelInnerWidth = 196) => {
-	if (pageWidth <= 0) return MAX_THUMB_SCALE;
-	return Math.min(MAX_THUMB_SCALE, panelInnerWidth / pageWidth);
-};
-
-//#endregion
-//#region src/react/standard-frame.tsx
-const SHORT_DOC_THRESHOLD_PX = 0;
-/**
-* Header chrome for `mode: 'standard'` — rendered via `render.beforeEditable`
-* so it sits above the live `<Editable />` without wrapping it.
-*
-* Returns `null` in paged mode (PageOverlay paints chrome inside each frame
-* instead).
-*/
-const StandardHeaderRail = () => {
-	const $ = c(12);
-	const editor = useEditorRef();
-	const mode = usePluginOption(BasePaginationPlugin, "mode");
-	const margins = usePluginOption(BasePaginationPlugin, "margins");
-	const value = useEditorValue();
-	if (mode !== "standard") return null;
-	let t0;
-	if ($[0] !== editor) {
-		t0 = editor.getType(HEADER_KEY);
-		$[0] = editor;
-		$[1] = t0;
-	} else t0 = $[1];
-	const headerType = t0;
-	const t1 = value;
-	let t2;
-	if ($[2] !== headerType || $[3] !== t1) {
-		let t3$1;
-		if ($[5] !== headerType) {
-			t3$1 = (n) => n.type === headerType;
-			$[5] = headerType;
-			$[6] = t3$1;
-		} else t3$1 = $[6];
-		t2 = t1.find(t3$1);
-		$[2] = headerType;
-		$[3] = t1;
-		$[4] = t2;
-	} else t2 = $[4];
-	const headerNode = t2;
-	if (!headerNode) return null;
-	const t3 = margins ?? FALLBACK_MARGINS;
-	let t4;
-	if ($[7] !== headerNode) {
-		t4 = /* @__PURE__ */ React.createElement(ChromeReadout, { block: headerNode });
-		$[7] = headerNode;
-		$[8] = t4;
-	} else t4 = $[8];
-	let t5;
-	if ($[9] !== t3 || $[10] !== t4) {
-		t5 = /* @__PURE__ */ React.createElement(ChromeBlock, {
-			ariaLabel: "Document header",
-			padding: t3,
-			slot: "header"
-		}, t4);
-		$[9] = t3;
-		$[10] = t4;
-		$[11] = t5;
-	} else t5 = $[11];
-	return t5;
-};
-/**
-* `render.afterEditable` slot — owns:
-* - end-of-doc footnote well (standard mode only),
-* - hybrid sticky/anchored footer chrome (standard mode only),
-* - the existing page-thumbnail side panel (paged mode only — delegates
-*   to `PageOverlay`).
-*/
-const StandardFooterAndPanel = () => {
-	const $ = c(27);
-	const editor = useEditorRef();
-	const mode = usePluginOption(BasePaginationPlugin, "mode");
-	const margins = usePluginOption(BasePaginationPlugin, "margins");
-	const value = useEditorValue();
-	const footerRef = React.useRef(null);
-	const [isShort, setIsShort] = React.useState(true);
-	let t0;
-	let t1;
-	if ($[0] !== mode) {
-		t0 = () => {
-			if (mode !== "standard") return;
-			if (typeof window === "undefined") return;
-			const measure = () => {
-				const viewportHeight = window.innerHeight;
-				const docHeight = document.documentElement.scrollHeight;
-				setIsShort(docHeight + (footerRef.current?.offsetHeight ?? 0) <= viewportHeight + SHORT_DOC_THRESHOLD_PX);
-			};
-			measure();
-			const ro = new ResizeObserver(measure);
-			if (footerRef.current) ro.observe(footerRef.current);
-			window.addEventListener("resize", measure);
-			return () => {
-				ro.disconnect();
-				window.removeEventListener("resize", measure);
-			};
-		};
-		t1 = [mode];
-		$[0] = mode;
-		$[1] = t0;
-		$[2] = t1;
-	} else {
-		t0 = $[1];
-		t1 = $[2];
-	}
-	React.useEffect(t0, t1);
-	if (mode === "paged") {
-		let t2$1;
-		if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
-			t2$1 = /* @__PURE__ */ React.createElement(PageOverlay, null);
-			$[3] = t2$1;
-		} else t2$1 = $[3];
-		return t2$1;
-	}
-	let t2;
-	if ($[4] !== editor) {
-		t2 = editor.getType(FOOTER_KEY);
-		$[4] = editor;
-		$[5] = t2;
-	} else t2 = $[5];
-	const footerType = t2;
-	let t3;
-	if ($[6] !== editor) {
-		t3 = editor.getType(FOOTNOTE_DEFINITION_KEY);
-		$[6] = editor;
-		$[7] = t3;
-	} else t3 = $[7];
-	const footnoteDefinitionType = t3;
-	const t4 = value;
-	let t5;
-	if ($[8] !== footerType || $[9] !== t4) {
-		let t6$1;
-		if ($[11] !== footerType) {
-			t6$1 = (n) => n.type === footerType;
-			$[11] = footerType;
-			$[12] = t6$1;
-		} else t6$1 = $[12];
-		t5 = t4.find(t6$1);
-		$[8] = footerType;
-		$[9] = t4;
-		$[10] = t5;
-	} else t5 = $[10];
-	const footerNode = t5;
-	const t6 = value;
-	let t7;
-	if ($[13] !== footnoteDefinitionType || $[14] !== margins?.left || $[15] !== margins?.right || $[16] !== t6) {
-		let t8$1;
-		if ($[18] !== footnoteDefinitionType) {
-			t8$1 = (n_0) => n_0.type === footnoteDefinitionType;
-			$[18] = footnoteDefinitionType;
-			$[19] = t8$1;
-		} else t8$1 = $[19];
-		const footnoteDefinitions = t6.filter(t8$1);
-		t7 = footnoteDefinitions.length > 0 ? /* @__PURE__ */ React.createElement("div", {
-			"data-plate-pagination-footnote-well": "",
-			style: {
-				borderTop: "1px solid rgba(15,23,42,0.12)",
-				marginTop: 24,
-				padding: `12px ${margins?.right ?? 0}px 12px ${margins?.left ?? 0}px`
-			}
-		}, footnoteDefinitions.map(_temp$1)) : null;
-		$[13] = footnoteDefinitionType;
-		$[14] = margins?.left;
-		$[15] = margins?.right;
-		$[16] = t6;
-		$[17] = t7;
-	} else t7 = $[17];
-	let t8;
-	if ($[20] !== footerNode || $[21] !== isShort || $[22] !== margins) {
-		t8 = footerNode ? /* @__PURE__ */ React.createElement(ChromeBlock, {
-			ref: footerRef,
-			ariaLabel: "Document footer",
-			padding: margins ?? FALLBACK_MARGINS,
-			slot: "footer",
-			style: isShort ? {
-				bottom: 0,
-				position: "sticky",
-				zIndex: 1
-			} : { position: "static" }
-		}, /* @__PURE__ */ React.createElement(ChromeReadout, { block: footerNode })) : null;
-		$[20] = footerNode;
-		$[21] = isShort;
-		$[22] = margins;
-		$[23] = t8;
-	} else t8 = $[23];
-	let t9;
-	if ($[24] !== t7 || $[25] !== t8) {
-		t9 = /* @__PURE__ */ React.createElement(React.Fragment, null, t7, t8);
-		$[24] = t7;
-		$[25] = t8;
-		$[26] = t9;
-	} else t9 = $[26];
-	return t9;
-};
-const FALLBACK_MARGINS = {
-	bottom: 0,
-	left: 0,
-	right: 0,
-	top: 0
-};
-const ChromeBlock = React.forwardRef((t0, ref) => {
-	const $ = c(13);
-	const { ariaLabel, children, padding, slot, style } = t0;
-	const Tag = slot === "header" ? "header" : "footer";
-	const t1 = ref;
-	const t2 = slot === "header" ? "1px solid rgba(15,23,42,0.06)" : void 0;
-	const t3 = slot === "footer" ? "1px solid rgba(15,23,42,0.06)" : void 0;
-	let t4;
-	if ($[0] !== padding.left || $[1] !== padding.right || $[2] !== style || $[3] !== t2 || $[4] !== t3) {
-		t4 = {
-			background: "#fff",
-			borderBottom: t2,
-			borderTop: t3,
-			boxSizing: "border-box",
-			paddingBottom: 8,
-			paddingLeft: padding.left,
-			paddingRight: padding.right,
-			paddingTop: 8,
-			...style
-		};
-		$[0] = padding.left;
-		$[1] = padding.right;
-		$[2] = style;
-		$[3] = t2;
-		$[4] = t3;
-		$[5] = t4;
-	} else t4 = $[5];
-	let t5;
-	if ($[6] !== Tag || $[7] !== ariaLabel || $[8] !== children || $[9] !== slot || $[10] !== t1 || $[11] !== t4) {
-		t5 = /* @__PURE__ */ React.createElement(Tag, {
-			ref: t1,
-			"aria-label": ariaLabel,
-			"data-plate-pagination-chrome": slot,
-			style: t4
-		}, children);
-		$[6] = Tag;
-		$[7] = ariaLabel;
-		$[8] = children;
-		$[9] = slot;
-		$[10] = t1;
-		$[11] = t4;
-		$[12] = t5;
-	} else t5 = $[12];
-	return t5;
-});
-ChromeBlock.displayName = "ChromeBlock";
-/**
-* Read-only renderer for header/footer/footnote-def blocks inside the
-* standard-mode chrome. v1 ships this as a flat-text rendering. Phase 3 of
-* the plan adds a sub-editor pattern (`use-chrome-editor`) that swaps this
-* for an editable Plate sub-editor; the data shape stays the same so that
-* upgrade is purely additive.
-*/
-const ChromeReadout = (t0) => {
-	const $ = c(8);
-	const { block, numberPrefix } = t0;
-	let t1;
-	if ($[0] !== block) {
-		t1 = collectPlainText(block);
-		$[0] = block;
-		$[1] = t1;
-	} else t1 = $[1];
-	const text = t1;
-	let t2;
-	if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
-		t2 = { fontSize: 13 };
-		$[2] = t2;
-	} else t2 = $[2];
-	let t3;
-	if ($[3] !== numberPrefix) {
-		t3 = numberPrefix ? /* @__PURE__ */ React.createElement("sup", null, numberPrefix) : null;
-		$[3] = numberPrefix;
-		$[4] = t3;
-	} else t3 = $[4];
-	let t4;
-	if ($[5] !== t3 || $[6] !== text) {
-		t4 = /* @__PURE__ */ React.createElement("div", { style: t2 }, t3, text);
-		$[5] = t3;
-		$[6] = text;
-		$[7] = t4;
-	} else t4 = $[7];
-	return t4;
-};
-const collectPlainText = (node) => {
-	let out = "";
-	const walk = (n) => {
-		if (typeof n.text === "string") {
-			out += n.text;
-			return;
-		}
-		if (!Array.isArray(n.children)) return;
-		for (const child of n.children) walk(child);
-	};
-	walk(node);
-	return out;
-};
-function _temp$1(def, i) {
-	return /* @__PURE__ */ React.createElement(ChromeReadout, {
-		key: `fn-${i}`,
-		block: def,
-		numberPrefix: `${i + 1}. `
+	const footnotePortal = /* @__PURE__ */ React.createElement(FootnotePortal, {
+		enabled: footnotesInFooter,
+		footnoteDefinitionType
 	});
-}
+	if (!isPaged) return footnotePortal;
+	if (pages.length === 0) return footnotePortal;
+	const headerType = editor.getType(HEADER_KEY);
+	const footerType = editor.getType(FOOTER_KEY);
+	const documentHeader = value.find((n) => n.type === headerType);
+	const documentFooter = value.find((n_0) => n_0.type === footerType);
+	let runningTop = 0;
+	const pageRows = pages.map((page) => {
+		const top = runningTop;
+		runningTop += page.rect.height + PAGE_GAP;
+		return {
+			page,
+			top
+		};
+	});
+	const stackHeight = Math.max(0, runningTop - PAGE_GAP);
+	const pageWidth = pages[0]?.rect.width ?? 0;
+	return /* @__PURE__ */ React.createElement(React.Fragment, null, footnotePortal, /* @__PURE__ */ React.createElement("style", { "data-plate-pagination-style": "" }, `body[data-plate-pagination-mode="paged"] [data-slate-editor]{display:none!important;}`), /* @__PURE__ */ React.createElement("div", {
+		"aria-label": "Paginated document view",
+		"data-plate-pagination-paged-view": "",
+		role: "region",
+		style: {
+			background: "rgba(248, 250, 252, 1)",
+			minHeight: "100vh",
+			padding: "24px 0",
+			position: "relative",
+			width: "100%"
+		}
+	}, /* @__PURE__ */ React.createElement("div", {
+		"data-plate-pagination-stack": "",
+		style: {
+			height: stackHeight,
+			margin: "0 auto",
+			position: "relative",
+			width: pageWidth
+		}
+	}, pageRows.map(({ page: page_0, top: top_0 }) => /* @__PURE__ */ React.createElement(PageFrame, {
+		key: `page-${page_0.pageIndex}`,
+		chrome: {
+			footerHeight: safeOptions.footerHeight,
+			footnoteWell: safeOptions.footnoteWell,
+			headerHeight: safeOptions.headerHeight,
+			margins: safeOptions.margins,
+			pageBorder: safeOptions.pageBorder
+		},
+		documentFooter,
+		documentHeader,
+		editor,
+		footnotesInFooter,
+		page: page_0,
+		top: top_0
+	})))));
+};
 
 //#endregion
 //#region src/react/pagination-plugin.ts
@@ -1627,10 +1084,7 @@ const PaginationPlugin = toTPlatePlugin(BasePaginationPlugin).extend(({ getOptio
 		PageBreakPlugin,
 		...getOptions().includeFootnoteSubPlugins === false ? [] : FOOTNOTE_SUB_PLUGINS
 	],
-	render: {
-		afterEditable: StandardFooterAndPanel,
-		beforeEditable: StandardHeaderRail
-	}
+	render: { afterEditable: PageOverlay }
 }));
 
 //#endregion
@@ -1770,5 +1224,37 @@ function _temp(choice_0) {
 }
 
 //#endregion
-export { FooterPlugin, FootnotePortal, HeaderPlugin, MarginsDialog, PageBreakPlugin, PageFrame, PageOverlay, PaginationPlugin, PaginationToolbar, StandardFooterAndPanel, StandardHeaderRail, computeThumbScale, usePretextMeasurer };
+//#region src/react/standard-frame.tsx
+/**
+* `render.beforeEditable` slot — intentionally empty.
+*
+* Standard mode (`mode === 'standard'`) shows NO chrome anywhere: the editor
+* is presented as a continuous flow with no header band, no footer band, no
+* footnote well — exactly as if pagination were disabled.
+*
+* Paged mode (`mode === 'paged'`) renders all chrome inside per-page
+* `PageFrame` components painted by the `afterEditable` slot, so this slot
+* stays empty in both modes. Kept exported so the plugin's render contract
+* can grow without breaking imports.
+*/
+const StandardHeaderRail = () => {
+	usePluginOption(BasePaginationPlugin, "mode");
+	return null;
+};
+/**
+* `render.afterEditable` slot — also empty when the plugin uses its own
+* paged view via `PageOverlay`.
+*
+* The playground / consumer composition is expected to register
+* `PageOverlay` directly on `afterEditable` when it wants the paged view.
+* The plugin keeps this slot empty by default to avoid double-rendering
+* chrome when a host overrides the slot.
+*/
+const StandardFooterAndPanel = () => {
+	usePluginOption(BasePaginationPlugin, "mode");
+	return null;
+};
+
+//#endregion
+export { FooterPlugin, FootnotePortal, HeaderPlugin, MarginsDialog, PageBreakPlugin, PageFrame, PageOverlay, PaginationPlugin, PaginationToolbar, StandardFooterAndPanel, StandardHeaderRail, usePretextMeasurer };
 //# sourceMappingURL=index.js.map

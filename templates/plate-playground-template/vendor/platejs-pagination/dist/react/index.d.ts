@@ -1,12 +1,12 @@
 import { A as Page, D as BasePaginationTransforms, E as BasePaginationOptions, N as PageMargins, j as PageBorder, k as Measurer, w as BasePaginationApi } from "../index-fQ6tvSMT";
-import * as platejs0 from "platejs";
+import * as platejs1 from "platejs";
 import { SlateEditor, TElement } from "platejs";
-import * as platejs_react0 from "platejs/react";
+import * as platejs_react1 from "platejs/react";
 import { PlateEditor } from "platejs/react";
 import * as React from "react";
 
 //#region src/react/footer-plugin.d.ts
-declare const FooterPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"footer", {}, {}, {}, {}>>;
+declare const FooterPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"footer", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/footnote-portal.d.ts
 /**
@@ -30,7 +30,7 @@ declare const FootnotePortal: ({
 }) => React.JSX.Element | null;
 //#endregion
 //#region src/react/header-plugin.d.ts
-declare const HeaderPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"header", {}, {}, {}, {}>>;
+declare const HeaderPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"header", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/margins-dialog.d.ts
 /**
@@ -53,7 +53,7 @@ declare const MarginsDialog: ({
 }) => React.JSX.Element | null;
 //#endregion
 //#region src/react/page-break-plugin.d.ts
-declare const PageBreakPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
+declare const PageBreakPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"pageBreak", {}, {}, {}, {}>>;
 //#endregion
 //#region src/react/page-frame.d.ts
 type PageFrameProps = {
@@ -96,25 +96,24 @@ declare const PageFrame: ({
 //#endregion
 //#region src/react/page-overlay.d.ts
 /**
- * Render-overlay shell mounted via `render.afterEditable`.
+ * Paged view (variant A — full takeover).
  *
- * Variant A — CodeRabbit Design Choice 1: pages are derived at render time
- * and painted as a side-panel preview on top of the live editor. The Slate
- * document is never mutated by this component.
+ * - `mode === 'paged'`: hides the live `<Editable />` via a global
+ *   `data-plate-pagination-mode="paged"` attribute on `<body>` (consumer
+ *   stylesheet uses `body[data-plate-pagination-mode='paged'] [data-slate-editor] { display: none }`)
+ *   and stacks `PageFrame`s vertically. Content inside each frame is
+ *   rendered via `PlateStatic` (read-only) so users see the document laid
+ *   out exactly as it will print.
+ * - `mode === 'standard'`: renders absolutely nothing (besides the
+ *   {@link FootnotePortal} which hides in-flow footnote definitions when
+ *   the option opts in). The editor stays in continuous-flow mode.
  *
- * Visibility is controlled by the plugin option `previewVisible`, toggled
- * via `editor.tf.pagination.togglePreview()`. When hidden the component
- * still mounts (so the toggle stays reactive) but renders nothing.
- *
- * Updates reactively as the document changes via `useEditorValue`.
- *
- * Hydration: the underlying measurer falls back to font-derived heights on
- * SSR which can disagree with client-side layout, so the panel waits for
- * `useEffect` (client-only) before painting. This avoids React #418 hydration
- * mismatches when the page count differs between server and client.
+ * The `afterEditable` slot is the right home for the paged view because
+ * it sits inside the Plate provider (so `usePluginOption`/`useEditorRef`
+ * work) and runs after the Editable mounts, so the global attribute hook
+ * applies before the live editor would otherwise show through.
  */
 declare const PageOverlay: () => React.JSX.Element | null;
-declare const computeThumbScale: (pageWidth: number, panelInnerWidth?: number) => number;
 //#endregion
 //#region src/react/pagination-plugin.d.ts
 /**
@@ -132,7 +131,7 @@ declare const computeThumbScale: (pageWidth: number, panelInnerWidth?: number) =
  *   `footnoteDefinition` blocks (CodeRabbit Design Choice 2). The visible
  *   copy is rendered inside each page's footnote well by `PageFrame`.
  */
-declare const PaginationPlugin: platejs_react0.PlatePlugin<platejs0.PluginConfig<"pagination", BasePaginationOptions, BasePaginationApi, BasePaginationTransforms, {}>>;
+declare const PaginationPlugin: platejs_react1.PlatePlugin<platejs1.PluginConfig<"pagination", BasePaginationOptions, BasePaginationApi, BasePaginationTransforms, {}>>;
 //#endregion
 //#region src/react/pagination-toolbar.d.ts
 /**
@@ -152,21 +151,28 @@ declare const PaginationToolbar: ({
 //#endregion
 //#region src/react/standard-frame.d.ts
 /**
- * Header chrome for `mode: 'standard'` — rendered via `render.beforeEditable`
- * so it sits above the live `<Editable />` without wrapping it.
+ * `render.beforeEditable` slot — intentionally empty.
  *
- * Returns `null` in paged mode (PageOverlay paints chrome inside each frame
- * instead).
+ * Standard mode (`mode === 'standard'`) shows NO chrome anywhere: the editor
+ * is presented as a continuous flow with no header band, no footer band, no
+ * footnote well — exactly as if pagination were disabled.
+ *
+ * Paged mode (`mode === 'paged'`) renders all chrome inside per-page
+ * `PageFrame` components painted by the `afterEditable` slot, so this slot
+ * stays empty in both modes. Kept exported so the plugin's render contract
+ * can grow without breaking imports.
  */
-declare const StandardHeaderRail: () => React.JSX.Element | null;
+declare const StandardHeaderRail: () => null;
 /**
- * `render.afterEditable` slot — owns:
- * - end-of-doc footnote well (standard mode only),
- * - hybrid sticky/anchored footer chrome (standard mode only),
- * - the existing page-thumbnail side panel (paged mode only — delegates
- *   to `PageOverlay`).
+ * `render.afterEditable` slot — also empty when the plugin uses its own
+ * paged view via `PageOverlay`.
+ *
+ * The playground / consumer composition is expected to register
+ * `PageOverlay` directly on `afterEditable` when it wants the paged view.
+ * The plugin keeps this slot empty by default to avoid double-rendering
+ * chrome when a host overrides the slot.
  */
-declare const StandardFooterAndPanel: () => React.JSX.Element | null;
+declare const StandardFooterAndPanel: () => null;
 //#endregion
 //#region src/react/use-pretext-measurer.d.ts
 /**
@@ -185,5 +191,5 @@ declare const StandardFooterAndPanel: () => React.JSX.Element | null;
  */
 declare const usePretextMeasurer: (editor: SlateEditor) => Measurer;
 //#endregion
-export { FooterPlugin, FootnotePortal, HeaderPlugin, MarginsDialog, PageBreakPlugin, PageFrame, PageFrameProps, PageOverlay, PaginationPlugin, PaginationToolbar, StandardFooterAndPanel, StandardHeaderRail, computeThumbScale, usePretextMeasurer };
+export { FooterPlugin, FootnotePortal, HeaderPlugin, MarginsDialog, PageBreakPlugin, PageFrame, PageFrameProps, PageOverlay, PaginationPlugin, PaginationToolbar, StandardFooterAndPanel, StandardHeaderRail, usePretextMeasurer };
 //# sourceMappingURL=index.d.ts.map
