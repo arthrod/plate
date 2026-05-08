@@ -86,6 +86,9 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
         setMargins: (patch) => {
           setOption('margins', { ...getOptions().margins, ...patch });
         },
+        setMode: (mode) => {
+          setOption('mode', mode);
+        },
         setPageBorder: (patch) => {
           setOption('pageBorder', { ...getOptions().pageBorder, ...patch });
         },

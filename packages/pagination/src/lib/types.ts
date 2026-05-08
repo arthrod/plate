@@ -31,6 +31,20 @@ export type PageBorder = {
 export type FootnotePlacement = 'documentEnd' | 'footer';
 
 /**
+ * Visualisation mode.
+ *
+ * - `standard` — continuous-flow editor: header chrome on top, body, optional
+ *   end-of-doc footnote well, hybrid sticky/anchored footer chrome.
+ * - `paged` — paged editor with per-page chrome (header, footer, footnote
+ *   well) painted via the PageOverlay; print mode reuses the same paginate()
+ *   selector to emit real `<section class="page">` elements.
+ *
+ * `@media print` always forces `paged` regardless of the configured mode so
+ * a Standard-mode session prints with proper page breaks.
+ */
+export type PaginationMode = 'paged' | 'standard';
+
+/**
  * Page size resolves to a preset key (`'A4'`, `'Letter'`, `'Legal'`) or a
  * literal `{ width, height }` in CSS pixels. The string-`(string & {})`
  * branch is reserved for future registry-based presets.
@@ -112,6 +126,11 @@ export type BasePaginationOptions = {
   includeFootnoteSubPlugins?: boolean;
   /** Page margin box. */
   margins: PageMargins;
+  /**
+   * Visualisation mode. Defaults to `standard` (continuous flow); flip to
+   * `paged` to render the editor with per-page chrome.
+   */
+  mode: PaginationMode;
   /** Page sheet border styling. */
   pageBorder: PageBorder;
   /** Resolved page size — preset key or literal `{ width, height }` in CSS pixels. */
@@ -153,6 +172,8 @@ export type BasePaginationTransforms = {
     setMargins: (patch: Partial<PageMargins>) => void;
     /** Patch the rendered page sheet border. */
     setPageBorder: (patch: Partial<PageBorder>) => void;
+    /** Switch between continuous-flow and paged visualisations. */
+    setMode: (mode: PaginationMode) => void;
     /** Replace the resolved page size (preset key or `{width,height}`). */
     setPageSize: (size: PageSize) => void;
     /** Resize the page preview side panel. */

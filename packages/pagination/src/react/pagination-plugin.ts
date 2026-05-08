@@ -12,7 +12,7 @@ import {
 import { FooterPlugin } from './footer-plugin';
 import { HeaderPlugin } from './header-plugin';
 import { PageBreakPlugin } from './page-break-plugin';
-import { PageOverlay } from './page-overlay';
+import { StandardFooterAndPanel, StandardHeaderRail } from './standard-frame';
 
 const FOOTNOTE_SUB_PLUGINS = [
   FootnoteDefinitionPlugin,
@@ -47,6 +47,7 @@ export const PaginationPlugin = toTPlatePlugin<BasePaginationConfig>(
       : FOOTNOTE_SUB_PLUGINS),
   ],
   render: {
-    afterEditable: PageOverlay,
+    afterEditable: StandardFooterAndPanel,
+    beforeEditable: StandardHeaderRail,
   },
 }));

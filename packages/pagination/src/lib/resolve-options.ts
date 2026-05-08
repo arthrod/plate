@@ -19,6 +19,7 @@ export const PAGINATION_OPTION_DEFAULTS: BasePaginationOptions = {
     right: 72,
     top: 72,
   },
+  mode: 'standard',
   pageSize: 'A4',
   pageBorder: {
     color: 'rgba(15,23,42,0.15)',
@@ -51,6 +52,7 @@ export const resolvePaginationOptions = (
       p.includeFootnoteSubPlugins ??
       PAGINATION_OPTION_DEFAULTS.includeFootnoteSubPlugins,
     margins: p.margins ?? PAGINATION_OPTION_DEFAULTS.margins,
+    mode: p.mode ?? PAGINATION_OPTION_DEFAULTS.mode,
     pageBorder: p.pageBorder ?? PAGINATION_OPTION_DEFAULTS.pageBorder,
     pageSize: p.pageSize ?? PAGINATION_OPTION_DEFAULTS.pageSize,
     previewWidth: p.previewWidth ?? PAGINATION_OPTION_DEFAULTS.previewWidth,
