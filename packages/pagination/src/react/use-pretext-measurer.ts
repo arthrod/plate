@@ -1,8 +1,13 @@
 import { useMemo } from 'react';
 
-import type { TElement } from 'platejs';
+import type { SlateEditor, TElement } from 'platejs';
 
-import { KEYS } from 'platejs';
+import { layout, prepare } from '@chenglou/pretext';
+import {
+  type RichInlineItem,
+  measureRichInlineStats,
+  prepareRichInline,
+} from '@chenglou/pretext/rich-inline';
 
 import type { Measurer, PageContext } from '../lib/types';
 
@@ -12,264 +17,282 @@ import {
   hashString,
 } from '../lib/internal/measure-cache';
 
-const FONT_SIZE_RE =
-  /(\d+(?:\.\d+)?)(px|pt)(?:\/((?:\d+(?:\.\d+)?(?:px|pt)?)|(?:\d+(?:\.\d+)?)))?/;
-const PX_SUFFIX_RE = /px$/;
-const PT_SUFFIX_RE = /pt$/;
-const FONT_SIZE_UNIT_RE = /(\d+(?:\.\d+)?)(px|pt)/;
-const WHITESPACE_RE = /\s+/;
+const FALLBACK_FONT_SIZE_PX = 16;
+const FALLBACK_LINE_HEIGHT_PX = 24;
+const FALLBACK_FONT = `400 ${FALLBACK_FONT_SIZE_PX}px "Inter"`;
+
+const SYSTEM_UI_FAMILY_RE =
+  /\b(system-ui|-apple-system|BlinkMacSystemFont|"Segoe UI"|Segoe UI)\b/i;
+const FONT_WEIGHT_TOKEN_RE = /\b([1-9]00|normal|bold)\b/;
+const FONT_STYLE_TOKEN_RE = /\b(normal|italic|oblique)\b/;
 
 /**
- * Returns a {@link Measurer} backed by a canvas-based text-width oracle plus
- * the per-instance {@link MeasureCache}.
+ * Returns a {@link Measurer} backed by `@chenglou/pretext` and a per-instance
+ * height cache.
  *
- * Cache key matches CodeRabbit Design Choice 3:
- * `(node.id, marks-fingerprint, font, width)`. The hook owns the cache so
- * measured heights survive React re-renders. The cache resets when the
- * editor instance changes (the hook receives a new `editorId` per editor).
+ * For each block the measurer scrapes the rendered DOM element via
+ * `editor.api.toDOMNode(node)` and reads `getComputedStyle(...).font`. The
+ * `system-ui` family is rewritten to `Inter` because pretext's accuracy
+ * tables cover named families only. Mixed-mark blocks fall through to
+ * `prepareRichInline()` so per-run font weights/styles measure correctly.
  *
- * The interface mirrors the future `@chenglou/pretext`-backed measurer; only
- * the internals change when pretext is wired in. Until then, this DOM-based
- * estimator is more than accurate enough for paginating typical prose.
+ * Cache key is `(node.id, marksFingerprint, font, width, contentHash)`. The
+ * `contentHash` invalidates the entry when text changes without the
+ * `node.id` rotating (Slate mutates `children` in place).
  */
-export const usePretextMeasurer = (editorId?: string): Measurer =>
+export const usePretextMeasurer = (editor: SlateEditor): Measurer =>
   useMemo<Measurer>(() => {
     const cache: MeasureCache = createMeasureCache();
-    const ctx2d = createCanvasContext();
-
-    void editorId;
 
     return {
       measure: (node: TElement, ctx: PageContext): number => {
+        const metrics = scrapeBlockMetrics(editor, node, ctx.font);
         const nodeId =
           (node as TElement & { id?: string | number }).id?.toString() ??
           fallbackNodeId(node);
-        const contentHash = hashString(
-          `${node.type ?? ''}|${collectPlainText(node)}`
-        );
+        const text = collectPlainText(node);
+        const contentHash = hashString(`${node.type ?? ''}|${text}`);
 
-        const key = {
+        const cacheKey = {
           contentHash,
-          font: ctx.font,
+          font: metrics.font,
           marksFingerprint: ctx.marksFingerprint,
           nodeId,
           width: ctx.width,
         };
 
-        const cached = cache.get(key);
+        const cached = cache.get(cacheKey);
         if (cached !== undefined) return cached;
 
-        const height = estimateBlockHeight(node, ctx, ctx2d);
+        const total =
+          measureBlockHeight(node, text, metrics, ctx.width) +
+          blockSpacingPx(node.type, metrics.sizePx);
 
-        cache.set(key, height);
+        cache.set(cacheKey, total);
 
-        return height;
+        return total;
       },
     };
-  }, [editorId]);
+  }, [editor]);
 
-const createCanvasContext = (): CanvasRenderingContext2D | null => {
-  if (typeof document === 'undefined') return null;
+type BlockMetrics = {
+  font: string;
+  lineHeightPx: number;
+  sizePx: number;
+};
 
-  const canvas = document.createElement('canvas');
+const measureBlockHeight = (
+  node: TElement,
+  text: string,
+  metrics: BlockMetrics,
+  width: number
+): number => {
+  if (text.length === 0) {
+    return metrics.lineHeightPx;
+  }
 
-  return canvas.getContext('2d');
+  if (hasMixedMarks(node)) {
+    const items: RichInlineItem[] = collectLeaves(node).map((leaf) => ({
+      font: applyLeafMarks(metrics.font, leaf.marks),
+      text: leaf.text,
+    }));
+    const prepared = prepareRichInline(items);
+    const stats = measureRichInlineStats(prepared, width);
+
+    return Math.max(1, stats.lineCount) * metrics.lineHeightPx;
+  }
+
+  const prepared = prepare(text, metrics.font);
+  const result = layout(prepared, width, metrics.lineHeightPx);
+
+  return result.height;
+};
+
+const scrapeBlockMetrics = (
+  editor: SlateEditor,
+  node: TElement,
+  fallbackFont: string
+): BlockMetrics => {
+  if (typeof window === 'undefined') return fallbackMetrics(fallbackFont);
+
+  try {
+    const dom = editor.api.toDOMNode(node);
+
+    if (!(dom instanceof HTMLElement)) return fallbackMetrics(fallbackFont);
+
+    return readComputedFont(window.getComputedStyle(dom));
+  } catch {
+    return fallbackMetrics(fallbackFont);
+  }
+};
+
+const fallbackMetrics = (fallbackFont: string): BlockMetrics => ({
+  font: fallbackFont || FALLBACK_FONT,
+  lineHeightPx: FALLBACK_LINE_HEIGHT_PX,
+  sizePx: FALLBACK_FONT_SIZE_PX,
+});
+
+const readComputedFont = (cs: CSSStyleDeclaration): BlockMetrics => {
+  const sizePx = Number.parseFloat(cs.fontSize) || FALLBACK_FONT_SIZE_PX;
+
+  let lineHeightPx: number;
+
+  if (!cs.lineHeight || cs.lineHeight === 'normal') {
+    lineHeightPx = sizePx * 1.5;
+  } else {
+    const parsed = Number.parseFloat(cs.lineHeight);
+    lineHeightPx = Number.isFinite(parsed) ? parsed : sizePx * 1.5;
+  }
+
+  const family = snapSystemUi(cs.fontFamily || '"Inter"');
+  const weight = cs.fontWeight || '400';
+  const style = cs.fontStyle || 'normal';
+  const stylePart = style === 'normal' ? '' : `${style} `;
+  const font = `${stylePart}${weight} ${roundPx(sizePx)}px ${family}`;
+
+  return { font, lineHeightPx, sizePx };
+};
+
+const snapSystemUi = (family: string): string =>
+  SYSTEM_UI_FAMILY_RE.test(family)
+    ? family.replace(SYSTEM_UI_FAMILY_RE, '"Inter"')
+    : family;
+
+const roundPx = (n: number): number => Math.round(n * 100) / 100;
+
+type LeafSnapshot = {
+  marks: Record<string, unknown>;
+  text: string;
+};
+
+const collectLeaves = (node: TElement): LeafSnapshot[] => {
+  const out: LeafSnapshot[] = [];
+
+  const walk = (n: unknown): void => {
+    if (n === null || typeof n !== 'object') return;
+
+    const obj = n as Record<string, unknown>;
+
+    if (typeof obj.text === 'string') {
+      const { text, ...marks } = obj as Record<string, unknown> & {
+        text: string;
+      };
+
+      out.push({ marks, text });
+
+      return;
+    }
+
+    const children = obj.children;
+    if (!Array.isArray(children)) return;
+
+    for (const child of children) walk(child);
+  };
+
+  walk(node);
+
+  return out;
+};
+
+const collectPlainText = (node: TElement): string => {
+  let out = '';
+
+  for (const leaf of collectLeaves(node)) out += leaf.text;
+
+  return out;
+};
+
+const hasMixedMarks = (node: TElement): boolean => {
+  const leaves = collectLeaves(node);
+  if (leaves.length <= 1) return false;
+
+  const first = serializeMarks(leaves[0]!.marks);
+
+  for (let i = 1; i < leaves.length; i++) {
+    if (serializeMarks(leaves[i]!.marks) !== first) return true;
+  }
+
+  return false;
+};
+
+const serializeMarks = (marks: Record<string, unknown>): string => {
+  const keys = Object.keys(marks).sort();
+  if (keys.length === 0) return '';
+
+  return keys.map((k) => `${k}=${formatMark(marks[k])}`).join(',');
+};
+
+const formatMark = (value: unknown): string => {
+  if (value === true) return '1';
+  if (value === false) return '0';
+  if (value == null) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+
+  return String(value);
+};
+
+const applyLeafMarks = (
+  baseFont: string,
+  marks: Record<string, unknown>
+): string => {
+  let font = baseFont;
+
+  if (marks.bold === true) {
+    font = FONT_WEIGHT_TOKEN_RE.test(font)
+      ? font.replace(FONT_WEIGHT_TOKEN_RE, '700')
+      : `700 ${font}`;
+  }
+  if (marks.italic === true) {
+    font = FONT_STYLE_TOKEN_RE.test(font)
+      ? font.replace(FONT_STYLE_TOKEN_RE, 'italic')
+      : `italic ${font}`;
+  }
+
+  return font;
 };
 
 const fallbackNodeId = (node: TElement): string => {
-  // Hash the leading 64 chars of plain text — stable enough for the cache
-  // when nodes lack an id (Plate editors typically assign one).
-  let text = '';
+  let acc = '';
 
-  walkText(node, (t) => {
-    text += t;
-    if (text.length > 64) return false;
+  const walk = (n: unknown): boolean => {
+    if (n === null || typeof n !== 'object') return true;
+
+    const obj = n as Record<string, unknown>;
+
+    if (typeof obj.text === 'string') {
+      acc += obj.text;
+
+      return acc.length < 64;
+    }
+
+    const children = obj.children;
+    if (!Array.isArray(children)) return true;
+
+    for (const child of children) {
+      if (!walk(child)) return false;
+    }
 
     return true;
-  });
+  };
 
-  return `t:${text.slice(0, 64)}`;
+  walk(node);
+
+  return `t:${acc.slice(0, 64)}`;
 };
 
-const walkText = (
-  node: { children?: unknown[]; text?: string },
-  visit: (text: string) => boolean
-): boolean => {
-  if (typeof node.text === 'string') {
-    return visit(node.text);
-  }
-  if (!Array.isArray(node.children)) return true;
-  for (const child of node.children) {
-    const cont = walkText(
-      child as { children?: unknown[]; text?: string },
-      visit
-    );
+const HEADING_SPACING_FACTOR = 1.2;
+const QUOTE_OR_CODE_SPACING_FACTOR = 1;
+const BODY_SPACING_FACTOR = 0.5;
 
-    if (!cont) return false;
-  }
+const HEADING_TYPES = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+const QUOTE_OR_CODE_TYPES = new Set(['blockquote', 'code_block']);
 
-  return true;
-};
-
-const estimateBlockHeight = (
-  node: TElement,
-  ctx: PageContext,
-  canvas: CanvasRenderingContext2D | null
-): number => {
-  const { fontSizePx, lineHeightPx } = parseFont(ctx.font);
-
-  // Resolve a per-block-type baseline scale. Headings render larger than
-  // body text; void images/embeds get a fixed estimate. The marksFingerprint
-  // already captures bold/italic so we don't multiply for those.
-  const scale = blockScale(node.type);
-  const headingPx =
-    scale === 1 ? 0 : Math.max(0, scale * fontSizePx - fontSizePx);
-  const blockSpacingPx = blockSpacing(node.type, fontSizePx);
-
-  const text = collectPlainText(node);
-  if (text.length === 0) {
-    return Math.max(lineHeightPx, scale * lineHeightPx) + blockSpacingPx;
-  }
-
-  const linesEstimate = canvas
-    ? estimateLineCountFromCanvas(text, canvas, ctx, scale)
-    : estimateLineCountFallback(text, ctx.width, fontSizePx * scale);
-
-  const lineHeight = scale === 1 ? lineHeightPx : scale * lineHeightPx;
-
-  return linesEstimate * lineHeight + headingPx + blockSpacingPx;
-};
-
-const estimateLineCountFromCanvas = (
-  text: string,
-  canvas: CanvasRenderingContext2D,
-  ctx: PageContext,
-  scale: number
-): number => {
-  // Set the font on the canvas. The PageContext.font already has the
-  // base body font; we scale up for headings via a font-size override.
-  canvas.font = scale === 1 ? ctx.font : scaleFont(ctx.font, scale);
-
-  const words = text.split(WHITESPACE_RE).filter(Boolean);
-  if (words.length === 0) return 1;
-
-  const spaceWidth = canvas.measureText(' ').width;
-  let lineWidth = 0;
-  let lines = 1;
-
-  for (const word of words) {
-    const wordWidth = canvas.measureText(word).width;
-
-    if (lineWidth === 0) {
-      lineWidth = wordWidth;
-      continue;
-    }
-    if (lineWidth + spaceWidth + wordWidth > ctx.width) {
-      lines += 1;
-      lineWidth = wordWidth;
-    } else {
-      lineWidth += spaceWidth + wordWidth;
-    }
-  }
-
-  return lines;
-};
-
-const estimateLineCountFallback = (
-  text: string,
-  width: number,
-  fontSizePx: number
-): number => {
-  const charsPerLine = Math.max(1, Math.floor(width / (fontSizePx * 0.5)));
-
-  return Math.max(1, Math.ceil(text.length / charsPerLine));
-};
-
-const HEADING_KEYS_LARGE: readonly string[] = [KEYS.h1];
-const HEADING_KEYS_MEDIUM: readonly string[] = [KEYS.h2];
-const HEADING_KEYS_SMALL: readonly string[] = [KEYS.h3];
-const HEADING_KEYS_TINY: readonly string[] = [KEYS.h4, KEYS.h5, KEYS.h6];
-const HEADING_KEYS_ALL: readonly string[] = [
-  ...HEADING_KEYS_LARGE,
-  ...HEADING_KEYS_MEDIUM,
-  ...HEADING_KEYS_SMALL,
-  ...HEADING_KEYS_TINY,
-];
-const QUOTE_OR_CODE_KEYS: readonly string[] = [KEYS.blockquote, KEYS.codeBlock];
-
-const blockScale = (type: string | undefined): number => {
-  if (type === undefined) return 1;
-  if (HEADING_KEYS_LARGE.includes(type)) return 2;
-  if (HEADING_KEYS_MEDIUM.includes(type)) return 1.5;
-  if (HEADING_KEYS_SMALL.includes(type)) return 1.25;
-  if (HEADING_KEYS_TINY.includes(type)) return 1.1;
-
-  return 1;
-};
-
-const blockSpacing = (type: string | undefined, fontSizePx: number): number => {
-  // Margin-top + margin-bottom approximation per block type.
+const blockSpacingPx = (type: string | undefined, sizePx: number): number => {
   if (type !== undefined) {
-    if (HEADING_KEYS_ALL.includes(type)) return fontSizePx * 1.2;
-    if (QUOTE_OR_CODE_KEYS.includes(type)) return fontSizePx;
+    if (HEADING_TYPES.has(type)) return sizePx * HEADING_SPACING_FACTOR;
+    if (QUOTE_OR_CODE_TYPES.has(type))
+      return sizePx * QUOTE_OR_CODE_SPACING_FACTOR;
   }
 
-  return fontSizePx * 0.5;
-};
-
-const parseFont = (
-  font: string
-): {
-  fontSizePx: number;
-  lineHeightPx: number;
-} => {
-  // Tolerant parser — pulls the first `<n>px` (or `<n>pt`) it finds for size,
-  // and an optional `/lineHeight` immediately after.
-  const sizeMatch = font.match(FONT_SIZE_RE);
-
-  if (!sizeMatch) {
-    return { fontSizePx: 16, lineHeightPx: 24 };
-  }
-
-  const fontSizePx =
-    sizeMatch[2] === 'pt'
-      ? Number.parseFloat(sizeMatch[1]) * (96 / 72)
-      : Number.parseFloat(sizeMatch[1]);
-
-  const lhRaw = sizeMatch[3];
-  let lineHeightPx = fontSizePx * 1.5;
-
-  if (lhRaw) {
-    if (PX_SUFFIX_RE.test(lhRaw)) {
-      lineHeightPx = Number.parseFloat(lhRaw);
-    } else if (PT_SUFFIX_RE.test(lhRaw)) {
-      lineHeightPx = Number.parseFloat(lhRaw) * (96 / 72);
-    } else {
-      lineHeightPx = Number.parseFloat(lhRaw) * fontSizePx;
-    }
-  }
-
-  return { fontSizePx, lineHeightPx };
-};
-
-const scaleFont = (font: string, scale: number): string =>
-  font.replace(
-    FONT_SIZE_UNIT_RE,
-    (_m, n, unit) =>
-      `${Math.round(Number.parseFloat(n) * scale * 100) / 100}${unit}`
-  );
-
-const collectPlainText = (node: TElement): string => {
-  // Concatenate leaf text exactly — adjacent formatted leaves form one
-  // word in the rendered DOM, so inserting an artificial space between
-  // them would over-count line breaks during measurement.
-  let out = '';
-
-  walkText(node, (t) => {
-    out += t;
-
-    return true;
-  });
-
-  return out;
+  return sizePx * BODY_SPACING_FACTOR;
 };
