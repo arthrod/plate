@@ -1,0 +1,3 @@
+## 2025-04-07 - Add dynamically labeled sr-only span to icon-only toggle buttons
+**Learning:** For icon-only buttons that toggle state (like expanding/collapsing sections in `ToggleElement`), dynamically changing an `sr-only` span's content (e.g., "Collapse" vs "Expand") based on state provides richer, more contextual feedback to screen readers compared to a static generic `aria-label` like "Toggle".
+**Action:** Always prefer `sr-only` span elements over `aria-label` attributes for icon-only buttons for better translation support, and dynamically update the visually hidden text to reflect the action the button will perform in its current state.
