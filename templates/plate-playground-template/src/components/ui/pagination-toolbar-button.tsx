@@ -1,7 +1,8 @@
 'use client';
 
 import { BasePaginationPlugin } from '@platejs/pagination';
-import { LayoutTemplateIcon } from 'lucide-react';
+import { PageSetupDialog } from '@platejs/pagination/react';
+import { LayoutTemplateIcon, SettingsIcon } from 'lucide-react';
 import {
   useEditorRef,
   useEditorValue,
@@ -14,6 +15,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -78,6 +80,7 @@ const resolveSizeKey = (
 export function PaginationToolbarButton() {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
+  const [setupOpen, setSetupOpen] = React.useState(false);
 
   const mode = usePluginOption(BasePaginationPlugin, 'mode') as
     | PaginationOptions['mode']
@@ -116,7 +119,8 @@ export function PaginationToolbarButton() {
   }
 
   return (
-    <DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
+    <>
+      <DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton
           data-plate-prevent-overlay
@@ -129,6 +133,10 @@ export function PaginationToolbarButton() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>Display</DropdownMenuLabel>
+        <DropdownMenuItem onSelect={() => setSetupOpen(true)}>
+          <SettingsIcon />
+          Page Setup…
+        </DropdownMenuItem>
         <DropdownMenuCheckboxItem
           checked={mode === 'paged'}
           onCheckedChange={(next) =>
@@ -182,5 +190,10 @@ export function PaginationToolbarButton() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+    <PageSetupDialog
+      onClose={() => setSetupOpen(false)}
+      open={setupOpen}
+    />
+    </>
   );
 }

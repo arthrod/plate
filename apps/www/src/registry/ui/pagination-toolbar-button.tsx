@@ -7,13 +7,16 @@ import {
   type FootnotePlacement,
   type PageBorder,
   type PageMargins,
+  type PageNumberConfig,
   type PageSize,
 } from '@platejs/pagination';
+import { PageSetupDialog } from '@platejs/pagination/react';
 import {
   FileStackIcon,
   LayoutTemplateIcon,
   PanelRightIcon,
   ScissorsIcon,
+  SettingsIcon,
 } from 'lucide-react';
 import { useEditorRef, useEditorValue, usePluginOption } from 'platejs/react';
 import { toast } from 'sonner';
@@ -34,9 +37,13 @@ import { ToolbarButton } from './toolbar';
 
 type PaginationTransforms = {
   insertPageBreak: () => void;
+  setFirstPageDifferent: (next: boolean) => void;
+  setFooterHeight: (px: number) => void;
   setFootnotePlacement: (placement: FootnotePlacement) => void;
+  setHeaderHeight: (px: number) => void;
   setMargins: (margins: Partial<PageMargins>) => void;
   setPageBorder: (border: Partial<PageBorder>) => void;
+  setPageNumber: (patch: Partial<PageNumberConfig>) => void;
   setPageSize: (size: PageSize) => void;
   toggleFooter: () => boolean;
   toggleHeader: () => boolean;
@@ -128,6 +135,7 @@ const resolveBorderKey = (border: PageBorder | undefined): string => {
 export function PaginationToolbarButton() {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
+  const [setupOpen, setSetupOpen] = React.useState(false);
   const value = useEditorValue();
   const previewVisible = usePluginOption(
     BasePaginationPlugin,
@@ -162,110 +170,121 @@ export function PaginationToolbarButton() {
   }
 
   return (
-    <DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
-      <DropdownMenuTrigger asChild>
-        <ToolbarButton
-          data-plate-prevent-overlay
-          isDropdown
-          pressed={!!previewVisible}
-          tooltip="Pagination"
-        >
-          <LayoutTemplateIcon />
-        </ToolbarButton>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel>Pages</DropdownMenuLabel>
-        <DropdownMenuItem
-          onSelect={() => {
-            tf.insertPageBreak();
-            editor.tf.focus();
-          }}
-        >
-          <ScissorsIcon />
-          Split section
-        </DropdownMenuItem>
-        <DropdownMenuCheckboxItem
-          checked={!!previewVisible}
-          onCheckedChange={() => tf.togglePreview()}
-        >
-          <PanelRightIcon />
-          Page preview
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={headerPresent}
-          onCheckedChange={() => tf.toggleHeader()}
-        >
-          Header
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={footerPresent}
-          onCheckedChange={() => tf.toggleFooter()}
-        >
-          Footer
-        </DropdownMenuCheckboxItem>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuLabel>Page size</DropdownMenuLabel>
-        <DropdownMenuRadioGroup
-          onValueChange={(next) => tf.setPageSize(next as PageSize)}
-          value={resolveSizeKey(pageSize)}
-        >
-          <DropdownMenuRadioItem value="A4">A4</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="Letter">Letter</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="Legal">Legal</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuLabel>Margins</DropdownMenuLabel>
-        {MARGIN_PRESETS.map(({ label, value }) => (
-          <DropdownMenuCheckboxItem
-            checked={marginsEqual(margins, value)}
-            key={label}
-            onCheckedChange={() => tf.setMargins(value)}
+    <>
+      <DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
+        <DropdownMenuTrigger asChild>
+          <ToolbarButton
+            data-plate-prevent-overlay
+            isDropdown
+            pressed={!!previewVisible}
+            tooltip="Pagination"
           >
-            {label}
+            <LayoutTemplateIcon />
+          </ToolbarButton>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-64">
+          <DropdownMenuLabel>Pages</DropdownMenuLabel>
+          <DropdownMenuItem
+            onSelect={() => {
+              setSetupOpen(true);
+            }}
+          >
+            <SettingsIcon />
+            Page Setup…
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              tf.insertPageBreak();
+              editor.tf.focus();
+            }}
+          >
+            <ScissorsIcon />
+            Split section
+          </DropdownMenuItem>
+          <DropdownMenuCheckboxItem
+            checked={!!previewVisible}
+            onCheckedChange={() => tf.togglePreview()}
+          >
+            <PanelRightIcon />
+            Page preview
           </DropdownMenuCheckboxItem>
-        ))}
+          <DropdownMenuCheckboxItem
+            checked={headerPresent}
+            onCheckedChange={() => tf.toggleHeader()}
+          >
+            Header
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem
+            checked={footerPresent}
+            onCheckedChange={() => tf.toggleFooter()}
+          >
+            Footer
+          </DropdownMenuCheckboxItem>
 
-        <DropdownMenuSeparator />
+          <DropdownMenuSeparator />
 
-        <DropdownMenuLabel>Border</DropdownMenuLabel>
-        <DropdownMenuRadioGroup
-          onValueChange={(label) => {
-            const preset = BORDER_PRESETS.find((p) => p.label === label);
+          <DropdownMenuLabel>Page size</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            onValueChange={(next) => tf.setPageSize(next as PageSize)}
+            value={resolveSizeKey(pageSize)}
+          >
+            <DropdownMenuRadioItem value="A4">A4</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="Letter">Letter</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="Legal">Legal</DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
 
-            if (preset) tf.setPageBorder(preset.value);
-          }}
-          value={resolveBorderKey(pageBorder)}
-        >
-          {BORDER_PRESETS.map(({ label }) => (
-            <DropdownMenuRadioItem key={label} value={label}>
+          <DropdownMenuSeparator />
+
+          <DropdownMenuLabel>Margins</DropdownMenuLabel>
+          {MARGIN_PRESETS.map(({ label, value }) => (
+            <DropdownMenuCheckboxItem
+              checked={marginsEqual(margins, value)}
+              key={label}
+              onCheckedChange={() => tf.setMargins(value)}
+            >
               {label}
-            </DropdownMenuRadioItem>
+            </DropdownMenuCheckboxItem>
           ))}
-        </DropdownMenuRadioGroup>
 
-        <DropdownMenuSeparator />
+          <DropdownMenuSeparator />
 
-        <DropdownMenuLabel>Footnotes</DropdownMenuLabel>
-        <DropdownMenuRadioGroup
-          onValueChange={(next) =>
-            tf.setFootnotePlacement(next as FootnotePlacement)
-          }
-          value={footnotePlacement ?? 'footer'}
-        >
-          <DropdownMenuRadioItem value="footer">
-            <FileStackIcon />
-            Page footer
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="documentEnd">
-            End of document
-          </DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuLabel>Border</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            onValueChange={(label) => {
+              const preset = BORDER_PRESETS.find((p) => p.label === label);
+
+              if (preset) tf.setPageBorder(preset.value);
+            }}
+            value={resolveBorderKey(pageBorder)}
+          >
+            {BORDER_PRESETS.map(({ label }) => (
+              <DropdownMenuRadioItem key={label} value={label}>
+                {label}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuLabel>Footnotes</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            onValueChange={(next) =>
+              tf.setFootnotePlacement(next as FootnotePlacement)
+            }
+            value={footnotePlacement ?? 'footer'}
+          >
+            <DropdownMenuRadioItem value="footer">
+              <FileStackIcon />
+              Page footer
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="documentEnd">
+              End of document
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <PageSetupDialog onClose={() => setSetupOpen(false)} open={setupOpen} />
+    </>
   );
 }
