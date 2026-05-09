@@ -1,25 +1,34 @@
 import type { TElement } from 'platejs';
 
-import type { Page } from './types';
+import type { FootnotePlacement, Page } from './types';
 
 import { FOOTNOTE_REFERENCE_KEY } from './internal/keys';
 
 /**
- * Greedy assignment of footnote definitions to per-page footer wells.
+ * Assign footnote definitions to per-page footer wells (`'footer'`) or
+ * pile every definition onto the last page (`'documentEnd'`).
  *
- * Walks each page's blocks, collects every inline `footnoteReference` by its
- * `identifier` field, then attaches the matching definition (looked up in
- * the document-level definition list) to that page. Definitions referenced
- * on multiple pages attach to the first page that references them.
+ * - `'footer'` (default): greedy first-reference pass; a footnote referenced
+ *   on multiple pages attaches to the first page that references it.
+ * - `'documentEnd'`: every definition lands in the last page's `footnotes`
+ *   array, regardless of which page references it.
  *
- * Returns a new array of {@link Page} objects with `footnotes` populated.
- * The original `pages` argument is not mutated.
+ * Returns a new `Page[]`; the input is not mutated.
  */
 export const allocateFootnotes = (
   pages: Page[],
-  footnotes: TElement[]
+  footnotes: TElement[],
+  placement: FootnotePlacement = 'footer'
 ): Page[] => {
   if (footnotes.length === 0) return pages;
+
+  if (placement === 'documentEnd') {
+    if (pages.length === 0) return pages;
+
+    return pages.map((page, i) =>
+      i === pages.length - 1 ? { ...page, footnotes: [...footnotes] } : page
+    );
+  }
 
   const byId = new Map<string, TElement>();
   for (const def of footnotes) {

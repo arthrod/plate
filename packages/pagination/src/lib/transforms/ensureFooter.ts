@@ -11,7 +11,7 @@ export const ensureFooter = (editor: SlateEditor): void => {
 
   editor.tf.insertNodes(
     {
-      children: [{ text: 'Footer' }],
+      children: [{ text: '' }],
       type: footerType,
     } as TElement,
     { at: [editor.children.length] }

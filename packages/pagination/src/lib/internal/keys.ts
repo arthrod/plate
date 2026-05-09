@@ -8,5 +8,7 @@ export const PAGINATION_KEY = 'pagination';
 export const PAGE_BREAK_KEY = 'pageBreak';
 export const HEADER_KEY = 'header';
 export const FOOTER_KEY = 'footer';
+export const FIRST_PAGE_HEADER_KEY = 'firstPageHeader';
+export const FIRST_PAGE_FOOTER_KEY = 'firstPageFooter';
 export const FOOTNOTE_REFERENCE_KEY = 'footnoteReference';
 export const FOOTNOTE_DEFINITION_KEY = 'footnoteDefinition';

@@ -18,7 +18,7 @@ export const ensureHeader = (editor: SlateEditor): void => {
 
   editor.tf.insertNodes(
     {
-      children: [{ text: 'Header' }],
+      children: [{ text: '' }],
       type: headerType,
     } as TElement,
     { at: [0] }

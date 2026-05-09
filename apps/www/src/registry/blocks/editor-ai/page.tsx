@@ -1,4 +1,3 @@
-/* eslint-disable react-compiler/react-compiler */
 'use client';
 
 import dynamic from 'next/dynamic';

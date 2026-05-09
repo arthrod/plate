@@ -3,6 +3,8 @@
  */
 
 export * from './allocate-footnotes';
+export * from './base-first-page-footer-plugin';
+export * from './base-first-page-header-plugin';
 export * from './base-footer-plugin';
 export * from './base-header-plugin';
 export * from './base-page-break-plugin';

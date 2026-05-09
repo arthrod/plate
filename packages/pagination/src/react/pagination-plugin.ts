@@ -10,6 +10,8 @@ import {
   BasePaginationPlugin,
   type BasePaginationConfig,
 } from '../lib/base-pagination-plugin';
+import { FirstPageFooterPlugin } from './first-page-footer-plugin';
+import { FirstPageHeaderPlugin } from './first-page-header-plugin';
 import { FooterPlugin } from './footer-plugin';
 import { HeaderPlugin } from './header-plugin';
 import { PageBreakPlugin } from './page-break-plugin';
@@ -42,6 +44,8 @@ export const PaginationPlugin = toTPlatePlugin<BasePaginationConfig>(
   plugins: [
     HeaderPlugin,
     FooterPlugin,
+    FirstPageHeaderPlugin,
+    FirstPageFooterPlugin,
     PageBreakPlugin,
     ...(getOptions().includeFootnoteSubPlugins === false
       ? []

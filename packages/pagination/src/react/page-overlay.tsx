@@ -9,6 +9,8 @@ import {
   BasePaginationPlugin,
 } from '../lib/base-pagination-plugin';
 import {
+  FIRST_PAGE_FOOTER_KEY,
+  FIRST_PAGE_HEADER_KEY,
   FOOTER_KEY,
   FOOTNOTE_DEFINITION_KEY,
   HEADER_KEY,
@@ -17,6 +19,7 @@ import { resolvePaginationOptions } from '../lib/resolve-options';
 import { FootnotePortal } from './footnote-portal';
 import { usePageLayout } from './internal/use-page-layout';
 import { PageFrame } from './page-frame';
+import { PageSetupDialog } from './page-setup-dialog';
 
 const PAGE_GAP = 24;
 const MAX_PAGES_RENDERED = 12;
@@ -43,6 +46,7 @@ const MAX_PAGES_RENDERED = 12;
  */
 export const PageOverlay = (): React.JSX.Element | null => {
   const [mounted, setMounted] = React.useState(false);
+  const [setupOpen, setSetupOpen] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
@@ -64,6 +68,11 @@ export const PageOverlay = (): React.JSX.Element | null => {
   }
   const pageSize = usePluginOption(BasePaginationPlugin, 'pageSize');
   const pageBorder = usePluginOption(BasePaginationPlugin, 'pageBorder');
+  const pageNumber = usePluginOption(BasePaginationPlugin, 'pageNumber');
+  const firstPageDifferent = usePluginOption(
+    BasePaginationPlugin,
+    'firstPageDifferent'
+  );
   const margins = usePluginOption(BasePaginationPlugin, 'margins');
   const footerHeight = usePluginOption(BasePaginationPlugin, 'footerHeight');
   const footnotePlacement = usePluginOption(
@@ -86,6 +95,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
   const safeOptions = React.useMemo<BasePaginationConfig['options']>(
     () =>
       resolvePaginationOptions({
+        firstPageDifferent,
         footerHeight,
         footnotePlacement,
         footnoteWell,
@@ -94,11 +104,13 @@ export const PageOverlay = (): React.JSX.Element | null => {
         margins,
         mode,
         pageBorder,
+        pageNumber,
         pageSize,
         previewVisible,
         previewWidth,
       }),
     [
+      firstPageDifferent,
       footerHeight,
       footnotePlacement,
       footnoteWell,
@@ -107,6 +119,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
       margins,
       mode,
       pageBorder,
+      pageNumber,
       pageSize,
       previewVisible,
       previewWidth,
@@ -146,11 +159,19 @@ export const PageOverlay = (): React.JSX.Element | null => {
 
   const headerType = editor.getType(HEADER_KEY);
   const footerType = editor.getType(FOOTER_KEY);
+  const firstPageHeaderType = editor.getType(FIRST_PAGE_HEADER_KEY);
+  const firstPageFooterType = editor.getType(FIRST_PAGE_FOOTER_KEY);
   const documentHeader = (value as TElement[]).find(
     (n) => n.type === headerType
   );
   const documentFooter = (value as TElement[]).find(
     (n) => n.type === footerType
+  );
+  const firstPageHeader = (value as TElement[]).find(
+    (n) => n.type === firstPageHeaderType
+  );
+  const firstPageFooter = (value as TElement[]).find(
+    (n) => n.type === firstPageFooterType
   );
 
   const visiblePages = pages.slice(0, MAX_PAGES_RENDERED);
@@ -170,6 +191,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
   return (
     <PaginationErrorBoundary fallback={footnotePortal}>
       {footnotePortal}
+      <PageSetupDialog onClose={() => setSetupOpen(false)} open={setupOpen} />
       <div
         aria-label="Paginated document view"
         data-plate-pagination-paged-view=""
@@ -182,6 +204,36 @@ export const PageOverlay = (): React.JSX.Element | null => {
           width: '100%',
         }}
       >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            paddingRight: 24,
+            pointerEvents: 'none',
+            position: 'sticky',
+            top: 12,
+            zIndex: 1,
+          }}
+        >
+          <button
+            onClick={() => setSetupOpen(true)}
+            style={{
+              background: '#fff',
+              border: '1px solid rgba(15,23,42,0.2)',
+              borderRadius: 6,
+              boxShadow: '0 2px 6px rgba(15,23,42,0.08)',
+              color: 'rgba(15,23,42,0.78)',
+              cursor: 'pointer',
+              fontSize: 12,
+              fontWeight: 500,
+              padding: '6px 12px',
+              pointerEvents: 'auto',
+            }}
+            type="button"
+          >
+            Page setup…
+          </button>
+        </div>
         <div
           data-plate-pagination-stack=""
           style={{
@@ -204,9 +256,14 @@ export const PageOverlay = (): React.JSX.Element | null => {
               documentFooter={documentFooter}
               documentHeader={documentHeader}
               editor={editor}
+              firstPageDifferent={safeOptions.firstPageDifferent}
+              firstPageFooter={firstPageFooter}
+              firstPageHeader={firstPageHeader}
               footnotesInFooter={footnotesInFooter}
               page={page}
+              pageNumber={safeOptions.pageNumber}
               top={top}
+              totalPages={pages.length}
             />
           ))}
         </div>
@@ -252,7 +309,6 @@ class PaginationErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo): void {
-    // eslint-disable-next-line no-console
     console.error('[plate-pagination] paged-view crashed', error, info);
   }
 

@@ -4,9 +4,56 @@ import type { AnyEditorPlugin, TElement } from 'platejs';
 import type { PlateEditor } from 'platejs/react';
 import { PlateStatic, createStaticEditor } from 'platejs/static';
 
-import type { Page, PageBorder, PageMargins } from '../lib/types';
+import type {
+  Page,
+  PageBorder,
+  PageMargins,
+  PageNumberConfig,
+} from '../lib/types';
 
-import { PAGINATION_KEY } from '../lib/internal/keys';
+import {
+  FIRST_PAGE_FOOTER_KEY,
+  FIRST_PAGE_HEADER_KEY,
+  FOOTER_KEY,
+  HEADER_KEY,
+  PAGINATION_KEY,
+} from '../lib/internal/keys';
+import { PageNumber } from './page-number';
+
+const CHROME_PLUGIN_KEYS = new Set<string>([
+  HEADER_KEY,
+  FOOTER_KEY,
+  FIRST_PAGE_HEADER_KEY,
+  FIRST_PAGE_FOOTER_KEY,
+]);
+
+// Plugin keys whose `node.component` calls slate-react hooks (`useSlate`,
+// `useSelected`, `useReadOnly`, etc.). These hooks require a real `<Slate>`
+// provider and crash with `TypeError: e is not iterable` inside
+// `createStaticEditor`. Strip the component for them so PlateStatic falls
+// back to default `SlateElement` (children render as plain text). Add to
+// this set when a new plugin shows up in the static crash logs.
+const STATIC_UNSAFE_PLUGIN_KEYS = new Set<string>([
+  'ai',
+  'aiChat',
+  'copilot',
+  'dnd',
+  'drag_handle',
+  'cursor_overlay',
+  'block_menu',
+  'block_selection',
+  'floating_toolbar',
+  'fixed_toolbar',
+  'mention',
+  'mention_input',
+  'slash_input',
+  'comment',
+  'discussion',
+  'suggestion',
+  'placeholder',
+  'block_placeholder',
+  'toc',
+]);
 
 export type PageFrameProps = {
   /**
@@ -26,8 +73,18 @@ export type PageFrameProps = {
   /** First-class header element copied off the document, if any. */
   documentHeader?: TElement;
   editor: PlateEditor;
+  /** Whether page-0 should swap to first-page chrome nodes when present. */
+  firstPageDifferent?: boolean;
+  /** First-page footer element when `firstPageDifferent` is on. */
+  firstPageFooter?: TElement;
+  /** First-page header element when `firstPageDifferent` is on. */
+  firstPageHeader?: TElement;
   footnotesInFooter: boolean;
   page: Page;
+  /** Page-number config; when set, paints the configured chrome band. */
+  pageNumber?: PageNumberConfig;
+  /** Total number of pages in the layout (used by `1/N` / `Page 1 of N`). */
+  totalPages: number;
   /** Vertical position of the page in the overlay coordinate space. */
   top: number;
 };
@@ -42,15 +99,47 @@ export const PageFrame = ({
   documentFooter,
   documentHeader,
   editor,
+  firstPageDifferent,
+  firstPageFooter,
+  firstPageHeader,
   footnotesInFooter,
   page,
+  pageNumber,
+  totalPages,
   top,
 }: PageFrameProps): React.JSX.Element => {
   const { rect } = page;
-  const headerOffset = chrome.headerHeight;
-  const footnoteWellTop =
-    rect.height - chrome.footerHeight - chrome.footnoteWell;
-  const footerTop = rect.height - chrome.footerHeight;
+  // Chrome lives inside the margin zones (Word-style): a header occupies
+  // up to `margins.top` pixels from the top edge and is anchored to the
+  // body boundary; a footer mirrors this at the bottom. The configured
+  // `headerHeight` / `footerHeight` clamp the chrome content so its
+  // bottom edge meets the body edge cleanly even when margins are deep.
+  const isFirstPage = page.pageIndex === 0;
+  // First-page chrome falls back to regular chrome when its dedicated node
+  // is absent — matches Word's "Different First Page" behavior where the
+  // toggle alone does not erase content authored in the regular chrome.
+  const headerNode =
+    firstPageDifferent && isFirstPage
+      ? (firstPageHeader ?? documentHeader)
+      : documentHeader;
+  const footerNode =
+    firstPageDifferent && isFirstPage
+      ? (firstPageFooter ?? documentFooter)
+      : documentFooter;
+  // When no header / footer node exists AND no page-number is configured for
+  // that side, collapse the band (dogfood ISSUE-006) so the page reads as
+  // "all body" instead of empty whitespace then content.
+  const renderHeaderBand = !!headerNode || pageNumber?.side === 'header';
+  const renderFooterBand = !!footerNode || pageNumber?.side === 'footer';
+  const effectiveHeaderHeight = renderHeaderBand
+    ? Math.min(chrome.headerHeight, chrome.margins.top)
+    : 0;
+  const effectiveFooterHeight = renderFooterBand
+    ? Math.min(chrome.footerHeight, chrome.margins.bottom)
+    : 0;
+  const headerTop = Math.max(0, chrome.margins.top - effectiveHeaderHeight);
+  const footerTop = rect.height - chrome.margins.bottom;
+  const footnoteWellTop = footerTop - chrome.footnoteWell;
   // Build a static-safe plugin list: keep only element- / leaf-rendering
   // plugins (those that contribute a `node.type` so PlateStatic knows how
   // to render that element) and strip every render slot that could trigger
@@ -86,26 +175,28 @@ export const PageFrame = ({
         width: rect.width,
       }}
     >
-      {chrome.headerHeight > 0 ? (
+      {effectiveHeaderHeight > 0 ? (
         <div
           data-plate-pagination-slot="header"
           style={{
-            borderBottom: '1px dashed rgba(15,23,42,0.1)',
-            color: 'rgba(15,23,42,0.55)',
+            color: 'rgba(15,23,42,0.7)',
             fontSize: 12,
-            height: chrome.headerHeight,
-            left: 0,
-            paddingBottom: 8,
-            paddingLeft: chrome.margins.left,
-            paddingRight: chrome.margins.right,
-            paddingTop: 8,
+            height: effectiveHeaderHeight,
+            left: chrome.margins.left,
             position: 'absolute',
-            right: 0,
-            top: 0,
+            right: chrome.margins.right,
+            top: headerTop,
           }}
         >
-          {documentHeader ? (
-            <StaticPageValue plugins={staticPlugins} value={[documentHeader]} />
+          {headerNode ? (
+            <StaticPageValue plugins={staticPlugins} value={[headerNode]} />
+          ) : null}
+          {pageNumber?.side === 'header' ? (
+            <PageNumber
+              config={pageNumber}
+              pageIndex={page.pageIndex}
+              totalPages={totalPages}
+            />
           ) : null}
         </div>
       ) : null}
@@ -116,13 +207,13 @@ export const PageFrame = ({
         <div
           data-plate-pagination-slot="footnote-well"
           style={{
-            borderTop: '1px solid rgba(15,23,42,0.1)',
-            color: 'rgba(15,23,42,0.7)',
+            borderTop: '1px solid rgba(15,23,42,0.12)',
+            color: 'rgba(15,23,42,0.72)',
             fontSize: 11,
             height: chrome.footnoteWell,
             left: chrome.margins.left,
             overflow: 'hidden',
-            padding: '4px 0',
+            paddingTop: 6,
             position: 'absolute',
             right: chrome.margins.right,
             top: footnoteWellTop,
@@ -132,28 +223,29 @@ export const PageFrame = ({
         </div>
       ) : null}
 
-      {chrome.footerHeight > 0 ? (
+      {effectiveFooterHeight > 0 ? (
         <div
           data-plate-pagination-slot="footer"
           style={{
-            borderTop: '1px dashed rgba(15,23,42,0.1)',
-            color: 'rgba(15,23,42,0.55)',
+            color: 'rgba(15,23,42,0.7)',
             fontSize: 12,
-            height: chrome.footerHeight,
-            left: 0,
-            paddingBottom: 8,
-            paddingLeft: chrome.margins.left,
-            paddingRight: chrome.margins.right,
-            paddingTop: 8,
+            height: effectiveFooterHeight,
+            left: chrome.margins.left,
             position: 'absolute',
-            right: 0,
+            right: chrome.margins.right,
             top: footerTop,
           }}
         >
-          {documentFooter ? (
-            <StaticPageValue plugins={staticPlugins} value={[documentFooter]} />
+          {footerNode ? (
+            <StaticPageValue plugins={staticPlugins} value={[footerNode]} />
           ) : null}
-          <span style={{ float: 'right' }}>{`${page.pageIndex + 1}`}</span>
+          {pageNumber?.side === 'footer' ? (
+            <PageNumber
+              config={pageNumber}
+              pageIndex={page.pageIndex}
+              totalPages={totalPages}
+            />
+          ) : null}
         </div>
       ) : null}
 
@@ -165,10 +257,23 @@ export const PageFrame = ({
           overflow: 'hidden',
           position: 'absolute',
           right: chrome.margins.right,
-          top: headerOffset + chrome.margins.top,
+          top: chrome.margins.top,
         }}
       >
         <StaticPageValue plugins={staticPlugins} value={page.nodes} />
+        {!footnotesInFooter && page.footnotes.length > 0 ? (
+          <div
+            data-plate-pagination-slot="document-end-footnotes"
+            style={{
+              borderTop: '1px solid rgba(15,23,42,0.15)',
+              fontSize: 12,
+              marginTop: 16,
+              paddingTop: 8,
+            }}
+          >
+            <StaticPageValue plugins={staticPlugins} value={page.footnotes} />
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -188,11 +293,7 @@ const StaticPageValue = ({
   return (
     <div data-plate-pagination-static-stack="">
       {value.map((node, i) => (
-        <PlateStaticBoundary
-          key={`n-${i}`}
-          plugins={plugins}
-          value={[node]}
-        >
+        <PlateStaticBoundary key={`n-${i}`} plugins={plugins} value={[node]}>
           <FallbackPageText value={[node]} />
         </PlateStaticBoundary>
       ))}
@@ -239,12 +340,20 @@ class PlateStaticBoundary extends React.Component<
     return { error };
   }
 
-  componentDidCatch(error: Error): void {
-    // eslint-disable-next-line no-console
-    console.warn(
-      '[plate-pagination] PlateStatic crashed; falling back to plain text',
-      error.message
-    );
+  componentDidCatch(): void {
+    // Plate plugins regularly call slate-react hooks (`useSlate`,
+    // `useSelected`, etc.) that don't exist inside `createStaticEditor`'s
+    // context. We expect those crashes per page on every layout cycle —
+    // the fallback to plain text is correct behaviour, not an error worth
+    // logging. Set `window.__platePaginationLogStaticErrors = true` if you
+    // need to debug a specific plugin.
+    if (
+      typeof window !== 'undefined' &&
+      (window as { __platePaginationLogStaticErrors?: boolean })
+        .__platePaginationLogStaticErrors === true
+    ) {
+      console.warn('[plate-pagination] PlateStatic fell back to plain text');
+    }
   }
 
   render(): React.ReactNode {
@@ -266,20 +375,18 @@ const FallbackPageText = ({
   value,
 }: {
   value: TElement[];
-}): React.JSX.Element => {
-  return (
-    <div
-      data-plate-pagination-fallback=""
-      style={{ fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}
-    >
-      {value.map((node, i) => (
-        <p key={`pt-${i}`} style={{ margin: '0 0 0.6em 0' }}>
-          {collectPlainText(node)}
-        </p>
-      ))}
-    </div>
-  );
-};
+}): React.JSX.Element => (
+  <div
+    data-plate-pagination-fallback=""
+    style={{ fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}
+  >
+    {value.map((node, i) => (
+      <p key={`pt-${i}`} style={{ margin: '0 0 0.6em 0' }}>
+        {collectPlainText(node)}
+      </p>
+    ))}
+  </div>
+);
 
 const collectPlainText = (node: TElement): string => {
   let out = '';
@@ -330,6 +437,17 @@ const getElementOnlyStaticPlugins = (
     if (!plugin.node?.type) continue;
     if (!plugin.node.component) continue;
 
+    // Chrome plugins (header / footer / firstPageHeader / firstPageFooter)
+    // ship `ChromeShell` as `node.component`, which calls `useSelected` from
+    // `slate-react`. That hook crashes inside `PlateStatic` because there
+    // is no `<Slate>` provider — the error boundary fires for every page on
+    // every layout cycle. Strip `node.component` for chrome plugins so the
+    // static path falls back to the default `SlateElement` (children only)
+    // and the live editor keeps the affordance UI it had.
+    const key = plugin.key as string;
+    const isChrome =
+      CHROME_PLUGIN_KEYS.has(key) || STATIC_UNSAFE_PLUGIN_KEYS.has(key);
+
     out.push({
       ...plugin,
       __extensions: [],
@@ -342,6 +460,7 @@ const getElementOnlyStaticPlugins = (
             },
           }
         : plugin.inject,
+      node: isChrome ? { ...plugin.node, component: undefined } : plugin.node,
       render: {
         ...plugin.render,
         aboveEditable: undefined,

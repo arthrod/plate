@@ -125,7 +125,7 @@ describe('BasePaginationPlugins', () => {
 
     expect((editor.tf as any).pagination.toggleHeader()).toBe(true);
     expect(editor.children[0]).toMatchObject({
-      children: [{ text: 'Header' }],
+      children: [{ text: '' }],
       type: KEYS.header,
     });
     expect((editor.api as any).pagination.hasHeader()).toBe(true);
@@ -155,7 +155,7 @@ describe('BasePaginationPlugins', () => {
 
     expect((editor.tf as any).pagination.toggleFooter()).toBe(true);
     expect(editor.children.at(-1)).toMatchObject({
-      children: [{ text: 'Footer' }],
+      children: [{ text: '' }],
       type: KEYS.footer,
     });
   });

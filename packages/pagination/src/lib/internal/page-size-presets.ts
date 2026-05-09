@@ -25,13 +25,16 @@ export const resolvePageRect = (
 ): PageRect => {
   const preset = resolvePageSize(pageSize);
   const contentWidth = preset.width - margins.left - margins.right;
+  // Header/footer chrome lives INSIDE the top/bottom margins (Word/Pages
+  // model). Body content occupies pageHeight − margins.top − margins.bottom
+  // minus the footnote well at the bottom of the content box. The chrome
+  // height options (`reservations.header` / `.footer`) are render hints
+  // that bound the chrome content within its margin zone — they do NOT
+  // shrink the body content area.
+  void reservations.header;
+  void reservations.footer;
   const contentHeight =
-    preset.height -
-    margins.top -
-    margins.bottom -
-    reservations.header -
-    reservations.footer -
-    reservations.footnoteWell;
+    preset.height - margins.top - margins.bottom - reservations.footnoteWell;
 
   return {
     contentHeight: Math.max(contentHeight, 0),

@@ -30,6 +30,20 @@ export type PageBorder = {
 /** Where footnote definitions render in the paginated view. */
 export type FootnotePlacement = 'documentEnd' | 'footer';
 
+/** Page-number rendering config consumed by the paged-view chrome. */
+export type PageNumberConfig = {
+  /** Horizontal alignment inside the chosen chrome band. */
+  align: 'center' | 'left' | 'right';
+  /** Output template; `N` resolves to total page count, `1` to current. */
+  format: '1' | '1/N' | 'Page 1 of N';
+  /** Hide on the first page (e.g., title-page convention). */
+  hideOnFirst: boolean;
+  /** Which chrome band the number paints into. */
+  side: 'footer' | 'header';
+  /** First displayed page number; subsequent pages increment from here. */
+  startAt: number;
+};
+
 /**
  * Visualisation mode.
  *
@@ -106,6 +120,12 @@ export type Measurer = {
  * pages are derived, not authored.
  */
 export type BasePaginationOptions = {
+  /**
+   * When true, page index 0 paints `firstPageHeader` / `firstPageFooter`
+   * chrome nodes (with regular header/footer fallback when the dedicated
+   * nodes are absent). Defaults to `false`.
+   */
+  firstPageDifferent?: boolean;
   /** Footer slot height in CSS pixels. */
   footerHeight: number;
   /**
@@ -133,6 +153,12 @@ export type BasePaginationOptions = {
   mode: PaginationMode;
   /** Page sheet border styling. */
   pageBorder: PageBorder;
+  /**
+   * Page-number config; when `undefined` no page number is rendered. The
+   * paged-view paints it inside the chosen chrome band, on top of any
+   * authored header/footer content.
+   */
+  pageNumber?: PageNumberConfig;
   /** Resolved page size — preset key or literal `{ width, height }` in CSS pixels. */
   pageSize: PageSize;
   /** Side preview panel width in CSS pixels. */
@@ -154,6 +180,10 @@ export type BasePaginationApi = {
     hasHeader: () => boolean;
     /** Whether a top-level `footer` block currently exists in the doc. */
     hasFooter: () => boolean;
+    /** Whether a top-level `firstPageHeader` block currently exists. */
+    hasFirstPageHeader: () => boolean;
+    /** Whether a top-level `firstPageFooter` block currently exists. */
+    hasFirstPageFooter: () => boolean;
   };
 };
 
@@ -161,8 +191,12 @@ export type BasePaginationApi = {
 export type BasePaginationTransforms = {
   pagination: {
     insertPageBreak: () => void;
+    /** Toggle the `firstPageDifferent` option; returns new value. */
+    setFirstPageDifferent: (value: boolean) => boolean;
     /** Move footnote definitions between per-page footer wells and document end. */
     setFootnotePlacement: (placement: FootnotePlacement) => void;
+    /** Replace the page-number config (pass `undefined` to disable). */
+    setPageNumber: (config: PageNumberConfig | undefined) => void;
     /**
      * Patch the in-flow `<w:pgMar>`-style margins. Only the keys provided
      * are updated; omitted sides keep their current values, so per-axis UI
@@ -180,10 +214,18 @@ export type BasePaginationTransforms = {
     setPreviewWidth: (width: number) => void;
     setFooter: (content: Descendant[]) => void;
     setHeader: (content: Descendant[]) => void;
+    /** Replace first-page footer block content; inserts node when missing. */
+    setFirstPageFooter: (content: Descendant[]) => void;
+    /** Replace first-page header block content; inserts node when missing. */
+    setFirstPageHeader: (content: Descendant[]) => void;
     /** Toggle the document-level footer block; returns new presence. */
     toggleFooter: () => boolean;
     /** Toggle the document-level header block; returns new presence. */
     toggleHeader: () => boolean;
+    /** Toggle the first-page footer block; returns new presence. */
+    toggleFirstPageFooter: () => boolean;
+    /** Toggle the first-page header block; returns new presence. */
+    toggleFirstPageHeader: () => boolean;
     /** Toggle the side preview panel; returns new visibility. */
     togglePreview: () => boolean;
   };

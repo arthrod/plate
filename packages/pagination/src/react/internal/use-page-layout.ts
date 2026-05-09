@@ -59,11 +59,13 @@ const useRafCoalesced = <T>(value: T): T => {
 /**
  * Project the editor's children into the derived page sequence for variant A.
  *
- * `value` and `options` are rAF-coalesced before pagination so a burst of
- * keystrokes or a resize storm trigger at most one `paginate()` per frame.
- * Pretext's `prepare()` is cached per `(node.id, marksFingerprint, font,
- * width)` inside the measurer, so unchanged blocks skip the expensive pass
- * even on repeated cycles.
+ * `value` is rAF-coalesced so a burst of keystrokes triggers at most one
+ * `paginate()` per frame. Pretext's `prepare()` is cached per
+ * `(node.id, marksFingerprint, font, width)` inside the measurer, so
+ * unchanged blocks skip the expensive pass even on repeated cycles.
+ *
+ * `options` are NOT coalesced — Page Setup dialog edits must take effect on
+ * the very next render or the UI looks broken (dogfood ISSUE-002).
  *
  * The latest snapshot is mirrored to the LIVE editor instance so
  * `editor.api.pagination.getPages()` resolves without a hook — without this,
@@ -75,19 +77,18 @@ export const usePageLayout = (
   options: BasePaginationOptions
 ): Page[] => {
   const measurer = usePretextMeasurer(editor);
+  // Only coalesce the editor value — options changes are deliberate user
+  // actions (dialog, toolbar) and must propagate immediately or the page
+  // setup UI looks broken (see dogfood ISSUE-002). Value still rAF-batches
+  // so a burst of keystrokes triggers at most one paginate per frame.
   const coalescedValue = useRafCoalesced(value);
-  const coalescedOptions = useRafCoalesced(options);
 
   const pages = useMemo<Page[]>(() => {
-    const rect = resolvePageRect(
-      coalescedOptions.pageSize,
-      coalescedOptions.margins,
-      {
-        footer: coalescedOptions.footerHeight,
-        footnoteWell: coalescedOptions.footnoteWell,
-        header: coalescedOptions.headerHeight,
-      }
-    );
+    const rect = resolvePageRect(options.pageSize, options.margins, {
+      footer: options.footerHeight,
+      footnoteWell: options.footnoteWell,
+      header: options.headerHeight,
+    });
 
     const raw = paginate({
       ctx: {
@@ -96,22 +97,18 @@ export const usePageLayout = (
         width: rect.contentWidth,
       },
       doc: coalescedValue,
-      footnotePlacement: coalescedOptions.footnotePlacement,
+      footnotePlacement: options.footnotePlacement,
       measurer,
       rect,
     });
-
-    if (coalescedOptions.footnotePlacement === 'documentEnd') {
-      return raw;
-    }
 
     const footnoteDefinitionType = editor.getType(FOOTNOTE_DEFINITION_KEY);
     const definitions = coalescedValue.filter(
       (n) => n.type === footnoteDefinitionType
     );
 
-    return allocateFootnotes(raw, definitions);
-  }, [editor, coalescedValue, measurer, coalescedOptions]);
+    return allocateFootnotes(raw, definitions, options.footnotePlacement);
+  }, [editor, coalescedValue, measurer, options]);
 
   useIsomorphicLayoutEffect(() => {
     setEditorPages(editor as object, pages);

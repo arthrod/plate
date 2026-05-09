@@ -3,11 +3,17 @@
  */
 
 export * from './enforceHeaderFooterInvariants';
+export * from './ensureFirstPageFooter';
+export * from './ensureFirstPageHeader';
 export * from './ensureFooter';
 export * from './ensureHeader';
 export * from './insertPageBreak';
 export * from './removeNodesByType';
+export * from './replaceFirstPageFooter';
+export * from './replaceFirstPageHeader';
 export * from './replaceFooter';
 export * from './replaceHeader';
+export * from './toggleFirstPageFooter';
+export * from './toggleFirstPageHeader';
 export * from './toggleFooter';
 export * from './toggleHeader';

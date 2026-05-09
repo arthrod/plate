@@ -6,6 +6,8 @@ import type {
   BasePaginationTransforms,
 } from './types';
 
+import { BaseFirstPageFooterPlugin } from './base-first-page-footer-plugin';
+import { BaseFirstPageHeaderPlugin } from './base-first-page-header-plugin';
 import { BaseFooterPlugin } from './base-footer-plugin';
 import { BaseHeaderPlugin } from './base-header-plugin';
 import { BasePageBreakPlugin } from './base-page-break-plugin';
@@ -14,6 +16,8 @@ import {
   getPageOfPath,
   getPaginationFootnotes,
   getPaginationPages,
+  hasFirstPageFooterBlock,
+  hasFirstPageHeaderBlock,
   hasFooterBlock,
   hasHeaderBlock,
 } from './queries';
@@ -21,8 +25,12 @@ import { PAGINATION_OPTION_DEFAULTS } from './resolve-options';
 import {
   enforceHeaderFooterInvariants,
   insertPageBreak,
+  replaceFirstPageFooter,
+  replaceFirstPageHeader,
   replaceFooter,
   replaceHeader,
+  toggleFirstPageFooter,
+  toggleFirstPageHeader,
   toggleFooter,
   toggleHeader,
 } from './transforms';
@@ -38,15 +46,22 @@ import {
  * truth) — undo and paste survive correctly because we don't mirror the
  * presence to a plugin option that lives outside Slate history.
  *
- * The page-chrome element family (header, footer, page break) is composed
- * here on the Slate base so a Slate-only consumer registering
- * `BasePaginationPlugin` already gets the element schema. React-only deltas
- * (footnote sub-plugins, overlay rendering) live in `src/react`.
+ * The page-chrome element family (header, footer, firstPageHeader,
+ * firstPageFooter, page break) is composed here on the Slate base so a
+ * Slate-only consumer registering `BasePaginationPlugin` already gets the
+ * element schema. React-only deltas (footnote sub-plugins, overlay
+ * rendering) live in `src/react`.
  */
 export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
   key: PAGINATION_KEY,
   options: PAGINATION_OPTION_DEFAULTS,
-  plugins: [BaseHeaderPlugin, BaseFooterPlugin, BasePageBreakPlugin],
+  plugins: [
+    BaseHeaderPlugin,
+    BaseFooterPlugin,
+    BaseFirstPageHeaderPlugin,
+    BaseFirstPageFooterPlugin,
+    BasePageBreakPlugin,
+  ],
 })
   .overrideEditor(({ editor, tf: { normalizeNode } }) => ({
     transforms: {
@@ -66,6 +81,8 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
       getFootnotes: (pageIndex) => getPaginationFootnotes(editor, pageIndex),
       getPageOf: (path) => getPageOfPath(editor, path),
       getPages: () => getPaginationPages(editor),
+      hasFirstPageFooter: () => hasFirstPageFooterBlock(editor),
+      hasFirstPageHeader: () => hasFirstPageHeaderBlock(editor),
       hasFooter: () => hasFooterBlock(editor),
       hasHeader: () => hasHeaderBlock(editor),
     },
@@ -74,6 +91,15 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
     ({ editor, getOptions, setOption }) => ({
       pagination: {
         insertPageBreak: () => insertPageBreak(editor),
+        setFirstPageDifferent: (value) => {
+          setOption('firstPageDifferent', value);
+
+          return value;
+        },
+        setFirstPageFooter: (content) =>
+          replaceFirstPageFooter(editor, content),
+        setFirstPageHeader: (content) =>
+          replaceFirstPageHeader(editor, content),
         setFootnotePlacement: (placement) => {
           setOption('footnotePlacement', placement);
           setOption(
@@ -92,12 +118,17 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
         setPageBorder: (patch) => {
           setOption('pageBorder', { ...getOptions().pageBorder, ...patch });
         },
+        setPageNumber: (config) => {
+          setOption('pageNumber', config);
+        },
         setPageSize: (size) => {
           setOption('pageSize', size);
         },
         setPreviewWidth: (width) => {
           setOption('previewWidth', width);
         },
+        toggleFirstPageFooter: () => toggleFirstPageFooter(editor),
+        toggleFirstPageHeader: () => toggleFirstPageHeader(editor),
         toggleFooter: () => toggleFooter(editor),
         toggleHeader: () => toggleHeader(editor),
         togglePreview: () => {
