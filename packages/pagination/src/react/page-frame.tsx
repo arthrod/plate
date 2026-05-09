@@ -51,12 +51,21 @@ export const PageFrame = ({
   const footnoteWellTop =
     rect.height - chrome.footerHeight - chrome.footnoteWell;
   const footerTop = rect.height - chrome.footerHeight;
-  // Clone once per live editor so page thumbnails reuse the same static
-  // plugin graph without recreating it for every page render.
-  const staticPlugins = React.useMemo(
-    () => getStaticPreviewPlugins(editor),
-    [editor]
+  // Pass NO plugins to the static editor. The page-render path is
+  // intentionally dumb: it just renders the page's nodes via PlateStatic's
+  // default leaf renderer. Including the live editor's plugin graph causes
+  // PlateStatic to re-fire every plugin's `afterEditable` slot — which in
+  // turn re-mounts PageOverlay (which renders MORE pages) producing N²
+  // mounts and a renderer crash. Static-preview plugin sanitization
+  // (`getStaticPreviewPlugins`) is preserved below for opt-in re-enable
+  // once each plugin's static behaviour is verified.
+  const staticPlugins = React.useMemo<AnyEditorPlugin[]>(
+    () => [],
+    []
   );
+
+  void getStaticPreviewPlugins;
+  void editor;
   const pageBorder = chrome.pageBorder;
   const border =
     pageBorder.style === 'none' || pageBorder.width === 0
@@ -174,6 +183,26 @@ const StaticPageValue = ({
   plugins: AnyEditorPlugin[];
   value: TElement[];
 }): React.JSX.Element => {
+  // Try real PlateStatic first (rich rendering of plugin nodes). When the
+  // plugin tree contains a node shape PlateStatic cannot iterate (any
+  // plugin that escaped the strip in `toStaticPreviewPlugin` and emits a
+  // non-iterable value), fall back to a plain-text walk so the page chrome
+  // still shows the content. The fallback is intentionally permissive —
+  // we'd rather show degraded text than crash the entire paged view.
+  return (
+    <PlateStaticBoundary plugins={plugins} value={value}>
+      <FallbackPageText value={value} />
+    </PlateStaticBoundary>
+  );
+};
+
+const TryPlateStatic = ({
+  plugins,
+  value,
+}: {
+  plugins: AnyEditorPlugin[];
+  value: TElement[];
+}): React.JSX.Element => {
   const editor = React.useMemo(
     () => createStaticEditor({ plugins, value }),
     [plugins, value]
@@ -187,6 +216,84 @@ const StaticPageValue = ({
       value={value}
     />
   );
+};
+
+class PlateStaticBoundary extends React.Component<
+  {
+    children: React.ReactNode;
+    plugins: AnyEditorPlugin[];
+    value: TElement[];
+  },
+  { error: Error | null }
+> {
+  constructor(props: PlateStaticBoundary['props']) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): { error: Error } {
+    return { error };
+  }
+
+  componentDidCatch(error: Error): void {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[plate-pagination] PlateStatic crashed; falling back to plain text',
+      error.message
+    );
+  }
+
+  render(): React.ReactNode {
+    if (this.state.error !== null) {
+      return this.props.children;
+    }
+
+    try {
+      return (
+        <TryPlateStatic plugins={this.props.plugins} value={this.props.value} />
+      );
+    } catch {
+      return this.props.children;
+    }
+  }
+}
+
+const FallbackPageText = ({
+  value,
+}: {
+  value: TElement[];
+}): React.JSX.Element => {
+  return (
+    <div
+      data-plate-pagination-fallback=""
+      style={{ fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}
+    >
+      {value.map((node, i) => (
+        <p key={`pt-${i}`} style={{ margin: '0 0 0.6em 0' }}>
+          {collectPlainText(node)}
+        </p>
+      ))}
+    </div>
+  );
+};
+
+const collectPlainText = (node: TElement): string => {
+  let out = '';
+  const walk = (n: { children?: unknown[]; text?: string }): void => {
+    if (typeof n.text === 'string') {
+      out += n.text;
+
+      return;
+    }
+    if (!Array.isArray(n.children)) return;
+    for (const child of n.children) {
+      walk(child as { children?: unknown[]; text?: string });
+    }
+  };
+
+  walk(node);
+
+  return out;
 };
 
 const getStaticPreviewPlugins = (editor: PlateEditor): AnyEditorPlugin[] =>

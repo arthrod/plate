@@ -1,4 +1,4 @@
-import { C as allocateFootnotes, D as PAGINATION_KEY, E as HEADER_KEY, S as BaseFooterPlugin, T as FOOTNOTE_DEFINITION_KEY, b as BasePageBreakPlugin, n as BasePaginationPlugin, p as resolvePaginationOptions, t as paginate, w as FOOTER_KEY, x as BaseHeaderPlugin, y as setEditorPages } from "../paginate-Cla4sKzV.js";
+import { C as allocateFootnotes, E as HEADER_KEY, S as BaseFooterPlugin, T as FOOTNOTE_DEFINITION_KEY, b as BasePageBreakPlugin, n as BasePaginationPlugin, p as resolvePaginationOptions, t as paginate, w as FOOTER_KEY, x as BaseHeaderPlugin, y as setEditorPages } from "../paginate-mRxYCK8i.js";
 import { toPlatePlugin, toTPlatePlugin, useEditorRef, useEditorValue, usePluginOption } from "platejs/react";
 import { c } from "react-compiler-runtime";
 import * as React from "react";
@@ -283,23 +283,22 @@ const PageBreakPlugin = toPlatePlugin(BasePageBreakPlugin);
 * using the live editor's plugin list, minus editor-chrome render hooks.
 */
 const PageFrame = (t0) => {
-	const $ = c(49);
-	const { chrome, documentFooter, documentHeader, editor, footnotesInFooter, page, top } = t0;
+	const $ = c(44);
+	const { chrome, documentFooter, documentHeader, footnotesInFooter, page, top } = t0;
 	const { rect } = page;
 	const headerOffset = chrome.headerHeight;
 	const footnoteWellTop = rect.height - chrome.footerHeight - chrome.footnoteWell;
 	const footerTop = rect.height - chrome.footerHeight;
 	let t1;
-	if ($[0] !== editor) {
-		t1 = getStaticPreviewPlugins(editor);
-		$[0] = editor;
-		$[1] = t1;
-	} else t1 = $[1];
+	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+		t1 = [];
+		$[0] = t1;
+	} else t1 = $[0];
 	const staticPlugins = t1;
 	const pageBorder = chrome.pageBorder;
 	const border = pageBorder.style === "none" || pageBorder.width === 0 ? "none" : `${pageBorder.width}px ${pageBorder.style} ${pageBorder.color}`;
 	let t2;
-	if ($[2] !== border || $[3] !== pageBorder.radius || $[4] !== pageBorder.shadow || $[5] !== rect.height || $[6] !== rect.width || $[7] !== top) {
+	if ($[1] !== border || $[2] !== pageBorder.radius || $[3] !== pageBorder.shadow || $[4] !== rect.height || $[5] !== rect.width || $[6] !== top) {
 		t2 = {
 			background: "#ffffff",
 			border,
@@ -311,16 +310,16 @@ const PageFrame = (t0) => {
 			top,
 			width: rect.width
 		};
-		$[2] = border;
-		$[3] = pageBorder.radius;
-		$[4] = pageBorder.shadow;
-		$[5] = rect.height;
-		$[6] = rect.width;
-		$[7] = top;
-		$[8] = t2;
-	} else t2 = $[8];
+		$[1] = border;
+		$[2] = pageBorder.radius;
+		$[3] = pageBorder.shadow;
+		$[4] = rect.height;
+		$[5] = rect.width;
+		$[6] = top;
+		$[7] = t2;
+	} else t2 = $[7];
 	let t3;
-	if ($[9] !== chrome.headerHeight || $[10] !== chrome.margins.left || $[11] !== chrome.margins.right || $[12] !== documentHeader || $[13] !== staticPlugins) {
+	if ($[8] !== chrome.headerHeight || $[9] !== chrome.margins.left || $[10] !== chrome.margins.right || $[11] !== documentHeader) {
 		t3 = chrome.headerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "header",
 			style: {
@@ -341,15 +340,14 @@ const PageFrame = (t0) => {
 			plugins: staticPlugins,
 			value: [documentHeader]
 		}) : null) : null;
-		$[9] = chrome.headerHeight;
-		$[10] = chrome.margins.left;
-		$[11] = chrome.margins.right;
-		$[12] = documentHeader;
-		$[13] = staticPlugins;
-		$[14] = t3;
-	} else t3 = $[14];
+		$[8] = chrome.headerHeight;
+		$[9] = chrome.margins.left;
+		$[10] = chrome.margins.right;
+		$[11] = documentHeader;
+		$[12] = t3;
+	} else t3 = $[12];
 	let t4;
-	if ($[15] !== chrome.footnoteWell || $[16] !== chrome.margins.left || $[17] !== chrome.margins.right || $[18] !== footnoteWellTop || $[19] !== footnotesInFooter || $[20] !== page.footnotes || $[21] !== staticPlugins) {
+	if ($[13] !== chrome.footnoteWell || $[14] !== chrome.margins.left || $[15] !== chrome.margins.right || $[16] !== footnoteWellTop || $[17] !== footnotesInFooter || $[18] !== page.footnotes) {
 		t4 = footnotesInFooter && chrome.footnoteWell > 0 && page.footnotes.length > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "footnote-well",
 			style: {
@@ -368,17 +366,16 @@ const PageFrame = (t0) => {
 			plugins: staticPlugins,
 			value: page.footnotes
 		})) : null;
-		$[15] = chrome.footnoteWell;
-		$[16] = chrome.margins.left;
-		$[17] = chrome.margins.right;
-		$[18] = footnoteWellTop;
-		$[19] = footnotesInFooter;
-		$[20] = page.footnotes;
-		$[21] = staticPlugins;
-		$[22] = t4;
-	} else t4 = $[22];
+		$[13] = chrome.footnoteWell;
+		$[14] = chrome.margins.left;
+		$[15] = chrome.margins.right;
+		$[16] = footnoteWellTop;
+		$[17] = footnotesInFooter;
+		$[18] = page.footnotes;
+		$[19] = t4;
+	} else t4 = $[19];
 	let t5;
-	if ($[23] !== chrome.footerHeight || $[24] !== chrome.margins.left || $[25] !== chrome.margins.right || $[26] !== documentFooter || $[27] !== footerTop || $[28] !== page.pageIndex || $[29] !== staticPlugins) {
+	if ($[20] !== chrome.footerHeight || $[21] !== chrome.margins.left || $[22] !== chrome.margins.right || $[23] !== documentFooter || $[24] !== footerTop || $[25] !== page.pageIndex) {
 		t5 = chrome.footerHeight > 0 ? /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "footer",
 			style: {
@@ -399,18 +396,17 @@ const PageFrame = (t0) => {
 			plugins: staticPlugins,
 			value: [documentFooter]
 		}) : null, /* @__PURE__ */ React.createElement("span", { style: { float: "right" } }, `${page.pageIndex + 1}`)) : null;
-		$[23] = chrome.footerHeight;
-		$[24] = chrome.margins.left;
-		$[25] = chrome.margins.right;
-		$[26] = documentFooter;
-		$[27] = footerTop;
-		$[28] = page.pageIndex;
-		$[29] = staticPlugins;
-		$[30] = t5;
-	} else t5 = $[30];
+		$[20] = chrome.footerHeight;
+		$[21] = chrome.margins.left;
+		$[22] = chrome.margins.right;
+		$[23] = documentFooter;
+		$[24] = footerTop;
+		$[25] = page.pageIndex;
+		$[26] = t5;
+	} else t5 = $[26];
 	const t6 = headerOffset + chrome.margins.top;
 	let t7;
-	if ($[31] !== chrome.margins.left || $[32] !== chrome.margins.right || $[33] !== rect.contentHeight || $[34] !== t6) {
+	if ($[27] !== chrome.margins.left || $[28] !== chrome.margins.right || $[29] !== rect.contentHeight || $[30] !== t6) {
 		t7 = {
 			height: rect.contentHeight,
 			left: chrome.margins.left,
@@ -419,50 +415,71 @@ const PageFrame = (t0) => {
 			right: chrome.margins.right,
 			top: t6
 		};
-		$[31] = chrome.margins.left;
-		$[32] = chrome.margins.right;
-		$[33] = rect.contentHeight;
-		$[34] = t6;
-		$[35] = t7;
-	} else t7 = $[35];
+		$[27] = chrome.margins.left;
+		$[28] = chrome.margins.right;
+		$[29] = rect.contentHeight;
+		$[30] = t6;
+		$[31] = t7;
+	} else t7 = $[31];
 	let t8;
-	if ($[36] !== page.nodes || $[37] !== staticPlugins) {
+	if ($[32] !== page.nodes) {
 		t8 = /* @__PURE__ */ React.createElement(StaticPageValue, {
 			plugins: staticPlugins,
 			value: page.nodes
 		});
-		$[36] = page.nodes;
-		$[37] = staticPlugins;
-		$[38] = t8;
-	} else t8 = $[38];
+		$[32] = page.nodes;
+		$[33] = t8;
+	} else t8 = $[33];
 	let t9;
-	if ($[39] !== t7 || $[40] !== t8) {
+	if ($[34] !== t7 || $[35] !== t8) {
 		t9 = /* @__PURE__ */ React.createElement("div", {
 			"data-plate-pagination-slot": "content",
 			style: t7
 		}, t8);
-		$[39] = t7;
-		$[40] = t8;
-		$[41] = t9;
-	} else t9 = $[41];
+		$[34] = t7;
+		$[35] = t8;
+		$[36] = t9;
+	} else t9 = $[36];
 	let t10;
-	if ($[42] !== page.pageIndex || $[43] !== t2 || $[44] !== t3 || $[45] !== t4 || $[46] !== t5 || $[47] !== t9) {
+	if ($[37] !== page.pageIndex || $[38] !== t2 || $[39] !== t3 || $[40] !== t4 || $[41] !== t5 || $[42] !== t9) {
 		t10 = /* @__PURE__ */ React.createElement("div", {
 			"data-page-index": page.pageIndex,
 			"data-plate-pagination-page": "",
 			style: t2
 		}, t3, t4, t5, t9);
-		$[42] = page.pageIndex;
-		$[43] = t2;
-		$[44] = t3;
-		$[45] = t4;
-		$[46] = t5;
-		$[47] = t9;
-		$[48] = t10;
-	} else t10 = $[48];
+		$[37] = page.pageIndex;
+		$[38] = t2;
+		$[39] = t3;
+		$[40] = t4;
+		$[41] = t5;
+		$[42] = t9;
+		$[43] = t10;
+	} else t10 = $[43];
 	return t10;
 };
 const StaticPageValue = (t0) => {
+	const $ = c(6);
+	const { plugins, value } = t0;
+	let t1;
+	if ($[0] !== value) {
+		t1 = /* @__PURE__ */ React.createElement(FallbackPageText, { value });
+		$[0] = value;
+		$[1] = t1;
+	} else t1 = $[1];
+	let t2;
+	if ($[2] !== plugins || $[3] !== t1 || $[4] !== value) {
+		t2 = /* @__PURE__ */ React.createElement(PlateStaticBoundary, {
+			plugins,
+			value
+		}, t1);
+		$[2] = plugins;
+		$[3] = t1;
+		$[4] = value;
+		$[5] = t2;
+	} else t2 = $[5];
+	return t2;
+};
+const TryPlateStatic = (t0) => {
 	const $ = c(7);
 	const { plugins, value } = t0;
 	let t1;
@@ -498,38 +515,77 @@ const StaticPageValue = (t0) => {
 	} else t3 = $[6];
 	return t3;
 };
-const getStaticPreviewPlugins = (editor) => editor.meta.pluginList.map(toStaticPreviewPlugin).filter((plugin) => plugin !== null);
-const toStaticPreviewPlugin = (plugin) => {
-	if (plugin.key === PAGINATION_KEY || plugin.editOnly) return null;
-	return {
-		...plugin,
-		__extensions: [],
-		inject: plugin.inject?.nodeProps?.transformProps ? {
-			...plugin.inject,
-			nodeProps: {
-				...plugin.inject.nodeProps,
-				transformProps: void 0
-			}
-		} : plugin.inject,
-		node: {
-			...plugin.node,
-			component: void 0
-		},
-		render: {
-			...plugin.render,
-			aboveEditable: void 0,
-			aboveNodes: void 0,
-			aboveSlate: void 0,
-			afterContainer: void 0,
-			afterEditable: void 0,
-			beforeContainer: void 0,
-			beforeEditable: void 0,
-			belowNodes: void 0,
-			belowRootNodes: void 0,
-			node: void 0
+var PlateStaticBoundary = class extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = { error: null };
+	}
+	static getDerivedStateFromError(error) {
+		return { error };
+	}
+	componentDidCatch(error) {
+		console.warn("[plate-pagination] PlateStatic crashed; falling back to plain text", error.message);
+	}
+	render() {
+		if (this.state.error !== null) return this.props.children;
+		try {
+			return /* @__PURE__ */ React.createElement(TryPlateStatic, {
+				plugins: this.props.plugins,
+				value: this.props.value
+			});
+		} catch {
+			return this.props.children;
 		}
-	};
+	}
 };
+const FallbackPageText = (t0) => {
+	const $ = c(5);
+	const { value } = t0;
+	let t1;
+	if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+		t1 = {
+			fontSize: 14,
+			lineHeight: 1.5,
+			whiteSpace: "pre-wrap"
+		};
+		$[0] = t1;
+	} else t1 = $[0];
+	let t2;
+	if ($[1] !== value) {
+		t2 = value.map(_temp$1);
+		$[1] = value;
+		$[2] = t2;
+	} else t2 = $[2];
+	let t3;
+	if ($[3] !== t2) {
+		t3 = /* @__PURE__ */ React.createElement("div", {
+			"data-plate-pagination-fallback": "",
+			style: t1
+		}, t2);
+		$[3] = t2;
+		$[4] = t3;
+	} else t3 = $[4];
+	return t3;
+};
+const collectPlainText$1 = (node) => {
+	let out = "";
+	const walk = (n) => {
+		if (typeof n.text === "string") {
+			out += n.text;
+			return;
+		}
+		if (!Array.isArray(n.children)) return;
+		for (const child of n.children) walk(child);
+	};
+	walk(node);
+	return out;
+};
+function _temp$1(node, i) {
+	return /* @__PURE__ */ React.createElement("p", {
+		key: `pt-${i}`,
+		style: { margin: "0 0 0.6em 0" }
+	}, collectPlainText$1(node));
+}
 
 //#endregion
 //#region src/lib/internal/page-size-presets.ts
@@ -927,23 +983,26 @@ const usePageLayout = (editor, value, options) => {
 //#endregion
 //#region src/react/page-overlay.tsx
 const PAGE_GAP = 24;
+const MAX_PAGES_RENDERED = 12;
 /**
-* Paged view (variant A — full takeover).
+* Paged view (variant A — additive, NOT a takeover).
 *
-* - `mode === 'paged'`: hides the live `<Editable />` via a global
-*   `data-plate-pagination-mode="paged"` attribute on `<body>` (consumer
-*   stylesheet uses `body[data-plate-pagination-mode='paged'] [data-slate-editor] { display: none }`)
-*   and stacks `PageFrame`s vertically. Content inside each frame is
-*   rendered via `PlateStatic` (read-only) so users see the document laid
-*   out exactly as it will print.
-* - `mode === 'standard'`: renders absolutely nothing (besides the
-*   {@link FootnotePortal} which hides in-flow footnote definitions when
-*   the option opts in). The editor stays in continuous-flow mode.
+* - `mode === 'standard'`: renders nothing besides the {@link FootnotePortal}
+*   (which only acts when footnote sub-plugins are wired). The editor stays
+*   in continuous-flow mode with no chrome.
+* - `mode === 'paged'`: renders a paginated stack of {@link PageFrame}
+*   instances BELOW the live `<Editable />`. Each frame uses `PlateStatic`
+*   to render that page's slice of the document. The live editor is NOT
+*   hidden — hiding it via `display:none` causes Plate plugins (cursor,
+*   AI, comments, suggestions) to fire layout-zero callbacks in a tight
+*   loop, which crashes the renderer. Keeping the editor mounted and
+*   visible above the paged stack is the only stable option for variant A
+*   without first re-architecting every consumer's chrome layout.
 *
-* The `afterEditable` slot is the right home for the paged view because
-* it sits inside the Plate provider (so `usePluginOption`/`useEditorRef`
-* work) and runs after the Editable mounts, so the global attribute hook
-* applies before the live editor would otherwise show through.
+* Wrapped in an error boundary so a runaway PlateStatic subtree on one page
+* cannot take the entire app down. Pages past MAX_PAGES_RENDERED are
+* elided with a "+N more" badge — the paginator may produce arbitrary
+* counts but rendering hundreds of static editors is not viable in browser.
 */
 const PageOverlay = () => {
 	const [mounted, setMounted] = React.useState(false);
@@ -952,6 +1011,11 @@ const PageOverlay = () => {
 	}, []);
 	const editor = useEditorRef();
 	const mode = usePluginOption(BasePaginationPlugin, "mode");
+	if (typeof window !== "undefined") {
+		const w = window;
+		w.__plateOverlayRenders = (w.__plateOverlayRenders ?? 0) + 1;
+		w.__plateOverlayLastMode = mode;
+	}
 	const pageSize = usePluginOption(BasePaginationPlugin, "pageSize");
 	const pageBorder = usePluginOption(BasePaginationPlugin, "pageBorder");
 	const margins = usePluginOption(BasePaginationPlugin, "margins");
@@ -989,15 +1053,11 @@ const PageOverlay = () => {
 		previewWidth
 	]);
 	const pages = usePageLayout(editor, value, safeOptions);
+	if (typeof window !== "undefined") {
+		const w_0 = window;
+		w_0.__plateOverlayPages = pages.length;
+	}
 	const isPaged = mode === "paged";
-	React.useEffect(() => {
-		const body = document.body;
-		if (isPaged) body.dataset.platePaginationMode = "paged";
-		else delete body.dataset.platePaginationMode;
-		return () => {
-			delete body.dataset.platePaginationMode;
-		};
-	}, [isPaged]);
 	if (!mounted) return null;
 	const footnoteDefinitionType = editor.getType(FOOTNOTE_DEFINITION_KEY);
 	const footnotesInFooter = safeOptions.footnotePlacement === "footer";
@@ -1011,8 +1071,10 @@ const PageOverlay = () => {
 	const footerType = editor.getType(FOOTER_KEY);
 	const documentHeader = value.find((n) => n.type === headerType);
 	const documentFooter = value.find((n_0) => n_0.type === footerType);
+	const visiblePages = pages.slice(0, MAX_PAGES_RENDERED);
+	const truncatedCount = Math.max(0, pages.length - visiblePages.length);
 	let runningTop = 0;
-	const pageRows = pages.map((page) => {
+	const pageRows = visiblePages.map((page) => {
 		const top = runningTop;
 		runningTop += page.rect.height + PAGE_GAP;
 		return {
@@ -1021,14 +1083,14 @@ const PageOverlay = () => {
 		};
 	});
 	const stackHeight = Math.max(0, runningTop - PAGE_GAP);
-	const pageWidth = pages[0]?.rect.width ?? 0;
-	return /* @__PURE__ */ React.createElement(React.Fragment, null, footnotePortal, /* @__PURE__ */ React.createElement("style", { "data-plate-pagination-style": "" }, `body[data-plate-pagination-mode="paged"] [data-slate-editor]{display:none!important;}`), /* @__PURE__ */ React.createElement("div", {
+	const pageWidth = visiblePages[0]?.rect.width ?? 0;
+	return /* @__PURE__ */ React.createElement(PaginationErrorBoundary, { fallback: footnotePortal }, footnotePortal, /* @__PURE__ */ React.createElement("div", {
 		"aria-label": "Paginated document view",
 		"data-plate-pagination-paged-view": "",
 		role: "region",
 		style: {
 			background: "rgba(248, 250, 252, 1)",
-			minHeight: "100vh",
+			marginTop: 24,
 			padding: "24px 0",
 			position: "relative",
 			width: "100%"
@@ -1056,7 +1118,36 @@ const PageOverlay = () => {
 		footnotesInFooter,
 		page: page_0,
 		top: top_0
-	})))));
+	}))), truncatedCount > 0 ? /* @__PURE__ */ React.createElement("div", {
+		"data-plate-pagination-truncation": "",
+		style: {
+			color: "rgba(15,23,42,0.6)",
+			fontSize: 12,
+			padding: "12px 0",
+			textAlign: "center"
+		}
+	}, `+${truncatedCount} more page${truncatedCount === 1 ? "" : "s"} not shown`) : null));
+};
+/**
+* Catches render errors inside the paged stack so a single bad page does
+* not take down the editor. Falls back to the same `footnotePortal` the
+* happy path returns when there is nothing else to render.
+*/
+var PaginationErrorBoundary = class extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = { error: null };
+	}
+	static getDerivedStateFromError(error) {
+		return { error };
+	}
+	componentDidCatch(error, info) {
+		console.error("[plate-pagination] paged-view crashed", error, info);
+	}
+	render() {
+		if (this.state.error !== null) return this.props.fallback;
+		return this.props.children;
+	}
 };
 
 //#endregion
@@ -1088,7 +1179,7 @@ const PaginationPlugin = toTPlatePlugin(BasePaginationPlugin).extend(({ getOptio
 		PageBreakPlugin,
 		...getOptions().includeFootnoteSubPlugins === false ? [] : FOOTNOTE_SUB_PLUGINS
 	],
-	render: { afterEditable: PageOverlay }
+	render: { afterEditable: () => React.createElement(PageOverlay) }
 }));
 
 //#endregion

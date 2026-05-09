@@ -4,6 +4,7 @@ import {
   FootnoteReferencePlugin,
 } from '@platejs/footnote/react';
 import { toTPlatePlugin } from 'platejs/react';
+import * as React from 'react';
 
 import {
   BasePaginationPlugin,
@@ -47,6 +48,10 @@ export const PaginationPlugin = toTPlatePlugin<BasePaginationConfig>(
       : FOOTNOTE_SUB_PLUGINS),
   ],
   render: {
-    afterEditable: PageOverlay,
+    // The `afterEditable` slot is invoked as a render function; wrap the
+    // component via `createElement` so React mounts it as a real component
+    // (hooks + reconciliation), instead of calling `PageOverlay()` directly
+    // which would short-circuit the hooks lifecycle. (`.ts` file — no JSX.)
+    afterEditable: () => React.createElement(PageOverlay),
   },
 }));

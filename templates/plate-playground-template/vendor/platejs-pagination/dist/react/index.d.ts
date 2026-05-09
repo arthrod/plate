@@ -1,4 +1,4 @@
-import { A as Page, D as BasePaginationTransforms, E as BasePaginationOptions, N as PageMargins, j as PageBorder, k as Measurer, w as BasePaginationApi } from "../index-fQ6tvSMT";
+import { A as Page, D as BasePaginationTransforms, E as BasePaginationOptions, N as PageMargins, j as PageBorder, k as Measurer, w as BasePaginationApi } from "../index-npM6jG7I";
 import * as platejs0 from "platejs";
 import { SlateEditor, TElement } from "platejs";
 import * as platejs_react0 from "platejs/react";
@@ -96,22 +96,24 @@ declare const PageFrame: ({
 //#endregion
 //#region src/react/page-overlay.d.ts
 /**
- * Paged view (variant A — full takeover).
+ * Paged view (variant A — additive, NOT a takeover).
  *
- * - `mode === 'paged'`: hides the live `<Editable />` via a global
- *   `data-plate-pagination-mode="paged"` attribute on `<body>` (consumer
- *   stylesheet uses `body[data-plate-pagination-mode='paged'] [data-slate-editor] { display: none }`)
- *   and stacks `PageFrame`s vertically. Content inside each frame is
- *   rendered via `PlateStatic` (read-only) so users see the document laid
- *   out exactly as it will print.
- * - `mode === 'standard'`: renders absolutely nothing (besides the
- *   {@link FootnotePortal} which hides in-flow footnote definitions when
- *   the option opts in). The editor stays in continuous-flow mode.
+ * - `mode === 'standard'`: renders nothing besides the {@link FootnotePortal}
+ *   (which only acts when footnote sub-plugins are wired). The editor stays
+ *   in continuous-flow mode with no chrome.
+ * - `mode === 'paged'`: renders a paginated stack of {@link PageFrame}
+ *   instances BELOW the live `<Editable />`. Each frame uses `PlateStatic`
+ *   to render that page's slice of the document. The live editor is NOT
+ *   hidden — hiding it via `display:none` causes Plate plugins (cursor,
+ *   AI, comments, suggestions) to fire layout-zero callbacks in a tight
+ *   loop, which crashes the renderer. Keeping the editor mounted and
+ *   visible above the paged stack is the only stable option for variant A
+ *   without first re-architecting every consumer's chrome layout.
  *
- * The `afterEditable` slot is the right home for the paged view because
- * it sits inside the Plate provider (so `usePluginOption`/`useEditorRef`
- * work) and runs after the Editable mounts, so the global attribute hook
- * applies before the live editor would otherwise show through.
+ * Wrapped in an error boundary so a runaway PlateStatic subtree on one page
+ * cannot take the entire app down. Pages past MAX_PAGES_RENDERED are
+ * elided with a "+N more" badge — the paginator may produce arbitrary
+ * counts but rendering hundreds of static editors is not viable in browser.
  */
 declare const PageOverlay: () => React.JSX.Element | null;
 //#endregion

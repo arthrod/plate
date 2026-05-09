@@ -19,24 +19,27 @@ import { usePageLayout } from './internal/use-page-layout';
 import { PageFrame } from './page-frame';
 
 const PAGE_GAP = 24;
+const MAX_PAGES_RENDERED = 12;
 
 /**
- * Paged view (variant A — full takeover).
+ * Paged view (variant A — additive, NOT a takeover).
  *
- * - `mode === 'paged'`: hides the live `<Editable />` via a global
- *   `data-plate-pagination-mode="paged"` attribute on `<body>` (consumer
- *   stylesheet uses `body[data-plate-pagination-mode='paged'] [data-slate-editor] { display: none }`)
- *   and stacks `PageFrame`s vertically. Content inside each frame is
- *   rendered via `PlateStatic` (read-only) so users see the document laid
- *   out exactly as it will print.
- * - `mode === 'standard'`: renders absolutely nothing (besides the
- *   {@link FootnotePortal} which hides in-flow footnote definitions when
- *   the option opts in). The editor stays in continuous-flow mode.
+ * - `mode === 'standard'`: renders nothing besides the {@link FootnotePortal}
+ *   (which only acts when footnote sub-plugins are wired). The editor stays
+ *   in continuous-flow mode with no chrome.
+ * - `mode === 'paged'`: renders a paginated stack of {@link PageFrame}
+ *   instances BELOW the live `<Editable />`. Each frame uses `PlateStatic`
+ *   to render that page's slice of the document. The live editor is NOT
+ *   hidden — hiding it via `display:none` causes Plate plugins (cursor,
+ *   AI, comments, suggestions) to fire layout-zero callbacks in a tight
+ *   loop, which crashes the renderer. Keeping the editor mounted and
+ *   visible above the paged stack is the only stable option for variant A
+ *   without first re-architecting every consumer's chrome layout.
  *
- * The `afterEditable` slot is the right home for the paged view because
- * it sits inside the Plate provider (so `usePluginOption`/`useEditorRef`
- * work) and runs after the Editable mounts, so the global attribute hook
- * applies before the live editor would otherwise show through.
+ * Wrapped in an error boundary so a runaway PlateStatic subtree on one page
+ * cannot take the entire app down. Pages past MAX_PAGES_RENDERED are
+ * elided with a "+N more" badge — the paginator may produce arbitrary
+ * counts but rendering hundreds of static editors is not viable in browser.
  */
 export const PageOverlay = (): React.JSX.Element | null => {
   const [mounted, setMounted] = React.useState(false);
@@ -47,6 +50,18 @@ export const PageOverlay = (): React.JSX.Element | null => {
 
   const editor = useEditorRef();
   const mode = usePluginOption(BasePaginationPlugin, 'mode');
+
+  // Diagnostics: surface render count + observed mode so we can confirm
+  // whether the hook is reflecting `setMode` from outside React.
+  if (typeof window !== 'undefined') {
+    const w = window as unknown as {
+      __plateOverlayRenders?: number;
+      __plateOverlayLastMode?: unknown;
+    };
+
+    w.__plateOverlayRenders = (w.__plateOverlayRenders ?? 0) + 1;
+    w.__plateOverlayLastMode = mode;
+  }
   const pageSize = usePluginOption(BasePaginationPlugin, 'pageSize');
   const pageBorder = usePluginOption(BasePaginationPlugin, 'pageBorder');
   const margins = usePluginOption(BasePaginationPlugin, 'margins');
@@ -104,30 +119,16 @@ export const PageOverlay = (): React.JSX.Element | null => {
     safeOptions
   );
 
-  const isPaged = mode === 'paged';
-
-  // Toggle a global attribute on `<body>` so consumer stylesheets can hide
-  // the live `<Editable />` in paged mode without coupling to the Plate
-  // wrapper class hierarchy. Cleared on standard / unmount so the attribute
-  // never survives the lifecycle.
-  React.useEffect(() => {
-    // `useEffect` is client-only, so document is always defined here. The
-    // explicit SSR guard is intentionally NOT used — Turbopack's minifier
-    // miscompiles `typeof document === 'undefined'` into a swapped operand
-    // (`"u" > typeof document`), inverting the runtime check and breaking
-    // the DOM mutation in browsers.
-    const body = document.body;
-
-    if (isPaged) {
-      body.dataset.platePaginationMode = 'paged';
-    } else {
-      delete body.dataset.platePaginationMode;
-    }
-
-    return () => {
-      delete body.dataset.platePaginationMode;
+  if (typeof window !== 'undefined') {
+    const w = window as unknown as {
+      __plateOverlayPages?: number;
+      __plateOverlayMounted?: boolean;
     };
-  }, [isPaged]);
+
+    w.__plateOverlayPages = pages.length;
+  }
+
+  const isPaged = mode === 'paged';
 
   if (!mounted) return null;
 
@@ -140,14 +141,8 @@ export const PageOverlay = (): React.JSX.Element | null => {
     />
   );
 
-  // Standard mode: no chrome rendered anywhere. The footnote portal hides
-  // in-flow footnote definitions when configured, but no header / footer /
-  // page boxes are produced.
   if (!isPaged) return footnotePortal;
-
-  if (pages.length === 0) {
-    return footnotePortal;
-  }
+  if (pages.length === 0) return footnotePortal;
 
   const headerType = editor.getType(HEADER_KEY);
   const footerType = editor.getType(FOOTER_KEY);
@@ -158,11 +153,11 @@ export const PageOverlay = (): React.JSX.Element | null => {
     (n) => n.type === footerType
   );
 
-  // Stack pages vertically inside a centered column. Each PageFrame is
-  // absolutely positioned within this container so PageFrame's existing
-  // chrome math (header band, footer band, footnote well) stays unchanged.
+  const visiblePages = pages.slice(0, MAX_PAGES_RENDERED);
+  const truncatedCount = Math.max(0, pages.length - visiblePages.length);
+
   let runningTop = 0;
-  const pageRows = pages.map((page) => {
+  const pageRows = visiblePages.map((page) => {
     const top = runningTop;
 
     runningTop += page.rect.height + PAGE_GAP;
@@ -170,21 +165,18 @@ export const PageOverlay = (): React.JSX.Element | null => {
     return { page, top };
   });
   const stackHeight = Math.max(0, runningTop - PAGE_GAP);
-  const pageWidth = pages[0]?.rect.width ?? 0;
+  const pageWidth = visiblePages[0]?.rect.width ?? 0;
 
   return (
-    <>
+    <PaginationErrorBoundary fallback={footnotePortal}>
       {footnotePortal}
-      <style data-plate-pagination-style="">{
-        `body[data-plate-pagination-mode="paged"] [data-slate-editor]{display:none!important;}`
-      }</style>
       <div
         aria-label="Paginated document view"
         data-plate-pagination-paged-view=""
         role="region"
         style={{
           background: 'rgba(248, 250, 252, 1)',
-          minHeight: '100vh',
+          marginTop: 24,
           padding: '24px 0',
           position: 'relative',
           width: '100%',
@@ -218,7 +210,57 @@ export const PageOverlay = (): React.JSX.Element | null => {
             />
           ))}
         </div>
+        {truncatedCount > 0 ? (
+          <div
+            data-plate-pagination-truncation=""
+            style={{
+              color: 'rgba(15,23,42,0.6)',
+              fontSize: 12,
+              padding: '12px 0',
+              textAlign: 'center',
+            }}
+          >
+            {`+${truncatedCount} more page${truncatedCount === 1 ? '' : 's'} not shown`}
+          </div>
+        ) : null}
       </div>
-    </>
+    </PaginationErrorBoundary>
   );
 };
+
+type ErrorBoundaryState = { error: Error | null };
+
+/**
+ * Catches render errors inside the paged stack so a single bad page does
+ * not take down the editor. Falls back to the same `footnotePortal` the
+ * happy path returns when there is nothing else to render.
+ */
+class PaginationErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  ErrorBoundaryState
+> {
+  constructor(props: {
+    children: React.ReactNode;
+    fallback: React.ReactNode;
+  }) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo): void {
+    // eslint-disable-next-line no-console
+    console.error('[plate-pagination] paged-view crashed', error, info);
+  }
+
+  render(): React.ReactNode {
+    if (this.state.error !== null) {
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+}
