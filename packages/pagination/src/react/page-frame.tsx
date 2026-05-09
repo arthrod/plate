@@ -51,21 +51,19 @@ export const PageFrame = ({
   const footnoteWellTop =
     rect.height - chrome.footerHeight - chrome.footnoteWell;
   const footerTop = rect.height - chrome.footerHeight;
-  // Pass NO plugins to the static editor. The page-render path is
-  // intentionally dumb: it just renders the page's nodes via PlateStatic's
-  // default leaf renderer. Including the live editor's plugin graph causes
-  // PlateStatic to re-fire every plugin's `afterEditable` slot — which in
-  // turn re-mounts PageOverlay (which renders MORE pages) producing N²
-  // mounts and a renderer crash. Static-preview plugin sanitization
-  // (`getStaticPreviewPlugins`) is preserved below for opt-in re-enable
-  // once each plugin's static behaviour is verified.
-  const staticPlugins = React.useMemo<AnyEditorPlugin[]>(
-    () => [],
-    []
+  // Build a static-safe plugin list: keep only element- / leaf-rendering
+  // plugins (those that contribute a `node.type` so PlateStatic knows how
+  // to render that element) and strip every render slot that could trigger
+  // recursive PageOverlay mounts. Plugins without `node.type` (chrome-only
+  // plugins like AI, comments, suggestions, drag-handle) tend to depend on
+  // live-editor-only state and crash inside PlateStatic; they are dropped
+  // here.
+  const staticPlugins = React.useMemo(
+    () => getElementOnlyStaticPlugins(editor),
+    [editor]
   );
 
   void getStaticPreviewPlugins;
-  void editor;
   const pageBorder = chrome.pageBorder;
   const border =
     pageBorder.style === 'none' || pageBorder.width === 0
@@ -183,16 +181,22 @@ const StaticPageValue = ({
   plugins: AnyEditorPlugin[];
   value: TElement[];
 }): React.JSX.Element => {
-  // Try real PlateStatic first (rich rendering of plugin nodes). When the
-  // plugin tree contains a node shape PlateStatic cannot iterate (any
-  // plugin that escaped the strip in `toStaticPreviewPlugin` and emits a
-  // non-iterable value), fall back to a plain-text walk so the page chrome
-  // still shows the content. The fallback is intentionally permissive —
-  // we'd rather show degraded text than crash the entire paged view.
+  // Render each node in its OWN PlateStatic with its own error boundary.
+  // Crashes are common with rich elements (table, image, voids that depend
+  // on live editor state). Per-node isolation means a single bad node
+  // falls back to plain text without taking the entire page down.
   return (
-    <PlateStaticBoundary plugins={plugins} value={value}>
-      <FallbackPageText value={value} />
-    </PlateStaticBoundary>
+    <div data-plate-pagination-static-stack="">
+      {value.map((node, i) => (
+        <PlateStaticBoundary
+          key={`n-${i}`}
+          plugins={plugins}
+          value={[node]}
+        >
+          <FallbackPageText value={[node]} />
+        </PlateStaticBoundary>
+      ))}
+    </div>
   );
 };
 
@@ -300,6 +304,62 @@ const getStaticPreviewPlugins = (editor: PlateEditor): AnyEditorPlugin[] =>
   editor.meta.pluginList
     .map(toStaticPreviewPlugin)
     .filter((plugin): plugin is AnyEditorPlugin => plugin !== null);
+
+/**
+ * Static-safe subset of the live editor's plugins.
+ *
+ * Keeps plugins that have `node.type` (element / leaf renderers) AND a
+ * `node.component` (the renderer itself). Skips:
+ * - the pagination plugin (would recurse — see comment in `PageFrame`)
+ * - any plugin marked `editOnly` (won't run in static mode anyway)
+ * - chrome-only plugins (no `node.type`) which tend to depend on live
+ *   editor state and crash PlateStatic
+ *
+ * All render slots (`afterEditable`, `beforeEditable`, etc.) are wiped so
+ * PlateStatic does not re-fire pagination's `afterEditable` from inside a
+ * page (which would mount another PageOverlay → infinite recursion).
+ */
+const getElementOnlyStaticPlugins = (
+  editor: PlateEditor
+): AnyEditorPlugin[] => {
+  const out: AnyEditorPlugin[] = [];
+
+  for (const plugin of editor.meta.pluginList) {
+    if (plugin.key === PAGINATION_KEY) continue;
+    if (plugin.editOnly) continue;
+    if (!plugin.node?.type) continue;
+    if (!plugin.node.component) continue;
+
+    out.push({
+      ...plugin,
+      __extensions: [],
+      inject: plugin.inject?.nodeProps?.transformProps
+        ? {
+            ...plugin.inject,
+            nodeProps: {
+              ...plugin.inject.nodeProps,
+              transformProps: undefined,
+            },
+          }
+        : plugin.inject,
+      render: {
+        ...plugin.render,
+        aboveEditable: undefined,
+        aboveNodes: undefined,
+        aboveSlate: undefined,
+        afterContainer: undefined,
+        afterEditable: undefined,
+        beforeContainer: undefined,
+        beforeEditable: undefined,
+        belowNodes: undefined,
+        belowRootNodes: undefined,
+        node: undefined,
+      },
+    } as AnyEditorPlugin);
+  }
+
+  return out;
+};
 
 const toStaticPreviewPlugin = (
   plugin: AnyEditorPlugin

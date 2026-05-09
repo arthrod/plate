@@ -582,5 +582,5 @@ const paginate = ({ ctx, doc, footnotePlacement = "footer", measurer, rect }) =>
 };
 
 //#endregion
-export { allocateFootnotes as C, HEADER_KEY as E, BaseFooterPlugin as S, FOOTNOTE_DEFINITION_KEY as T, getPaginationPages as _, replaceHeader as a, BasePageBreakPlugin as b, insertPageBreak as c, enforceHeaderFooterInvariants as d, PAGINATION_OPTION_DEFAULTS as f, getPaginationFootnotes as g, hasHeaderBlock as h, toggleFooter as i, ensureHeader as l, hasFooterBlock as m, BasePaginationPlugin as n, replaceFooter as o, resolvePaginationOptions as p, toggleHeader as r, removeNodesByType as s, paginate as t, ensureFooter as u, getPageOfPath as v, FOOTER_KEY as w, BaseHeaderPlugin as x, setEditorPages as y };
-//# sourceMappingURL=paginate-mRxYCK8i.js.map
+export { allocateFootnotes as C, PAGINATION_KEY as D, HEADER_KEY as E, BaseFooterPlugin as S, FOOTNOTE_DEFINITION_KEY as T, getPaginationPages as _, replaceHeader as a, BasePageBreakPlugin as b, insertPageBreak as c, enforceHeaderFooterInvariants as d, PAGINATION_OPTION_DEFAULTS as f, getPaginationFootnotes as g, hasHeaderBlock as h, toggleFooter as i, ensureHeader as l, hasFooterBlock as m, BasePaginationPlugin as n, replaceFooter as o, resolvePaginationOptions as p, toggleHeader as r, removeNodesByType as s, paginate as t, ensureFooter as u, getPageOfPath as v, FOOTER_KEY as w, BaseHeaderPlugin as x, setEditorPages as y };
+//# sourceMappingURL=paginate-Cla4sKzV.js.map

@@ -1,4 +1,4 @@
-import { A as Page, D as BasePaginationTransforms, E as BasePaginationOptions, N as PageMargins, j as PageBorder, k as Measurer, w as BasePaginationApi } from "../index-npM6jG7I";
+import { A as Page, D as BasePaginationTransforms, E as BasePaginationOptions, N as PageMargins, j as PageBorder, k as Measurer, w as BasePaginationApi } from "../index-fQ6tvSMT";
 import * as platejs0 from "platejs";
 import { SlateEditor, TElement } from "platejs";
 import * as platejs_react0 from "platejs/react";
