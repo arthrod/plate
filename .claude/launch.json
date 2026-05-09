@@ -1,0 +1,32 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "plate-playground-template",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd templates/plate-playground-template && PORT=3001 exec bun run dev"
+      ],
+      "port": 3001
+    },
+    {
+      "name": "plate-template",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd templates/plate-template && PORT=3002 exec bun run dev"
+      ],
+      "port": 3002
+    },
+    {
+      "name": "www",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "PORT=3003 exec pnpm --filter www dev"
+      ],
+      "port": 3003
+    }
+  ]
+}

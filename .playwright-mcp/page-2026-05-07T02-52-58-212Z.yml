@@ -1,0 +1,527 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - toolbar [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e7]:
+            - button [disabled]:
+              - img
+            - button [disabled]:
+              - img
+          - button [ref=e11] [cursor=pointer]:
+            - img
+          - generic [ref=e14]:
+            - group [ref=e15]:
+              - radio [ref=e16] [cursor=pointer]:
+                - generic [ref=e17]:
+                  - img
+                - generic [ref=e18]:
+                  - img
+            - group [ref=e19]:
+              - radio [ref=e20] [cursor=pointer]:
+                - generic [ref=e21]:
+                  - img
+                - generic [ref=e22]:
+                  - img
+          - generic [ref=e25]:
+            - group [ref=e26]:
+              - radio [ref=e27] [cursor=pointer]:
+                - generic [ref=e28]:
+                  - img
+                - generic [ref=e29]:
+                  - img
+            - group [ref=e30]:
+              - radio "Text" [ref=e31] [cursor=pointer]:
+                - generic [ref=e32]: Text
+                - generic [ref=e33]:
+                  - img
+            - generic [ref=e34]:
+              - button [ref=e35] [cursor=pointer]:
+                - img
+              - textbox [ref=e36]: "16"
+              - button [ref=e37] [cursor=pointer]:
+                - img
+          - generic [ref=e40]:
+            - group [ref=e41]:
+              - radio [ref=e42] [cursor=pointer]:
+                - img
+            - group [ref=e43]:
+              - radio [ref=e44] [cursor=pointer]:
+                - img
+            - group [ref=e45]:
+              - radio [ref=e46] [cursor=pointer]:
+                - img
+            - group [ref=e47]:
+              - radio [ref=e48] [cursor=pointer]:
+                - img
+            - group [ref=e49]:
+              - radio [ref=e50] [cursor=pointer]:
+                - img
+            - group [ref=e51]:
+              - radio [ref=e52] [cursor=pointer]:
+                - img
+            - group [ref=e53]:
+              - radio [ref=e54] [cursor=pointer]:
+                - img
+          - generic [ref=e57]:
+            - group [ref=e58]:
+              - radio [ref=e59] [cursor=pointer]:
+                - generic [ref=e60]:
+                  - img
+                - generic [ref=e61]:
+                  - img
+            - group [ref=e62]:
+              - radio [ref=e63] [cursor=pointer]:
+                - generic [ref=e64]:
+                  - img
+                - button [ref=e65]:
+                  - img
+            - group [ref=e66]:
+              - radio [ref=e67] [cursor=pointer]:
+                - generic [ref=e68]:
+                  - img
+                - button [ref=e69]:
+                  - img
+            - group [ref=e70]:
+              - radio [ref=e71] [cursor=pointer]:
+                - img
+            - group [ref=e72]:
+              - radio [ref=e73] [cursor=pointer]:
+                - img
+          - generic [ref=e76]:
+            - group [ref=e77]:
+              - radio [ref=e78] [cursor=pointer]:
+                - img
+            - group [ref=e79]:
+              - radio [ref=e80] [cursor=pointer]:
+                - generic [ref=e81]:
+                  - img
+                - generic [ref=e82]:
+                  - img
+            - group [ref=e83]:
+              - radio [ref=e84] [cursor=pointer]:
+                - generic [ref=e85]:
+                  - img
+                - generic [ref=e86]:
+                  - img
+          - generic [ref=e89]:
+            - group [ref=e90]:
+              - radio [ref=e91] [cursor=pointer]:
+                - generic [ref=e92]:
+                  - img
+                - button [ref=e93]:
+                  - img
+            - group [ref=e94]:
+              - radio [ref=e95] [cursor=pointer]:
+                - generic [ref=e96]:
+                  - img
+                - button [ref=e97]:
+                  - img
+            - group [ref=e98]:
+              - radio [ref=e99] [cursor=pointer]:
+                - generic [ref=e100]:
+                  - img
+                - button [ref=e101]:
+                  - img
+            - group [ref=e102]:
+              - radio [ref=e103] [cursor=pointer]:
+                - generic [ref=e104]:
+                  - img
+                - button [ref=e105]:
+                  - img
+          - generic [ref=e108]:
+            - group [ref=e109]:
+              - radio [ref=e110] [cursor=pointer]:
+                - generic [ref=e111]:
+                  - img
+                - generic [ref=e112]:
+                  - img
+            - button [ref=e113] [cursor=pointer]:
+              - img
+            - button [ref=e114] [cursor=pointer]:
+              - img
+          - group [ref=e118]:
+            - radio [ref=e119] [cursor=pointer]:
+              - img
+          - generic [ref=e122]:
+            - group [ref=e123]:
+              - radio [ref=e124] [cursor=pointer]:
+                - img
+            - button [ref=e125] [cursor=pointer]:
+              - img
+            - group [ref=e126]:
+              - radio [checked] [ref=e127] [cursor=pointer]:
+                - generic [ref=e128]:
+                  - img
+                - generic [ref=e129]:
+                  - img
+          - group [ref=e133]:
+            - radio "Editing" [ref=e134] [cursor=pointer]:
+              - generic [ref=e135]:
+                - img
+                - generic [ref=e136]: Editing
+              - generic [ref=e137]:
+                - img
+      - textbox [ref=e139]:
+        - generic [ref=e140]:
+          - button [ref=e144]:
+            - button [ref=e145]:
+              - img
+          - heading "Welcome to the Plate Playground!" [level=1] [ref=e148]:
+            - generic [ref=e150]: Welcome to the Plate Playground!
+        - generic [ref=e151]:
+          - button [ref=e155]:
+            - button [ref=e156]:
+              - img
+          - generic [ref=e159]:
+            - generic [ref=e161]: Experience a modern rich-text editor built with
+            - link "Slate" [ref=e162]:
+              - /url: https://slatejs.org/
+              - generic [ref=e164]: Slate
+            - generic [ref=e166]: and
+            - link "React" [ref=e167]:
+              - /url: https://reactjs.org/
+              - generic [ref=e169]: React
+            - generic [ref=e171]: . This playground showcases just a part of Plate's capabilities.
+            - link "Explore the documentation" [ref=e172]:
+              - /url: /docs
+              - generic [ref=e174]: Explore the documentation
+            - generic [ref=e176]: to discover more.
+        - generic [ref=e177]:
+          - button [ref=e181]:
+            - button [ref=e182]:
+              - img
+          - heading "Collaborative Editing" [level=2] [ref=e185]:
+            - generic [ref=e187]: Collaborative Editing
+        - generic [ref=e188]:
+          - button [ref=e192]:
+            - button [ref=e193]:
+              - img
+          - generic [ref=e195]:
+            - generic [ref=e197]:
+              - generic [ref=e199]: Review and refine content seamlessly. Use
+              - link "suggestions" [ref=e200]:
+                - /url: /docs/suggestion
+                - insertion [ref=e203]: suggestions
+              - insertion [ref=e206]
+              - insertion [ref=e209]: like this added text
+              - generic [ref=e211]: or to
+              - deletion [ref=e214]: mark text for removal
+              - generic [ref=e216]: . Discuss changes using
+              - link "comments" [ref=e217]:
+                - /url: /docs/comment
+                - generic [ref=e220]: comments
+              - generic [ref=e223]: on many text segments
+              - generic [ref=e225]: . You can even have
+              - insertion [ref=e228]:
+                - generic [ref=e229]: overlapping
+              - generic [ref=e231]: annotations!
+            - button "5" [ref=e232]:
+              - img
+              - generic [ref=e233]: "5"
+        - generic [ref=e234]:
+          - button [ref=e238]:
+            - button [ref=e239]:
+              - img
+          - heading "AI-Powered Editing" [level=2] [ref=e242]:
+            - generic [ref=e244]: AI-Powered Editing
+        - generic [ref=e245]:
+          - button [ref=e249]:
+            - button [ref=e250]:
+              - img
+          - generic [ref=e253]:
+            - generic [ref=e255]: Boost your productivity with integrated
+            - link "AI SDK" [ref=e256]:
+              - /url: /docs/ai
+              - generic [ref=e258]: AI SDK
+            - generic [ref=e260]: . Press
+            - generic [ref=e263]: ⌘+J
+            - generic [ref=e265]: or
+            - generic [ref=e268]: Space
+            - generic [ref=e270]: "in an empty line to:"
+        - generic [ref=e271]:
+          - button [ref=e275]:
+            - button [ref=e276]:
+              - img
+          - list [ref=e280]:
+            - listitem [ref=e281]:
+              - generic [ref=e283]: Generate content (continue writing, summarize, explain)
+        - generic [ref=e284]:
+          - button [ref=e288]:
+            - button [ref=e289]:
+              - img
+          - list [ref=e293]:
+            - listitem [ref=e294]:
+              - generic [ref=e296]: Edit existing text (improve, fix grammar, change tone)
+        - generic [ref=e297]:
+          - button [ref=e301]:
+            - button [ref=e302]:
+              - img
+          - heading "Rich Content Editing" [level=2] [ref=e305]:
+            - generic [ref=e307]: Rich Content Editing
+        - generic [ref=e308]:
+          - button [ref=e312]:
+            - button [ref=e313]:
+              - img
+          - generic [ref=e316]:
+            - generic [ref=e318]: Structure your content with
+            - link "headings" [ref=e319]:
+              - /url: /docs/heading
+              - generic [ref=e321]: headings
+            - generic [ref=e323]: ","
+            - link "lists" [ref=e324]:
+              - /url: /docs/list
+              - generic [ref=e326]: lists
+            - generic [ref=e328]: ", and"
+            - link "quotes" [ref=e329]:
+              - /url: /docs/blockquote
+              - generic [ref=e331]: quotes
+            - generic [ref=e333]: . Apply
+            - link "marks" [ref=e334]:
+              - /url: /docs/basic-marks
+              - generic [ref=e336]: marks
+            - generic [ref=e338]: like
+            - strong [ref=e341]: bold
+            - generic [ref=e343]: ","
+            - emphasis [ref=e346]: italic
+            - generic [ref=e348]: ","
+            - generic [ref=e351]: underline
+            - generic [ref=e353]: ","
+            - generic [ref=e356]: strikethrough
+            - generic [ref=e358]: ", and"
+            - code [ref=e361]: code
+            - generic [ref=e363]: . Use
+            - link "autoformatting" [ref=e364]:
+              - /url: /docs/autoformat
+              - generic [ref=e366]: autoformatting
+            - generic [ref=e368]: for
+            - link "Markdown" [ref=e369]:
+              - /url: /docs/markdown
+              - generic [ref=e371]: Markdown
+            - generic [ref=e373]: "-like shortcuts (e.g.,"
+            - generic [ref=e376]: "*"
+            - generic [ref=e378]: for lists,
+            - generic [ref=e381]: "#"
+            - generic [ref=e383]: for H1).
+        - generic [ref=e384]:
+          - button [ref=e388]:
+            - button [ref=e389]:
+              - img
+          - blockquote [ref=e392]:
+            - generic [ref=e395]: Blockquotes can group paragraphs, quoted lists, and reply chains.
+            - generic [ref=e398]: Markdown blockquotes keep this nested structure instead of flattening it.
+            - list [ref=e400]:
+              - listitem [ref=e401]:
+                - generic [ref=e403]: Quoted list item inside the same container.
+            - blockquote [ref=e404]:
+              - generic [ref=e407]: Nested blockquotes work here too.
+        - generic [ref=e408]:
+          - button [ref=e412]:
+            - button [ref=e413]:
+              - img
+          - generic [ref=e417]:
+            - code [ref=e419]:
+              - generic [ref=e421]:
+                - generic [ref=e423]: function
+                - generic [ref=e427]: hello
+                - generic [ref=e429]: (
+                - generic [ref=e431]: ") {"
+              - generic [ref=e433]:
+                - generic [ref=e437]: console
+                - generic [ref=e439]: .
+                - generic [ref=e441]: info
+                - generic [ref=e443]: (
+                - generic [ref=e445]: "'Code blocks are supported!'"
+                - generic [ref=e447]: );
+              - generic [ref=e451]: "}"
+            - generic [ref=e452]:
+              - combobox [ref=e453]: JavaScript
+              - button "Copy" [ref=e454]:
+                - generic [ref=e455]: Copy
+                - img
+        - generic [ref=e456]:
+          - button [ref=e460]:
+            - button [ref=e461]:
+              - img
+          - generic [ref=e464]:
+            - generic [ref=e466]: Create
+            - link "links" [ref=e467]:
+              - /url: /docs/link
+              - generic [ref=e469]: links
+            - generic [ref=e471]: ","
+            - link "@mention" [ref=e472]:
+              - /url: /docs/mention
+              - generic [ref=e474]: "@mention"
+            - generic [ref=e476]: users like
+            - generic [ref=e477] [cursor=pointer]: Alice
+            - generic [ref=e479]: ", or insert"
+            - link "emojis" [ref=e480]:
+              - /url: /docs/emoji
+              - generic [ref=e482]: emojis
+            - generic [ref=e484]: ✨. Use the
+            - link "slash command" [ref=e485]:
+              - /url: /docs/slash-command
+              - generic [ref=e487]: slash command
+            - generic [ref=e489]: (/) for quick access to elements.
+        - generic [ref=e490]:
+          - button [ref=e494]:
+            - button [ref=e495]:
+              - img
+          - heading "How Plate Compares" [level=3] [ref=e498]:
+            - generic [ref=e500]: How Plate Compares
+        - generic [ref=e501]:
+          - button [ref=e505]:
+            - button [ref=e506]:
+              - img
+          - generic [ref=e511]: Plate offers many features out-of-the-box as free, open-source plugins.
+        - generic [ref=e512]:
+          - button [ref=e516]:
+            - button [ref=e517]:
+              - img
+          - table [ref=e522]:
+            - rowgroup [ref=e528]:
+              - row "Feature Plate (Free & OSS) Tiptap" [ref=e529]:
+                - cell [ref=e530]:
+                  - button [ref=e531]:
+                    - img
+                - rowheader "Feature" [ref=e532]:
+                  - strong [ref=e539]: Feature
+                - columnheader "Plate (Free & OSS)" [ref=e543]:
+                  - strong [ref=e550]: Plate (Free & OSS)
+                - columnheader "Tiptap" [ref=e553]:
+                  - strong [ref=e560]: Tiptap
+              - row "AI ✅ Paid Extension" [ref=e563]:
+                - cell [ref=e564]:
+                  - button [ref=e565]:
+                    - img
+                - cell "AI" [ref=e566]:
+                  - generic [ref=e572]: AI
+                - cell "✅" [ref=e576]:
+                  - generic [ref=e582]: ✅
+                - cell "Paid Extension" [ref=e585]:
+                  - generic [ref=e591]: Paid Extension
+              - row "Comments ✅ Paid Extension" [ref=e594]:
+                - cell [ref=e595]:
+                  - button [ref=e596]:
+                    - img
+                - cell "Comments" [ref=e597]:
+                  - generic [ref=e603]: Comments
+                - cell "✅" [ref=e607]:
+                  - generic [ref=e613]: ✅
+                - cell "Paid Extension" [ref=e616]:
+                  - generic [ref=e622]: Paid Extension
+              - row "Suggestions ✅ Paid (Comments Pro)" [ref=e625]:
+                - cell [ref=e626]:
+                  - button [ref=e627]:
+                    - img
+                - cell "Suggestions" [ref=e628]:
+                  - generic [ref=e634]: Suggestions
+                - cell "✅" [ref=e638]:
+                  - generic [ref=e644]: ✅
+                - cell "Paid (Comments Pro)" [ref=e647]:
+                  - generic [ref=e653]: Paid (Comments Pro)
+              - row "Emoji Picker ✅ Paid Extension" [ref=e656]:
+                - cell [ref=e657]:
+                  - button [ref=e658]:
+                    - img
+                - cell "Emoji Picker" [ref=e659]:
+                  - generic [ref=e665]: Emoji Picker
+                - cell "✅" [ref=e669]:
+                  - generic [ref=e675]: ✅
+                - cell "Paid Extension" [ref=e678]:
+                  - generic [ref=e684]: Paid Extension
+              - row "Table of Contents ✅ Paid Extension" [ref=e687]:
+                - cell [ref=e688]:
+                  - button [ref=e689]:
+                    - img
+                - cell "Table of Contents" [ref=e690]:
+                  - generic [ref=e696]: Table of Contents
+                - cell "✅" [ref=e700]:
+                  - generic [ref=e706]: ✅
+                - cell "Paid Extension" [ref=e709]:
+                  - generic [ref=e715]: Paid Extension
+              - row "Drag Handle ✅ Paid Extension" [ref=e718]:
+                - cell [ref=e719]:
+                  - button [ref=e720]:
+                    - img
+                - cell "Drag Handle" [ref=e721]:
+                  - generic [ref=e727]: Drag Handle
+                - cell "✅" [ref=e731]:
+                  - generic [ref=e737]: ✅
+                - cell "Paid Extension" [ref=e740]:
+                  - generic [ref=e746]: Paid Extension
+              - row "Collaboration (Yjs) ✅ Hocuspocus (OSS/Paid)" [ref=e749]:
+                - cell [ref=e750]:
+                  - button [ref=e751]:
+                    - img
+                - cell "Collaboration (Yjs)" [ref=e752]:
+                  - generic [ref=e758]: Collaboration (Yjs)
+                - cell "✅" [ref=e762]:
+                  - generic [ref=e768]: ✅
+                - cell "Hocuspocus (OSS/Paid)" [ref=e771]:
+                  - generic [ref=e777]: Hocuspocus (OSS/Paid)
+        - generic [ref=e780]:
+          - button [ref=e784]:
+            - button [ref=e785]:
+              - img
+          - heading "Images and Media" [level=3] [ref=e788]:
+            - generic [ref=e790]: Images and Media
+        - generic [ref=e791]:
+          - button [ref=e795]:
+            - button [ref=e796]:
+              - img
+          - generic [ref=e799]:
+            - generic [ref=e801]: Embed rich media like images directly in your content. Supports
+            - link "Media uploads" [ref=e802]:
+              - /url: /docs/media
+              - generic [ref=e804]: Media uploads
+            - generic [ref=e806]: and
+            - link "drag & drop" [ref=e807]:
+              - /url: /docs/dnd
+              - generic [ref=e809]: drag & drop
+            - generic [ref=e811]: for a smooth experience.
+        - generic [ref=e812]:
+          - button [ref=e816]:
+            - button [ref=e817]:
+              - img
+          - figure [ref=e822]:
+            - img [ref=e827] [cursor=pointer]
+        - generic [ref=e829]:
+          - button [ref=e833]:
+            - button [ref=e834]:
+              - img
+          - button "sample.pdf" [ref=e838] [cursor=pointer]:
+            - generic [ref=e839]:
+              - img [ref=e840]
+              - generic [ref=e844]: sample.pdf
+        - generic [ref=e845]:
+          - button [ref=e849]:
+            - button [ref=e850]:
+              - img
+          - figure [ref=e854]
+        - generic [ref=e857]:
+          - button [ref=e861]:
+            - button [ref=e862]:
+              - img
+          - heading "Table of Contents" [level=3] [ref=e865]:
+            - generic [ref=e867]: Table of Contents
+        - generic [ref=e868]:
+          - button [ref=e872]:
+            - button [ref=e873]:
+              - img
+          - generic [ref=e877]:
+            - button "Welcome to the Plate Playground!" [ref=e878] [cursor=pointer]
+            - button "Collaborative Editing" [ref=e879] [cursor=pointer]
+            - button "AI-Powered Editing" [ref=e880] [cursor=pointer]
+            - button "Rich Content Editing" [ref=e881] [cursor=pointer]
+            - button "How Plate Compares" [ref=e882] [cursor=pointer]
+            - button "Images and Media" [ref=e883] [cursor=pointer]
+            - button "Table of Contents" [ref=e884] [cursor=pointer]
+        - button [ref=e889]:
+          - button [ref=e890]:
+            - img
+    - button [ref=e894]:
+      - img
+    - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e900] [cursor=pointer]:
+    - img [ref=e901]
