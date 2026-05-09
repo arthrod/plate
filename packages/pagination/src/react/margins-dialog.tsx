@@ -200,19 +200,17 @@ export const PageSetupDialog = ({
           {sizeKey === 'custom' ? (
             <>
               <Row label="Width">
-                <input
-                  defaultValue={toUnit(sizeLiteral.width)}
-                  onBlur={(e) => setSizeAxis('width', e.target.value)}
-                  style={{ flex: 1 }}
-                  type="number"
+                <NumberInput
+                  onCommit={(v) => setSizeAxis('width', v)}
+                  value={toUnit(sizeLiteral.width)}
+                  inputKey={`${unit}-w-${sizeLiteral.width}`}
                 />
               </Row>
               <Row label="Height">
-                <input
-                  defaultValue={toUnit(sizeLiteral.height)}
-                  onBlur={(e) => setSizeAxis('height', e.target.value)}
-                  style={{ flex: 1 }}
-                  type="number"
+                <NumberInput
+                  onCommit={(v) => setSizeAxis('height', v)}
+                  value={toUnit(sizeLiteral.height)}
+                  inputKey={`${unit}-h-${sizeLiteral.height}`}
                 />
               </Row>
             </>
@@ -222,11 +220,14 @@ export const PageSetupDialog = ({
         <Section title="Margins">
           {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
             <Row key={side} label={side[0].toUpperCase() + side.slice(1)}>
-              <input
-                defaultValue={toUnit(margins[side])}
-                onBlur={(e) => setSide(side, e.target.value)}
-                style={{ flex: 1 }}
-                type="number"
+              <NumberInput
+                onCommit={(v) => setSide(side, v)}
+                value={toUnit(margins[side])}
+                // unit + side + px value all in the key so external option
+                // changes (e.g. preset clicks) and unit toggles remount the
+                // input with the resolved value instead of leaving the user's
+                // stale typed string in place.
+                inputKey={`${unit}-${side}-${margins[side]}`}
               />
             </Row>
           ))}
@@ -234,19 +235,17 @@ export const PageSetupDialog = ({
 
         <Section title="Chrome heights">
           <Row label="Header">
-            <input
-              defaultValue={toUnit(headerHeight ?? 0)}
-              onBlur={(e) => setHeight('headerHeight', e.target.value)}
-              style={{ flex: 1 }}
-              type="number"
+            <NumberInput
+              onCommit={(v) => setHeight('headerHeight', v)}
+              value={toUnit(headerHeight ?? 0)}
+              inputKey={`${unit}-h-${headerHeight}`}
             />
           </Row>
           <Row label="Footer">
-            <input
-              defaultValue={toUnit(footerHeight ?? 0)}
-              onBlur={(e) => setHeight('footerHeight', e.target.value)}
-              style={{ flex: 1 }}
-              type="number"
+            <NumberInput
+              onCommit={(v) => setHeight('footerHeight', v)}
+              value={toUnit(footerHeight ?? 0)}
+              inputKey={`${unit}-f-${footerHeight}`}
             />
           </Row>
         </Section>
@@ -297,16 +296,15 @@ export const PageSetupDialog = ({
             </select>
           </Row>
           <Row label="Start at">
-            <input
-              defaultValue={String(pageNumber.startAt)}
+            <NumberInput
+              inputKey={`pn-start-${pageNumber.startAt}`}
               min={1}
-              onBlur={(e) => {
-                const v = Number.parseInt(e.target.value, 10);
-                if (!Number.isFinite(v) || v < 1) return;
-                tf.pagination.setPageNumber({ startAt: v });
+              onCommit={(v) => {
+                const n = Number.parseInt(v, 10);
+                if (!Number.isFinite(n) || n < 1) return;
+                tf.pagination.setPageNumber({ startAt: n });
               }}
-              style={{ flex: 1 }}
-              type="number"
+              value={String(pageNumber.startAt)}
             />
           </Row>
           <Row label="Hide on first">
@@ -402,4 +400,45 @@ const Row = ({
     <span style={{ fontSize: 13, width: 110 }}>{label}</span>
     {children}
   </div>
+);
+
+/**
+ * Numeric input with commit-on-blur, auto-select-on-focus, and external-sync.
+ *
+ * `inputKey` should encode every external piece of state that should reset
+ * the input back to `value` (e.g. `${unit}-${margins.top}`). When that key
+ * changes React remounts this subtree so the user's stale typed string is
+ * replaced with the freshly-resolved option value — without that, switching
+ * units or clicking a margin preset leaves the input lying.
+ *
+ * `onFocus` selects the entire current value so users replace rather than
+ * append. The previous `defaultValue` shape silently appended typed digits
+ * to existing values, producing pathological margins (e.g. `96 → 96300`).
+ */
+const NumberInput = ({
+  inputKey,
+  min,
+  onCommit,
+  value,
+}: {
+  inputKey: string;
+  min?: number;
+  onCommit: (next: string) => void;
+  value: string;
+}): React.JSX.Element => (
+  <input
+    defaultValue={value}
+    key={inputKey}
+    min={min}
+    onBlur={(e) => onCommit(e.target.value)}
+    onFocus={(e) => e.target.select()}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        (e.target as HTMLInputElement).blur();
+      }
+    }}
+    style={{ flex: 1 }}
+    type="number"
+  />
 );
