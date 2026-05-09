@@ -2,7 +2,14 @@ import * as React from 'react';
 
 import { useEditorRef, usePluginOption } from 'platejs/react';
 
-import type { BasePaginationTransforms, PageMargins } from '../lib/types';
+import type {
+  BasePaginationTransforms,
+  PageMargins,
+  PageNumberAlign,
+  PageNumberFormat,
+  PageNumberRegion,
+  PageSize,
+} from '../lib/types';
 
 import { BasePaginationPlugin } from '../lib/base-pagination-plugin';
 
@@ -16,17 +23,39 @@ const PX_PER_UNIT: Record<Unit, number> = {
 };
 
 /**
- * Dialog UI for editing the four-sided margin box.
+ * Built-in page-size presets in CSS pixels (96 dpi).
  *
- * Reads / writes through `editor.tf.pagination.setMargins(patch)`. The unit
- * selector is purely presentational — internally the plugin always stores
- * margins in CSS pixels (matching `<w:pgMar>` semantics for export).
- *
- * The host opens this dialog from the toolbar when the user picks
- * `Custom…`. v1 ships a minimal native `<dialog>`; the host may swap for a
- * shadcn/Radix Dialog while keeping this state-management contract.
+ * Width/height are stored as the literal `{ width, height }` shape because
+ * `BasePaginationOptions.pageSize` accepts either a preset key or a literal.
+ * We reconstruct the literal client-side for predictable rendering even if
+ * the host's `resolvePageRect` would also accept the preset key.
  */
-export const MarginsDialog = ({
+const SIZE_PRESETS: Record<
+  'A4' | 'Legal' | 'Letter',
+  { height: number; width: number }
+> = {
+  A4: { height: 1123, width: 794 }, // 210mm x 297mm
+  Legal: { height: 1344, width: 816 }, // 8.5in x 14in
+  Letter: { height: 1056, width: 816 }, // 8.5in x 11in
+};
+
+/**
+ * Page Setup dialog — full BasePaginationOptions surface.
+ *
+ * Replaces the v1 four-margin dialog with: page-size presets, per-axis
+ * margins (with unit toggle), header/footer heights, footnote placement
+ * toggle, first-page-different toggle, and the page-number slot config
+ * (region/align/format/startAt/hideOnFirst).
+ *
+ * All edits flow through `editor.tf.pagination.*` transforms — no direct
+ * `setOption` calls — so consumers that override transforms see the same
+ * behavior they get from the toolbar buttons.
+ *
+ * The host opens this from the toolbar's `Page Setup…` button. v1 ships a
+ * native `<dialog>`; the host may swap for a shadcn/Radix Dialog while
+ * keeping this state-management contract.
+ */
+export const PageSetupDialog = ({
   onClose,
   open,
 }: {
@@ -35,6 +64,18 @@ export const MarginsDialog = ({
 }): React.JSX.Element | null => {
   const editor = useEditorRef();
   const margins = usePluginOption(BasePaginationPlugin, 'margins');
+  const headerHeight = usePluginOption(BasePaginationPlugin, 'headerHeight');
+  const footerHeight = usePluginOption(BasePaginationPlugin, 'footerHeight');
+  const footnotePlacement = usePluginOption(
+    BasePaginationPlugin,
+    'footnotePlacement'
+  );
+  const pageSize = usePluginOption(BasePaginationPlugin, 'pageSize');
+  const pageNumber = usePluginOption(BasePaginationPlugin, 'pageNumber');
+  const firstPageDifferent = usePluginOption(
+    BasePaginationPlugin,
+    'firstPageDifferent'
+  );
   const [unit, setUnit] = React.useState<Unit>('px');
 
   const dialogRef = React.useRef<HTMLDialogElement | null>(null);
@@ -47,14 +88,14 @@ export const MarginsDialog = ({
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
-  if (!margins) return null;
+  if (!margins || !pageNumber) return null;
+
+  const tf = editor.tf as unknown as BasePaginationTransforms;
 
   const setSide = (side: keyof PageMargins, valueRaw: string): void => {
     const v = Number.parseFloat(valueRaw);
 
     if (!Number.isFinite(v)) return;
-
-    const tf = editor.tf as unknown as BasePaginationTransforms;
 
     tf.pagination.setMargins({
       [side]: Math.round(v * PX_PER_UNIT[unit]),
@@ -64,52 +105,249 @@ export const MarginsDialog = ({
   const toUnit = (px: number): string =>
     (px / PX_PER_UNIT[unit]).toFixed(unit === 'px' ? 0 : 2);
 
+  const sizeKey: 'A4' | 'Legal' | 'Letter' | 'custom' =
+    typeof pageSize === 'string' && pageSize in SIZE_PRESETS
+      ? (pageSize as 'A4' | 'Legal' | 'Letter')
+      : 'custom';
+  const sizeLiteral =
+    typeof pageSize === 'object'
+      ? (pageSize as { height: number; width: number })
+      : SIZE_PRESETS[
+          (typeof pageSize === 'string' && pageSize in SIZE_PRESETS
+            ? pageSize
+            : 'A4') as 'A4' | 'Legal' | 'Letter'
+        ];
+
+  const setSize = (next: 'A4' | 'Legal' | 'Letter' | 'custom'): void => {
+    if (next === 'custom') {
+      tf.pagination.setPageSize(sizeLiteral as PageSize);
+      return;
+    }
+    tf.pagination.setPageSize(next);
+  };
+
+  const setSizeAxis = (axis: 'height' | 'width', valueRaw: string): void => {
+    const v = Number.parseFloat(valueRaw);
+    if (!Number.isFinite(v)) return;
+
+    const px = Math.round(v * PX_PER_UNIT[unit]);
+    tf.pagination.setPageSize({
+      ...sizeLiteral,
+      [axis]: px,
+    });
+  };
+
+  const setHeight = (
+    key: 'footerHeight' | 'headerHeight',
+    valueRaw: string
+  ): void => {
+    const v = Number.parseFloat(valueRaw);
+    if (!Number.isFinite(v) || v < 0) return;
+
+    const px = Math.round(v * PX_PER_UNIT[unit]);
+    if (key === 'headerHeight') tf.pagination.setHeaderHeight(px);
+    else tf.pagination.setFooterHeight(px);
+  };
+
   return (
     <dialog
       ref={dialogRef}
-      data-plate-pagination-margins-dialog=""
+      data-plate-pagination-page-setup-dialog=""
       onClose={onClose}
       style={{
         border: '1px solid rgba(15,23,42,0.18)',
         borderRadius: 8,
         boxShadow: '0 24px 64px rgba(15,23,42,0.18)',
-        maxWidth: 360,
+        maxHeight: '85vh',
+        maxWidth: 480,
+        overflowY: 'auto',
         padding: 16,
       }}
     >
-      <form method="dialog" style={{ display: 'grid', gap: 12 }}>
-        <div style={{ fontSize: 14, fontWeight: 600 }}>Page margins</div>
+      <form method="dialog" style={{ display: 'grid', gap: 14 }}>
+        <div style={{ fontSize: 14, fontWeight: 600 }}>Page Setup</div>
 
-        <label style={{ alignItems: 'center', display: 'flex', gap: 6 }}>
-          <span style={{ width: 60 }}>Unit</span>
-          <select
-            value={unit}
-            onChange={(e) => setUnit(e.target.value as Unit)}
-            style={{ flex: 1 }}
-          >
-            <option value="px">Pixels</option>
-            <option value="in">Inches</option>
-            <option value="cm">Centimeters</option>
-            <option value="mm">Millimeters</option>
-          </select>
-        </label>
+        <Section title="Units">
+          <Row label="Unit">
+            <select
+              value={unit}
+              onChange={(e) => setUnit(e.target.value as Unit)}
+              style={{ flex: 1 }}
+            >
+              <option value="px">Pixels</option>
+              <option value="in">Inches</option>
+              <option value="cm">Centimeters</option>
+              <option value="mm">Millimeters</option>
+            </select>
+          </Row>
+        </Section>
 
-        {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
-          <label
-            key={side}
-            style={{ alignItems: 'center', display: 'flex', gap: 6 }}
-          >
-            <span style={{ textTransform: 'capitalize', width: 60 }}>
-              {side}
-            </span>
+        <Section title="Page size">
+          <Row label="Preset">
+            <select
+              value={sizeKey}
+              onChange={(e) =>
+                setSize(e.target.value as 'A4' | 'Legal' | 'Letter' | 'custom')
+              }
+              style={{ flex: 1 }}
+            >
+              <option value="A4">A4</option>
+              <option value="Letter">Letter</option>
+              <option value="Legal">Legal</option>
+              <option value="custom">Custom…</option>
+            </select>
+          </Row>
+          {sizeKey === 'custom' ? (
+            <>
+              <Row label="Width">
+                <input
+                  defaultValue={toUnit(sizeLiteral.width)}
+                  onBlur={(e) => setSizeAxis('width', e.target.value)}
+                  style={{ flex: 1 }}
+                  type="number"
+                />
+              </Row>
+              <Row label="Height">
+                <input
+                  defaultValue={toUnit(sizeLiteral.height)}
+                  onBlur={(e) => setSizeAxis('height', e.target.value)}
+                  style={{ flex: 1 }}
+                  type="number"
+                />
+              </Row>
+            </>
+          ) : null}
+        </Section>
+
+        <Section title="Margins">
+          {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
+            <Row key={side} label={side[0].toUpperCase() + side.slice(1)}>
+              <input
+                defaultValue={toUnit(margins[side])}
+                onBlur={(e) => setSide(side, e.target.value)}
+                style={{ flex: 1 }}
+                type="number"
+              />
+            </Row>
+          ))}
+        </Section>
+
+        <Section title="Chrome heights">
+          <Row label="Header">
             <input
-              defaultValue={toUnit(margins[side])}
-              onBlur={(e) => setSide(side, e.target.value)}
+              defaultValue={toUnit(headerHeight ?? 0)}
+              onBlur={(e) => setHeight('headerHeight', e.target.value)}
               style={{ flex: 1 }}
               type="number"
             />
-          </label>
-        ))}
+          </Row>
+          <Row label="Footer">
+            <input
+              defaultValue={toUnit(footerHeight ?? 0)}
+              onBlur={(e) => setHeight('footerHeight', e.target.value)}
+              style={{ flex: 1 }}
+              type="number"
+            />
+          </Row>
+        </Section>
+
+        <Section title="Page numbers">
+          <Row label="Region">
+            <select
+              value={pageNumber.region}
+              onChange={(e) =>
+                tf.pagination.setPageNumber({
+                  region: e.target.value as PageNumberRegion,
+                })
+              }
+              style={{ flex: 1 }}
+            >
+              <option value="header">Header</option>
+              <option value="footer">Footer</option>
+            </select>
+          </Row>
+          <Row label="Align">
+            <select
+              value={pageNumber.align}
+              onChange={(e) =>
+                tf.pagination.setPageNumber({
+                  align: e.target.value as PageNumberAlign,
+                })
+              }
+              style={{ flex: 1 }}
+            >
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </Row>
+          <Row label="Format">
+            <select
+              value={pageNumber.format}
+              onChange={(e) =>
+                tf.pagination.setPageNumber({
+                  format: e.target.value as PageNumberFormat,
+                })
+              }
+              style={{ flex: 1 }}
+            >
+              <option value="1">1</option>
+              <option value="1/N">1/N</option>
+              <option value="Page 1 of N">Page 1 of N</option>
+            </select>
+          </Row>
+          <Row label="Start at">
+            <input
+              defaultValue={String(pageNumber.startAt)}
+              min={1}
+              onBlur={(e) => {
+                const v = Number.parseInt(e.target.value, 10);
+                if (!Number.isFinite(v) || v < 1) return;
+                tf.pagination.setPageNumber({ startAt: v });
+              }}
+              style={{ flex: 1 }}
+              type="number"
+            />
+          </Row>
+          <Row label="Hide on first">
+            <input
+              checked={pageNumber.hideOnFirst}
+              onChange={(e) =>
+                tf.pagination.setPageNumber({ hideOnFirst: e.target.checked })
+              }
+              type="checkbox"
+            />
+          </Row>
+        </Section>
+
+        <Section title="First page">
+          <Row label="Different first page">
+            <input
+              checked={firstPageDifferent ?? false}
+              onChange={(e) =>
+                tf.pagination.setFirstPageDifferent(e.target.checked)
+              }
+              type="checkbox"
+            />
+          </Row>
+        </Section>
+
+        <Section title="Footnotes">
+          <Row label="Placement">
+            <select
+              value={footnotePlacement ?? 'footer'}
+              onChange={(e) =>
+                tf.pagination.setFootnotePlacement(
+                  e.target.value as 'documentEnd' | 'footer'
+                )
+              }
+              style={{ flex: 1 }}
+            >
+              <option value="footer">Page footer</option>
+              <option value="documentEnd">End of document</option>
+            </select>
+          </Row>
+        </Section>
 
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button onClick={onClose} type="button">
@@ -120,3 +358,48 @@ export const MarginsDialog = ({
     </dialog>
   );
 };
+
+/**
+ * Backwards-compatible alias for the v1 dialog name.
+ *
+ * Existing imports `import { MarginsDialog } from '@platejs/pagination/react'`
+ * keep working; the alias renders the full Page Setup form, which is a
+ * superset of the original margin-only UI.
+ */
+export const MarginsDialog = PageSetupDialog;
+
+const Section = ({
+  children,
+  title,
+}: {
+  children: React.ReactNode;
+  title: string;
+}): React.JSX.Element => (
+  <div style={{ display: 'grid', gap: 6 }}>
+    <div
+      style={{
+        color: 'rgba(15,23,42,0.65)',
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: 0.4,
+        textTransform: 'uppercase',
+      }}
+    >
+      {title}
+    </div>
+    {children}
+  </div>
+);
+
+const Row = ({
+  children,
+  label,
+}: {
+  children: React.ReactNode;
+  label: string;
+}): React.JSX.Element => (
+  <div style={{ alignItems: 'center', display: 'flex', gap: 6 }}>
+    <span style={{ fontSize: 13, width: 110 }}>{label}</span>
+    {children}
+  </div>
+);

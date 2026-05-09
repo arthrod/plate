@@ -30,6 +30,37 @@ export type PageBorder = {
 /** Where footnote definitions render in the paginated view. */
 export type FootnotePlacement = 'documentEnd' | 'footer';
 
+/** Which chrome band paints the page-number slot. */
+export type PageNumberRegion = 'footer' | 'header';
+
+/** Horizontal alignment of the page-number slot inside its chrome band. */
+export type PageNumberAlign = 'center' | 'left' | 'right';
+
+/**
+ * Display format for the page-number slot.
+ *
+ * - `'1'` — bare number (`1`, `2`, …)
+ * - `'1/N'` — current/total (`1/12`)
+ * - `'Page 1 of N'` — verbose form (`Page 1 of 12`)
+ */
+export type PageNumberFormat = '1' | '1/N' | 'Page 1 of N';
+
+/**
+ * Page-number slot configuration.
+ *
+ * Painted inside the chrome band selected by `region`, aligned per `align`,
+ * formatted per `format`. `startAt` offsets the displayed number (1 means the
+ * first page reads "1"; 5 would make it read "5"). `hideOnFirst` suppresses
+ * the slot on page index 0 (e.g. cover pages).
+ */
+export type PageNumberConfig = {
+  align: PageNumberAlign;
+  format: PageNumberFormat;
+  hideOnFirst: boolean;
+  region: PageNumberRegion;
+  startAt: number;
+};
+
 /**
  * Visualisation mode.
  *
@@ -106,6 +137,12 @@ export type Measurer = {
  * pages are derived, not authored.
  */
 export type BasePaginationOptions = {
+  /**
+   * When true, page index 0 prefers the document's `firstPageHeader` /
+   * `firstPageFooter` blocks over the regular `header` / `footer`. Word's
+   * "Different first page" rule. Defaults to `false`.
+   */
+  firstPageDifferent: boolean;
   /** Footer slot height in CSS pixels. */
   footerHeight: number;
   /**
@@ -133,6 +170,8 @@ export type BasePaginationOptions = {
   mode: PaginationMode;
   /** Page sheet border styling. */
   pageBorder: PageBorder;
+  /** Page-number slot config — region, alignment, format, offset, first-page hide. */
+  pageNumber: PageNumberConfig;
   /** Resolved page size — preset key or literal `{ width, height }` in CSS pixels. */
   pageSize: PageSize;
   /** Side preview panel width in CSS pixels. */
@@ -163,6 +202,10 @@ export type BasePaginationTransforms = {
     insertPageBreak: () => void;
     /** Move footnote definitions between per-page footer wells and document end. */
     setFootnotePlacement: (placement: FootnotePlacement) => void;
+    /** Set the footer band height in CSS pixels (`0` to disable). */
+    setFooterHeight: (px: number) => void;
+    /** Set the header band height in CSS pixels (`0` to disable). */
+    setHeaderHeight: (px: number) => void;
     /**
      * Patch the in-flow `<w:pgMar>`-style margins. Only the keys provided
      * are updated; omitted sides keep their current values, so per-axis UI
@@ -172,6 +215,18 @@ export type BasePaginationTransforms = {
     setMargins: (patch: Partial<PageMargins>) => void;
     /** Patch the rendered page sheet border. */
     setPageBorder: (patch: Partial<PageBorder>) => void;
+    /**
+     * Patch the page-number slot config. Only provided keys are merged; the
+     * rest stay at their current values. Pass `{ region: 'header' }` to move
+     * the slot to the header band without changing alignment or format.
+     */
+    setPageNumber: (patch: Partial<PageNumberConfig>) => void;
+    /**
+     * Toggle the Word-style "Different first page" rule. When `true`,
+     * page index 0 prefers `firstPageHeader` / `firstPageFooter` blocks
+     * over the regular ones.
+     */
+    setFirstPageDifferent: (next: boolean) => void;
     /** Switch between continuous-flow and paged visualisations. */
     setMode: (mode: PaginationMode) => void;
     /** Replace the resolved page size (preset key or `{width,height}`). */

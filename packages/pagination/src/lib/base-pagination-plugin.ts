@@ -6,6 +6,8 @@ import type {
   BasePaginationTransforms,
 } from './types';
 
+import { BaseFirstPageFooterPlugin } from './base-first-page-footer-plugin';
+import { BaseFirstPageHeaderPlugin } from './base-first-page-header-plugin';
 import { BaseFooterPlugin } from './base-footer-plugin';
 import { BaseHeaderPlugin } from './base-header-plugin';
 import { BasePageBreakPlugin } from './base-page-break-plugin';
@@ -46,7 +48,13 @@ import {
 export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
   key: PAGINATION_KEY,
   options: PAGINATION_OPTION_DEFAULTS,
-  plugins: [BaseHeaderPlugin, BaseFooterPlugin, BasePageBreakPlugin],
+  plugins: [
+    BaseHeaderPlugin,
+    BaseFooterPlugin,
+    BaseFirstPageHeaderPlugin,
+    BaseFirstPageFooterPlugin,
+    BasePageBreakPlugin,
+  ],
 })
   .overrideEditor(({ editor, tf: { normalizeNode } }) => ({
     transforms: {
@@ -83,6 +91,12 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
         },
         setFooter: (content) => replaceFooter(editor, content),
         setHeader: (content) => replaceHeader(editor, content),
+        setFooterHeight: (px) => {
+          setOption('footerHeight', Math.max(0, Math.round(px)));
+        },
+        setHeaderHeight: (px) => {
+          setOption('headerHeight', Math.max(0, Math.round(px)));
+        },
         setMargins: (patch) => {
           setOption('margins', { ...getOptions().margins, ...patch });
         },
@@ -91,6 +105,12 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
         },
         setPageBorder: (patch) => {
           setOption('pageBorder', { ...getOptions().pageBorder, ...patch });
+        },
+        setFirstPageDifferent: (next) => {
+          setOption('firstPageDifferent', next);
+        },
+        setPageNumber: (patch) => {
+          setOption('pageNumber', { ...getOptions().pageNumber, ...patch });
         },
         setPageSize: (size) => {
           setOption('pageSize', size);

@@ -4,7 +4,12 @@ import type { AnyEditorPlugin, TElement } from 'platejs';
 import type { PlateEditor } from 'platejs/react';
 import { PlateStatic, createStaticEditor } from 'platejs/static';
 
-import type { Page, PageBorder, PageMargins } from '../lib/types';
+import type {
+  Page,
+  PageBorder,
+  PageMargins,
+  PageNumberConfig,
+} from '../lib/types';
 
 import { PAGINATION_KEY } from '../lib/internal/keys';
 
@@ -12,7 +17,8 @@ export type PageFrameProps = {
   /**
    * Resolved chrome heights and margin box from `BasePaginationOptions`.
    * Margins are passed through so header/footer/content slots respect the
-   * authored page geometry instead of hardcoded insets.
+   * authored page geometry instead of hardcoded insets. `pageNumber` is the
+   * authoritative slot config (region/align/format/startAt/hideOnFirst).
    */
   chrome: {
     footerHeight: number;
@@ -20,6 +26,7 @@ export type PageFrameProps = {
     headerHeight: number;
     margins: PageMargins;
     pageBorder: PageBorder;
+    pageNumber: PageNumberConfig;
   };
   /** First-class footer element copied off the document, if any. */
   documentFooter?: TElement;
@@ -30,6 +37,8 @@ export type PageFrameProps = {
   page: Page;
   /** Vertical position of the page in the overlay coordinate space. */
   top: number;
+  /** Total page count in the current document (drives `1/N` formats). */
+  totalPages: number;
 };
 
 /**
@@ -45,6 +54,7 @@ export const PageFrame = ({
   footnotesInFooter,
   page,
   top,
+  totalPages,
 }: PageFrameProps): React.JSX.Element => {
   const { rect } = page;
   const headerOffset = chrome.headerHeight;
@@ -107,6 +117,13 @@ export const PageFrame = ({
           {documentHeader ? (
             <StaticPageValue plugins={staticPlugins} value={[documentHeader]} />
           ) : null}
+          {chrome.pageNumber.region === 'header' ? (
+            <PageNumberSlot
+              config={chrome.pageNumber}
+              pageIndex={page.pageIndex}
+              totalPages={totalPages}
+            />
+          ) : null}
         </div>
       ) : null}
 
@@ -153,7 +170,13 @@ export const PageFrame = ({
           {documentFooter ? (
             <StaticPageValue plugins={staticPlugins} value={[documentFooter]} />
           ) : null}
-          <span style={{ float: 'right' }}>{`${page.pageIndex + 1}`}</span>
+          {chrome.pageNumber.region === 'footer' ? (
+            <PageNumberSlot
+              config={chrome.pageNumber}
+              pageIndex={page.pageIndex}
+              totalPages={totalPages}
+            />
+          ) : null}
         </div>
       ) : null}
 
@@ -174,6 +197,54 @@ export const PageFrame = ({
   );
 };
 
+/**
+ * Page-number slot painted inside the chosen chrome band.
+ *
+ * Pure derivation: `pageIndex + startAt` is the displayed number; format
+ * controls layout (`1` / `1/N` / `Page 1 of N`); align is realized through
+ * a flexbox row that wraps the slot. `hideOnFirst` returns `null` for page
+ * index 0 so cover pages stay clean.
+ */
+const PageNumberSlot = ({
+  config,
+  pageIndex,
+  totalPages,
+}: {
+  config: PageNumberConfig;
+  pageIndex: number;
+  totalPages: number;
+}): React.JSX.Element | null => {
+  if (config.hideOnFirst && pageIndex === 0) return null;
+
+  const displayed = pageIndex + config.startAt;
+  const label =
+    config.format === '1/N'
+      ? `${displayed}/${totalPages}`
+      : config.format === 'Page 1 of N'
+        ? `Page ${displayed} of ${totalPages}`
+        : `${displayed}`;
+  const justify =
+    config.align === 'left'
+      ? 'flex-start'
+      : config.align === 'center'
+        ? 'center'
+        : 'flex-end';
+
+  return (
+    <div
+      data-plate-pagination-slot-page-number=""
+      style={{
+        display: 'flex',
+        justifyContent: justify,
+        marginTop: 4,
+        width: '100%',
+      }}
+    >
+      <span>{label}</span>
+    </div>
+  );
+};
+
 const StaticPageValue = ({
   plugins,
   value,
@@ -188,11 +259,7 @@ const StaticPageValue = ({
   return (
     <div data-plate-pagination-static-stack="">
       {value.map((node, i) => (
-        <PlateStaticBoundary
-          key={`n-${i}`}
-          plugins={plugins}
-          value={[node]}
-        >
+        <PlateStaticBoundary key={`n-${i}`} plugins={plugins} value={[node]}>
           <FallbackPageText value={[node]} />
         </PlateStaticBoundary>
       ))}
@@ -266,20 +333,18 @@ const FallbackPageText = ({
   value,
 }: {
   value: TElement[];
-}): React.JSX.Element => {
-  return (
-    <div
-      data-plate-pagination-fallback=""
-      style={{ fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}
-    >
-      {value.map((node, i) => (
-        <p key={`pt-${i}`} style={{ margin: '0 0 0.6em 0' }}>
-          {collectPlainText(node)}
-        </p>
-      ))}
-    </div>
-  );
-};
+}): React.JSX.Element => (
+  <div
+    data-plate-pagination-fallback=""
+    style={{ fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}
+  >
+    {value.map((node, i) => (
+      <p key={`pt-${i}`} style={{ margin: '0 0 0.6em 0' }}>
+        {collectPlainText(node)}
+      </p>
+    ))}
+  </div>
+);
 
 const collectPlainText = (node: TElement): string => {
   let out = '';

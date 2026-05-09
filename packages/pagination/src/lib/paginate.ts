@@ -9,6 +9,8 @@ import type {
 } from './types';
 
 import {
+  FIRST_PAGE_FOOTER_KEY,
+  FIRST_PAGE_HEADER_KEY,
   FOOTER_KEY,
   FOOTNOTE_DEFINITION_KEY,
   HEADER_KEY,
@@ -85,6 +87,8 @@ export const paginate = ({
     if (
       node.type === HEADER_KEY ||
       node.type === FOOTER_KEY ||
+      node.type === FIRST_PAGE_HEADER_KEY ||
+      node.type === FIRST_PAGE_FOOTER_KEY ||
       (footnotePlacement === 'footer' && node.type === FOOTNOTE_DEFINITION_KEY)
     ) {
       continue;

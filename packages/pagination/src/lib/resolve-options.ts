@@ -8,6 +8,7 @@ import type { BasePaginationOptions } from './types';
  * instead of re-defining defaults inside a hook.
  */
 export const PAGINATION_OPTION_DEFAULTS: BasePaginationOptions = {
+  firstPageDifferent: false,
   footerHeight: 48,
   footnotePlacement: 'footer',
   footnoteWell: 0,
@@ -28,6 +29,13 @@ export const PAGINATION_OPTION_DEFAULTS: BasePaginationOptions = {
     style: 'solid',
     width: 1,
   },
+  pageNumber: {
+    align: 'right',
+    format: '1',
+    hideOnFirst: false,
+    region: 'footer',
+    startAt: 1,
+  },
   previewWidth: 220,
   previewVisible: true,
 };
@@ -43,6 +51,8 @@ export const resolvePaginationOptions = (
   const p = partial ?? {};
 
   return {
+    firstPageDifferent:
+      p.firstPageDifferent ?? PAGINATION_OPTION_DEFAULTS.firstPageDifferent,
     footerHeight: p.footerHeight ?? PAGINATION_OPTION_DEFAULTS.footerHeight,
     footnotePlacement:
       p.footnotePlacement ?? PAGINATION_OPTION_DEFAULTS.footnotePlacement,
@@ -54,6 +64,12 @@ export const resolvePaginationOptions = (
     margins: p.margins ?? PAGINATION_OPTION_DEFAULTS.margins,
     mode: p.mode ?? PAGINATION_OPTION_DEFAULTS.mode,
     pageBorder: p.pageBorder ?? PAGINATION_OPTION_DEFAULTS.pageBorder,
+    pageNumber: p.pageNumber
+      ? {
+          ...PAGINATION_OPTION_DEFAULTS.pageNumber,
+          ...p.pageNumber,
+        }
+      : PAGINATION_OPTION_DEFAULTS.pageNumber,
     pageSize: p.pageSize ?? PAGINATION_OPTION_DEFAULTS.pageSize,
     previewWidth: p.previewWidth ?? PAGINATION_OPTION_DEFAULTS.previewWidth,
     previewVisible:

@@ -22,10 +22,7 @@
     {
       "name": "www",
       "runtimeExecutable": "sh",
-      "runtimeArgs": [
-        "-c",
-        "PORT=3003 exec pnpm --filter www dev"
-      ],
+      "runtimeArgs": ["-c", "PORT=3003 exec pnpm --filter www dev"],
       "port": 3003
     }
   ]

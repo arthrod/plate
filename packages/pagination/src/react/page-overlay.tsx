@@ -9,6 +9,8 @@ import {
   BasePaginationPlugin,
 } from '../lib/base-pagination-plugin';
 import {
+  FIRST_PAGE_FOOTER_KEY,
+  FIRST_PAGE_HEADER_KEY,
   FOOTER_KEY,
   FOOTNOTE_DEFINITION_KEY,
   HEADER_KEY,
@@ -50,6 +52,10 @@ export const PageOverlay = (): React.JSX.Element | null => {
 
   const editor = useEditorRef();
   const mode = usePluginOption(BasePaginationPlugin, 'mode');
+  const firstPageDifferent = usePluginOption(
+    BasePaginationPlugin,
+    'firstPageDifferent'
+  );
 
   // Diagnostics: surface render count + observed mode so we can confirm
   // whether the hook is reflecting `setMode` from outside React.
@@ -64,6 +70,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
   }
   const pageSize = usePluginOption(BasePaginationPlugin, 'pageSize');
   const pageBorder = usePluginOption(BasePaginationPlugin, 'pageBorder');
+  const pageNumber = usePluginOption(BasePaginationPlugin, 'pageNumber');
   const margins = usePluginOption(BasePaginationPlugin, 'margins');
   const footerHeight = usePluginOption(BasePaginationPlugin, 'footerHeight');
   const footnotePlacement = usePluginOption(
@@ -86,6 +93,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
   const safeOptions = React.useMemo<BasePaginationConfig['options']>(
     () =>
       resolvePaginationOptions({
+        firstPageDifferent,
         footerHeight,
         footnotePlacement,
         footnoteWell,
@@ -94,11 +102,13 @@ export const PageOverlay = (): React.JSX.Element | null => {
         margins,
         mode,
         pageBorder,
+        pageNumber,
         pageSize,
         previewVisible,
         previewWidth,
       }),
     [
+      firstPageDifferent,
       footerHeight,
       footnotePlacement,
       footnoteWell,
@@ -107,6 +117,7 @@ export const PageOverlay = (): React.JSX.Element | null => {
       margins,
       mode,
       pageBorder,
+      pageNumber,
       pageSize,
       previewVisible,
       previewWidth,
@@ -146,12 +157,20 @@ export const PageOverlay = (): React.JSX.Element | null => {
 
   const headerType = editor.getType(HEADER_KEY);
   const footerType = editor.getType(FOOTER_KEY);
+  const firstPageHeaderType = editor.getType(FIRST_PAGE_HEADER_KEY);
+  const firstPageFooterType = editor.getType(FIRST_PAGE_FOOTER_KEY);
   const documentHeader = (value as TElement[]).find(
     (n) => n.type === headerType
   );
   const documentFooter = (value as TElement[]).find(
     (n) => n.type === footerType
   );
+  const firstPageHeader = safeOptions.firstPageDifferent
+    ? (value as TElement[]).find((n) => n.type === firstPageHeaderType)
+    : undefined;
+  const firstPageFooter = safeOptions.firstPageDifferent
+    ? (value as TElement[]).find((n) => n.type === firstPageFooterType)
+    : undefined;
 
   const visiblePages = pages.slice(0, MAX_PAGES_RENDERED);
   const truncatedCount = Math.max(0, pages.length - visiblePages.length);
@@ -191,24 +210,39 @@ export const PageOverlay = (): React.JSX.Element | null => {
             width: pageWidth,
           }}
         >
-          {pageRows.map(({ page, top }) => (
-            <PageFrame
-              key={`page-${page.pageIndex}`}
-              chrome={{
-                footerHeight: safeOptions.footerHeight,
-                footnoteWell: safeOptions.footnoteWell,
-                headerHeight: safeOptions.headerHeight,
-                margins: safeOptions.margins,
-                pageBorder: safeOptions.pageBorder,
-              }}
-              documentFooter={documentFooter}
-              documentHeader={documentHeader}
-              editor={editor}
-              footnotesInFooter={footnotesInFooter}
-              page={page}
-              top={top}
-            />
-          ))}
+          {pageRows.map(({ page, top }) => {
+            const useFirstPage =
+              safeOptions.firstPageDifferent && page.pageIndex === 0;
+            const headerForPage =
+              useFirstPage && firstPageHeader
+                ? firstPageHeader
+                : documentHeader;
+            const footerForPage =
+              useFirstPage && firstPageFooter
+                ? firstPageFooter
+                : documentFooter;
+
+            return (
+              <PageFrame
+                key={`page-${page.pageIndex}`}
+                chrome={{
+                  footerHeight: safeOptions.footerHeight,
+                  footnoteWell: safeOptions.footnoteWell,
+                  headerHeight: safeOptions.headerHeight,
+                  margins: safeOptions.margins,
+                  pageBorder: safeOptions.pageBorder,
+                  pageNumber: safeOptions.pageNumber,
+                }}
+                documentFooter={footerForPage}
+                documentHeader={headerForPage}
+                editor={editor}
+                footnotesInFooter={footnotesInFooter}
+                page={page}
+                top={top}
+                totalPages={pages.length}
+              />
+            );
+          })}
         </div>
         {truncatedCount > 0 ? (
           <div
