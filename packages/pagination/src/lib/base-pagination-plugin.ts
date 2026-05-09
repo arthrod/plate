@@ -74,11 +74,31 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
     ({ editor, getOptions, setOption }) => ({
       pagination: {
         insertPageBreak: () => insertPageBreak(editor),
+        setChromeFocusDimsBody: (value) => {
+          setOption('chromeFocusDimsBody', value);
+        },
+        setFirstPageDifferent: (value) => {
+          setOption('firstPageDifferent', value);
+        },
+        setFirstPageFooter: (content) => {
+          setOption('firstPageFooter', content ?? undefined);
+        },
+        setFirstPageHeader: (content) => {
+          setOption('firstPageHeader', content ?? undefined);
+        },
         setFootnotePlacement: (placement) => {
           setOption('footnotePlacement', placement);
+
+          // Footer well is only allocated when footnotes paint per-page; the
+          // canonical "page bottom" mode (and its legacy `'footer'` alias)
+          // both reserve the well. Other modes collapse it to zero so body
+          // content reclaims the vertical space.
+          const isPageBottom =
+            placement === 'pageBottom' || placement === 'footer';
+
           setOption(
             'footnoteWell',
-            placement === 'footer' ? getOptions().footnoteWell || 96 : 0
+            isPageBottom ? getOptions().footnoteWell || 96 : 0
           );
         },
         setFooter: (content) => replaceFooter(editor, content),
@@ -91,6 +111,9 @@ export const BasePaginationPlugin = createTSlatePlugin<BasePaginationConfig>({
         },
         setPageBorder: (patch) => {
           setOption('pageBorder', { ...getOptions().pageBorder, ...patch });
+        },
+        setPageNumber: (config) => {
+          setOption('pageNumber', config);
         },
         setPageSize: (size) => {
           setOption('pageSize', size);

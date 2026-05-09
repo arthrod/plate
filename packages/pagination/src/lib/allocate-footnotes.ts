@@ -1,25 +1,40 @@
 import type { TElement } from 'platejs';
 
-import type { Page } from './types';
+import type { FootnotePlacement, Page } from './types';
 
 import { FOOTNOTE_REFERENCE_KEY } from './internal/keys';
+import { canonicalFootnotePlacement } from './types';
+
+let warnedBeneathText = false;
+let warnedSectEnd = false;
 
 /**
- * Greedy assignment of footnote definitions to per-page footer wells.
+ * Assign footnote definitions to pages according to the configured placement.
  *
- * Walks each page's blocks, collects every inline `footnoteReference` by its
- * `identifier` field, then attaches the matching definition (looked up in
- * the document-level definition list) to that page. Definitions referenced
- * on multiple pages attach to the first page that references them.
+ * Modes (canonicalised via {@link canonicalFootnotePlacement}):
  *
- * Returns a new array of {@link Page} objects with `footnotes` populated.
- * The original `pages` argument is not mutated.
+ * - `pageBottom` — greedy per-page allocation in reference order. Every
+ *   `footnoteReference` is matched against the document-level definition
+ *   list; the definition lands on the page that holds the first reference.
+ *   This is the historical behavior and the Word default.
+ * - `docEnd` — all definitions accumulate on the document's last page in
+ *   reference order. Definitions referenced multiple times still appear
+ *   once.
+ * - `beneathText` — accepted by the type, but the per-paragraph layout
+ *   still requires paginate-time integration. Falls back to `pageBottom`
+ *   with a one-time console warning.
+ * - `sectEnd` — accepted but multi-section is a follow-up. Falls back to
+ *   `docEnd` with a one-time console warning.
+ *
+ * Returns a new `Page[]` with `footnotes` populated. The input is not
+ * mutated.
  */
 export const allocateFootnotes = (
   pages: Page[],
-  footnotes: TElement[]
+  footnotes: TElement[],
+  placement: FootnotePlacement = 'pageBottom'
 ): Page[] => {
-  if (footnotes.length === 0) return pages;
+  if (footnotes.length === 0 || pages.length === 0) return pages;
 
   const byId = new Map<string, TElement>();
   for (const def of footnotes) {
@@ -28,6 +43,51 @@ export const allocateFootnotes = (
   }
 
   if (byId.size === 0) return pages;
+
+  const canonical = canonicalFootnotePlacement(placement);
+
+  if (canonical === 'beneathText' && !warnedBeneathText) {
+    warnedBeneathText = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[plate-pagination] footnotePlacement 'beneathText' is not yet implemented; falling back to 'pageBottom'."
+    );
+  }
+  if (canonical === 'sectEnd' && !warnedSectEnd) {
+    warnedSectEnd = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[plate-pagination] footnotePlacement 'sectEnd' is not yet implemented; falling back to 'docEnd'."
+    );
+  }
+
+  if (canonical === 'docEnd' || canonical === 'sectEnd') {
+    const referencedInOrder: TElement[] = [];
+    const seen = new Set<string>();
+
+    for (const page of pages) {
+      for (const node of page.nodes) {
+        collectReferenceIds(node, (id) => {
+          if (seen.has(id)) return;
+
+          const def = byId.get(id);
+
+          if (!def) return;
+
+          seen.add(id);
+          referencedInOrder.push(def);
+        });
+      }
+    }
+
+    if (referencedInOrder.length === 0) return pages;
+
+    const lastIndex = pages.length - 1;
+
+    return pages.map((page, index) =>
+      index === lastIndex ? { ...page, footnotes: referencedInOrder } : page
+    );
+  }
 
   const claimed = new Set<string>();
 

@@ -9,6 +9,7 @@ import { FOOTNOTE_DEFINITION_KEY } from '../../lib/internal/keys';
 import { resolvePageRect } from '../../lib/internal/page-size-presets';
 import { paginate } from '../../lib/paginate';
 import { setEditorPages } from '../../lib/internal/page-state';
+import { canonicalFootnotePlacement } from '../../lib/types';
 import { usePretextMeasurer } from '../use-pretext-measurer';
 
 /**
@@ -101,16 +102,17 @@ export const usePageLayout = (
       rect,
     });
 
-    if (coalescedOptions.footnotePlacement === 'documentEnd') {
-      return raw;
-    }
-
     const footnoteDefinitionType = editor.getType(FOOTNOTE_DEFINITION_KEY);
     const definitions = coalescedValue.filter(
       (n) => n.type === footnoteDefinitionType
     );
+    const canonical = canonicalFootnotePlacement(
+      coalescedOptions.footnotePlacement
+    );
 
-    return allocateFootnotes(raw, definitions);
+    if (definitions.length === 0) return raw;
+
+    return allocateFootnotes(raw, definitions, canonical);
   }, [editor, coalescedValue, measurer, coalescedOptions]);
 
   useIsomorphicLayoutEffect(() => {

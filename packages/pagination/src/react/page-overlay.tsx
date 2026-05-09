@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import type { TElement } from 'platejs';
+import type { Descendant, TElement } from 'platejs';
 
 import { useEditorRef, useEditorValue, usePluginOption } from 'platejs/react';
 
@@ -14,9 +14,17 @@ import {
   HEADER_KEY,
 } from '../lib/internal/keys';
 import { resolvePaginationOptions } from '../lib/resolve-options';
+import { canonicalFootnotePlacement } from '../lib/types';
+import {
+  ChromeFocusProvider,
+  useShouldDimBody,
+  usePrefersReducedMotion,
+} from './chrome-focus-context';
 import { FootnotePortal } from './footnote-portal';
 import { usePageLayout } from './internal/use-page-layout';
 import { PageFrame } from './page-frame';
+import { useBodyDimEffect } from './use-body-dim-effect';
+import { useChromeSelectionWatcher } from './use-chrome-selection-watcher';
 
 const PAGE_GAP = 24;
 const MAX_PAGES_RENDERED = 12;
@@ -42,6 +50,19 @@ const MAX_PAGES_RENDERED = 12;
  * counts but rendering hundreds of static editors is not viable in browser.
  */
 export const PageOverlay = (): React.JSX.Element | null => {
+  const chromeFocusDimsBody = usePluginOption(
+    BasePaginationPlugin,
+    'chromeFocusDimsBody'
+  );
+
+  return (
+    <ChromeFocusProvider dimBody={chromeFocusDimsBody !== false}>
+      <PageOverlayInner />
+    </ChromeFocusProvider>
+  );
+};
+
+const PageOverlayInner = (): React.JSX.Element | null => {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -81,7 +102,25 @@ export const PageOverlay = (): React.JSX.Element | null => {
     'previewVisible'
   );
   const previewWidth = usePluginOption(BasePaginationPlugin, 'previewWidth');
+  const firstPageDifferent = usePluginOption(
+    BasePaginationPlugin,
+    'firstPageDifferent'
+  );
+  const firstPageHeader = usePluginOption(
+    BasePaginationPlugin,
+    'firstPageHeader'
+  );
+  const firstPageFooter = usePluginOption(
+    BasePaginationPlugin,
+    'firstPageFooter'
+  );
+  const pageNumber = usePluginOption(BasePaginationPlugin, 'pageNumber');
   const value = useEditorValue();
+  const dimBody = useShouldDimBody();
+  const reducedMotion = usePrefersReducedMotion();
+
+  useChromeSelectionWatcher(editor);
+  useBodyDimEffect(editor, dimBody, reducedMotion);
 
   const safeOptions = React.useMemo<BasePaginationConfig['options']>(
     () =>
@@ -133,7 +172,8 @@ export const PageOverlay = (): React.JSX.Element | null => {
   if (!mounted) return null;
 
   const footnoteDefinitionType = editor.getType(FOOTNOTE_DEFINITION_KEY);
-  const footnotesInFooter = safeOptions.footnotePlacement === 'footer';
+  const footnotesInFooter =
+    canonicalFootnotePlacement(safeOptions.footnotePlacement) === 'pageBottom';
   const footnotePortal = (
     <FootnotePortal
       enabled={footnotesInFooter}
@@ -204,8 +244,13 @@ export const PageOverlay = (): React.JSX.Element | null => {
               documentFooter={documentFooter}
               documentHeader={documentHeader}
               editor={editor}
+              firstPageDifferent={firstPageDifferent === true}
+              firstPageFooter={firstPageFooter as Descendant[] | undefined}
+              firstPageHeader={firstPageHeader as Descendant[] | undefined}
               footnotesInFooter={footnotesInFooter}
               page={page}
+              pageNumber={pageNumber}
+              totalPages={pages.length}
               top={top}
             />
           ))}

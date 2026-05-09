@@ -27,8 +27,61 @@ export type PageBorder = {
   width: number;
 };
 
-/** Where footnote definitions render in the paginated view. */
-export type FootnotePlacement = 'documentEnd' | 'footer';
+/**
+ * Where footnote definitions render in the paginated view.
+ *
+ * The four canonical OOXML-aligned modes:
+ * - `pageBottom` — footer well of the page that holds the reference (Word default).
+ * - `beneathText` — directly below the paragraph that holds the reference.
+ * - `sectEnd` — accumulated at the section's last page.
+ * - `docEnd` — accumulated at the document's last page.
+ *
+ * The legacy aliases `'footer'` and `'documentEnd'` are accepted for
+ * backwards compatibility and map to `pageBottom` / `docEnd` respectively.
+ *
+ * v1 implements `pageBottom` and `docEnd`. `beneathText` and `sectEnd` are
+ * accepted by the type but allocator falls back to `pageBottom` with a
+ * one-time console warning until phase 2.
+ */
+export type FootnotePlacement =
+  | 'beneathText'
+  | 'docEnd'
+  | 'documentEnd'
+  | 'footer'
+  | 'pageBottom'
+  | 'sectEnd';
+
+/** Display format for rendered page numbers. */
+export type PageNumberFormat =
+  | '1/N'
+  | 'decimal'
+  | 'letter'
+  | 'page-of-n'
+  | 'roman';
+
+/** Horizontal alignment slot inside the chrome region. */
+export type PageNumberAlign = 'center' | 'left' | 'right';
+
+/** Which chrome band the page number paints into. */
+export type PageNumberRegion = 'footer' | 'header';
+
+/**
+ * Structured page-number configuration consumed by `<PageNumber>` in
+ * `PageFrame`. `null` (or omitted) disables the rendered page number — pages
+ * still exist, they just don't paint a number into chrome.
+ */
+export type PageNumberConfig = {
+  /** Horizontal slot inside the chrome region. */
+  align: PageNumberAlign;
+  /** Format token. `decimal` → `1`, `roman` → `I`, etc. */
+  format: PageNumberFormat;
+  /** Suppress on `pageIndex === 0`. Word's "Different first page" default. */
+  hideOnFirst: boolean;
+  /** Which chrome band paints the number. */
+  region: PageNumberRegion;
+  /** First page's printed number (Word's `pgNumType.start`). Defaults to 1. */
+  startAt: number;
+};
 
 /**
  * Visualisation mode.
@@ -106,6 +159,33 @@ export type Measurer = {
  * pages are derived, not authored.
  */
 export type BasePaginationOptions = {
+  /**
+   * When any header / footer / first-page chrome holds the editor selection,
+   * the body editor visually dims to ~50% opacity with a 200ms transition.
+   * This is how Word and Pages signal "you are editing chrome, not body".
+   * Defaults to `true`. Honors `prefers-reduced-motion`.
+   */
+  chromeFocusDimsBody?: boolean;
+  /**
+   * When `firstPageDifferent` is true and this content is set, page index 0
+   * paints this footer chrome instead of the document-level `footer` block.
+   * If unset, page 0 paints no footer chrome (matches Word's default for
+   * "Different first page" with empty title-page footer).
+   */
+  firstPageFooter?: Descendant[];
+  /**
+   * When `firstPageDifferent` is true and this content is set, page index 0
+   * paints this header chrome instead of the document-level `header` block.
+   * If unset, page 0 paints no header chrome.
+   */
+  firstPageHeader?: Descendant[];
+  /**
+   * Word/Pages "Different first page" toggle. When `true`, page index 0
+   * resolves chrome via `firstPageHeader`/`firstPageFooter` (or no chrome if
+   * unset) instead of the document-level `header`/`footer` blocks. Pages
+   * past the first always use the document-level chrome.
+   */
+  firstPageDifferent?: boolean;
   /** Footer slot height in CSS pixels. */
   footerHeight: number;
   /**
@@ -133,6 +213,13 @@ export type BasePaginationOptions = {
   mode: PaginationMode;
   /** Page sheet border styling. */
   pageBorder: PageBorder;
+  /**
+   * Structured page-number configuration. `null` or omitted disables the
+   * rendered page-number entirely. When set, `<PageNumber>` is painted into
+   * the configured chrome band as a non-editable React element (never a
+   * Slate void), so body selection cannot delete or move it.
+   */
+  pageNumber?: PageNumberConfig | null;
   /** Resolved page size — preset key or literal `{ width, height }` in CSS pixels. */
   pageSize: PageSize;
   /** Side preview panel width in CSS pixels. */
@@ -161,6 +248,14 @@ export type BasePaginationApi = {
 export type BasePaginationTransforms = {
   pagination: {
     insertPageBreak: () => void;
+    /** Toggle / set body-dim-on-chrome-focus UX. Defaults to `true`. */
+    setChromeFocusDimsBody: (value: boolean) => void;
+    /** Toggle Word's "Different first page" rule. */
+    setFirstPageDifferent: (value: boolean) => void;
+    /** Replace the first-page footer chrome content. Pass `null` to clear. */
+    setFirstPageFooter: (content: Descendant[] | null) => void;
+    /** Replace the first-page header chrome content. Pass `null` to clear. */
+    setFirstPageHeader: (content: Descendant[] | null) => void;
     /** Move footnote definitions between per-page footer wells and document end. */
     setFootnotePlacement: (placement: FootnotePlacement) => void;
     /**
@@ -174,6 +269,11 @@ export type BasePaginationTransforms = {
     setPageBorder: (patch: Partial<PageBorder>) => void;
     /** Switch between continuous-flow and paged visualisations. */
     setMode: (mode: PaginationMode) => void;
+    /**
+     * Replace or clear the structured page-number config. Pass `null` to
+     * disable the painted page number entirely.
+     */
+    setPageNumber: (config: PageNumberConfig | null) => void;
     /** Replace the resolved page size (preset key or `{width,height}`). */
     setPageSize: (size: PageSize) => void;
     /** Resize the page preview side panel. */
@@ -187,6 +287,33 @@ export type BasePaginationTransforms = {
     /** Toggle the side preview panel; returns new visibility. */
     togglePreview: () => boolean;
   };
+};
+
+/**
+ * Canonicalize a {@link FootnotePlacement} value to its OOXML-aligned form,
+ * collapsing the legacy aliases. Used by the allocator and renderer so
+ * downstream code only has to switch on the four canonical modes.
+ */
+export const canonicalFootnotePlacement = (
+  placement: FootnotePlacement
+): 'beneathText' | 'docEnd' | 'pageBottom' | 'sectEnd' => {
+  switch (placement) {
+    case 'documentEnd':
+    case 'docEnd': {
+      return 'docEnd';
+    }
+    case 'footer':
+    case 'pageBottom': {
+      return 'pageBottom';
+    }
+    case 'beneathText':
+    case 'sectEnd': {
+      return placement;
+    }
+    default: {
+      return 'pageBottom';
+    }
+  }
 };
 
 /** Plugin config tuple for `BasePaginationPlugin`. */

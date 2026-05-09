@@ -82,10 +82,15 @@ export const paginate = ({
       flush(true);
       continue;
     }
+    const placementHidesDefinitions =
+      footnotePlacement === 'footer' ||
+      footnotePlacement === 'pageBottom' ||
+      footnotePlacement === 'beneathText';
+
     if (
       node.type === HEADER_KEY ||
       node.type === FOOTER_KEY ||
-      (footnotePlacement === 'footer' && node.type === FOOTNOTE_DEFINITION_KEY)
+      (placementHidesDefinitions && node.type === FOOTNOTE_DEFINITION_KEY)
     ) {
       continue;
     }

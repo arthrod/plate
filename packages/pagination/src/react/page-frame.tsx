@@ -1,12 +1,18 @@
 import * as React from 'react';
 
-import type { AnyEditorPlugin, TElement } from 'platejs';
+import type { AnyEditorPlugin, Descendant, TElement } from 'platejs';
 import type { PlateEditor } from 'platejs/react';
 import { PlateStatic, createStaticEditor } from 'platejs/static';
 
-import type { Page, PageBorder, PageMargins } from '../lib/types';
+import type {
+  Page,
+  PageBorder,
+  PageMargins,
+  PageNumberConfig,
+} from '../lib/types';
 
 import { PAGINATION_KEY } from '../lib/internal/keys';
+import { PageNumber } from './page-number';
 
 export type PageFrameProps = {
   /**
@@ -26,10 +32,43 @@ export type PageFrameProps = {
   /** First-class header element copied off the document, if any. */
   documentHeader?: TElement;
   editor: PlateEditor;
+  /**
+   * Optional first-page footer content. When `firstPageDifferent` is true
+   * and `page.pageIndex === 0`, this content paints into the footer band
+   * instead of `documentFooter`. Pass `null` / `undefined` to leave the
+   * first-page footer empty.
+   */
+  firstPageFooter?: Descendant[] | null;
+  /**
+   * Optional first-page header content. When `firstPageDifferent` is true
+   * and `page.pageIndex === 0`, this content paints into the header band
+   * instead of `documentHeader`. Pass `null` / `undefined` to leave the
+   * first-page header empty.
+   */
+  firstPageHeader?: Descendant[] | null;
+  /** Word's "Different first page" rule. Defaults to `false`. */
+  firstPageDifferent?: boolean;
   footnotesInFooter: boolean;
   page: Page;
+  /**
+   * Resolved page-number configuration. `null` / `undefined` disables the
+   * painted page number. The component is rendered as a non-editable
+   * `<PageNumber>` inside the configured chrome band.
+   */
+  pageNumber?: PageNumberConfig | null;
+  /** Total page count in the document (drives `1/N` and `Page X of N`). */
+  totalPages: number;
   /** Vertical position of the page in the overlay coordinate space. */
   top: number;
+};
+
+const PAGE_NUMBER_ALIGN_TO_JUSTIFY: Record<
+  PageNumberConfig['align'],
+  React.CSSProperties['justifyContent']
+> = {
+  center: 'center',
+  left: 'flex-start',
+  right: 'flex-end',
 };
 
 /**
@@ -42,8 +81,13 @@ export const PageFrame = ({
   documentFooter,
   documentHeader,
   editor,
+  firstPageDifferent,
+  firstPageFooter,
+  firstPageHeader,
   footnotesInFooter,
   page,
+  pageNumber,
+  totalPages,
   top,
 }: PageFrameProps): React.JSX.Element => {
   const { rect } = page;
@@ -51,6 +95,21 @@ export const PageFrame = ({
   const footnoteWellTop =
     rect.height - chrome.footerHeight - chrome.footnoteWell;
   const footerTop = rect.height - chrome.footerHeight;
+  const isFirstPage = page.pageIndex === 0 && firstPageDifferent === true;
+  const headerContent = isFirstPage
+    ? ((firstPageHeader as TElement[] | undefined | null) ?? null)
+    : documentHeader
+      ? [documentHeader]
+      : null;
+  const footerContent = isFirstPage
+    ? ((firstPageFooter as TElement[] | undefined | null) ?? null)
+    : documentFooter
+      ? [documentFooter]
+      : null;
+  const pageNumberInHeader =
+    pageNumber && pageNumber.region === 'header' ? pageNumber : null;
+  const pageNumberInFooter =
+    pageNumber && pageNumber.region === 'footer' ? pageNumber : null;
   // Build a static-safe plugin list: keep only element- / leaf-rendering
   // plugins (those that contribute a `node.type` so PlateStatic knows how
   // to render that element) and strip every render slot that could trigger
@@ -89,11 +148,15 @@ export const PageFrame = ({
       {chrome.headerHeight > 0 ? (
         <div
           data-plate-pagination-slot="header"
+          data-plate-pagination-first-page={isFirstPage ? '' : undefined}
           style={{
             borderBottom: '1px dashed rgba(15,23,42,0.1)',
             color: 'rgba(15,23,42,0.55)',
+            display: 'flex',
+            flexDirection: 'column',
             fontSize: 12,
             height: chrome.headerHeight,
+            justifyContent: 'space-between',
             left: 0,
             paddingBottom: 8,
             paddingLeft: chrome.margins.left,
@@ -104,8 +167,27 @@ export const PageFrame = ({
             top: 0,
           }}
         >
-          {documentHeader ? (
-            <StaticPageValue plugins={staticPlugins} value={[documentHeader]} />
+          {headerContent ? (
+            <StaticPageValue plugins={staticPlugins} value={headerContent} />
+          ) : (
+            <div />
+          )}
+          {pageNumberInHeader ? (
+            <div
+              data-plate-pagination-page-number-slot="header"
+              style={{
+                display: 'flex',
+                justifyContent:
+                  PAGE_NUMBER_ALIGN_TO_JUSTIFY[pageNumberInHeader.align],
+                width: '100%',
+              }}
+            >
+              <PageNumber
+                config={pageNumberInHeader}
+                pageIndex={page.pageIndex}
+                totalPages={totalPages}
+              />
+            </div>
           ) : null}
         </div>
       ) : null}
@@ -135,11 +217,15 @@ export const PageFrame = ({
       {chrome.footerHeight > 0 ? (
         <div
           data-plate-pagination-slot="footer"
+          data-plate-pagination-first-page={isFirstPage ? '' : undefined}
           style={{
             borderTop: '1px dashed rgba(15,23,42,0.1)',
             color: 'rgba(15,23,42,0.55)',
+            display: 'flex',
+            flexDirection: 'column',
             fontSize: 12,
             height: chrome.footerHeight,
+            justifyContent: 'space-between',
             left: 0,
             paddingBottom: 8,
             paddingLeft: chrome.margins.left,
@@ -150,10 +236,28 @@ export const PageFrame = ({
             top: footerTop,
           }}
         >
-          {documentFooter ? (
-            <StaticPageValue plugins={staticPlugins} value={[documentFooter]} />
+          {footerContent ? (
+            <StaticPageValue plugins={staticPlugins} value={footerContent} />
+          ) : (
+            <div />
+          )}
+          {pageNumberInFooter ? (
+            <div
+              data-plate-pagination-page-number-slot="footer"
+              style={{
+                display: 'flex',
+                justifyContent:
+                  PAGE_NUMBER_ALIGN_TO_JUSTIFY[pageNumberInFooter.align],
+                width: '100%',
+              }}
+            >
+              <PageNumber
+                config={pageNumberInFooter}
+                pageIndex={page.pageIndex}
+                totalPages={totalPages}
+              />
+            </div>
           ) : null}
-          <span style={{ float: 'right' }}>{`${page.pageIndex + 1}`}</span>
         </div>
       ) : null}
 
@@ -188,11 +292,7 @@ const StaticPageValue = ({
   return (
     <div data-plate-pagination-static-stack="">
       {value.map((node, i) => (
-        <PlateStaticBoundary
-          key={`n-${i}`}
-          plugins={plugins}
-          value={[node]}
-        >
+        <PlateStaticBoundary key={`n-${i}`} plugins={plugins} value={[node]}>
           <FallbackPageText value={[node]} />
         </PlateStaticBoundary>
       ))}
@@ -266,20 +366,18 @@ const FallbackPageText = ({
   value,
 }: {
   value: TElement[];
-}): React.JSX.Element => {
-  return (
-    <div
-      data-plate-pagination-fallback=""
-      style={{ fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}
-    >
-      {value.map((node, i) => (
-        <p key={`pt-${i}`} style={{ margin: '0 0 0.6em 0' }}>
-          {collectPlainText(node)}
-        </p>
-      ))}
-    </div>
-  );
-};
+}): React.JSX.Element => (
+  <div
+    data-plate-pagination-fallback=""
+    style={{ fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}
+  >
+    {value.map((node, i) => (
+      <p key={`pt-${i}`} style={{ margin: '0 0 0.6em 0' }}>
+        {collectPlainText(node)}
+      </p>
+    ))}
+  </div>
+);
 
 const collectPlainText = (node: TElement): string => {
   let out = '';

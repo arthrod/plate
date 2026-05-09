@@ -8,8 +8,12 @@ import type { BasePaginationOptions } from './types';
  * instead of re-defining defaults inside a hook.
  */
 export const PAGINATION_OPTION_DEFAULTS: BasePaginationOptions = {
+  chromeFocusDimsBody: true,
+  firstPageDifferent: false,
+  firstPageFooter: undefined,
+  firstPageHeader: undefined,
   footerHeight: 48,
-  footnotePlacement: 'footer',
+  footnotePlacement: 'pageBottom',
   footnoteWell: 0,
   headerHeight: 48,
   includeFootnoteSubPlugins: true,
@@ -20,6 +24,7 @@ export const PAGINATION_OPTION_DEFAULTS: BasePaginationOptions = {
     top: 72,
   },
   mode: 'standard',
+  pageNumber: null,
   pageSize: 'A4',
   pageBorder: {
     color: 'rgba(15,23,42,0.15)',
@@ -43,6 +48,14 @@ export const resolvePaginationOptions = (
   const p = partial ?? {};
 
   return {
+    chromeFocusDimsBody:
+      p.chromeFocusDimsBody ?? PAGINATION_OPTION_DEFAULTS.chromeFocusDimsBody,
+    firstPageDifferent:
+      p.firstPageDifferent ?? PAGINATION_OPTION_DEFAULTS.firstPageDifferent,
+    firstPageFooter:
+      p.firstPageFooter ?? PAGINATION_OPTION_DEFAULTS.firstPageFooter,
+    firstPageHeader:
+      p.firstPageHeader ?? PAGINATION_OPTION_DEFAULTS.firstPageHeader,
     footerHeight: p.footerHeight ?? PAGINATION_OPTION_DEFAULTS.footerHeight,
     footnotePlacement:
       p.footnotePlacement ?? PAGINATION_OPTION_DEFAULTS.footnotePlacement,
@@ -54,6 +67,10 @@ export const resolvePaginationOptions = (
     margins: p.margins ?? PAGINATION_OPTION_DEFAULTS.margins,
     mode: p.mode ?? PAGINATION_OPTION_DEFAULTS.mode,
     pageBorder: p.pageBorder ?? PAGINATION_OPTION_DEFAULTS.pageBorder,
+    pageNumber:
+      p.pageNumber === undefined
+        ? PAGINATION_OPTION_DEFAULTS.pageNumber
+        : p.pageNumber,
     pageSize: p.pageSize ?? PAGINATION_OPTION_DEFAULTS.pageSize,
     previewWidth: p.previewWidth ?? PAGINATION_OPTION_DEFAULTS.previewWidth,
     previewVisible:

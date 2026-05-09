@@ -52,7 +52,7 @@ describe('BasePaginationPlugins', () => {
     });
     expect(plugin.options.headerHeight).toBe(48);
     expect(plugin.options.footerHeight).toBe(48);
-    expect(plugin.options.footnotePlacement).toBe('footer');
+    expect(plugin.options.footnotePlacement).toBe('pageBottom');
     expect(plugin.options.footnoteWell).toBe(0);
     expect(plugin.options.includeFootnoteSubPlugins).toBe(true);
     expect(plugin.options.pageBorder).toEqual({
@@ -285,6 +285,20 @@ describe('BasePaginationPlugins', () => {
       'footer'
     );
     expect(editor.getOption(BasePaginationPlugin, 'footnoteWell')).toBe(96);
+
+    (editor.tf as any).pagination.setFootnotePlacement('docEnd');
+
+    expect(editor.getOption(BasePaginationPlugin, 'footnotePlacement')).toBe(
+      'docEnd'
+    );
+    expect(editor.getOption(BasePaginationPlugin, 'footnoteWell')).toBe(0);
+
+    (editor.tf as any).pagination.setFootnotePlacement('pageBottom');
+
+    expect(editor.getOption(BasePaginationPlugin, 'footnotePlacement')).toBe(
+      'pageBottom'
+    );
+    expect(editor.getOption(BasePaginationPlugin, 'footnoteWell')).toBe(96);
   });
 
   it('setMargins merges a partial patch instead of replacing all sides', () => {
@@ -300,6 +314,94 @@ describe('BasePaginationPlugins', () => {
       right: 72,
       top: 95,
     });
+  });
+
+  it('setPageNumber writes a structured config and clears with null', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+    } as any);
+    const tf = (editor.tf as any).pagination;
+
+    tf.setPageNumber({
+      align: 'center',
+      format: 'roman',
+      hideOnFirst: true,
+      region: 'header',
+      startAt: 3,
+    });
+
+    expect(editor.getOption(BasePaginationPlugin, 'pageNumber')).toEqual({
+      align: 'center',
+      format: 'roman',
+      hideOnFirst: true,
+      region: 'header',
+      startAt: 3,
+    });
+
+    tf.setPageNumber(null);
+
+    expect(editor.getOption(BasePaginationPlugin, 'pageNumber')).toBeNull();
+  });
+
+  it('setFirstPageDifferent toggles the option', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+    } as any);
+    const tf = (editor.tf as any).pagination;
+
+    expect(editor.getOption(BasePaginationPlugin, 'firstPageDifferent')).toBe(
+      false
+    );
+
+    tf.setFirstPageDifferent(true);
+    expect(editor.getOption(BasePaginationPlugin, 'firstPageDifferent')).toBe(
+      true
+    );
+  });
+
+  it('setFirstPageHeader / setFirstPageFooter accept content and clear with null', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+    } as any);
+    const tf = (editor.tf as any).pagination;
+    const head = [{ children: [{ text: 'title' }], type: 'p' }];
+    const foot = [{ children: [{ text: 'footer text' }], type: 'p' }];
+
+    tf.setFirstPageHeader(head);
+    tf.setFirstPageFooter(foot);
+
+    expect(editor.getOption(BasePaginationPlugin, 'firstPageHeader')).toEqual(
+      head
+    );
+    expect(editor.getOption(BasePaginationPlugin, 'firstPageFooter')).toEqual(
+      foot
+    );
+
+    tf.setFirstPageHeader(null);
+    tf.setFirstPageFooter(null);
+
+    expect(
+      editor.getOption(BasePaginationPlugin, 'firstPageHeader')
+    ).toBeUndefined();
+    expect(
+      editor.getOption(BasePaginationPlugin, 'firstPageFooter')
+    ).toBeUndefined();
+  });
+
+  it('setChromeFocusDimsBody toggles the body-dim UX flag', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+    } as any);
+    const tf = (editor.tf as any).pagination;
+
+    expect(editor.getOption(BasePaginationPlugin, 'chromeFocusDimsBody')).toBe(
+      true
+    );
+
+    tf.setChromeFocusDimsBody(false);
+    expect(editor.getOption(BasePaginationPlugin, 'chromeFocusDimsBody')).toBe(
+      false
+    );
   });
 
   it('togglePreview flips and returns previewVisible', () => {
