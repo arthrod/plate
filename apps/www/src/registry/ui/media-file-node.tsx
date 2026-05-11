@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import type { TFileElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
+import { sanitizeUrl } from 'platejs';
 
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider } from '@platejs/resizable';
@@ -27,7 +28,7 @@ export const FileElement = withHOC(
           )}
           contentEditable={false}
           download={name}
-          href={unsafeUrl}
+          href={sanitizeUrl(unsafeUrl) || ''}
           rel="noopener noreferrer"
           role="button"
           target="_blank"

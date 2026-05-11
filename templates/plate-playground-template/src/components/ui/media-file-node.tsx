@@ -6,6 +6,7 @@ import { FileUp } from 'lucide-react';
 import type { TFileElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 import { PlateElement, useReadOnly, withHOC } from 'platejs/react';
+import { sanitizeUrl } from 'platejs';
 
 import { cn } from '@/lib/utils';
 import { Caption, CaptionTextarea } from './caption';
@@ -24,7 +25,7 @@ export const FileElement = withHOC(
           )}
           contentEditable={false}
           download={name}
-          href={unsafeUrl}
+          href={sanitizeUrl(unsafeUrl) || ''}
           rel="noopener noreferrer"
           role="button"
           target="_blank"

@@ -15,6 +15,10 @@ mock.module('@platejs/dnd', () => ({
   useDraggable: useDraggableMock,
 }));
 
+mock.module('platejs', () => ({
+  sanitizeUrl: (url: string) => url,
+}));
+
 mock.module('@platejs/media', () => ({
   parseTwitterUrl: parseTwitterUrlMock,
   parseVideoUrl: parseVideoUrlMock,
