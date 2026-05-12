@@ -9,6 +9,10 @@ mock.module('@platejs/media/react', () => ({
   useMediaState: (...args: any[]) => useMediaStateMock(...args),
 }));
 
+mock.module('platejs', () => ({
+  sanitizeUrl: (url: string) => url,
+}));
+
 mock.module('@platejs/resizable', () => ({
   ResizableProvider: ({ children }: any) => <>{children}</>,
 }));

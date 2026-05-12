@@ -9,6 +9,7 @@ import type { PlateElementProps } from 'platejs/react';
 import { PlateElement, useEditorMounted, withHOC } from 'platejs/react';
 import LiteYouTubeEmbed from 'react-lite-youtube-embed';
 import ReactPlayer from 'react-player';
+import { sanitizeUrl } from 'platejs';
 
 import { cn } from '@/lib/utils';
 
@@ -102,7 +103,7 @@ export const VideoElement = withHOC(
                   <video
                     className="w-full max-w-full rounded-sm object-cover px-0"
                     controls
-                    src={unsafeUrl}
+                    src={sanitizeUrl(unsafeUrl, {}) || ''}
                   />
                 </div>
               )}
@@ -112,7 +113,7 @@ export const VideoElement = withHOC(
                   <ReactPlayer
                     controls
                     height="100%"
-                    src={unsafeUrl}
+                    src={sanitizeUrl(unsafeUrl, {}) || ''}
                     width="100%"
                   />
                 </div>
