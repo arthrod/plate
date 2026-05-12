@@ -200,6 +200,7 @@ function LinkOpenButton() {
         e.stopPropagation();
       }}
       aria-label="Open link in a new tab"
+      rel="noopener noreferrer"
       target="_blank"
     >
       <ExternalLink width={18} />

@@ -302,6 +302,7 @@ function BlockViewerToolbar({ block }: { block: boolean }) {
               'h-[26px] px-2 text-xs'
             )}
             href={item.meta?.descriptionSrc ?? siteConfig.links.potionIframe}
+            rel="noopener noreferrer"
             target="_blank"
           >
             <span
@@ -360,6 +361,7 @@ function BlockViewerToolbar({ block }: { block: boolean }) {
                     item.meta?.src?.replace('?iframe=true', '') ??
                     `/blocks/${item.name}`
                   }
+                  rel="noopener noreferrer"
                   target="_blank"
                 >
                   <span className="sr-only">Open in New Tab</span>

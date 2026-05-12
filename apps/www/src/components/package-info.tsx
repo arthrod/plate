@@ -24,6 +24,7 @@ export function PackageInfo({ children }: { children: React.ReactNode }) {
             <Link
               className="flex gap-2 font-medium underline underline-offset-4"
               href={packageInfo.source}
+              rel="noopener noreferrer"
               target="_blank"
             >
               View source
@@ -35,6 +36,7 @@ export function PackageInfo({ children }: { children: React.ReactNode }) {
             <Link
               className="flex gap-2 font-medium underline underline-offset-4"
               href={packageInfo.npm}
+              rel="noopener noreferrer"
               target="_blank"
             >
               View on npm
@@ -45,6 +47,7 @@ export function PackageInfo({ children }: { children: React.ReactNode }) {
           <Link
             className="flex gap-2 font-medium underline underline-offset-4"
             href="https://github.com/udecode/plate/issues/new/choose"
+            rel="noopener noreferrer"
             target="_blank"
           >
             Report an issue
