@@ -103,7 +103,7 @@ export const VideoElement = withHOC(
                   <video
                     className="w-full max-w-full rounded-sm object-cover px-0"
                     controls
-                    src={sanitizeUrl(unsafeUrl) || ''}
+                    src={sanitizeUrl(unsafeUrl, {}) || ''}
                   />
                 </div>
               )}
@@ -113,7 +113,7 @@ export const VideoElement = withHOC(
                   <ReactPlayer
                     controls
                     height="100%"
-                    src={sanitizeUrl(unsafeUrl) || ''}
+                    src={sanitizeUrl(unsafeUrl, {}) || ''}
                     width="100%"
                   />
                 </div>

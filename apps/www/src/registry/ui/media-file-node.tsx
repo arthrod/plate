@@ -28,7 +28,7 @@ export const FileElement = withHOC(
           )}
           contentEditable={false}
           download={name}
-          href={sanitizeUrl(unsafeUrl) || ''}
+          href={sanitizeUrl(unsafeUrl, {}) || ''}
           rel="noopener noreferrer"
           role="button"
           target="_blank"
