@@ -268,17 +268,26 @@ const testItemsGroup = async (
           // 1. Compare dependencies (order-insensitive)
           const currentDeps = new Set(currentBlock.dependencies || []);
           const cachedDeps = new Set(cachedBlock.dependencies || []);
+          let depsMatch = true;
+          for (const dep of currentDeps) {
+            if (!cachedDeps.has(dep)) {
+              depsMatch = false;
+              break;
+            }
+          }
           if (
             currentDeps.size !== cachedDeps.size ||
-            !Array.from(currentDeps).every((dep) => cachedDeps.has(dep))
+            !depsMatch
           ) {
             blockDetailsMatch = false;
-            const addedDeps = Array.from(currentDeps).filter(
-              (d) => !cachedDeps.has(d)
-            );
-            const removedDeps = Array.from(cachedDeps).filter(
-              (d) => !currentDeps.has(d)
-            );
+            const addedDeps: string[] = [];
+            for (const d of currentDeps) {
+              if (!cachedDeps.has(d)) addedDeps.push(d);
+            }
+            const removedDeps: string[] = [];
+            for (const d of cachedDeps) {
+              if (!currentDeps.has(d)) removedDeps.push(d);
+            }
             let depDiffMsg = `Cache invalid: ${currentBlock.name} dependencies changed`;
             if (addedDeps.length > 0)
               depDiffMsg += ` (+${addedDeps.join(', ')})`;
@@ -296,17 +305,26 @@ const testItemsGroup = async (
             const cachedRegDeps = new Set(
               cachedBlock.registryDependencies || []
             );
+            let regDepsMatch = true;
+            for (const dep of currentRegDeps) {
+              if (!cachedRegDeps.has(dep)) {
+                regDepsMatch = false;
+                break;
+              }
+            }
             if (
               currentRegDeps.size !== cachedRegDeps.size ||
-              !Array.from(currentRegDeps).every((dep) => cachedRegDeps.has(dep))
+              !regDepsMatch
             ) {
               blockDetailsMatch = false;
-              const addedRegDeps = Array.from(currentRegDeps).filter(
-                (d) => !cachedRegDeps.has(d)
-              );
-              const removedRegDeps = Array.from(cachedRegDeps).filter(
-                (d) => !currentRegDeps.has(d)
-              );
+              const addedRegDeps: string[] = [];
+              for (const d of currentRegDeps) {
+                if (!cachedRegDeps.has(d)) addedRegDeps.push(d);
+              }
+              const removedRegDeps: string[] = [];
+              for (const d of cachedRegDeps) {
+                if (!currentRegDeps.has(d)) removedRegDeps.push(d);
+              }
               let regDepDiffMsg = `Cache invalid: ${currentBlock.name} registryDeps changed`;
               if (addedRegDeps.length > 0)
                 regDepDiffMsg += ` (+${addedRegDeps.join(', ')})`;
