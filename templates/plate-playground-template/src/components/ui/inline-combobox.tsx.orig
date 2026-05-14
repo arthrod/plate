@@ -53,13 +53,9 @@ const defaultFilter: FilterFn = (
     [value, ...keywords, group, label].filter(Boolean)
   );
 
-  for (const keyword of uniqueTerms) {
-    if (filterWords(keyword!, search)) {
-      return true;
-    }
-  }
-
-  return false;
+  return Array.from(uniqueTerms).some((keyword) =>
+    filterWords(keyword!, search)
+  );
 };
 
 type InlineComboboxProps = {
