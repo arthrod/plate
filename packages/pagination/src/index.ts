@@ -6,7 +6,6 @@ export * from './BasePaginationPlugin';
 export * from './PageElement';
 export * from './PaginationCoordinator';
 export * from './PaginationPlugin';
-export * from './YjsIntegration';
 export * from './leaderElection';
 export * from './registry';
 export * from './types';

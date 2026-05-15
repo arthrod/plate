@@ -1,13 +1,13 @@
 // ============================================================
-// pagination/YjsIntegration.tsx
+// pagination/yjs/YjsIntegration.tsx
 // ============================================================
 import { YjsPlugin } from '@platejs/yjs/react';
 import { useEditorRef, usePluginOption } from 'platejs/react';
 import React, { useEffect, useMemo } from 'react';
-import { getPaginationRuntime } from './BasePaginationPlugin';
-import { PaginationCoordinator } from './PaginationCoordinator';
-import { createAwarenessLeaderElection } from './leaderElection';
-import type { LeaderElection } from './types';
+import { getPaginationRuntime } from '../BasePaginationPlugin';
+import { PaginationCoordinator } from '../PaginationCoordinator';
+import { createAwarenessLeaderElection } from '../leaderElection';
+import type { LeaderElection } from '../types';
 
 export function YjsPaginationBridge() {
   const editor = useEditorRef();
