@@ -2,7 +2,10 @@
 // reflowEngine.spec.ts — TDD Cycle 5: Reflow Engine
 // ============================================================
 import { createSlateEditor } from 'platejs';
-import { reflowPageBoundary } from '../internal/reflowEngine';
+import {
+  findOverflowSplitIndex,
+  reflowPageBoundary,
+} from '../internal/reflowEngine';
 import { BasePaginationPlugin } from '../BasePaginationPlugin';
 import type { PageDom, ReflowContext } from '../types';
 
@@ -504,6 +507,21 @@ describe('findOverflowSplitIndex', () => {
 
     const result = reflowPageBoundary(editor, 0, ctx);
     expect(result.changed).toBe(false);
+  });
+
+  it('falls back to linear scan when offsetTop is non-monotonic', () => {
+    const contentEl = {
+      children: [
+        { offsetTop: 0, offsetHeight: 50 },
+        { offsetTop: 200, offsetHeight: 50 }, // non-monotonic: jumps ahead
+        { offsetTop: 100, offsetHeight: 50 }, // then comes back
+        { offsetTop: 500, offsetHeight: 50 }, // way past maxHeight
+      ],
+    } as unknown as HTMLDivElement;
+    const result = findOverflowSplitIndex(contentEl, 175);
+    // Linear scan: index 1 has offsetTop+height = 250 > 175 first.
+    // Binary search on non-monotonic data would give the wrong answer.
+    expect(result).toBe(1);
   });
 
   it('binary search finds first overflowing child', () => {

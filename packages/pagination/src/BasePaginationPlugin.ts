@@ -35,11 +35,12 @@ export {
 
 export type PaginationTransforms = {
   pagination: {
-    togglePreview: () => boolean;
-    setPageSize: (size: 'A4' | 'Letter' | 'Legal') => void;
     setMargins: (margins: DocumentSettings['margins']) => void;
-    toggleHeader: () => boolean;
+    setPageSize: (size: 'A4' | 'Letter' | 'Legal') => void;
     toggleFooter: () => boolean;
+    toggleHeader: () => boolean;
+    togglePreview: () => boolean;
+    withMutations: (fn: () => void) => void;
   };
 };
 
@@ -165,6 +166,9 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
 })
   .overrideEditor(withPagination)
   .extendTransforms(({ editor, getOptions }) => ({
+    withMutations(fn: () => void): void {
+      _withPaginationMutations(editor, fn);
+    },
     togglePreview(): boolean {
       const current = getOptions().viewMode ?? 'paginated';
       const next = current === 'paginated' ? 'continuous' : 'paginated';

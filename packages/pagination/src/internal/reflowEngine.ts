@@ -13,7 +13,7 @@ import { HistoryEditor } from 'slate-history';
 import { ReactEditor } from 'slate-react';
 import {
   BasePaginationPlugin,
-  withPaginationMutations,
+  type PaginationConfig,
 } from '../BasePaginationPlugin';
 import type { ReflowContext } from '../types';
 
@@ -228,11 +228,32 @@ export function reflowPageBoundary(
   return { changed: true, nextPageToContinue: pageIndex };
 }
 
-function findOverflowSplitIndex(
+export function findOverflowSplitIndex(
   contentEl: HTMLDivElement,
   maxHeight: number
 ): number | null {
   const children = Array.from(contentEl.children) as HTMLElement[];
+  if (children.length === 0) return null;
+
+  // Detect non-monotonic offsetTop in the first 3 children (e.g., multi-column,
+  // absolute positioning, or flex `order:` can break the sorted-by-offsetTop
+  // assumption that binary search relies on).
+  let monotonic = true;
+  for (let i = 1; i < Math.min(3, children.length); i++) {
+    if (children[i].offsetTop < children[i - 1].offsetTop) {
+      monotonic = false;
+      break;
+    }
+  }
+
+  if (!monotonic) {
+    // Linear scan fallback: first child whose bottom exceeds maxHeight.
+    for (let i = 0; i < children.length; i++) {
+      const bottom = children[i].offsetTop + children[i].offsetHeight;
+      if (bottom > maxHeight) return i;
+    }
+    return null;
+  }
 
   // Binary search for first overflowing child
   let left = 0;
@@ -354,8 +375,11 @@ function splitOversizedBlock(
       'defaultBlockType'
     );
 
+    const paginationTf =
+      editor.getTransforms<PaginationConfig>(BasePaginationPlugin).pagination;
+
     withoutSaving(editor, () => {
-      withPaginationMutations(editor, () => {
+      paginationTf.withMutations(() => {
         editor.tf.withoutNormalizing(() => {
           // Ensure next page exists
           if (!editor.api.hasPath(nextPagePath)) {
