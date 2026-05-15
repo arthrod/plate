@@ -201,6 +201,7 @@ function LinkOpenButton() {
       }}
       aria-label="Open link in a new tab"
       target="_blank"
+      rel="noopener noreferrer"
     >
       <ExternalLink width={18} />
     </a>

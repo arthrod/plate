@@ -303,6 +303,7 @@ function BlockViewerToolbar({ block }: { block: boolean }) {
             )}
             href={item.meta?.descriptionSrc ?? siteConfig.links.potionIframe}
             target="_blank"
+            rel="noopener noreferrer"
           >
             <span
               className={cn(
@@ -361,6 +362,7 @@ function BlockViewerToolbar({ block }: { block: boolean }) {
                     `/blocks/${item.name}`
                   }
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <span className="sr-only">Open in New Tab</span>
                   <Fullscreen className="size-3.5" />

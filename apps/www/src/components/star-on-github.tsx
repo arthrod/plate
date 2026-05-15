@@ -23,6 +23,7 @@ export function StarOnGithub({ count }: { count: number }) {
         )}
         href={siteConfig.links.github}
         target="_blank"
+        rel="noopener noreferrer"
       >
         <span
           className={cn(
