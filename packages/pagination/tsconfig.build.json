@@ -4,5 +4,5 @@
     "outDir": "./dist"
   },
   "include": ["src"],
-  "exclude": ["src/example_visualization_with_toggle"]
+  "exclude": ["src/internal/example_visualization_with_toggle"]
 }

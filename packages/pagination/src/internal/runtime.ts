@@ -2,7 +2,7 @@
 // pagination/runtime.ts
 // ============================================================
 import type { Operation } from 'slate';
-import type { PaginationRuntime } from './types';
+import type { PaginationRuntime } from '../types';
 
 export function createPaginationRuntime(): PaginationRuntime {
   const dirty = new Set<number>();

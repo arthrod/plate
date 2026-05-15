@@ -14,8 +14,8 @@ import { ReactEditor } from 'slate-react';
 import {
   BasePaginationPlugin,
   withPaginationMutations,
-} from './BasePaginationPlugin';
-import type { ReflowContext } from './types';
+} from '../BasePaginationPlugin';
+import type { ReflowContext } from '../types';
 
 // Wrap transforms to avoid polluting undo history
 function withoutSaving(editor: SlateEditor, fn: () => void) {

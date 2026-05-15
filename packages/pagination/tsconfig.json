@@ -7,5 +7,5 @@
     }
   },
   "include": ["src", "../../tooling/config/global.d.ts"],
-  "exclude": ["src/example_visualization_with_toggle"]
+  "exclude": ["src/internal/example_visualization_with_toggle"]
 }

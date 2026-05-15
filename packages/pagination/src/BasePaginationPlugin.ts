@@ -17,7 +17,7 @@ import {
   setPaginationRuntime,
   withPaginationMutations as _withPaginationMutations,
 } from './internal/editorRegistry';
-import { createPaginationRuntime, getPageIndexFromOp } from './runtime';
+import { createPaginationRuntime, getPageIndexFromOp } from './internal/runtime';
 import type {
   CollaborationOptions,
   DocumentSettings,

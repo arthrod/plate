@@ -2,10 +2,7 @@
 // reflowEngine.spec.ts — TDD Cycle 5: Reflow Engine
 // ============================================================
 import { createSlateEditor } from 'platejs';
-import {
-  reflowPageBoundary,
-  type ReflowResult,
-} from '../reflowEngine';
+import { reflowPageBoundary } from '../internal/reflowEngine';
 import { BasePaginationPlugin } from '../BasePaginationPlugin';
 import type { PageDom, ReflowContext } from '../types';
 
@@ -96,15 +93,11 @@ describe('reflowPageBoundary', () => {
       value: [
         {
           type: pageType,
-          children: [
-            { type: 'p', children: [{ text: 'hello' }] },
-          ],
+          children: [{ type: 'p', children: [{ text: 'hello' }] }],
         },
         {
           type: pageType,
-          children: [
-            { type: 'p', children: [{ text: 'world' }] },
-          ],
+          children: [{ type: 'p', children: [{ text: 'world' }] }],
         },
       ],
     });

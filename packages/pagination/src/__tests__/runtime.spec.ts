@@ -1,7 +1,4 @@
-import {
-  createPaginationRuntime,
-  getPageIndexFromOp,
-} from '../runtime';
+import { createPaginationRuntime, getPageIndexFromOp } from '../internal/runtime';
 
 describe('createPaginationRuntime', () => {
   it('returns object with markDirty, consumeDirtyMin, subscribe', () => {
@@ -23,7 +20,7 @@ describe('createPaginationRuntime', () => {
     const rt = createPaginationRuntime();
     const called: number[] = [];
     rt.subscribe(() => called.push(1));
-    rt.markDirty(NaN);
+    rt.markDirty(Number.NaN);
     expect(called.length).toBe(0);
     expect(rt.consumeDirtyMin()).toBeNull();
   });
@@ -36,7 +33,7 @@ describe('createPaginationRuntime', () => {
 
   it('markDirty with Infinity is a no-op', () => {
     const rt = createPaginationRuntime();
-    rt.markDirty(Infinity);
+    rt.markDirty(Number.POSITIVE_INFINITY);
     expect(rt.consumeDirtyMin()).toBeNull();
   });
 
@@ -79,7 +76,12 @@ describe('createPaginationRuntime', () => {
 
 describe('getPageIndexFromOp', () => {
   it('extracts index from set_node operation path', () => {
-    const op = { type: 'set_node', path: [2, 0, 1], properties: {}, newProperties: {} };
+    const op = {
+      type: 'set_node',
+      path: [2, 0, 1],
+      properties: {},
+      newProperties: {},
+    };
     expect(getPageIndexFromOp(op as any)).toBe(2);
   });
 
@@ -99,12 +101,22 @@ describe('getPageIndexFromOp', () => {
   });
 
   it('handles merge_node (has path)', () => {
-    const op = { type: 'merge_node', path: [4, 0], position: 0, properties: {} };
+    const op = {
+      type: 'merge_node',
+      path: [4, 0],
+      position: 0,
+      properties: {},
+    };
     expect(getPageIndexFromOp(op as any)).toBe(4);
   });
 
   it('handles split_node (has path)', () => {
-    const op = { type: 'split_node', path: [1, 2], position: 0, properties: {} };
+    const op = {
+      type: 'split_node',
+      path: [1, 2],
+      position: 0,
+      properties: {},
+    };
     expect(getPageIndexFromOp(op as any)).toBe(1);
   });
 });

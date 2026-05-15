@@ -8,7 +8,7 @@ import {
   getPaginationRuntime,
 } from './BasePaginationPlugin';
 import { createAlwaysLeader } from './leaderElection';
-import { reflowPageBoundary } from './reflowEngine';
+import { reflowPageBoundary } from './internal/reflowEngine';
 import { usePaginationRegistry } from './registry';
 import type {
   CollaborationOptions,
@@ -185,8 +185,8 @@ export function PaginationCoordinator({
   }, [reflowOpts.enabled, scheduleReflowFrom]);
 
   // Cleanup pending timers on unmount
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (scheduledRef.current !== null) {
         window.clearTimeout(scheduledRef.current);
         scheduledRef.current = null;
@@ -195,8 +195,9 @@ export function PaginationCoordinator({
         window.clearTimeout(resizeTimerRef.current);
         resizeTimerRef.current = null;
       }
-    };
-  }, []);
+    },
+    []
+  );
 
   // Initial reflow on mount
   useEffect(() => {
