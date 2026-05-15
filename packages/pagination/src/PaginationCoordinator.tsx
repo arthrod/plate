@@ -2,7 +2,7 @@
 // pagination/PaginationCoordinator.tsx
 // ============================================================
 import { useEditorRef, usePluginOption } from 'platejs/react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   BasePaginationPlugin,
   getPaginationRuntime,
@@ -59,93 +59,81 @@ export function PaginationCoordinator({
     });
   }, [leader, collabOpts.mode]);
 
-  const shouldProcess = useCallback(() => {
+  function shouldProcess() {
     if (canProcess === false) return false;
     if (!reflowOpts.enabled) return false;
     if (collabOpts.mode === 'leader' && !isLeaderRef.current) return false;
     return true;
-  }, [canProcess, reflowOpts.enabled, collabOpts.mode]);
+  }
 
-  // Ref to store scheduleReflowFrom for use in runReflow (breaks circular dependency)
-  const scheduleReflowFromRef = useRef<(startPage: number) => void>(() => {});
+  async function runReflow(startPage: number) {
+    if (!shouldProcess() || !registry) return;
 
-  const runReflow = useCallback(
-    async (startPage: number) => {
-      if (!shouldProcess() || !registry) return;
+    if (runningRef.current) {
+      scheduleReflowFrom(startPage);
+      return;
+    }
 
-      if (runningRef.current) {
-        scheduleReflowFromRef.current(startPage);
-        return;
-      }
+    runningRef.current = true;
 
-      runningRef.current = true;
+    try {
+      // Wait for React to flush DOM updates
+      await new Promise((r) => requestAnimationFrame(r));
 
-      try {
-        // Wait for React to flush DOM updates
-        await new Promise((r) => requestAnimationFrame(r));
+      let page = Math.max(0, startPage);
+      let pagesProcessed = 0;
 
-        let page = Math.max(0, startPage);
-        let pagesProcessed = 0;
+      while (pagesProcessed < reflowOpts.maxPagesPerIdle) {
+        const pageDom = registry.getPageDom(page);
+        if (!pageDom) break; // Page not mounted
 
-        while (pagesProcessed < reflowOpts.maxPagesPerIdle) {
-          const pageDom = registry.getPageDom(page);
-          if (!pageDom) break; // Page not mounted
+        const nextPageDom = registry.getPageDom(page + 1);
 
-          const nextPageDom = registry.getPageDom(page + 1);
+        const result = reflowPageBoundary(editor as any, page, {
+          pageDom,
+          nextPageDom,
+          opts: reflowOpts,
+        });
 
-          const result = reflowPageBoundary(editor as any, page, {
-            pageDom,
-            nextPageDom,
-            opts: reflowOpts,
-          });
+        pagesProcessed++;
 
-          pagesProcessed++;
-
-          if (result.changed) {
-            // Re-schedule to continue cascading
-            if (result.nextPageToContinue !== null) {
-              scheduleReflowFromRef.current(result.nextPageToContinue);
-            }
-            break;
+        if (result.changed) {
+          // Re-schedule to continue cascading
+          if (result.nextPageToContinue !== null) {
+            scheduleReflowFrom(result.nextPageToContinue);
           }
-          // No change — move to next page
-          page++;
+          break;
         }
-      } finally {
-        runningRef.current = false;
+        // No change — move to next page
+        page++;
       }
-    },
-    [editor, registry, reflowOpts, shouldProcess]
-  );
+    } finally {
+      runningRef.current = false;
+    }
+  }
 
-  const scheduleReflowFrom = useCallback(
-    (startPage: number) => {
-      if (!shouldProcess()) return;
+  function scheduleReflowFrom(startPage: number) {
+    if (!shouldProcess()) return;
 
-      pendingStartRef.current =
-        pendingStartRef.current === null
-          ? startPage
-          : Math.min(pendingStartRef.current, startPage);
+    pendingStartRef.current =
+      pendingStartRef.current === null
+        ? startPage
+        : Math.min(pendingStartRef.current, startPage);
 
-      if (scheduledRef.current !== null) return;
+    if (scheduledRef.current !== null) return;
 
-      scheduledRef.current = window.setTimeout(() => {
-        scheduledRef.current = null;
-        const start = pendingStartRef.current ?? 0;
-        pendingStartRef.current = null;
+    scheduledRef.current = window.setTimeout(() => {
+      scheduledRef.current = null;
+      const start = pendingStartRef.current ?? 0;
+      pendingStartRef.current = null;
 
-        // Use requestIdleCallback if available
-        const ric =
-          (window as any).requestIdleCallback ??
-          ((cb: () => void) => setTimeout(cb, 0));
-        ric(() => runReflow(start));
-      }, reflowOpts.debounceMs);
-    },
-    [runReflow, shouldProcess, reflowOpts.debounceMs]
-  );
-
-  // Keep ref in sync with latest scheduleReflowFrom
-  scheduleReflowFromRef.current = scheduleReflowFrom;
+      // Use requestIdleCallback if available
+      const ric =
+        (window as any).requestIdleCallback ??
+        ((cb: () => void) => setTimeout(cb, 0));
+      ric(() => runReflow(start));
+    }, reflowOpts.debounceMs);
+  }
 
   // Subscribe to runtime dirty notifications
   useEffect(() => {
