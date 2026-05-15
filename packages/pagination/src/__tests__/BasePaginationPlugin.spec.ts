@@ -1,6 +1,13 @@
-import { createSlateEditor, KEYS } from 'platejs';
-import { BasePaginationPlugin, getPaginationRuntime, withPaginationMutations } from '../BasePaginationPlugin';
-import { createPaginationRuntime } from '../runtime';
+import { createSlateEditor } from 'platejs';
+import {
+  BasePaginationPlugin,
+  getPaginationRuntime,
+  withPaginationMutations,
+} from '../BasePaginationPlugin';
+import {
+  isPaginationMutating,
+  withPaginationMutations as _withPaginationMutations,
+} from '../internal/editorRegistry';
 
 const pageType = 'page';
 
@@ -19,15 +26,24 @@ describe('BasePaginationPlugin normalization', () => {
     expect(editor.children[0]).toHaveProperty('type', pageType);
     const page = editor.children[0] as any;
     expect(page.children).toHaveLength(2);
-    expect(page.children[0]).toMatchObject({ type: 'p', children: [{ text: 'hello' }] });
-    expect(page.children[1]).toMatchObject({ type: 'p', children: [{ text: 'world' }] });
+    expect(page.children[0]).toMatchObject({
+      type: 'p',
+      children: [{ text: 'hello' }],
+    });
+    expect(page.children[1]).toMatchObject({
+      type: 'p',
+      children: [{ text: 'world' }],
+    });
   });
 
   it('normalizeInitialValue: mix of page and non-page root children: non-page are wrapped', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
       value: [
-        { type: pageType, children: [{ type: 'p', children: [{ text: 'a' }] }] },
+        {
+          type: pageType,
+          children: [{ type: 'p', children: [{ text: 'a' }] }],
+        },
         { type: 'p', children: [{ text: 'b' }] },
         { type: 'p', children: [{ text: 'c' }] },
       ],
@@ -38,16 +54,28 @@ describe('BasePaginationPlugin normalization', () => {
     expect(editor.children[1]).toHaveProperty('type', pageType);
     const page2 = editor.children[1] as any;
     expect(page2.children).toHaveLength(2);
-    expect(page2.children[0]).toMatchObject({ type: 'p', children: [{ text: 'b' }] });
-    expect(page2.children[1]).toMatchObject({ type: 'p', children: [{ text: 'c' }] });
+    expect(page2.children[0]).toMatchObject({
+      type: 'p',
+      children: [{ text: 'b' }],
+    });
+    expect(page2.children[1]).toMatchObject({
+      type: 'p',
+      children: [{ text: 'c' }],
+    });
   });
 
   it('normalizeInitialValue: all children already pages: no change', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
       value: [
-        { type: pageType, children: [{ type: 'p', children: [{ text: 'a' }] }] },
-        { type: pageType, children: [{ type: 'p', children: [{ text: 'b' }] }] },
+        {
+          type: pageType,
+          children: [{ type: 'p', children: [{ text: 'a' }] }],
+        },
+        {
+          type: pageType,
+          children: [{ type: 'p', children: [{ text: 'b' }] }],
+        },
       ],
     });
 
@@ -64,7 +92,10 @@ describe('BasePaginationPlugin normalization', () => {
           type: pageType,
           children: [
             { type: 'p', children: [{ text: 'a' }] },
-            { type: pageType, children: [{ type: 'p', children: [{ text: 'nested' }] }] },
+            {
+              type: pageType,
+              children: [{ type: 'p', children: [{ text: 'nested' }] }],
+            },
           ],
         },
       ],
@@ -80,7 +111,9 @@ describe('BasePaginationPlugin normalization', () => {
   it('getPaginationRuntime returns the runtime attached to editor', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
-      value: [{ type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] }],
+      value: [
+        { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+      ],
     });
 
     const rt = getPaginationRuntime(editor);
@@ -120,7 +153,7 @@ describe('BasePaginationPlugin normalization', () => {
     expect(rt.consumeDirtyMin()).toBe(0);
   });
 
-  it('apply override does not mark dirty when __paginationMutating is true', () => {
+  it('apply override does not mark dirty when mutating flag is active', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
       value: [
@@ -134,35 +167,39 @@ describe('BasePaginationPlugin normalization', () => {
     const rt = getPaginationRuntime(editor)!;
     rt.consumeDirtyMin(); // clear initial
 
-    (editor as any).__paginationMutating = true;
-    editor.tf.setNodes({ bold: true } as any, { at: [0, 0, 0] });
-    (editor as any).__paginationMutating = false;
+    _withPaginationMutations(editor, () => {
+      editor.tf.setNodes({ bold: true } as any, { at: [0, 0, 0] });
+    });
 
     expect(rt.consumeDirtyMin()).toBeNull();
   });
 
-  it('withPaginationMutations sets and restores __paginationMutating flag', () => {
+  it('withPaginationMutations sets and restores mutating flag', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
-      value: [{ type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] }],
+      value: [
+        { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+      ],
     });
 
-    expect((editor as any).__paginationMutating).toBeFalsy();
+    expect(isPaginationMutating(editor)).toBe(false);
 
     withPaginationMutations(editor, () => {
-      expect((editor as any).__paginationMutating).toBe(true);
+      expect(isPaginationMutating(editor)).toBe(true);
     });
 
-    expect((editor as any).__paginationMutating).toBeFalsy();
+    expect(isPaginationMutating(editor)).toBe(false);
   });
 
   it('withPaginationMutations restores flag on exception (try/finally)', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
-      value: [{ type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] }],
+      value: [
+        { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+      ],
     });
 
-    (editor as any).__paginationMutating = false;
+    expect(isPaginationMutating(editor)).toBe(false);
 
     try {
       withPaginationMutations(editor, () => {
@@ -170,7 +207,7 @@ describe('BasePaginationPlugin normalization', () => {
       });
     } catch {}
 
-    expect((editor as any).__paginationMutating).toBe(false);
+    expect(isPaginationMutating(editor)).toBe(false);
   });
 
   it('onNodeChange wraps non-page root children and marks dirty', () => {
@@ -205,7 +242,7 @@ describe('BasePaginationPlugin normalization', () => {
     expect(dirty).not.toBeNull();
   });
 
-  it('onNodeChange does nothing when __paginationMutating is true', () => {
+  it('onNodeChange does nothing when mutating flag is active', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
       value: [
@@ -219,17 +256,18 @@ describe('BasePaginationPlugin normalization', () => {
     const rt = getPaginationRuntime(editor)!;
     rt.consumeDirtyMin(); // clear
 
-    (editor as any).__paginationMutating = true;
+    // Directly place non-page children so onNodeChange WOULD wrap them
+    // if not for the mutating guard.
+    (editor as any).children = [{ type: 'p', children: [{ text: 'foo' }] }];
 
-    // Simulate: children have non-page nodes (set directly)
-    // onNodeChange should skip because mutating flag is true
-    const prevChildren = [...editor.children];
-    // Re-check - the flag should prevent changes
-    (editor as any).__paginationMutating = false;
+    // Invoke the handler while the mutating flag is set.
+    _withPaginationMutations(editor, () => {
+      const handler = (BasePaginationPlugin as any).handlers?.onNodeChange;
+      handler?.({ editor });
+    });
 
-    // The dirty should NOT have been marked since we were mutating
-    // (the state was set when mutating was true)
-    rt.consumeDirtyMin();
+    // Guard fired early — no dirty mark, children still unwrapped.
     expect(rt.consumeDirtyMin()).toBeNull();
+    expect((editor.children[0] as any).type).toBe('p');
   });
 });

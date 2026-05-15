@@ -2,7 +2,10 @@
 // paginationTransforms.spec.ts — TDD Cycle 4: Transforms API
 // ============================================================
 import { createSlateEditor } from 'platejs';
-import { BasePaginationPlugin } from '../BasePaginationPlugin';
+import {
+  BasePaginationPlugin,
+  getPaginationRuntime,
+} from '../BasePaginationPlugin';
 
 const pageType = 'page';
 
@@ -29,7 +32,10 @@ describe('Pagination Transforms API', () => {
       const editor = createSlateEditor({
         plugins: [BasePaginationPlugin],
         value: [
-          { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+          {
+            type: pageType,
+            children: [{ type: 'p', children: [{ text: '' }] }],
+          },
         ],
       });
 
@@ -39,23 +45,32 @@ describe('Pagination Transforms API', () => {
 
       const result = tf!.togglePreview!();
       expect(result).toBe(true);
-      expect(editor.getOptions(BasePaginationPlugin).viewMode).toBe('continuous');
+      expect(editor.getOptions(BasePaginationPlugin).viewMode).toBe(
+        'continuous'
+      );
     });
 
     it("toggles viewMode from 'continuous' to 'paginated'", () => {
       const editor = createSlateEditor({
         plugins: [
-          BasePaginationPlugin.configure({ options: { viewMode: 'continuous' } }),
+          BasePaginationPlugin.configure({
+            options: { viewMode: 'continuous' },
+          }),
         ],
         value: [
-          { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+          {
+            type: pageType,
+            children: [{ type: 'p', children: [{ text: '' }] }],
+          },
         ],
       });
 
       const tf = getTf(editor);
       const result = tf!.togglePreview!();
       expect(result).toBe(false);
-      expect(editor.getOptions(BasePaginationPlugin).viewMode).toBe('paginated');
+      expect(editor.getOptions(BasePaginationPlugin).viewMode).toBe(
+        'paginated'
+      );
     });
   });
 
@@ -64,42 +79,51 @@ describe('Pagination Transforms API', () => {
       const editor = createSlateEditor({
         plugins: [BasePaginationPlugin],
         value: [
-          { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+          {
+            type: pageType,
+            children: [{ type: 'p', children: [{ text: '' }] }],
+          },
         ],
       });
 
       getTf(editor)!.setPageSize!('A4');
-      expect(editor.getOptions(BasePaginationPlugin).documentSettings.sizes).toEqual(
-        { width: 794, height: 1123 }
-      );
+      expect(
+        editor.getOptions(BasePaginationPlugin).documentSettings.sizes
+      ).toEqual({ width: 794, height: 1123 });
     });
 
     it('sets size to Letter (816x1056)', () => {
       const editor = createSlateEditor({
         plugins: [BasePaginationPlugin],
         value: [
-          { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+          {
+            type: pageType,
+            children: [{ type: 'p', children: [{ text: '' }] }],
+          },
         ],
       });
 
       getTf(editor)!.setPageSize!('Letter');
-      expect(editor.getOptions(BasePaginationPlugin).documentSettings.sizes).toEqual(
-        { width: 816, height: 1056 }
-      );
+      expect(
+        editor.getOptions(BasePaginationPlugin).documentSettings.sizes
+      ).toEqual({ width: 816, height: 1056 });
     });
 
     it('sets size to Legal (816x1344)', () => {
       const editor = createSlateEditor({
         plugins: [BasePaginationPlugin],
         value: [
-          { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+          {
+            type: pageType,
+            children: [{ type: 'p', children: [{ text: '' }] }],
+          },
         ],
       });
 
       getTf(editor)!.setPageSize!('Legal');
-      expect(editor.getOptions(BasePaginationPlugin).documentSettings.sizes).toEqual(
-        { width: 816, height: 1344 }
-      );
+      expect(
+        editor.getOptions(BasePaginationPlugin).documentSettings.sizes
+      ).toEqual({ width: 816, height: 1344 });
     });
   });
 
@@ -108,7 +132,10 @@ describe('Pagination Transforms API', () => {
       const editor = createSlateEditor({
         plugins: [BasePaginationPlugin],
         value: [
-          { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+          {
+            type: pageType,
+            children: [{ type: 'p', children: [{ text: '' }] }],
+          },
         ],
       });
 
@@ -122,7 +149,10 @@ describe('Pagination Transforms API', () => {
       const editor = createSlateEditor({
         plugins: [BasePaginationPlugin],
         value: [
-          { type: pageType, children: [{ type: 'p', children: [{ text: '' }] }] },
+          {
+            type: pageType,
+            children: [{ type: 'p', children: [{ text: '' }] }],
+          },
         ],
       });
 
@@ -140,15 +170,11 @@ describe('Pagination Transforms API', () => {
         value: [
           {
             type: pageType,
-            children: [
-              { type: 'p', children: [{ text: 'page one' }] },
-            ],
+            children: [{ type: 'p', children: [{ text: 'page one' }] }],
           },
           {
             type: pageType,
-            children: [
-              { type: 'p', children: [{ text: 'page two' }] },
-            ],
+            children: [{ type: 'p', children: [{ text: 'page two' }] }],
           },
         ],
       });
@@ -234,15 +260,11 @@ describe('Pagination Transforms API', () => {
         value: [
           {
             type: pageType,
-            children: [
-              { type: 'p', children: [{ text: 'page one' }] },
-            ],
+            children: [{ type: 'p', children: [{ text: 'page one' }] }],
           },
           {
             type: pageType,
-            children: [
-              { type: 'p', children: [{ text: 'page two' }] },
-            ],
+            children: [{ type: 'p', children: [{ text: 'page two' }] }],
           },
         ],
       });
@@ -325,7 +347,7 @@ describe('Pagination Transforms API', () => {
         ],
       });
 
-      const rt = (editor as any).__paginationRuntime;
+      const rt = getPaginationRuntime(editor)!;
       rt.consumeDirtyMin(); // clear initial
 
       getTf(editor)!.toggleHeader!();
@@ -343,7 +365,7 @@ describe('Pagination Transforms API', () => {
         ],
       });
 
-      const rt = (editor as any).__paginationRuntime;
+      const rt = getPaginationRuntime(editor)!;
       rt.consumeDirtyMin(); // clear initial
 
       getTf(editor)!.toggleFooter!();

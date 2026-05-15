@@ -3,14 +3,24 @@
 // ============================================================
 import { createTSlatePlugin, KEYS, type OverrideEditor, type PluginConfig } from 'platejs';
 import type { Operation } from 'slate';
+import {
+  getPaginationRuntime as _getPaginationRuntime,
+  isPaginationMutating,
+  setPaginationRuntime,
+  withPaginationMutations as _withPaginationMutations,
+} from './internal/editorRegistry';
 import { createPaginationRuntime, getPageIndexFromOp } from './runtime';
 import type {
   CollaborationOptions,
   DocumentSettings,
-  PaginationRuntime,
   ReflowOptions,
   ViewMode,
 } from './types';
+
+export {
+  getPaginationRuntime,
+  withPaginationMutations,
+} from './internal/editorRegistry';
 
 export type PaginationConfig = PluginConfig<
   'pagination',
@@ -57,7 +67,7 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
 }) => {
   // Attach runtime to editor
   const runtime = createPaginationRuntime();
-  (editor as any).__paginationRuntime = runtime;
+  setPaginationRuntime(editor, runtime);
 
   const getPlugin = () => editor.getPlugin(BasePaginationPlugin) as any;
 
@@ -66,7 +76,7 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
       apply(op: Operation) {
         apply(op);
 
-        if ((editor as any).__paginationMutating) return;
+        if (isPaginationMutating(editor)) return;
 
         const pageIndex = getPageIndexFromOp(op);
         if (pageIndex !== null && runtime) {
@@ -127,7 +137,7 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
             (page) => page.children?.[0]?.type === 'header'
           );
 
-          withPaginationMutations(editor, () => {
+          _withPaginationMutations(editor, () => {
             editor.tf.withoutNormalizing(() => {
               children.forEach((_page, pageIndex) => {
                 if (hasHeaders) {
@@ -168,7 +178,7 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
               page.children?.[page.children.length - 1]?.type === 'footer'
           );
 
-          withPaginationMutations(editor, () => {
+          _withPaginationMutations(editor, () => {
             editor.tf.withoutNormalizing(() => {
               children.forEach((page, pageIndex) => {
                 if (hasFooters) {
@@ -217,7 +227,7 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
   },
   handlers: {
     onNodeChange: ({ editor }) => {
-      if ((editor as any).__paginationMutating) return;
+      if (isPaginationMutating(editor)) return;
       if ((editor as any).meta?.isNormalizing) return;
       const pageType = editor.getType?.(KEYS.pagination) ?? 'page';
       const children = editor.children as any[];
@@ -227,7 +237,7 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
       if (!hasNonPage) return;
 
       if (normalizeRootChildren(editor, pageType)) {
-        getPaginationRuntime(editor)?.markDirty(0);
+        _getPaginationRuntime(editor)?.markDirty(0);
       }
     },
   },
@@ -243,18 +253,8 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
   },
 }).overrideEditor(withPagination);
 
-export function withPaginationMutations(editor: any, fn: () => void) {
-  const prev = editor.__paginationMutating;
-  editor.__paginationMutating = true;
-  try {
-    fn();
-  } finally {
-    editor.__paginationMutating = prev;
-  }
-}
-
 function wrapRootRange(editor: any, type: string, start: number, end: number) {
-  withPaginationMutations(editor, () => {
+  _withPaginationMutations(editor, () => {
     editor.tf.withoutNormalizing(() => {
       const pagePath = [start];
       editor.tf.insertNodes({ type, children: [] }, { at: pagePath });
@@ -291,11 +291,4 @@ function normalizeRootChildren(editor: any, type: string): boolean {
   }
 
   return false;
-}
-
-// Helper to get runtime from editor
-export function getPaginationRuntime(
-  editor: any
-): PaginationRuntime | undefined {
-  return editor.__paginationRuntime;
 }
