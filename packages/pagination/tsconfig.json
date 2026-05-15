@@ -6,6 +6,5 @@
       "www/*": ["../../apps/www/*"]
     }
   },
-  "include": ["src", "../../tooling/config/global.d.ts"],
-  "exclude": ["src/internal/example_visualization_with_toggle"]
+  "include": ["src", "../../tooling/config/global.d.ts"]
 }

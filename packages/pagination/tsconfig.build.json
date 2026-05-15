@@ -3,6 +3,5 @@
   "compilerOptions": {
     "outDir": "./dist"
   },
-  "include": ["src"],
-  "exclude": ["src/internal/example_visualization_with_toggle"]
+  "include": ["src"]
 }
