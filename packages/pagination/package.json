@@ -1,12 +1,15 @@
 {
   "name": "@platejs/pagination",
-  "version": "0.0.0",
-  "description": "Plate plugin for paginated editing (variant A: render-time overlay, derived pages, pretext height oracle)",
+  "version": "52.2.0",
+  "description": "Pagination plugin for Plate - page-based document layout",
   "keywords": [
+    "pagination",
+    "pages",
+    "layout",
     "plate",
     "plugin",
     "slate",
-    "pagination"
+    "editor"
   ],
   "homepage": "https://platejs.org",
   "bugs": {
@@ -21,8 +24,6 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
-    "./react": "./dist/react/index.js",
-    "./static": "./dist/static/index.js",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -31,28 +32,46 @@
     "dist/**/*"
   ],
   "scripts": {
-    "brl": "plate-pkg p:brl",
-    "build": "plate-pkg p:build",
-    "build:watch": "plate-pkg p:build:watch",
-    "clean": "plate-pkg p:clean",
-    "lint": "plate-pkg p:lint",
-    "lint:fix": "plate-pkg p:lint:fix",
-    "test": "plate-pkg p:test",
-    "test:watch": "plate-pkg p:test:watch",
-    "typecheck": "plate-pkg p:typecheck"
+    "brl": "yarn p:brl",
+    "build": "yarn p:build",
+    "build:watch": "yarn p:build:watch",
+    "clean": "yarn p:clean",
+    "lint": "yarn p:lint",
+    "lint:fix": "yarn p:lint:fix",
+    "test": "yarn p:test",
+    "test:watch": "yarn p:test:watch",
+    "typecheck": "yarn p:typecheck"
   },
   "dependencies": {
-    "@platejs/footnote": "workspace:^",
+    "@lifeomic/attempt": "^3.1.0",
     "react-compiler-runtime": "^1.0.0"
   },
   "devDependencies": {
-    "@plate/scripts": "workspace:*",
-    "platejs": "workspace:^"
+    "platejs": "workspace:^",
+    "slate": ">=0.112.0",
+    "slate-history": ">=0.112.0",
+    "slate-react": ">=0.112.0",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.0"
   },
   "peerDependencies": {
-    "platejs": ">=53.0.0",
+    "@platejs/yjs": ">=52.0.0",
+    "platejs": ">=52.0.0",
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react-dom": ">=18.0.0",
+    "slate": ">=0.112.0",
+    "slate-history": ">=0.112.0",
+    "slate-react": ">=0.112.0",
+    "y-protocols": ">=1.0.0",
+    "yjs": ">=13.6.0"
+  },
+  "peerDependenciesMeta": {
+    "y-protocols": {
+      "optional": true
+    },
+    "yjs": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"
