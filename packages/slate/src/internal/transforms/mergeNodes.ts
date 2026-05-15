@@ -3,7 +3,7 @@ import {
   ElementApi,
   type MergeNodesOptions,
   NodeApi,
-  type NodeEntry,
+  type Path,
   PathApi,
   RangeApi,
   type TElement,
@@ -74,9 +74,9 @@ export const mergeNodes = <E extends Editor>(
     }
 
     const _nodes = editor.api.nodes({ at, match, mode, voids });
-    let current: NodeEntry | undefined;
+    let current: [TNode, Path] | undefined;
     for (const node of _nodes) {
-      current = node;
+      current = node as [TNode, Path];
       break;
     }
     const prev = editor.api.previous({ at, match, mode, voids });
@@ -114,7 +114,7 @@ export const mergeNodes = <E extends Editor>(
     const emptyAncestor = editor.api.above({
       at: path,
       mode: 'highest',
-      match: (n) => levels.has(n) && hasSingleChildNest(editor, n),
+      match: (n: TNode) => levels.has(n) && hasSingleChildNest(editor, n),
     });
 
     const emptyRef = emptyAncestor && editor.api.pathRef(emptyAncestor[1]);

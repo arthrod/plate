@@ -81,12 +81,12 @@ export const deleteText = <E extends Editor>(
     const startBlock = editor.api.above({
       at: start,
       voids,
-      match: (n) => ElementApi.isElement(n) && editor.api.isBlock(n),
+      match: (n: any) => ElementApi.isElement(n) && editor.api.isBlock(n),
     });
     const endBlock = editor.api.above({
       at: end,
       voids,
-      match: (n) => ElementApi.isElement(n) && editor.api.isBlock(n),
+      match: (n: any) => ElementApi.isElement(n) && editor.api.isBlock(n),
     });
     const isAcrossBlocks =
       startBlock && endBlock && !PathApi.equals(startBlock[1], endBlock[1]);
