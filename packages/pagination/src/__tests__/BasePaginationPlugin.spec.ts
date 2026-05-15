@@ -15,7 +15,6 @@ describe('BasePaginationPlugin normalization', () => {
   it('normalizeInitialValue: wraps all children into one page when no pages exist', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
-      // @ts-expect-error — passing plain value without pages
       value: [
         { type: 'p', children: [{ text: 'hello' }] },
         { type: 'p', children: [{ text: 'world' }] },

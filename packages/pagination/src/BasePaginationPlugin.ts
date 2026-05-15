@@ -1,8 +1,16 @@
 // ============================================================
 // pagination/BasePaginationPlugin.ts
 // ============================================================
-import { createTSlatePlugin, KEYS, type OverrideEditor, type PluginConfig } from 'platejs';
-import type { Operation } from 'slate';
+import {
+  createTSlatePlugin,
+  ElementApi,
+  KEYS,
+  type NodeEntry,
+  type Operation,
+  type OverrideEditor,
+  type PluginConfig,
+  type SlateEditor,
+} from 'platejs';
 import {
   getPaginationRuntime as _getPaginationRuntime,
   isPaginationMutating,
@@ -22,6 +30,16 @@ export {
   withPaginationMutations,
 } from './internal/editorRegistry';
 
+export type PaginationTransforms = {
+  pagination: {
+    togglePreview: () => boolean;
+    setPageSize: (size: 'A4' | 'Letter' | 'Legal') => void;
+    setMargins: (margins: DocumentSettings['margins']) => void;
+    toggleHeader: () => boolean;
+    toggleFooter: () => boolean;
+  };
+};
+
 export type PaginationConfig = PluginConfig<
   'pagination',
   {
@@ -31,7 +49,8 @@ export type PaginationConfig = PluginConfig<
     defaultBlockType: string;
     viewMode: ViewMode;
   },
-  {}
+  {},
+  PaginationTransforms
 >;
 
 const PAGE_SIZES: Record<string, { width: number; height: number }> = {
@@ -62,14 +81,13 @@ const DEFAULT_COLLABORATION_OPTIONS: CollaborationOptions = {
 
 const withPagination: OverrideEditor<PaginationConfig> = ({
   editor,
+  getOptions,
   type,
   tf: { apply, normalizeNode },
 }) => {
   // Attach runtime to editor
   const runtime = createPaginationRuntime();
   setPaginationRuntime(editor, runtime);
-
-  const getPlugin = () => editor.getPlugin(BasePaginationPlugin) as any;
 
   return {
     transforms: {
@@ -83,35 +101,35 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
           runtime.markDirty(pageIndex);
         }
       },
-      normalizeNode(entry: [any, any]) {
+      normalizeNode(entry: NodeEntry) {
         const [node, path] = entry;
 
         // Unwrap nested pages
-        if ((node as any)?.type === type && path.length !== 1) {
+        if (
+          ElementApi.isElement(node) &&
+          node.type === type &&
+          path.length !== 1
+        ) {
           editor.tf.unwrapNodes({ at: path });
           return;
         }
 
         // Wrap non-page root children
-        if (path.length === 0) {
-          if (normalizeRootChildren(editor, type)) return;
-        }
+        if (path.length === 0 && normalizeRootChildren(editor, type)) return;
 
         normalizeNode(entry);
       },
       pagination: {
         togglePreview(): boolean {
-          const current = (getPlugin().options as any).viewMode ?? 'paginated';
+          const current = getOptions().viewMode ?? 'paginated';
           const next = current === 'paginated' ? 'continuous' : 'paginated';
           editor.setOption(BasePaginationPlugin, 'viewMode', next);
           return next === 'continuous';
         },
-        setPageSize(size: string): void {
+        setPageSize(size: 'A4' | 'Letter' | 'Legal'): void {
           const preset = PAGE_SIZES[size];
           if (preset) {
-            const currentSettings = (
-              getPlugin().options as any
-            ).documentSettings;
+            const currentSettings = getOptions().documentSettings;
             editor.setOptions(BasePaginationPlugin, {
               documentSettings: {
                 ...currentSettings,
@@ -121,9 +139,7 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
           }
         },
         setMargins(margins: DocumentSettings['margins']): void {
-          const currentSettings = (
-            getPlugin().options as any
-          ).documentSettings;
+          const currentSettings = getOptions().documentSettings;
           editor.setOptions(BasePaginationPlugin, {
             documentSettings: {
               ...currentSettings,
@@ -132,9 +148,12 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
           });
         },
         toggleHeader(): boolean {
-          const children = editor.children as any[];
+          const children = editor.children;
           const hasHeaders = children.some(
-            (page) => page.children?.[0]?.type === 'header'
+            (page) =>
+              ElementApi.isElement(page) &&
+              ElementApi.isElement(page.children[0]) &&
+              page.children[0].type === 'header'
           );
 
           _withPaginationMutations(editor, () => {
@@ -143,7 +162,8 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
                 if (hasHeaders) {
                   editor.tf.removeNodes({
                     at: [pageIndex, 0],
-                    match: (n: any) => n.type === 'header',
+                    match: (n) =>
+                      ElementApi.isElement(n) && n.type === 'header',
                   });
                 } else {
                   editor.tf.insertNodes(
@@ -151,8 +171,7 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
                       type: 'header',
                       children: [
                         {
-                          type: editor.getOptions(BasePaginationPlugin)
-                            .defaultBlockType,
+                          type: getOptions().defaultBlockType,
                           children: [{ text: '' }],
                         },
                       ],
@@ -172,20 +191,24 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
           return !hasHeaders;
         },
         toggleFooter(): boolean {
-          const children = editor.children as any[];
-          const hasFooters = children.some(
-            (page) =>
-              page.children?.[page.children.length - 1]?.type === 'footer'
-          );
+          const children = editor.children;
+          const hasFooters = children.some((page) => {
+            if (!ElementApi.isElement(page)) return false;
+            const last = page.children.at(-1);
+            return ElementApi.isElement(last) && last.type === 'footer';
+          });
 
           _withPaginationMutations(editor, () => {
             editor.tf.withoutNormalizing(() => {
               children.forEach((page, pageIndex) => {
+                if (!ElementApi.isElement(page)) return;
+
                 if (hasFooters) {
                   const lastIdx = page.children.length - 1;
                   editor.tf.removeNodes({
                     at: [pageIndex, lastIdx],
-                    match: (n: any) => n.type === 'footer',
+                    match: (n) =>
+                      ElementApi.isElement(n) && n.type === 'footer',
                   });
                 } else {
                   editor.tf.insertNodes(
@@ -193,8 +216,7 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
                       type: 'footer',
                       children: [
                         {
-                          type: editor.getOptions(BasePaginationPlugin)
-                            .defaultBlockType,
+                          type: getOptions().defaultBlockType,
                           children: [{ text: '' }],
                         },
                       ],
@@ -228,12 +250,14 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
   handlers: {
     onNodeChange: ({ editor }) => {
       if (isPaginationMutating(editor)) return;
-      if ((editor as any).meta?.isNormalizing) return;
+      if (editor.meta?.isNormalizing) return;
       const pageType = editor.getType?.(KEYS.pagination) ?? 'page';
-      const children = editor.children as any[];
+      const children = editor.children;
       if (!Array.isArray(children) || children.length === 0) return;
 
-      const hasNonPage = children.some((child) => child?.type !== pageType);
+      const hasNonPage = children.some(
+        (child) => !ElementApi.isElement(child) || child.type !== pageType
+      );
       if (!hasNonPage) return;
 
       if (normalizeRootChildren(editor, pageType)) {
@@ -253,7 +277,12 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
   },
 }).overrideEditor(withPagination);
 
-function wrapRootRange(editor: any, type: string, start: number, end: number) {
+function wrapRootRange(
+  editor: SlateEditor,
+  type: string,
+  start: number,
+  end: number
+) {
   _withPaginationMutations(editor, () => {
     editor.tf.withoutNormalizing(() => {
       const pagePath = [start];
@@ -270,14 +299,15 @@ function wrapRootRange(editor: any, type: string, start: number, end: number) {
   });
 }
 
-function normalizeRootChildren(editor: any, type: string): boolean {
-  const children = editor.children as any[];
+function normalizeRootChildren(editor: SlateEditor, type: string): boolean {
+  const children = editor.children;
   if (!Array.isArray(children) || children.length === 0) return false;
 
   let segStart: number | null = null;
 
   for (let i = 0; i < children.length; i++) {
-    const isPage = children[i]?.type === type;
+    const child = children[i];
+    const isPage = ElementApi.isElement(child) && child.type === type;
     if (!isPage && segStart === null) segStart = i;
     if (isPage && segStart !== null) {
       wrapRootRange(editor, type, segStart, i - 1);
