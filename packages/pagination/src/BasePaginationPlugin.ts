@@ -1,7 +1,7 @@
 // ============================================================
 // pagination/BasePaginationPlugin.ts
 // ============================================================
-import { createTSlatePlugin, type OverrideEditor, type PluginConfig } from 'platejs';
+import { createTSlatePlugin, KEYS, type OverrideEditor, type PluginConfig } from 'platejs';
 import type { Operation } from 'slate';
 import { createPaginationRuntime, getPageIndexFromOp } from './runtime';
 import type {
@@ -23,8 +23,6 @@ export type PaginationConfig = PluginConfig<
   },
   {}
 >;
-
-const PAGINATION_KEY = 'pagination';
 
 const PAGE_SIZES: Record<string, { width: number; height: number }> = {
   A4: { width: 794, height: 1123 },
@@ -211,7 +209,7 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
 };
 
 export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
-  key: PAGINATION_KEY,
+  key: KEYS.pagination,
   node: {
     isElement: true,
     isContainer: true,
@@ -221,7 +219,7 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
     onNodeChange: ({ editor }) => {
       if ((editor as any).__paginationMutating) return;
       if ((editor as any).meta?.isNormalizing) return;
-      const pageType = editor.getType?.(PAGINATION_KEY) ?? 'page';
+      const pageType = editor.getType?.(KEYS.pagination) ?? 'page';
       const children = editor.children as any[];
       if (!Array.isArray(children) || children.length === 0) return;
 
@@ -240,7 +238,7 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
     documentSettings: DEFAULT_DOCUMENT_SETTINGS,
     reflow: DEFAULT_REFLOW_OPTIONS,
     collaboration: DEFAULT_COLLABORATION_OPTIONS,
-    defaultBlockType: 'p',
+    defaultBlockType: KEYS.p,
     viewMode: 'paginated',
   },
 }).overrideEditor(withPagination);
