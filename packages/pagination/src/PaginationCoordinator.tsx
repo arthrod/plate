@@ -9,6 +9,7 @@ import {
 } from './BasePaginationPlugin';
 import { createAlwaysLeader } from './leaderElection';
 import { reflowPageBoundary } from './internal/reflowEngine';
+import { scheduleIdle } from './internal/scheduleIdle';
 import { usePaginationRegistry } from './registry';
 import type {
   CollaborationOptions,
@@ -127,11 +128,9 @@ export function PaginationCoordinator({
       const start = pendingStartRef.current ?? 0;
       pendingStartRef.current = null;
 
-      // Use requestIdleCallback if available
-      const ric =
-        (window as any).requestIdleCallback ??
-        ((cb: () => void) => setTimeout(cb, 0));
-      ric(() => runReflow(start));
+      scheduleIdle(() => {
+        runReflow(start);
+      });
     }, reflowOpts.debounceMs);
   }
 

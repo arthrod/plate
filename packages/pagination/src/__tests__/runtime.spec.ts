@@ -1,4 +1,7 @@
-import { createPaginationRuntime, getPageIndexFromOp } from '../internal/runtime';
+import {
+  createPaginationRuntime,
+  getPageIndexFromOp,
+} from '../internal/runtime';
 
 describe('createPaginationRuntime', () => {
   it('returns object with markDirty, consumeDirtyMin, subscribe', () => {
@@ -8,19 +11,21 @@ describe('createPaginationRuntime', () => {
     expect(typeof rt.subscribe).toBe('function');
   });
 
-  it('markDirty adds page to dirty set and notifies subscribers', () => {
+  it('markDirty adds page to dirty set and notifies subscribers', async () => {
     const rt = createPaginationRuntime();
     const called: number[] = [];
     rt.subscribe(() => called.push(1));
     rt.markDirty(3);
+    await Promise.resolve();
     expect(called.length).toBe(1);
   });
 
-  it('markDirty with NaN is a no-op', () => {
+  it('markDirty with NaN is a no-op', async () => {
     const rt = createPaginationRuntime();
     const called: number[] = [];
     rt.subscribe(() => called.push(1));
     rt.markDirty(Number.NaN);
+    await Promise.resolve();
     expect(called.length).toBe(0);
     expect(rt.consumeDirtyMin()).toBeNull();
   });
@@ -64,13 +69,27 @@ describe('createPaginationRuntime', () => {
     expect(rt.consumeDirtyMin()).toBeNull();
   });
 
-  it('subscribe returns unsubscribe function; unsubscribed callbacks are not called', () => {
+  it('subscribe returns unsubscribe function; unsubscribed callbacks are not called', async () => {
     const rt = createPaginationRuntime();
     const called: number[] = [];
     const unsub = rt.subscribe(() => called.push(1));
     unsub();
     rt.markDirty(0);
+    await Promise.resolve();
     expect(called.length).toBe(0);
+  });
+
+  test('multiple markDirty in same tick produce one notification', async () => {
+    const r = createPaginationRuntime();
+    let count = 0;
+    r.subscribe(() => {
+      count++;
+    });
+    r.markDirty(0);
+    r.markDirty(1);
+    r.markDirty(2);
+    await Promise.resolve();
+    expect(count).toBe(1);
   });
 });
 

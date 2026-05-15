@@ -18,6 +18,7 @@ export type ReflowOptions = {
   allowTextSplit: boolean;
   overflowThresholdPx: number;
   underflowThresholdPx: number; // Hysteresis buffer
+  debug?: boolean;
 };
 
 export type ReflowContext = {

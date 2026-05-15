@@ -76,6 +76,7 @@ const DEFAULT_REFLOW_OPTIONS: ReflowOptions = {
   allowTextSplit: true,
   overflowThresholdPx: 0,
   underflowThresholdPx: 80, // Hysteresis
+  debug: false,
 };
 
 const DEFAULT_COLLABORATION_OPTIONS: CollaborationOptions = {

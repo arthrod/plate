@@ -7,8 +7,11 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createSlateEditor } from 'platejs';
-import { BasePaginationPlugin, getPaginationRuntime } from '../BasePaginationPlugin';
-import { PaginationRegistryProvider, usePaginationRegistry } from '../registry';
+import {
+  BasePaginationPlugin,
+  getPaginationRuntime,
+} from '../BasePaginationPlugin';
+import { PaginationRegistryProvider } from '../registry';
 
 // Mock platejs/react hooks
 jest.mock('platejs/react', () => ({
@@ -46,23 +49,24 @@ function mountCoordinator(opts: MountOpts = {}) {
 
   // Configure mock hooks
   useEditorRef.mockReturnValue(editor);
-  usePluginOption.mockImplementation(
-    (_plugin: any, key: string) => {
-      if (key === 'reflow') return opts.reflowOpts ?? {
-        enabled: true,
-        debounceMs: 10,
-        maxPagesPerIdle: 6,
-        maxMovesPerPage: 50,
-        underflow: true,
-        allowTextSplit: true,
-        overflowThresholdPx: 0,
-        underflowThresholdPx: 80,
-      };
-      if (key === 'collaboration') return opts.collabOpts ?? { mode: 'all' };
-      if (key === 'viewMode') return opts.viewMode ?? 'paginated';
-      return undefined;
-    }
-  );
+  usePluginOption.mockImplementation((_plugin: any, key: string) => {
+    if (key === 'reflow')
+      return (
+        opts.reflowOpts ?? {
+          enabled: true,
+          debounceMs: 10,
+          maxPagesPerIdle: 6,
+          maxMovesPerPage: 50,
+          underflow: true,
+          allowTextSplit: true,
+          overflowThresholdPx: 0,
+          underflowThresholdPx: 80,
+        }
+      );
+    if (key === 'collaboration') return opts.collabOpts ?? { mode: 'all' };
+    if (key === 'viewMode') return opts.viewMode ?? 'paginated';
+    return;
+  });
 
   const container = document.createElement('div');
   const root = createRoot(container);
@@ -191,7 +195,9 @@ describe('PaginationCoordinator', () => {
     const spy = jest.spyOn(window, 'setTimeout');
 
     const { unmount } = mountCoordinator();
-    act(() => { jest.runAllTimers(); });
+    act(() => {
+      jest.runAllTimers();
+    });
     spy.mockClear();
 
     act(() => {
@@ -213,7 +219,9 @@ describe('PaginationCoordinator', () => {
     const spy = jest.spyOn(window, 'setTimeout');
 
     const { unmount } = mountCoordinator();
-    act(() => { jest.runAllTimers(); });
+    act(() => {
+      jest.runAllTimers();
+    });
     spy.mockClear();
 
     for (let i = 0; i < 5; i++) {
@@ -234,12 +242,14 @@ describe('PaginationCoordinator', () => {
   });
 
   // ── Dirty runtime subscription ──
-  it('subscribes to runtime dirty notifications', () => {
+  it('subscribes to runtime dirty notifications', async () => {
     jest.useFakeTimers();
     const spy = jest.spyOn(window, 'setTimeout');
     const { editor, unmount } = mountCoordinator();
     // Flush mount timers so scheduledRef is cleared
-    act(() => { jest.runAllTimers(); });
+    act(() => {
+      jest.runAllTimers();
+    });
     spy.mockClear();
 
     const runtime = getPaginationRuntime(editor);
@@ -247,6 +257,10 @@ describe('PaginationCoordinator', () => {
 
     act(() => {
       runtime!.markDirty(2);
+    });
+    // notify is microtask-coalesced — flush microtasks before asserting
+    await act(async () => {
+      await Promise.resolve();
     });
 
     const reflowCalls = spy.mock.calls.filter(([, delay]) => delay === 10);
@@ -258,11 +272,13 @@ describe('PaginationCoordinator', () => {
   });
 
   // ── Dirty dedup: multiple marks coalesce ──
-  it('multiple dirty marks coalesce to a single schedule', () => {
+  it('multiple dirty marks coalesce to a single schedule', async () => {
     jest.useFakeTimers();
     const spy = jest.spyOn(window, 'setTimeout');
     const { editor, unmount } = mountCoordinator();
-    act(() => { jest.runAllTimers(); });
+    act(() => {
+      jest.runAllTimers();
+    });
     spy.mockClear();
 
     const runtime = getPaginationRuntime(editor);
@@ -271,6 +287,10 @@ describe('PaginationCoordinator', () => {
       runtime!.markDirty(0);
       runtime!.markDirty(1);
       runtime!.markDirty(2);
+    });
+    // notify is microtask-coalesced — flush microtasks before asserting
+    await act(async () => {
+      await Promise.resolve();
     });
 
     const reflowCalls = spy.mock.calls.filter(([, delay]) => delay === 10);

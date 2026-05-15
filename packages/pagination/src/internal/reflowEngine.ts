@@ -69,12 +69,10 @@ export function reflowPageBoundary(
     // Guard: Single oversized element
     if (splitIndex === 0 && childCount === 1) {
       if (opts.allowTextSplit) {
-        const didSplit = splitOversizedBlock(
-          editor,
-          pagePath,
-          contentEl,
-          maxHeight
-        );
+        const didSplit = splitOversizedBlock(editor, pagePath, contentEl, {
+          maxHeight,
+          debug: opts.debug ?? false,
+        });
         if (didSplit) {
           return { changed: true, nextPageToContinue: pageIndex };
         }
@@ -261,7 +259,7 @@ function splitOversizedBlock(
   editor: SlateEditor,
   pagePath: Path,
   contentEl: HTMLDivElement,
-  maxHeight: number
+  { maxHeight, debug }: { maxHeight: number; debug: boolean }
 ): boolean {
   // Check if editor has React DOM bindings
   if (!('hasEditableTarget' in editor)) return false;
@@ -389,7 +387,7 @@ function splitOversizedBlock(
 
     return true;
   } catch (e) {
-    console.error('Text split failed:', e);
+    if (debug) console.error('Text split failed:', e);
     return false;
   }
 }

@@ -8,9 +8,15 @@ export function createPaginationRuntime(): PaginationRuntime {
   const dirty = new Set<number>();
   const subscribers = new Set<() => void>();
 
+  let pending = false;
   const notify = () => {
-    subscribers.forEach((fn) => {
-      fn();
+    if (pending) return;
+    pending = true;
+    queueMicrotask(() => {
+      pending = false;
+      subscribers.forEach((fn) => {
+        fn();
+      });
     });
   };
 
