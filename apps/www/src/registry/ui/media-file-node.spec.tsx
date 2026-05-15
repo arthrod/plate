@@ -13,6 +13,10 @@ mock.module('@platejs/resizable', () => ({
   ResizableProvider: ({ children }: any) => <>{children}</>,
 }));
 
+mock.module('platejs', () => ({
+  sanitizeUrl: (url: string) => url,
+}));
+
 mock.module('platejs/react', () => ({
   PlateElement: ({
     children,

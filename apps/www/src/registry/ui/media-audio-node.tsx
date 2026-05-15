@@ -7,6 +7,7 @@ import type { PlateElementProps } from 'platejs/react';
 
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider } from '@platejs/resizable';
+import { sanitizeUrl } from 'platejs';
 import { PlateElement, withHOC } from 'platejs/react';
 
 import { cn } from '@/lib/utils';
@@ -25,7 +26,11 @@ export const AudioElement = withHOC(
           contentEditable={false}
         >
           <div className={cn('h-16 rounded-sm')}>
-            <audio className="size-full" src={unsafeUrl} controls />
+            <audio
+              className="size-full"
+              src={sanitizeUrl(unsafeUrl, {}) || ''}
+              controls
+            />
           </div>
 
           <Caption style={{ width: '100%' }} align={align}>

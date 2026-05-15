@@ -11,6 +11,7 @@ import { useDraggable } from '@platejs/dnd';
 import { parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
+import { sanitizeUrl } from 'platejs';
 import { PlateElement, useEditorMounted, withHOC } from 'platejs/react';
 
 import { cn } from '@/lib/utils';
@@ -104,7 +105,7 @@ export const VideoElement = withHOC(
                 <div ref={handleRef}>
                   <video
                     className="w-full max-w-full rounded-sm object-cover px-0"
-                    src={unsafeUrl}
+                    src={sanitizeUrl(unsafeUrl, {}) || ''}
                     controls
                   />
                 </div>
@@ -114,7 +115,7 @@ export const VideoElement = withHOC(
                 <div ref={handleRef}>
                   <ReactPlayer
                     height="100%"
-                    src={unsafeUrl}
+                    src={sanitizeUrl(unsafeUrl, {}) || ''}
                     width="100%"
                     controls
                   />
