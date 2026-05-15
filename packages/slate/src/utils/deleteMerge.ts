@@ -84,12 +84,12 @@ export const deleteMerge = (
     const startBlock = e.api.above({
       at: start,
       voids,
-      match: (n) => isBlock(e as any, n),
+      match: (n: any) => isBlock(e as any, n),
     });
     const endBlock = e.api.above({
       at: end,
       voids,
-      match: (n) => isBlock(e as any, n),
+      match: (n: any) => isBlock(e as any, n),
     });
     const isAcrossBlocks =
       startBlock && endBlock && !PathApi.equals(startBlock[1], endBlock[1]);
