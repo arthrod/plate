@@ -17,7 +17,10 @@ import {
   setPaginationRuntime,
   withPaginationMutations as _withPaginationMutations,
 } from './internal/editorRegistry';
-import { createPaginationRuntime, getPageIndexFromOp } from './internal/runtime';
+import {
+  createPaginationRuntime,
+  getPageIndexFromOp,
+} from './internal/runtime';
 import type {
   CollaborationOptions,
   DocumentSettings,
@@ -119,123 +122,6 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
 
         normalizeNode(entry);
       },
-      pagination: {
-        togglePreview(): boolean {
-          const current = getOptions().viewMode ?? 'paginated';
-          const next = current === 'paginated' ? 'continuous' : 'paginated';
-          editor.setOption(BasePaginationPlugin, 'viewMode', next);
-          return next === 'continuous';
-        },
-        setPageSize(size: 'A4' | 'Letter' | 'Legal'): void {
-          const preset = PAGE_SIZES[size];
-          if (preset) {
-            const currentSettings = getOptions().documentSettings;
-            editor.setOptions(BasePaginationPlugin, {
-              documentSettings: {
-                ...currentSettings,
-                sizes: { ...preset },
-              },
-            });
-          }
-        },
-        setMargins(margins: DocumentSettings['margins']): void {
-          const currentSettings = getOptions().documentSettings;
-          editor.setOptions(BasePaginationPlugin, {
-            documentSettings: {
-              ...currentSettings,
-              margins: { ...margins },
-            },
-          });
-        },
-        toggleHeader(): boolean {
-          const children = editor.children;
-          const hasHeaders = children.some(
-            (page) =>
-              ElementApi.isElement(page) &&
-              ElementApi.isElement(page.children[0]) &&
-              page.children[0].type === 'header'
-          );
-
-          _withPaginationMutations(editor, () => {
-            editor.tf.withoutNormalizing(() => {
-              children.forEach((_page, pageIndex) => {
-                if (hasHeaders) {
-                  editor.tf.removeNodes({
-                    at: [pageIndex, 0],
-                    match: (n) =>
-                      ElementApi.isElement(n) && n.type === 'header',
-                  });
-                } else {
-                  editor.tf.insertNodes(
-                    {
-                      type: 'header',
-                      children: [
-                        {
-                          type: getOptions().defaultBlockType,
-                          children: [{ text: '' }],
-                        },
-                      ],
-                    },
-                    { at: [pageIndex, 0] }
-                  );
-                }
-              });
-            });
-          });
-
-          // Mark all pages dirty to trigger reflow
-          for (let i = 0; i < children.length; i++) {
-            runtime.markDirty(i);
-          }
-
-          return !hasHeaders;
-        },
-        toggleFooter(): boolean {
-          const children = editor.children;
-          const hasFooters = children.some((page) => {
-            if (!ElementApi.isElement(page)) return false;
-            const last = page.children.at(-1);
-            return ElementApi.isElement(last) && last.type === 'footer';
-          });
-
-          _withPaginationMutations(editor, () => {
-            editor.tf.withoutNormalizing(() => {
-              children.forEach((page, pageIndex) => {
-                if (!ElementApi.isElement(page)) return;
-
-                if (hasFooters) {
-                  const lastIdx = page.children.length - 1;
-                  editor.tf.removeNodes({
-                    at: [pageIndex, lastIdx],
-                    match: (n) =>
-                      ElementApi.isElement(n) && n.type === 'footer',
-                  });
-                } else {
-                  editor.tf.insertNodes(
-                    {
-                      type: 'footer',
-                      children: [
-                        {
-                          type: getOptions().defaultBlockType,
-                          children: [{ text: '' }],
-                        },
-                      ],
-                    },
-                    { at: [pageIndex, page.children.length] }
-                  );
-                }
-              });
-            });
-          });
-
-          // Mark all pages dirty to trigger reflow
-          for (let i = 0; i < children.length; i++) {
-            runtime.markDirty(i);
-          }
-
-          return !hasFooters;
-        },
-      },
     },
   };
 };
@@ -275,7 +161,125 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
     defaultBlockType: KEYS.p,
     viewMode: 'paginated',
   },
-}).overrideEditor(withPagination);
+})
+  .overrideEditor(withPagination)
+  .extendTransforms(({ editor, getOptions }) => ({
+    togglePreview(): boolean {
+      const current = getOptions().viewMode ?? 'paginated';
+      const next = current === 'paginated' ? 'continuous' : 'paginated';
+      editor.setOption(BasePaginationPlugin, 'viewMode', next);
+      return next === 'continuous';
+    },
+    setPageSize(size: 'A4' | 'Letter' | 'Legal'): void {
+      const preset = PAGE_SIZES[size];
+      if (preset) {
+        const currentSettings = getOptions().documentSettings;
+        editor.setOptions(BasePaginationPlugin, {
+          documentSettings: {
+            ...currentSettings,
+            sizes: { ...preset },
+          },
+        });
+      }
+    },
+    setMargins(margins: DocumentSettings['margins']): void {
+      const currentSettings = getOptions().documentSettings;
+      editor.setOptions(BasePaginationPlugin, {
+        documentSettings: {
+          ...currentSettings,
+          margins: { ...margins },
+        },
+      });
+    },
+    toggleHeader(): boolean {
+      const children = editor.children;
+      const hasHeaders = children.some(
+        (page) =>
+          ElementApi.isElement(page) &&
+          ElementApi.isElement(page.children[0]) &&
+          page.children[0].type === 'header'
+      );
+
+      _withPaginationMutations(editor, () => {
+        editor.tf.withoutNormalizing(() => {
+          children.forEach((_page, pageIndex) => {
+            if (hasHeaders) {
+              editor.tf.removeNodes({
+                at: [pageIndex, 0],
+                match: (n) => ElementApi.isElement(n) && n.type === 'header',
+              });
+            } else {
+              editor.tf.insertNodes(
+                {
+                  type: 'header',
+                  children: [
+                    {
+                      type: getOptions().defaultBlockType,
+                      children: [{ text: '' }],
+                    },
+                  ],
+                },
+                { at: [pageIndex, 0] }
+              );
+            }
+          });
+        });
+      });
+
+      // Mark all pages dirty to trigger reflow
+      const runtime = _getPaginationRuntime(editor);
+      for (let i = 0; i < children.length; i++) {
+        runtime?.markDirty(i);
+      }
+
+      return !hasHeaders;
+    },
+    toggleFooter(): boolean {
+      const children = editor.children;
+      const hasFooters = children.some((page) => {
+        if (!ElementApi.isElement(page)) return false;
+        const last = page.children.at(-1);
+        return ElementApi.isElement(last) && last.type === 'footer';
+      });
+
+      _withPaginationMutations(editor, () => {
+        editor.tf.withoutNormalizing(() => {
+          children.forEach((page, pageIndex) => {
+            if (!ElementApi.isElement(page)) return;
+
+            if (hasFooters) {
+              const lastIdx = page.children.length - 1;
+              editor.tf.removeNodes({
+                at: [pageIndex, lastIdx],
+                match: (n) => ElementApi.isElement(n) && n.type === 'footer',
+              });
+            } else {
+              editor.tf.insertNodes(
+                {
+                  type: 'footer',
+                  children: [
+                    {
+                      type: getOptions().defaultBlockType,
+                      children: [{ text: '' }],
+                    },
+                  ],
+                },
+                { at: [pageIndex, page.children.length] }
+              );
+            }
+          });
+        });
+      });
+
+      // Mark all pages dirty to trigger reflow
+      const runtime = _getPaginationRuntime(editor);
+      for (let i = 0; i < children.length; i++) {
+        runtime?.markDirty(i);
+      }
+
+      return !hasFooters;
+    },
+  }));
 
 function wrapRootRange(
   editor: SlateEditor,
