@@ -5,6 +5,7 @@ import {
   type NodeEntry,
   type Path,
   PathApi,
+  type PathRef,
   PointApi,
   RangeApi,
 } from '../../interfaces';
@@ -146,7 +147,10 @@ export const deleteText = <E extends Editor>(
       }
     }
 
-    const pathRefs = Array.from(matches, ([, p]) => editor.api.pathRef(p));
+    const pathRefs: PathRef[] = [];
+    for (const [, p] of matches) {
+      pathRefs.push(editor.api.pathRef(p));
+    }
     const startRef = editor.api.pointRef(start);
     const endRef = editor.api.pointRef(end);
 

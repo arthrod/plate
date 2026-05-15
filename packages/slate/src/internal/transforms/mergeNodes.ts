@@ -73,7 +73,11 @@ export const mergeNodes = <E extends Editor>(
     }
 
     const _nodes = editor.api.nodes({ at, match, mode, voids });
-    const [current] = Array.from(_nodes);
+    let current: NodeEntry | undefined;
+    for (const node of _nodes) {
+      current = node;
+      break;
+    }
     const prev = editor.api.previous({ at, match, mode, voids });
 
     if (!current || !prev) {
@@ -91,11 +95,18 @@ export const mergeNodes = <E extends Editor>(
     const commonPath = PathApi.common(path, prevPath);
     const isPreviousSibling = PathApi.isSibling(path, prevPath);
     const _levels = editor.api.levels({ at: path });
-    const levels = new Set(
-      Array.from(_levels, ([n]) => n)
-        .slice(commonPath.length)
-        .slice(0, -1)
-    );
+    const levels = new Set<TNode>();
+    let count = 0;
+    let lastNode: TNode | null = null;
+    for (const [n] of _levels) {
+      if (count >= commonPath.length) {
+        if (lastNode !== null) {
+          levels.add(lastNode);
+        }
+        lastNode = n;
+      }
+      count++;
+    }
 
     // Determine if the merge will leave an ancestor of the path empty as a
     // result, in which case we'll want to remove it after merging.

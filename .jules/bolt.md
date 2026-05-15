@@ -1,0 +1,3 @@
+## 2024-05-30 - Optimize Array.from allocations for Generators
+**Learning:** In the project's V8/Bun environment, collecting or resolving items from generators (`editor.api.nodes`, `editor.api.levels`) into arrays using `Array.from()` adds unnecessary array allocation and iteration overhead, particularly in hot paths like `queryEditor` and `mergeNodes`.
+**Action:** Iterate directly over the generator using a `for...of` loop. When populating a `Set` from a generator with mapped or filtered elements, do not use `Array.from(...).slice(...)` or `Array.from(...).map(...)`. Instead, iterate through the generator and use `set.add()` or short-circuit early inside the loop to avoid intermediate array allocations.
