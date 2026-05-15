@@ -3,6 +3,7 @@ import {
   ElementApi,
   type MergeNodesOptions,
   NodeApi,
+  type NodeEntry,
   PathApi,
   RangeApi,
   type TElement,
