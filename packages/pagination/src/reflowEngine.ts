@@ -1,7 +1,14 @@
 // ============================================================
 // pagination/reflowEngine.ts
 // ============================================================
-import { Editor, Element, Node, Transforms, type Path } from 'slate';
+import {
+  ElementApi,
+  type Path,
+  type SlateEditor,
+  type TElement,
+  type TText,
+  TextApi,
+} from 'platejs';
 import { HistoryEditor } from 'slate-history';
 import { ReactEditor } from 'slate-react';
 import {
@@ -11,7 +18,7 @@ import {
 import type { ReflowContext } from './types';
 
 // Wrap transforms to avoid polluting undo history
-function withoutSaving(editor: any, fn: () => void) {
+function withoutSaving(editor: SlateEditor, fn: () => void) {
   if (HistoryEditor.isHistoryEditor(editor)) {
     HistoryEditor.withoutSaving(editor, fn);
   } else {
@@ -30,7 +37,7 @@ export type ReflowResult = {
 };
 
 export function reflowPageBoundary(
-  editor: Editor,
+  editor: SlateEditor,
   pageIndex: number,
   context: ReflowContext
 ): ReflowResult {
@@ -54,7 +61,9 @@ export function reflowPageBoundary(
       return { changed: false, nextPageToContinue: null };
     }
 
-    const pageNode = Node.get(editor, pagePath) as Element;
+    const pageEntry = editor.api.node<TElement>(pagePath);
+    if (!pageEntry) return { changed: false, nextPageToContinue: null };
+    const [pageNode] = pageEntry;
     const childCount = pageNode.children.length;
 
     // Guard: Single oversized element
@@ -75,20 +84,19 @@ export function reflowPageBoundary(
     }
 
     // Ensure next page exists
-    if (!Node.has(editor, nextPagePath)) {
-      const pageType =
-        (editor as any).getType?.(BasePaginationPlugin.key) ?? 'page';
-      const defaultBlockType =
-        (editor as any).getOption?.(BasePaginationPlugin, 'defaultBlockType') ??
-        'p';
+    if (!editor.api.hasPath(nextPagePath)) {
+      const pageType = editor.getType(BasePaginationPlugin.key);
+      const defaultBlockType = editor.getOption(
+        BasePaginationPlugin,
+        'defaultBlockType'
+      );
       withoutSaving(editor, () => {
-        Editor.withoutNormalizing(editor, () => {
-          Transforms.insertNodes(
-            editor,
+        editor.tf.withoutNormalizing(() => {
+          editor.tf.insertNodes(
             {
               type: pageType,
               children: [{ type: defaultBlockType, children: [{ text: '' }] }],
-            } as unknown as Element,
+            },
             { at: nextPagePath }
           );
         });
@@ -99,10 +107,10 @@ export function reflowPageBoundary(
     const nodesToMove = childCount - splitIndex;
 
     withoutSaving(editor, () => {
-      Editor.withoutNormalizing(editor, () => {
+      editor.tf.withoutNormalizing(() => {
         for (let i = nodesToMove - 1; i >= 0; i--) {
           const sourceIndex = splitIndex + i;
-          Transforms.moveNodes(editor, {
+          editor.tf.moveNodes({
             at: pagePath.concat([sourceIndex]),
             to: nextPagePath.concat([0]),
           });
@@ -120,20 +128,20 @@ export function reflowPageBoundary(
     return { changed: false, nextPageToContinue: null };
   }
 
-  if (!Node.has(editor, nextPagePath)) {
+  if (!editor.api.hasPath(nextPagePath)) {
     // Handle empty trailing page (content was cleared)
-    const pageNode = Node.get(editor, pagePath) as Element;
-    if (pageNode.children.length === 0) {
-      const totalPages = (editor.children as any[]).length;
+    const pageEntry = editor.api.node<TElement>(pagePath);
+    if (pageEntry && pageEntry[0].children.length === 0) {
+      const totalPages = editor.children.length;
       if (totalPages <= 1) {
         // Insert a default block into the empty last page instead of removing it
-        const defaultBlockType =
-          (editor as any).getOption?.(BasePaginationPlugin, 'defaultBlockType') ??
-          'p';
+        const defaultBlockType = editor.getOption(
+          BasePaginationPlugin,
+          'defaultBlockType'
+        );
         withoutSaving(editor, () => {
-          Editor.withoutNormalizing(editor, () => {
-            Transforms.insertNodes(
-              editor,
+          editor.tf.withoutNormalizing(() => {
+            editor.tf.insertNodes(
               { type: defaultBlockType, children: [{ text: '' }] },
               { at: pagePath.concat([0]) }
             );
@@ -145,21 +153,23 @@ export function reflowPageBoundary(
     return { changed: false, nextPageToContinue: null };
   }
 
-  const nextPageNode = Node.get(editor, nextPagePath) as Element;
+  const nextPageEntry = editor.api.node<TElement>(nextPagePath);
+  if (!nextPageEntry) return { changed: false, nextPageToContinue: null };
+  const [nextPageNode] = nextPageEntry;
 
   // Remove empty trailing pages
   if (nextPageNode.children.length === 0) {
     // Guard: don't remove the last remaining page
-    const totalPages = (editor.children as any[]).length;
+    const totalPages = editor.children.length;
     if (totalPages <= 1) {
       // Insert a default block into the empty last page instead
-      const defaultBlockType =
-        (editor as any).getOption?.(BasePaginationPlugin, 'defaultBlockType') ??
-        'p';
+      const defaultBlockType = editor.getOption(
+        BasePaginationPlugin,
+        'defaultBlockType'
+      );
       withoutSaving(editor, () => {
-        Editor.withoutNormalizing(editor, () => {
-          Transforms.insertNodes(
-            editor,
+        editor.tf.withoutNormalizing(() => {
+          editor.tf.insertNodes(
             { type: defaultBlockType, children: [{ text: '' }] },
             { at: nextPagePath.concat([0]) }
           );
@@ -168,8 +178,8 @@ export function reflowPageBoundary(
       return { changed: true, nextPageToContinue: null };
     }
     withoutSaving(editor, () => {
-      Editor.withoutNormalizing(editor, () => {
-        Transforms.removeNodes(editor, { at: nextPagePath });
+      editor.tf.withoutNormalizing(() => {
+        editor.tf.removeNodes({ at: nextPagePath });
       });
     });
     return { changed: true, nextPageToContinue: null };
@@ -203,12 +213,13 @@ export function reflowPageBoundary(
     return { changed: false, nextPageToContinue: null };
   }
 
-  const pageNode = Node.get(editor, pagePath) as Element;
-  const targetIndex = pageNode.children.length;
+  const pageEntry = editor.api.node<TElement>(pagePath);
+  if (!pageEntry) return { changed: false, nextPageToContinue: null };
+  const targetIndex = pageEntry[0].children.length;
 
   withoutSaving(editor, () => {
-    Editor.withoutNormalizing(editor, () => {
-      Transforms.moveNodes(editor, {
+    editor.tf.withoutNormalizing(() => {
+      editor.tf.moveNodes({
         at: nextPagePath.concat([0]),
         to: pagePath.concat([targetIndex]),
       });
@@ -247,21 +258,23 @@ function findOverflowSplitIndex(
 }
 
 function splitOversizedBlock(
-  editor: Editor,
+  editor: SlateEditor,
   pagePath: Path,
   contentEl: HTMLDivElement,
   maxHeight: number
 ): boolean {
-  // Check if editor has React bindings
-  if (!(editor as any).hasEditableTarget) return false;
+  // Check if editor has React DOM bindings
+  if (!('hasEditableTarget' in editor)) return false;
 
   const blockPath = pagePath.concat([0]);
 
   try {
-    const fullText = Editor.string(editor, blockPath);
+    const fullText = editor.api.string(blockPath);
     if (!fullText || fullText.length < 2) return false;
 
-    const start = Editor.start(editor, blockPath);
+    const start = editor.api.start(blockPath);
+    if (!start) return false;
+
     const containerRect = contentEl.getBoundingClientRect();
     const maxBottom = containerRect.top + maxHeight - 1;
 
@@ -269,18 +282,19 @@ function splitOversizedBlock(
     const pointAtOffset = (offset: number) => {
       let remaining = offset;
 
-      for (const [textNode, textPath] of Editor.nodes(editor, {
+      for (const [textNode, textPath] of editor.api.nodes<TText>({
         at: blockPath,
-        match: (n: any) => typeof (n as any).text === 'string',
+        match: (n) => TextApi.isText(n),
       })) {
-        const text = (textNode as any).text as string;
+        const text = textNode.text;
         if (remaining <= text.length) {
           return { path: textPath, offset: remaining };
         }
         remaining -= text.length;
       }
 
-      return Editor.end(editor, blockPath);
+      const end = editor.api.end(blockPath);
+      return end ?? { path: blockPath, offset: 0 };
     };
 
     // Binary search for split point
@@ -295,8 +309,7 @@ function splitOversizedBlock(
 
       let domRange: globalThis.Range;
       try {
-        // Cast to access static method that TypeScript doesn't recognize
-        const toDOMRange = (ReactEditor as any).toDOMRange;
+        const toDOMRange = ReactEditor.toDOMRange;
         if (!toDOMRange) {
           // Fallback: proportional estimate based on text length
           const ratio = maxHeight / contentEl.scrollHeight;
@@ -318,7 +331,7 @@ function splitOversizedBlock(
           }
           return false;
         }
-        domRange = toDOMRange(editor, range);
+        domRange = toDOMRange(editor as unknown as ReactEditor, range);
       } catch {
         return false;
       }
@@ -337,37 +350,36 @@ function splitOversizedBlock(
 
     const splitPoint = pointAtOffset(best);
     const nextPagePath: Path = [pagePath[0] + 1];
-    const pageType =
-      (editor as any).getType?.(BasePaginationPlugin.key) ?? 'page';
-    const defaultBlockType =
-      (editor as any).getOption?.(BasePaginationPlugin, 'defaultBlockType') ??
-      'p';
+    const pageType = editor.getType(BasePaginationPlugin.key);
+    const defaultBlockType = editor.getOption(
+      BasePaginationPlugin,
+      'defaultBlockType'
+    );
 
     withoutSaving(editor, () => {
-      withPaginationMutations(editor as any, () => {
-        Editor.withoutNormalizing(editor, () => {
+      withPaginationMutations(editor, () => {
+        editor.tf.withoutNormalizing(() => {
           // Ensure next page exists
-          if (!Node.has(editor, nextPagePath)) {
-            Transforms.insertNodes(
-              editor,
+          if (!editor.api.hasPath(nextPagePath)) {
+            editor.tf.insertNodes(
               {
                 type: pageType,
                 children: [
                   { type: defaultBlockType, children: [{ text: '' }] },
                 ],
-              } as unknown as Element,
+              },
               { at: nextPagePath }
             );
           }
 
           // Split the block at the calculated point
-          Transforms.splitNodes(editor, {
+          editor.tf.splitNodes({
             at: splitPoint,
-            match: (n: any) => Element.isElement(n) && Editor.isBlock(editor, n),
+            match: (n) => ElementApi.isElement(n) && editor.api.isBlock(n),
           });
 
           // Move the second half to next page
-          Transforms.moveNodes(editor, {
+          editor.tf.moveNodes({
             at: pagePath.concat([1]),
             to: nextPagePath.concat([0]),
           });

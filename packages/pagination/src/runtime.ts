@@ -37,16 +37,14 @@ export function createPaginationRuntime(): PaginationRuntime {
 
 // Extract page index from any Slate operation
 export function getPageIndexFromOp(op: Operation): number | null {
-  const anyOp = op as any;
   const indices: number[] = [];
 
-  if (Array.isArray(anyOp.path) && anyOp.path.length > 0) {
-    indices.push(anyOp.path[0]);
+  if ('path' in op && Array.isArray(op.path) && op.path.length > 0) {
+    indices.push(op.path[0]);
   }
-  if (Array.isArray(anyOp.newPath) && anyOp.newPath.length > 0) {
-    indices.push(anyOp.newPath[0]);
+  if ('newPath' in op && Array.isArray(op.newPath) && op.newPath.length > 0) {
+    indices.push(op.newPath[0]);
   }
 
-  if (indices.length === 0) return null;
-  return Math.min(...indices);
+  return indices.length ? Math.min(...indices) : null;
 }
