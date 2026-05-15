@@ -121,6 +121,27 @@ export function reflowPageBoundary(
   }
 
   if (!Node.has(editor, nextPagePath)) {
+    // Handle empty trailing page (content was cleared)
+    const pageNode = Node.get(editor, pagePath) as Element;
+    if (pageNode.children.length === 0) {
+      const totalPages = (editor.children as any[]).length;
+      if (totalPages <= 1) {
+        // Insert a default block into the empty last page instead of removing it
+        const defaultBlockType =
+          (editor as any).getOption?.(BasePaginationPlugin, 'defaultBlockType') ??
+          'p';
+        withoutSaving(editor, () => {
+          Editor.withoutNormalizing(editor, () => {
+            Transforms.insertNodes(
+              editor,
+              { type: defaultBlockType, children: [{ text: '' }] },
+              { at: pagePath.concat([0]) }
+            );
+          });
+        });
+        return { changed: true, nextPageToContinue: null };
+      }
+    }
     return { changed: false, nextPageToContinue: null };
   }
 
@@ -128,6 +149,24 @@ export function reflowPageBoundary(
 
   // Remove empty trailing pages
   if (nextPageNode.children.length === 0) {
+    // Guard: don't remove the last remaining page
+    const totalPages = (editor.children as any[]).length;
+    if (totalPages <= 1) {
+      // Insert a default block into the empty last page instead
+      const defaultBlockType =
+        (editor as any).getOption?.(BasePaginationPlugin, 'defaultBlockType') ??
+        'p';
+      withoutSaving(editor, () => {
+        Editor.withoutNormalizing(editor, () => {
+          Transforms.insertNodes(
+            editor,
+            { type: defaultBlockType, children: [{ text: '' }] },
+            { at: nextPagePath.concat([0]) }
+          );
+        });
+      });
+      return { changed: true, nextPageToContinue: null };
+    }
     withoutSaving(editor, () => {
       Editor.withoutNormalizing(editor, () => {
         Transforms.removeNodes(editor, { at: nextPagePath });
@@ -258,7 +297,27 @@ function splitOversizedBlock(
       try {
         // Cast to access static method that TypeScript doesn't recognize
         const toDOMRange = (ReactEditor as any).toDOMRange;
-        if (!toDOMRange) return false;
+        if (!toDOMRange) {
+          // Fallback: proportional estimate based on text length
+          const ratio = maxHeight / contentEl.scrollHeight;
+          const estimatedSplit = Math.floor(fullText.length * ratio);
+          if (estimatedSplit > 0 && estimatedSplit < fullText.length) {
+            // Find nearest word boundary
+            const before = fullText.lastIndexOf(' ', estimatedSplit);
+            const after = fullText.indexOf(' ', estimatedSplit);
+            const nearest =
+              before > 0 &&
+              after > 0 &&
+              estimatedSplit - before < after - estimatedSplit
+                ? before + 1
+                : after > 0
+                  ? after
+                  : estimatedSplit;
+            best = nearest;
+            break;
+          }
+          return false;
+        }
         domRange = toDOMRange(editor, range);
       } catch {
         return false;

@@ -46,6 +46,7 @@ export function PaginationCoordinator({
 
   // Processing state
   const scheduledRef = useRef<number | null>(null);
+  const resizeTimerRef = useRef<number | null>(null);
   const runningRef = useRef(false);
   const pendingStartRef = useRef<number | null>(null);
 
@@ -158,14 +159,44 @@ export function PaginationCoordinator({
     });
   }, [runtime, scheduleReflowFrom]);
 
-  // Reflow on window resize
+  // Reflow on window resize (with dedicated 200ms debounce to prevent storms)
   useEffect(() => {
     if (!reflowOpts.enabled) return;
 
-    const onResize = () => scheduleReflowFrom(0);
+    const onResize = () => {
+      // Dedicated debounce for resize events — longer than the normal
+      // reflow debounce to avoid flooding the scheduler during drag-resize.
+      if (resizeTimerRef.current !== null) {
+        window.clearTimeout(resizeTimerRef.current);
+      }
+      resizeTimerRef.current = window.setTimeout(() => {
+        resizeTimerRef.current = null;
+        scheduleReflowFrom(0);
+      }, 200);
+    };
     window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      if (resizeTimerRef.current !== null) {
+        window.clearTimeout(resizeTimerRef.current);
+        resizeTimerRef.current = null;
+      }
+    };
   }, [reflowOpts.enabled, scheduleReflowFrom]);
+
+  // Cleanup pending timers on unmount
+  useEffect(() => {
+    return () => {
+      if (scheduledRef.current !== null) {
+        window.clearTimeout(scheduledRef.current);
+        scheduledRef.current = null;
+      }
+      if (resizeTimerRef.current !== null) {
+        window.clearTimeout(resizeTimerRef.current);
+        resizeTimerRef.current = null;
+      }
+    };
+  }, []);
 
   // Initial reflow on mount
   useEffect(() => {
