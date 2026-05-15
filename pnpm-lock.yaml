@@ -211,7 +211,7 @@ importers:
         version: 6.0.1
       slate-test-utils:
         specifier: 1.3.2
-        version: 1.3.2(@testing-library/jest-dom@6.6.3)(@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-react@0.124.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-dom@0.124.1(slate@0.124.1))(slate@0.124.1))(slate@0.124.1)
+        version: 1.3.2(@testing-library/jest-dom@6.6.3)(@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-history@0.113.1(slate@0.124.1))(slate-react@0.124.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-dom@0.124.1(slate@0.124.1))(slate@0.124.1))(slate@0.124.1)
       tailwind-merge:
         specifier: 3.3.1
         version: 3.3.1
@@ -1484,9 +1484,9 @@ importers:
 
   packages/pagination:
     dependencies:
-      '@platejs/footnote':
-        specifier: workspace:^
-        version: link:../footnote
+      '@lifeomic/attempt':
+        specifier: ^3.1.0
+        version: 3.1.0
       react-compiler-runtime:
         specifier: ^1.0.0
         version: 1.0.0(react@19.2.4)
@@ -1494,9 +1494,27 @@ importers:
       '@plate/scripts':
         specifier: workspace:*
         version: link:../plate-scripts
+      '@platejs/yjs':
+        specifier: workspace:^
+        version: link:../yjs
       platejs:
         specifier: workspace:^
         version: link:../plate
+      slate:
+        specifier: '>=0.112.0'
+        version: 0.124.1
+      slate-history:
+        specifier: '>=0.112.0'
+        version: 0.113.1(slate@0.124.1)
+      slate-react:
+        specifier: '>=0.112.0'
+        version: 0.124.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-dom@0.124.1(slate@0.124.1))(slate@0.124.1)
+      y-protocols:
+        specifier: ^1.0.6
+        version: 1.0.7(yjs@13.6.29)
+      yjs:
+        specifier: ^13.6.0
+        version: 13.6.29
 
   packages/plate:
     dependencies:
@@ -5324,6 +5342,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@uploadthing/mime-types@0.3.5':
     resolution: {integrity: sha512-iYOmod80XXOSe4NVvaUG9FsS91YGPUaJMTBj52Nwu0G2aTzEN6Xcl0mG1rWqXJ4NUH8MzjVqg+tQND5TPkJWhg==}
@@ -9518,6 +9537,11 @@ packages:
     peerDependencies:
       slate: '>=0.121.0'
 
+  slate-history@0.113.1:
+    resolution: {integrity: sha512-J9NSJ+UG2GxoW0lw5mloaKcN0JI0x2IA5M5FxyGiInpn+QEutxT1WK7S/JneZCMFJBoHs1uu7S7e6pxQjubHmQ==}
+    peerDependencies:
+      slate: '>=0.65.3'
+
   slate-hyperscript@0.100.0:
     resolution: {integrity: sha512-fb2KdAYg6RkrQGlqaIi4wdqz3oa0S4zKNBJlbnJbNOwa23+9FLD6oPVx9zUGqCSIpy+HIpOeqXrg0Kzwh/Ii4A==}
     peerDependencies:
@@ -10319,6 +10343,7 @@ packages:
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uvu@0.5.6:
@@ -19343,6 +19368,11 @@ snapshots:
       slate: 0.124.1
       tiny-invariant: 1.3.1
 
+  slate-history@0.113.1(slate@0.124.1):
+    dependencies:
+      is-plain-object: 5.0.0
+      slate: 0.124.1
+
   slate-hyperscript@0.100.0(slate@0.124.1):
     dependencies:
       is-plain-object: 5.0.0
@@ -19361,7 +19391,7 @@ snapshots:
       slate-dom: 0.124.1(slate@0.124.1)
       tiny-invariant: 1.3.1
 
-  slate-test-utils@1.3.2(@testing-library/jest-dom@6.6.3)(@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-react@0.124.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-dom@0.124.1(slate@0.124.1))(slate@0.124.1))(slate@0.124.1):
+  slate-test-utils@1.3.2(@testing-library/jest-dom@6.6.3)(@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-history@0.113.1(slate@0.124.1))(slate-react@0.124.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-dom@0.124.1(slate@0.124.1))(slate@0.124.1))(slate@0.124.1):
     dependencies:
       '@testing-library/jest-dom': 6.6.3
       '@testing-library/react': 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -19371,6 +19401,7 @@ snapshots:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
       slate: 0.124.1
+      slate-history: 0.113.1(slate@0.124.1)
       slate-react: 0.124.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(slate-dom@0.124.1(slate@0.124.1))(slate@0.124.1)
 
   slate@0.124.1: {}

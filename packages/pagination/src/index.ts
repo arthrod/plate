@@ -11,6 +11,7 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
   },
 });
 
+export { BasePaginationPlugin } from './BasePaginationPlugin';
 export {
   createAlwaysLeader,
   createAwarenessLeaderElection,

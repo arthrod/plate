@@ -1,6 +1,10 @@
 'use client';
 
-import { PageOverlay, PaginationPlugin } from '@platejs/pagination/react';
+import {
+  PaginationCoordinator,
+  PaginationPlugin,
+  PaginationRegistryProvider,
+} from '@platejs/pagination';
 
 /**
  * Pagination kit — variant A (render-time overlay).
@@ -15,15 +19,17 @@ import { PageOverlay, PaginationPlugin } from '@platejs/pagination/react';
 export const PaginationKit = [
   PaginationPlugin.configure({
     options: {
-      footerHeight: 48,
-      footnoteWell: 96,
-      headerHeight: 48,
-      includeFootnoteSubPlugins: false,
-      margins: { bottom: 96, left: 72, right: 72, top: 96 },
-      pageSize: 'A4',
+      documentSettings: {
+        margins: { bottom: 96, left: 72, right: 72, top: 96 },
+        sizes: { width: 794, height: 1123 }, // A4 at 96 DPI
+      },
     },
     render: {
-      afterEditable: () => <PageOverlay />,
+      afterEditable: () => (
+        <PaginationRegistryProvider>
+          <PaginationCoordinator />
+        </PaginationRegistryProvider>
+      ),
     },
   }),
 ];

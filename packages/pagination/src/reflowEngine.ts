@@ -232,7 +232,7 @@ function splitOversizedBlock(
 
       for (const [textNode, textPath] of Editor.nodes(editor, {
         at: blockPath,
-        match: (n) => typeof (n as any).text === 'string',
+        match: (n: any) => typeof (n as any).text === 'string',
       })) {
         const text = (textNode as any).text as string;
         if (remaining <= text.length) {
@@ -304,7 +304,7 @@ function splitOversizedBlock(
           // Split the block at the calculated point
           Transforms.splitNodes(editor, {
             at: splitPoint,
-            match: (n) => Element.isElement(n) && Editor.isBlock(editor, n),
+            match: (n: any) => Element.isElement(n) && Editor.isBlock(editor, n),
           });
 
           // Move the second half to next page

@@ -13,10 +13,13 @@ export function createAwarenessLeaderElection(
   const subscribers = new Set<() => void>();
 
   const getLeaderClientId = (): number => {
-    const states = awareness.getStates();
-    const activeClients = Array.from(states.entries())
-      .filter(([_, state]) => state?.pagination?.ready === true)
-      .map(([id]) => id);
+    const states = awareness.getStates() as Map<number, any>;
+    const activeClients: number[] = [];
+    states.forEach((state, id) => {
+      if (state?.pagination?.ready === true) {
+        activeClients.push(id);
+      }
+    });
 
     if (activeClients.length === 0) return clientId;
     return Math.min(...activeClients);

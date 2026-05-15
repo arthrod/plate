@@ -77,18 +77,17 @@ export function PaginationToolbarButton() {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 
-  const previewVisible = usePluginOption(
+  const viewMode = usePluginOption(
     BasePaginationPlugin,
-    'previewVisible'
-  ) as boolean | undefined;
-  const pageSize = usePluginOption(
+    'viewMode'
+  ) as unknown as 'continuous' | 'paginated' | undefined;
+  const previewVisible = viewMode === 'paginated';
+  const documentSettings = usePluginOption(
     BasePaginationPlugin,
-    'pageSize'
-  ) as PaginationOptions['pageSize'];
-  const margins = usePluginOption(
-    BasePaginationPlugin,
-    'margins'
-  ) as Margins | undefined;
+    'documentSettings'
+  ) as unknown as { margins?: Margins } | undefined;
+  const margins = documentSettings?.margins;
+  const pageSize: PaginationOptions['pageSize'] = 'A4';
 
   const value = useEditorValue();
   const headerPresent = (value as Array<{ type?: string }>).some(
