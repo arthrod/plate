@@ -28,10 +28,7 @@ describe('createAlwaysLeader', () => {
 });
 
 describe('createAwarenessLeaderElection', () => {
-  function makeAwareness(
-    clientId: number,
-    states?: Map<number, any>
-  ) {
+  function makeAwareness(clientId: number, states?: Map<number, any>) {
     const listeners: Array<() => void> = [];
     return {
       _listeners: listeners,
@@ -54,9 +51,15 @@ describe('createAwarenessLeaderElection', () => {
   }
 
   it('with single ready client: that client is leader', () => {
-    const awareness = makeAwareness(1, new Map([[1, { pagination: { ready: true } }]]));
+    const awareness = makeAwareness(
+      1,
+      new Map([[1, { pagination: { ready: true } }]])
+    );
     const ydoc = makeYdoc(1);
-    const election = createAwarenessLeaderElection(awareness as any, ydoc as any);
+    const election = createAwarenessLeaderElection(
+      awareness as any,
+      ydoc as any
+    );
     expect(election.amILeader()).toBe(true);
     election.destroy();
   });
@@ -69,7 +72,10 @@ describe('createAwarenessLeaderElection', () => {
     ]);
     const awareness = makeAwareness(5, states);
     const ydoc = makeYdoc(5);
-    const election = createAwarenessLeaderElection(awareness as any, ydoc as any);
+    const election = createAwarenessLeaderElection(
+      awareness as any,
+      ydoc as any
+    );
     // clientID 5 is NOT the leader (2 is lowest)
     expect(election.amILeader()).toBe(false);
     election.destroy();
@@ -82,7 +88,10 @@ describe('createAwarenessLeaderElection', () => {
     ]);
     const awareness = makeAwareness(3, states);
     const ydoc = makeYdoc(3);
-    const election = createAwarenessLeaderElection(awareness as any, ydoc as any);
+    const election = createAwarenessLeaderElection(
+      awareness as any,
+      ydoc as any
+    );
     // No ready clients — current client wins by default
     expect(election.amILeader()).toBe(true);
     election.destroy();
@@ -91,7 +100,10 @@ describe('createAwarenessLeaderElection', () => {
   it('subscribe callback is called when awareness state changes', () => {
     const awareness = makeAwareness(1);
     const ydoc = makeYdoc(1);
-    const election = createAwarenessLeaderElection(awareness as any, ydoc as any);
+    const election = createAwarenessLeaderElection(
+      awareness as any,
+      ydoc as any
+    );
 
     let called = false;
     election.subscribe(() => {
@@ -108,7 +120,10 @@ describe('createAwarenessLeaderElection', () => {
   it('destroy removes awareness listener and clears subscribers', () => {
     const awareness = makeAwareness(1);
     const ydoc = makeYdoc(1);
-    const election = createAwarenessLeaderElection(awareness as any, ydoc as any);
+    const election = createAwarenessLeaderElection(
+      awareness as any,
+      ydoc as any
+    );
 
     let called = false;
     election.subscribe(() => {

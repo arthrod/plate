@@ -60,8 +60,8 @@ describe('PageElement logic', () => {
     const contentHeight = height - margins.top - margins.bottom;
     const contentWidth = width - margins.left - margins.right;
 
-    expect(contentHeight).toBe(931);  // 1123 - 96 - 96
-    expect(contentWidth).toBe(650);   // 794 - 72 - 72
+    expect(contentHeight).toBe(931); // 1123 - 96 - 96
+    expect(contentWidth).toBe(650); // 794 - 72 - 72
   });
 
   it('Letter size content area is correct', () => {
@@ -72,8 +72,8 @@ describe('PageElement logic', () => {
     const contentHeight = height - margins.top - margins.bottom;
     const contentWidth = width - margins.left - margins.right;
 
-    expect(contentHeight).toBe(864);  // 1056 - 192
-    expect(contentWidth).toBe(624);   // 816 - 192
+    expect(contentHeight).toBe(864); // 1056 - 192
+    expect(contentWidth).toBe(624); // 816 - 192
   });
 
   // ── Document settings ──

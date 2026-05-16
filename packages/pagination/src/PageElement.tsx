@@ -7,10 +7,7 @@ import React, { useEffect, useRef } from 'react';
 import { BasePaginationPlugin } from './BasePaginationPlugin';
 import { usePaginationRegistry } from './registry';
 
-export function PageElement({
-  children,
-  attributes,
-}: PlateElementProps) {
+export function PageElement({ children, attributes }: PlateElementProps) {
   const registry = usePaginationRegistry();
   const outerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -23,9 +20,7 @@ export function PageElement({
   // Find page index from path.
   const path = usePath(BasePaginationPlugin.key);
   const pageIndex =
-    typeof path?.[0] === 'number' && Number.isFinite(path[0])
-      ? path[0]
-      : null;
+    typeof path?.[0] === 'number' && Number.isFinite(path[0]) ? path[0] : null;
 
   // Register DOM references
   useEffect(() => {

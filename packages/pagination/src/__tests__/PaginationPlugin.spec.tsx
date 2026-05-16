@@ -34,7 +34,10 @@ describe('PaginationPlugin', () => {
           type: 'page',
           children: [
             { type: 'p', children: [{ text: 'Content paragraph two.' }] },
-            { type: 'blockquote', children: [{ type: 'p', children: [{ text: 'Quote' }] }] },
+            {
+              type: 'blockquote',
+              children: [{ type: 'p', children: [{ text: 'Quote' }] }],
+            },
           ],
         },
       ],
@@ -75,7 +78,7 @@ describe('PaginationPlugin', () => {
 
   it('PaginationPlugin renders PageElement for page nodes', () => {
     // Verify the render property exists and is a function
-    const paginationPlugin = (PaginationPlugin as any);
+    const paginationPlugin = PaginationPlugin as any;
     const render = paginationPlugin.render?.node;
     expect(typeof render).toBe('function');
   });

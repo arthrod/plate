@@ -1,12 +1,7 @@
-/** @jsx jsx */
-import { createRef } from 'react';
 import { renderHook } from '@testing-library/react';
 import React, { createElement } from 'react';
 
-import {
-  PaginationRegistryProvider,
-  usePaginationRegistry,
-} from '../registry';
+import { PaginationRegistryProvider, usePaginationRegistry } from '../registry';
 import type { PageDom } from '../types';
 
 function makeDom(): PageDom {

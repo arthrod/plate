@@ -10,9 +10,7 @@ import { createAwarenessLeaderElection } from '../leaderElection';
 // ------------------------------------------------------------------
 // Minimal Yjs-compatible mocks
 // ------------------------------------------------------------------
-interface AwarenessEventHandler {
-  (): void;
-}
+type AwarenessEventHandler = () => void;
 
 function createMockAwareness(states?: Map<number, any>) {
   const eventHandlers = new Map<string, Set<AwarenessEventHandler>>();
