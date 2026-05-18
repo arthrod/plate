@@ -2,7 +2,7 @@
 // pagination/PaginationCoordinator.tsx
 // ============================================================
 import { useEditorRef, usePluginOption } from 'platejs/react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   BasePaginationPlugin,
   getPaginationRuntime,
@@ -113,26 +113,37 @@ export function PaginationCoordinator({
     }
   }
 
-  function scheduleReflowFrom(startPage: number) {
-    if (!shouldProcess()) return;
+  const scheduleReflowFrom = useCallback(
+    (startPage: number) => {
+      if (!shouldProcess()) return;
 
-    pendingStartRef.current =
-      pendingStartRef.current === null
-        ? startPage
-        : Math.min(pendingStartRef.current, startPage);
+      pendingStartRef.current =
+        pendingStartRef.current === null
+          ? startPage
+          : Math.min(pendingStartRef.current, startPage);
 
-    if (scheduledRef.current !== null) return;
+      if (scheduledRef.current !== null) return;
 
-    scheduledRef.current = window.setTimeout(() => {
-      scheduledRef.current = null;
-      const start = pendingStartRef.current ?? 0;
-      pendingStartRef.current = null;
+      scheduledRef.current = window.setTimeout(() => {
+        scheduledRef.current = null;
+        const start = pendingStartRef.current ?? 0;
+        pendingStartRef.current = null;
 
-      scheduleIdle(() => {
-        runReflow(start);
-      });
-    }, reflowOpts.debounceMs);
-  }
+        scheduleIdle(() => {
+          runReflow(start);
+        });
+      }, reflowOpts.debounceMs);
+    },
+    // shouldProcess captures reflowOpts, canProcess, collabOpts, leader
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      reflowOpts.enabled,
+      reflowOpts.debounceMs,
+      reflowOpts.maxPagesPerIdle,
+      canProcess,
+      collabOpts.mode,
+    ]
+  );
 
   // Subscribe to runtime dirty notifications
   useEffect(() => {

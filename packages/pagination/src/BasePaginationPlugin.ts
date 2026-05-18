@@ -72,7 +72,6 @@ const DEFAULT_REFLOW_OPTIONS: ReflowOptions = {
   enabled: true,
   debounceMs: 100,
   maxPagesPerIdle: 6,
-  maxMovesPerPage: 50,
   underflow: true,
   allowTextSplit: true,
   overflowThresholdPx: 0,

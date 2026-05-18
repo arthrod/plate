@@ -1,12 +1,9 @@
 'use client';
 
+import type { DocumentSettings, ViewMode } from '@platejs/pagination';
 import { BasePaginationPlugin } from '@platejs/pagination';
 import { LayoutTemplateIcon } from 'lucide-react';
-import {
-  useEditorRef,
-  useEditorValue,
-  usePluginOption,
-} from 'platejs/react';
+import { useEditorRef, useEditorValue, usePluginOption } from 'platejs/react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
@@ -23,20 +20,11 @@ import {
 
 import { ToolbarButton } from './toolbar';
 
-type PageSize = 'A4' | 'Legal' | 'Letter';
 type Margins = { bottom: number; left: number; right: number; top: number };
-
-type PaginationOptions = {
-  footerVisible?: boolean;
-  headerVisible?: boolean;
-  margins?: Margins;
-  pageSize?: PageSize | { height: number; width: number };
-  previewVisible?: boolean;
-};
 
 type PaginationTransforms = {
   setMargins?: (m: Margins) => void;
-  setPageSize?: (s: PageSize) => void;
+  setPageSize?: (s: 'A4' | 'Legal' | 'Letter') => void;
   toggleFooter?: () => boolean;
   toggleHeader?: () => boolean;
   togglePreview?: () => boolean;
@@ -64,42 +52,55 @@ const marginsEqual = (a: Margins | undefined, b: Margins): boolean =>
   a.bottom === b.bottom &&
   a.left === b.left;
 
-const resolveSizeKey = (
-  size: PaginationOptions['pageSize']
-): string => {
-  if (typeof size === 'string') return size;
-  if (size && typeof size === 'object') return 'Custom';
+const PAGE_SIZES: Record<string, { width: number; height: number }> = {
+  A4: { width: 794, height: 1123 },
+  Letter: { width: 816, height: 1056 },
+  Legal: { width: 816, height: 1344 },
+};
 
-  return 'A4';
+const resolveSizeKey = (
+  sizes: { width: number; height: number } | undefined
+): string => {
+  if (!sizes) return 'A4';
+  for (const [key, dims] of Object.entries(PAGE_SIZES)) {
+    if (dims.width === sizes.width && dims.height === sizes.height) return key;
+  }
+
+  return 'Custom';
 };
 
 export function PaginationToolbarButton() {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 
-  const viewMode = usePluginOption(
-    BasePaginationPlugin,
-    'viewMode'
-  ) as unknown as 'continuous' | 'paginated' | undefined;
+  const viewMode = usePluginOption(BasePaginationPlugin, 'viewMode') as
+    | ViewMode
+    | undefined;
   const previewVisible = viewMode === 'paginated';
   const documentSettings = usePluginOption(
     BasePaginationPlugin,
     'documentSettings'
-  ) as unknown as { margins?: Margins } | undefined;
+  ) as DocumentSettings | undefined;
   const margins = documentSettings?.margins;
-  const pageSize: PaginationOptions['pageSize'] = 'A4';
+  const pageSize = resolveSizeKey(documentSettings?.sizes);
 
   const value = useEditorValue();
-  const headerPresent = (value as Array<{ type?: string }>).some(
-    (n) => n.type === 'header'
+  const headerPresent = (
+    value as Array<{ type?: string; children?: Array<{ type?: string }> }>
+  ).some(
+    (page) => page.type === 'page' && page.children?.[0]?.type === 'header'
   );
-  const footerPresent = (value as Array<{ type?: string }>).some(
-    (n) => n.type === 'footer'
-  );
+  const footerPresent = (
+    value as Array<{ type?: string; children?: Array<{ type?: string }> }>
+  ).some((page) => {
+    if (page.type !== 'page' || !page.children) return false;
+    const last = page.children.at(-1);
 
-  const tf = (
-    editor.tf as unknown as { pagination?: PaginationTransforms }
-  ).pagination;
+    return last?.type === 'footer';
+  });
+
+  const tf = (editor.tf as unknown as { pagination?: PaginationTransforms })
+    .pagination;
 
   if (!tf) {
     return (
@@ -150,10 +151,14 @@ export function PaginationToolbarButton() {
 
         <DropdownMenuLabel>Page size</DropdownMenuLabel>
         <DropdownMenuRadioGroup
-          onValueChange={(v) => tf.setPageSize?.(v as PageSize)}
-          value={resolveSizeKey(pageSize)}
+          onValueChange={(v) =>
+            tf.setPageSize?.(v as 'A4' | 'Letter' | 'Legal')
+          }
+          value={pageSize}
         >
-          <DropdownMenuRadioItem value="A4">A4 (210×297 mm)</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="A4">
+            A4 (210×297 mm)
+          </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="Letter">
             Letter (8.5×11 in)
           </DropdownMenuRadioItem>

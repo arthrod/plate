@@ -71,7 +71,7 @@ export const EditorKit = [
   ...CommentKit,
   ...SuggestionKit,
 
-  // Pagination (placeholder until @platejs/pagination ships — PRs #357/#358)
+  // Pagination
   ...PaginationKit,
 
   // Editing

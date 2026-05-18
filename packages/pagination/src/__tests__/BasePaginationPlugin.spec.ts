@@ -253,16 +253,17 @@ describe('BasePaginationPlugin normalization', () => {
     });
 
     const rt = getPaginationRuntime(editor)!;
-    rt.consumeDirtyMin(); // clear
+    rt.consumeDirtyMin(); // clear initial
 
-    // Directly place non-page children so onNodeChange WOULD wrap them
-    // if not for the mutating guard.
-    (editor as any).children = [{ type: 'p', children: [{ text: 'foo' }] }];
-
-    // Invoke the handler while the mutating flag is set.
+    // Invoke onNodeChange while the mutating flag is set and dirty
+    // the root children so the handler WOULD wrap them if not for
+    // the mutating guard.
     _withPaginationMutations(editor, () => {
-      const handler = (BasePaginationPlugin as any).handlers?.onNodeChange;
-      handler?.({ editor });
+      // Replace root children with non-page content — would normally
+      // trigger normalization and mark dirty, but the guard prevents it.
+      (editor as any).children = [{ type: 'p', children: [{ text: 'foo' }] }];
+      // Fire the handler directly
+      editor.api.onChange();
     });
 
     // Guard fired early — no dirty mark, children still unwrapped.

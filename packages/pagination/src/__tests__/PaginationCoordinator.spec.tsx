@@ -56,7 +56,6 @@ function mountCoordinator(opts: MountOpts = {}) {
           enabled: true,
           debounceMs: 10,
           maxPagesPerIdle: 6,
-          maxMovesPerPage: 50,
           underflow: true,
           allowTextSplit: true,
           overflowThresholdPx: 0,
@@ -216,13 +215,15 @@ describe('PaginationCoordinator', () => {
   // ── Resize debounce hardening ──
   it('debounces rapid resize events (dedicated 200ms resize debounce)', () => {
     jest.useFakeTimers();
-    const spy = jest.spyOn(window, 'setTimeout');
+    const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+    const clearTimeoutSpy = jest.spyOn(window, 'clearTimeout');
 
     const { unmount } = mountCoordinator();
     act(() => {
       jest.runAllTimers();
     });
-    spy.mockClear();
+    setTimeoutSpy.mockClear();
+    clearTimeoutSpy.mockClear();
 
     for (let i = 0; i < 5; i++) {
       act(() => {
@@ -231,14 +232,18 @@ describe('PaginationCoordinator', () => {
     }
 
     // Each resize event clears the previous 200ms timer and sets a new one.
-    // After 5 rapid fires, only 1 setTimeout (200ms) should be pending,
-    // plus 4 clearTimeout calls from the previous timers being cancelled.
-    const pendingCalls = spy.mock.calls.filter(([, delay]) => delay === 200);
-    expect(pendingCalls.length).toBe(5);
+    // After 5 fires: 5 setTimeout(200ms) calls,
+    // and 4 clearTimeout calls (first one has nothing to clear).
+    const timeoutCalls = setTimeoutSpy.mock.calls.filter(
+      ([, delay]) => delay === 200
+    );
+    expect(timeoutCalls.length).toBe(5);
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(4);
 
     jest.useRealTimers();
     unmount();
-    spy.mockRestore();
+    setTimeoutSpy.mockRestore();
+    clearTimeoutSpy.mockRestore();
   });
 
   // ── Dirty runtime subscription ──

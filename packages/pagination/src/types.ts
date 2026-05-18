@@ -13,7 +13,6 @@ export type ReflowOptions = {
   enabled: boolean;
   debounceMs: number;
   maxPagesPerIdle: number;
-  maxMovesPerPage: number;
   underflow: boolean;
   allowTextSplit: boolean;
   overflowThresholdPx: number;

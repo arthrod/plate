@@ -29,7 +29,11 @@ export function createPaginationRuntime(): PaginationRuntime {
 
     consumeDirtyMin(): number | null {
       if (dirty.size === 0) return null;
-      const min = Math.min(...dirty);
+      // Manual min avoids stack overflow from spread on large Sets
+      let min = Number.POSITIVE_INFINITY;
+      for (const page of dirty) {
+        if (page < min) min = page;
+      }
       dirty.clear(); // Clear all — processing from min cascades forward
       return min;
     },

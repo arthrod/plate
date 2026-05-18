@@ -235,11 +235,11 @@ export function findOverflowSplitIndex(
   const children = Array.from(contentEl.children) as HTMLElement[];
   if (children.length === 0) return null;
 
-  // Detect non-monotonic offsetTop in the first 3 children (e.g., multi-column,
+  // Detect non-monotonic offsetTop across ALL children (e.g., multi-column,
   // absolute positioning, or flex `order:` can break the sorted-by-offsetTop
   // assumption that binary search relies on).
   let monotonic = true;
-  for (let i = 1; i < Math.min(3, children.length); i++) {
+  for (let i = 1; i < children.length; i++) {
     if (children[i].offsetTop < children[i - 1].offsetTop) {
       monotonic = false;
       break;
@@ -282,7 +282,8 @@ function splitOversizedBlock(
   contentEl: HTMLDivElement,
   { maxHeight, debug }: { maxHeight: number; debug: boolean }
 ): boolean {
-  // Check if editor has React DOM bindings
+  // Check if editor has DOM/React bindings. hasEditableTarget is an
+  // instance method installed by DOMEditor/ReactEditor plugins.
   if (!('hasEditableTarget' in editor)) return false;
 
   const blockPath = pagePath.concat([0]);

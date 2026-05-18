@@ -1,0 +1,16 @@
+{
+  "name": "@platejs/pagination",
+  "version": "52.2.0",
+  "description": "Pagination plugin for Plate - page-based document layout",
+  "license": "MIT",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./yjs": "./dist/yjs/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts"
+}

@@ -79,7 +79,6 @@ function makeReflowOptions(overrides = {}) {
     enabled: true,
     debounceMs: 100,
     maxPagesPerIdle: 6,
-    maxMovesPerPage: 50,
     underflow: true,
     allowTextSplit: true,
     overflowThresholdPx: 0,
@@ -565,7 +564,7 @@ describe('findOverflowSplitIndex', () => {
 });
 
 describe('splitOversizedBlock', () => {
-  it('returns false when editor has no hasEditableTarget', () => {
+  it('returns false when editor lacks DOM/React bindings', () => {
     const editor = createSlateEditor({
       plugins: [BasePaginationPlugin],
       value: [
@@ -575,6 +574,7 @@ describe('splitOversizedBlock', () => {
         },
       ],
     });
+    // createSlateEditor without DOM plugins has no hasEditableTarget
 
     const child = makeChildDiv({ offsetTop: 0, offsetHeight: 600 });
     const pageDom = makePageDom({
@@ -605,8 +605,6 @@ describe('splitOversizedBlock', () => {
         },
       ],
     });
-    // Even with hasEditableTarget, the short text prevents split
-    (editor as any).hasEditableTarget = () => true;
 
     const child = makeChildDiv({ offsetTop: 0, offsetHeight: 600 });
     const pageDom = makePageDom({
@@ -637,7 +635,6 @@ describe('splitOversizedBlock', () => {
         },
       ],
     });
-    (editor as any).hasEditableTarget = () => true;
 
     const child = makeChildDiv({ offsetTop: 0, offsetHeight: 600 });
     const pageDom = makePageDom({
@@ -669,7 +666,6 @@ describe('splitOversizedBlock', () => {
         },
       ],
     });
-    (editor as any).hasEditableTarget = () => true;
 
     const child = makeChildDiv({ offsetTop: 0, offsetHeight: 600 });
     const pageDom = makePageDom({

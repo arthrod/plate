@@ -14,13 +14,17 @@ export function YjsPaginationBridge() {
   const runtime = getPaginationRuntime(editor);
   const awareness = usePluginOption(YjsPlugin, 'awareness');
   const ydoc = usePluginOption(YjsPlugin, 'ydoc');
+  // _isConnected / _isSynced are internal YjsPlugin state keys used
+  // to gate pagination until the Yjs document is fully loaded.
   const isConnected = usePluginOption(YjsPlugin, '_isConnected');
   const isSynced = usePluginOption(YjsPlugin, '_isSynced');
   const canProcess = Boolean(isConnected && isSynced);
 
-  // Create leader election based on Yjs awareness
-  const leaderElection = useMemo<LeaderElection | null>(() => {
-    if (!awareness || !ydoc) return null;
+  // Create leader election based on Yjs awareness.
+  // awareness: Awareness and ydoc: Y.Doc are imported as type-only
+  // (optional peer dependency), so cast to any for the runtime call.
+  const leaderElection = useMemo<LeaderElection | undefined>(() => {
+    if (!awareness || !ydoc) return;
     return createAwarenessLeaderElection(awareness as any, ydoc as any);
   }, [awareness, ydoc]);
 
@@ -45,7 +49,7 @@ export function YjsPaginationBridge() {
 
   return (
     <PaginationCoordinator
-      leaderElection={leaderElection ?? undefined}
+      leaderElection={leaderElection}
       canProcess={canProcess}
     />
   );

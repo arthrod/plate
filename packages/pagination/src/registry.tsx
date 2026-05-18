@@ -49,6 +49,17 @@ export function PaginationRegistryProvider({
   );
 }
 
-export function usePaginationRegistry() {
-  return useContext(PaginationRegistryContext);
+export function usePaginationRegistry(): Registry | null {
+  const ctx = useContext(PaginationRegistryContext);
+  // Guard against misuse outside PaginationRegistryProvider
+  if (
+    ctx === null &&
+    typeof process !== 'undefined' &&
+    process.env?.NODE_ENV !== 'production'
+  ) {
+    console.warn(
+      'usePaginationRegistry must be used within PaginationRegistryProvider'
+    );
+  }
+  return ctx;
 }

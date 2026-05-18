@@ -13,6 +13,9 @@ export function createAwarenessLeaderElection(
   const subscribers = new Set<() => void>();
 
   const getLeaderClientId = (): number => {
+    // awareness.getStates() returns Map<number, unknown> — the values
+    // are arbitrary user-defined state objects, so Map<number, any> is
+    // the practical type for runtime state inspection.
     const states = awareness.getStates() as Map<number, any>;
     const activeClients: number[] = [];
     states.forEach((state, id) => {
