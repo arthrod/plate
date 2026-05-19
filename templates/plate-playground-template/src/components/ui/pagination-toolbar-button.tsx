@@ -5,7 +5,6 @@ import { BasePaginationPlugin } from '@platejs/pagination';
 import { LayoutTemplateIcon } from 'lucide-react';
 import { useEditorRef, useEditorValue, usePluginOption } from 'platejs/react';
 import * as React from 'react';
-import { toast } from 'sonner';
 
 import {
   DropdownMenu,
@@ -99,20 +98,9 @@ export function PaginationToolbarButton() {
     return last?.type === 'footer';
   });
 
-  const tf = (editor.tf as unknown as { pagination?: PaginationTransforms })
-    .pagination;
-
-  if (!tf) {
-    return (
-      <ToolbarButton
-        data-plate-prevent-overlay
-        onClick={() => toast('Pagination plugin not available')}
-        tooltip="Pagination"
-      >
-        <LayoutTemplateIcon />
-      </ToolbarButton>
-    );
-  }
+  const tf =
+    (editor.tf as unknown as { pagination?: PaginationTransforms })
+      .pagination ?? {};
 
   return (
     <DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
