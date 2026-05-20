@@ -52,7 +52,7 @@ export function SiteHeader() {
               <CommandMenu />
             </div>
 
-            <Button size="icon" variant="ghost" className="size-8 px-0">
+            <Button asChild size="icon" variant="ghost" className="size-8 px-0">
               <Link
                 className="inline"
                 href={siteConfig.links.github}
@@ -65,6 +65,7 @@ export function SiteHeader() {
             </Button>
 
             <Button
+              asChild
               size="icon"
               variant="ghost"
               className="size-8 px-0 max-md:hidden"
