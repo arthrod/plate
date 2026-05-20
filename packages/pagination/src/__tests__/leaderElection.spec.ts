@@ -28,7 +28,7 @@ describe('createAlwaysLeader', () => {
 });
 
 describe('createAwarenessLeaderElection', () => {
-  function makeAwareness(clientId: number, states?: Map<number, any>) {
+  function makeAwareness(_clientId: number, states?: Map<number, any>) {
     const listeners: Array<() => void> = [];
     return {
       _listeners: listeners,
@@ -111,7 +111,9 @@ describe('createAwarenessLeaderElection', () => {
     });
 
     // Simulate awareness change
-    awareness._listeners.forEach((fn) => fn());
+    awareness._listeners.forEach((fn) => {
+      fn();
+    });
 
     expect(called).toBe(true);
     election.destroy();
@@ -138,7 +140,9 @@ describe('createAwarenessLeaderElection', () => {
     // Subscribers should not be called after clearing
     called = false;
     // Re-trigger (listeners were cleared, so nothing triggers)
-    awareness._listeners.forEach((fn) => fn());
+    awareness._listeners.forEach((fn) => {
+      fn();
+    });
     expect(called).toBe(false);
   });
 });

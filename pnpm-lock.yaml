@@ -371,6 +371,9 @@ importers:
       '@platejs/mention':
         specifier: workspace:^
         version: link:../../packages/mention
+      '@platejs/pagination':
+        specifier: workspace:^
+        version: link:../../packages/pagination
       '@platejs/playwright':
         specifier: workspace:^
         version: link:../../packages/playwright
@@ -1487,6 +1490,9 @@ importers:
       '@lifeomic/attempt':
         specifier: ^3.1.0
         version: 3.1.0
+      '@udecode/react-utils':
+        specifier: workspace:*
+        version: link:../udecode/react-utils
       react-compiler-runtime:
         specifier: ^1.0.0
         version: 1.0.0(react@19.2.4)
@@ -1494,6 +1500,9 @@ importers:
       '@plate/scripts':
         specifier: workspace:*
         version: link:../plate-scripts
+      '@platejs/core':
+        specifier: workspace:^
+        version: link:../core
       '@platejs/yjs':
         specifier: workspace:^
         version: link:../yjs

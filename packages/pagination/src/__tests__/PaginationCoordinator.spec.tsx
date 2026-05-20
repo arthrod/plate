@@ -7,22 +7,32 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createSlateEditor } from 'platejs';
+// Real `toPlatePlugin` from its owning package (a different, unmocked specifier)
+// so the global mock below can re-expose it. PaginationPlugin.spec builds the
+// plugin via `toPlatePlugin` at module load and needs the real implementation.
+import { toPlatePlugin } from '@platejs/core/react';
 import {
   BasePaginationPlugin,
   getPaginationRuntime,
 } from '../BasePaginationPlugin';
 import { PaginationRegistryProvider } from '../registry';
 
-// Mock platejs/react hooks
-jest.mock('platejs/react', () => ({
+// Mock platejs/react hooks to avoid store.useValue incompatibility with React 19.
+// This module mock is GLOBAL for the whole bun run, so it must also expose every
+// `platejs/react` export other specs need (`toPlatePlugin`, `usePath`); otherwise
+// those imports fail with "Export named '…' not found". The hooks below are never
+// called outside this suite, so `jest.fn()` stand-ins are safe there.
+mock.module('platejs/react', () => ({
+  toPlatePlugin,
   useEditorRef: jest.fn(),
+  usePath: jest.fn(),
   usePluginOption: jest.fn(),
 }));
 
 const { useEditorRef, usePluginOption } = require('platejs/react');
 const { PaginationCoordinator } = require('../PaginationCoordinator');
 
-function createMockEditor(overrides: any = {}) {
+function createMockEditor(_overrides: any = {}) {
   const editor = createSlateEditor({
     plugins: [BasePaginationPlugin],
     value: [

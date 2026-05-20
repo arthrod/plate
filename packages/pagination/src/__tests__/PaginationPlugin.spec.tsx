@@ -5,10 +5,12 @@
 import { createSlateEditor } from 'platejs';
 import { PaginationPlugin } from '../index';
 import { BasePaginationPlugin } from '../BasePaginationPlugin';
+import { PaginationRegistryProvider } from '../registry';
 
 describe('PaginationPlugin', () => {
-  it('exports PaginationPlugin as a function', () => {
-    expect(typeof PaginationPlugin).toBe('function');
+  it('exports PaginationPlugin as a resolved plugin object', () => {
+    expect(typeof PaginationPlugin).toBe('object');
+    expect(PaginationPlugin).not.toBeNull();
   });
 
   it('PaginationPlugin is based on BasePaginationPlugin', () => {
@@ -81,5 +83,18 @@ describe('PaginationPlugin', () => {
     const paginationPlugin = PaginationPlugin as any;
     const render = paginationPlugin.render?.node;
     expect(typeof render).toBe('function');
+  });
+
+  it('auto-mounts PaginationRegistryProvider above the editable', () => {
+    // PageElement consumes usePaginationRegistry, so the plugin must wrap the
+    // editable in the provider itself — consumers should not wire it manually.
+    const { render } = PaginationPlugin as any;
+    expect(render?.aboveEditable).toBe(PaginationRegistryProvider);
+  });
+
+  it('auto-mounts a coordinator after the editable', () => {
+    // Reflow only runs when a coordinator is mounted; the plugin owns it.
+    const { render } = PaginationPlugin as any;
+    expect(typeof render?.afterEditable).toBe('function');
   });
 });
