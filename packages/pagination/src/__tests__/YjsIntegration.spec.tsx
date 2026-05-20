@@ -4,7 +4,7 @@
 // Tests the createAwarenessLeaderElection pure-logic boundary using
 // minimal mocks for Yjs Awareness and Y.Doc interfaces.
 // ----------------------------------------------------------------
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'bun:test';
 import { createAwarenessLeaderElection } from '../leaderElection';
 
 // ------------------------------------------------------------------
@@ -29,7 +29,9 @@ function createMockAwareness(states?: Map<number, any>) {
     },
     // Test helpers
     _trigger(event: string) {
-      eventHandlers.get(event)?.forEach((handler) => handler());
+      eventHandlers.get(event)?.forEach((handler) => {
+        handler();
+      });
     },
     _listenerCount(event: string) {
       return eventHandlers.get(event)?.size ?? 0;

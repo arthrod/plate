@@ -85,7 +85,6 @@ const DEFAULT_COLLABORATION_OPTIONS: CollaborationOptions = {
 
 const withPagination: OverrideEditor<PaginationConfig> = ({
   editor,
-  getOptions,
   type,
   tf: { apply, normalizeNode },
 }) => {

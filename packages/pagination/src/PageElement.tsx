@@ -2,7 +2,8 @@
 // pagination/PageElement.tsx
 // ============================================================
 import type { PlateElementProps } from 'platejs/react';
-import { useComposedRef, usePath, usePluginOption } from 'platejs/react';
+import { useComposedRef } from '@udecode/react-utils';
+import { usePath, usePluginOption } from 'platejs/react';
 import React, { useEffect, useRef } from 'react';
 import { BasePaginationPlugin } from './BasePaginationPlugin';
 import { usePaginationRegistry } from './registry';
