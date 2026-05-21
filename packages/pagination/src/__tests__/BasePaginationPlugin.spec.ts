@@ -11,6 +11,29 @@ import {
 
 const pageType = 'page';
 
+describe('BasePaginationPlugin key + wrapping contract', () => {
+  // The plugin must own a literal key, not depend on `KEYS.pagination` being
+  // present in the consumer's @platejs/utils version (it is unreleased there),
+  // otherwise the key is `undefined` and normalization can't wrap content.
+  it('uses the literal "pagination" key', () => {
+    expect((BasePaginationPlugin as any).key).toBe('pagination');
+  });
+
+  it('wraps flat root content into a single page', () => {
+    const editor = createSlateEditor({
+      plugins: [BasePaginationPlugin],
+      value: [
+        { type: 'h1', children: [{ text: 'Title' }] },
+        { type: 'p', children: [{ text: 'Body' }] },
+      ],
+    });
+
+    expect(editor.children).toHaveLength(1);
+    expect((editor.children[0] as any).type).toBe('page');
+    expect((editor.children[0] as any).children).toHaveLength(2);
+  });
+});
+
 describe('BasePaginationPlugin normalization', () => {
   it('normalizeInitialValue: wraps all children into one page when no pages exist', () => {
     const editor = createSlateEditor({

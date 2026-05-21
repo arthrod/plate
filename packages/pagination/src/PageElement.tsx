@@ -74,6 +74,24 @@ export function PageElement({ children, attributes }: PlateElementProps) {
       >
         {children}
       </div>
+
+      {isPaginated && pageIndex !== null && (
+        <div
+          contentEditable={false}
+          className="plate-page-number select-none"
+          style={{
+            position: 'absolute',
+            insetInline: 0,
+            bottom: Math.max(margins.bottom / 3, 12),
+            textAlign: 'center',
+            fontSize: 12,
+            color: '#9ca3af',
+            pointerEvents: 'none',
+          }}
+        >
+          {pageIndex + 1}
+        </div>
+      )}
     </div>
   );
 }
