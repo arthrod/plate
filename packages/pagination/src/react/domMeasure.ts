@@ -1,16 +1,20 @@
 // ============================================================
 // pagination/react/domMeasure.ts
 //
-// DOM-backed MeasureFn for the engine hook: reads a top-level block's rendered
-// height + computed line height from the live editor DOM. This is the only
-// place that touches the DOM in the measurement path — the rest of the pipeline
-// (snapshot → measure → compose) stays pure.
+// DOM-backed MeasureFn for the engine: reads each top-level block's rendered
+// height + computed line height from the live editable. Pure DOM (no
+// slate-react / editor dependency) — top-level blocks are the direct
+// `[data-slate-node="element"]` children of the editable, indexed by path[0].
 // ============================================================
 
-import type { SlateEditor } from 'platejs';
-import { ReactEditor } from 'slate-react';
-
 import type { MeasureFn } from '../measure/measure';
+
+/** Direct top-level block elements of an editable, in document order. */
+export function topLevelBlockElements(editable: HTMLElement): HTMLElement[] {
+  return Array.from(
+    editable.querySelectorAll(':scope > [data-slate-node="element"]')
+  ) as HTMLElement[];
+}
 
 function resolveLineHeight(style: CSSStyleDeclaration): number {
   const lh = Number.parseFloat(style.lineHeight);
@@ -23,32 +27,20 @@ function resolveLineHeight(style: CSSStyleDeclaration): number {
 }
 
 /**
- * Build a {@link MeasureFn} that reads block geometry from the editor DOM.
- * Measured `heightPx` includes the block's own vertical margins so stacked
- * heights match what the user sees.
+ * Build a {@link MeasureFn} that reads block geometry from the editable DOM.
+ * Measured `heightPx` includes the block's vertical margins so stacked heights
+ * match what the user sees. Re-queries on each call so it reflects edits.
  */
-export function createDomMeasure(editor: SlateEditor): MeasureFn {
+export function createDomMeasure(editable: HTMLElement): MeasureFn {
   return (block) => {
-    try {
-      const entry = editor.api.node(block.path);
-      if (!entry) return null;
+    const dom = topLevelBlockElements(editable)[block.path[0]];
+    if (!dom) return null;
 
-      const dom = ReactEditor.toDOMNode(
-        editor as unknown as ReactEditor,
-        entry[0]
-      ) as HTMLElement | null;
-      if (!dom) return null;
-
-      const style = getComputedStyle(dom);
-      const marginTop = Number.parseFloat(style.marginTop) || 0;
-      const marginBottom = Number.parseFloat(style.marginBottom) || 0;
-
-      return {
-        heightPx: dom.offsetHeight + marginTop + marginBottom,
-        lineHeightPx: resolveLineHeight(style),
-      };
-    } catch {
-      return null;
-    }
+    // offsetHeight only (no margins): the page-start spacer is applied as
+    // marginTop, so reading margins here would double-count it on recompute.
+    return {
+      heightPx: dom.offsetHeight,
+      lineHeightPx: resolveLineHeight(getComputedStyle(dom)),
+    };
   };
 }

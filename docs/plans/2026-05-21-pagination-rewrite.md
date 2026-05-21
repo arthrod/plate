@@ -120,9 +120,17 @@ toggleHeader/toggleFooter`. Drop node-wrapping + reflowEngine + registry-move lo
 - **P3 (next): DOM measurement** — measure block heights/lineHeight from a
   hidden container at content width → `MeasuredSnapshot`; cache by
   `{id, contentHash, widthPx}`; dirty-set re-measure. Needs browser/jsdom seam.
-- P4: engine hook (recompute layout on change, retain previous) + overlay
-  renderer — page chrome (paper recipe, getPageGeometry single/spread) + content
-  placement + page numbers. Replaces PageElement/coordinator/reflowEngine/registry.
+- **P4 ✅ DONE (overlay engine + first renderer; verified live in agent-browser)** —
+  `react/geometry.ts` (getPageGeometry/getBlockPlacements, pure + tested),
+  `react/domMeasure.ts` (pure-DOM MeasureFn via `[data-slate-node=element]`
+  children — no slate-react), `react/alignContent.ts` (page-start CSS spacers,
+  no model mutation), `react/index.ts` (clean `@platejs/pagination/react` entry
+  re-exporting the slate-react-free pipeline). Demo route renders white A4 page
+  chrome + single continuous Editable + spacer alignment + page numbers.
+  Verified: 4 pages, content flows across page boxes, clean boundaries. 149 tests.
+  NOTE: apps/www dev is unusable (pre-existing globals.css:8504 Turbopack-dev
+  PostCSS error 500s all routes) — verified via the playground template dev
+  (clean CSS) instead.
 - P5: selection/caret mapping (slatePath↔layoutPoint) + headers/footers.
 - P6: migrate template/demo, delete node-wrapping + reflowEngine, redeploy + browser verify.
 
