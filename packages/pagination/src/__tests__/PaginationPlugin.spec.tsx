@@ -2,9 +2,11 @@
 // PaginationPlugin.spec.tsx — TDD Cycle 8
 // Verify PaginationPlugin (BasePaginationPlugin + PageElement)
 // ============================================================
+import React from 'react';
 import { createSlateEditor } from 'platejs';
 import { PaginationPlugin } from '../index';
 import { BasePaginationPlugin } from '../BasePaginationPlugin';
+import { PaginationCoordinator } from '../PaginationCoordinator';
 import { PaginationRegistryProvider } from '../registry';
 
 describe('PaginationPlugin', () => {
@@ -85,16 +87,18 @@ describe('PaginationPlugin', () => {
     expect(typeof render).toBe('function');
   });
 
-  it('auto-mounts PaginationRegistryProvider above the editable', () => {
-    // PageElement consumes usePaginationRegistry, so the plugin must wrap the
-    // editable in the provider itself — consumers should not wire it manually.
+  it('auto-mounts the registry provider + coordinator above the editable', () => {
+    // PageElement consumes usePaginationRegistry and the coordinator reads the
+    // same registry, so a single provider must wrap both. The plugin owns this
+    // wiring via one aboveEditable component — consumers should not wire it.
     const { render } = PaginationPlugin as any;
-    expect(render?.aboveEditable).toBe(PaginationRegistryProvider);
-  });
+    expect(typeof render?.aboveEditable).toBe('function');
 
-  it('auto-mounts a coordinator after the editable', () => {
-    // Reflow only runs when a coordinator is mounted; the plugin owns it.
-    const { render } = PaginationPlugin as any;
-    expect(typeof render?.afterEditable).toBe('function');
+    // Render it and assert it provides the registry context + a coordinator.
+    const tree = render.aboveEditable({ children: 'EDITABLE' });
+    expect(tree.type).toBe(PaginationRegistryProvider);
+    const kids = React.Children.toArray(tree.props.children);
+    expect(kids).toContain('EDITABLE');
+    expect(kids.some((k: any) => k?.type === PaginationCoordinator)).toBe(true);
   });
 });

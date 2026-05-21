@@ -4,7 +4,6 @@
 import {
   createTSlatePlugin,
   ElementApi,
-  KEYS,
   type NodeEntry,
   type Operation,
   type OverrideEditor,
@@ -127,7 +126,10 @@ const withPagination: OverrideEditor<PaginationConfig> = ({
 };
 
 export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
-  key: KEYS.pagination,
+  // Literal key, not `KEYS.pagination`: that entry is unreleased in published
+  // `@platejs/utils`, so consumers on the published version would get
+  // `undefined` and normalization would fail to wrap content into pages.
+  key: 'pagination',
   node: {
     isElement: true,
     isContainer: true,
@@ -137,7 +139,7 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
     onNodeChange: ({ editor }) => {
       if (isPaginationMutating(editor)) return;
       if (editor.meta?.isNormalizing) return;
-      const pageType = editor.getType?.(KEYS.pagination) ?? 'page';
+      const pageType = editor.getType?.('pagination') ?? 'page';
       const children = editor.children;
       if (!Array.isArray(children) || children.length === 0) return;
 
@@ -158,7 +160,7 @@ export const BasePaginationPlugin = createTSlatePlugin<PaginationConfig>({
     documentSettings: DEFAULT_DOCUMENT_SETTINGS,
     reflow: DEFAULT_REFLOW_OPTIONS,
     collaboration: DEFAULT_COLLABORATION_OPTIONS,
-    defaultBlockType: KEYS.p,
+    defaultBlockType: 'p',
     viewMode: 'paginated',
   },
 })
