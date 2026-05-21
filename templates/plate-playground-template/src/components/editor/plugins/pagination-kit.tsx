@@ -1,20 +1,16 @@
 'use client';
 
-import {
-  PaginationCoordinator,
-  PaginationPlugin,
-  PaginationRegistryProvider,
-} from '@platejs/pagination';
+import { PaginationPlugin } from '@platejs/pagination';
 
 /**
- * Pagination kit — variant A (render-time overlay).
+ * Pagination kit.
  *
- * Painted as an absolute overlay on top of the editor; pages are derived
- * per render and the document model never changes. See `@platejs/pagination`.
+ * `PaginationPlugin` auto-mounts its registry provider + reflow coordinator
+ * (via `render.aboveEditable`), so only options need configuring here.
  *
- * Render is bound at the kit level (not the package) so the JSX boundary
- * lives inside this `'use client'` file — mirrors the `CursorOverlayKit`
- * pattern used by other Plate plugins.
+ * Note: pagination wraps root content into `page` nodes, which is incompatible
+ * with `TrailingBlockPlugin` (it enforces a trailing block at the editor root) —
+ * they fight during normalization. Do not enable both in the same editor.
  */
 export const PaginationKit = [
   PaginationPlugin.configure({
@@ -23,13 +19,6 @@ export const PaginationKit = [
         margins: { bottom: 96, left: 72, right: 72, top: 96 },
         sizes: { width: 794, height: 1123 }, // A4 at 96 DPI
       },
-    },
-    render: {
-      afterEditable: () => (
-        <PaginationRegistryProvider>
-          <PaginationCoordinator />
-        </PaginationRegistryProvider>
-      ),
     },
   }),
 ];

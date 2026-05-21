@@ -1,6 +1,6 @@
 'use client';
 
-import { TrailingBlockPlugin, type Value } from 'platejs';
+import { type Value } from 'platejs';
 import { type TPlateEditor, useEditorRef } from 'platejs/react';
 
 import { AIKit } from '@/components/editor/plugins/ai-kit';
@@ -82,7 +82,8 @@ export const EditorKit = [
   ...DndKit,
   ...EmojiKit,
   ...ExitBreakKit,
-  TrailingBlockPlugin,
+  // TrailingBlockPlugin omitted: it enforces a trailing block at the editor
+  // root, which conflicts with PaginationKit wrapping root content into pages.
 
   // Parsers
   ...DocxKit,
