@@ -131,6 +131,15 @@ toggleHeader/toggleFooter`. Drop node-wrapping + reflowEngine + registry-move lo
   NOTE: apps/www dev is unusable (pre-existing globals.css:8504 Turbopack-dev
   PostCSS error 500s all routes) — verified via the playground template dev
   (clean CSS) instead.
+- **P0 split-block rendering ✅ DONE (verified live)** — `layout/mapping.ts`
+  (MappingIndex), `layout/projection.ts` (fragmentRects/blockLinePosition),
+  `react/splitClones.ts` (`computeSplitPlan` pure + `renderSplitClones`). Approach
+  #1: one live Editable + read-only clipped clones per page-slice. Real-pixel
+  slicing (live block's measured top/height + page geometry) with **line-boundary
+  snapping** via `Range.getClientRects()` → seamless live→clone + clone→clone
+  junctions (no overlap, no gap, no half-line). Verified: a block 7× page height
+  splits cleanly across pages. Known follow-up: editing inside clone regions
+  (read-only) + blocks AFTER a split need measure-based spacers.
 - P5: selection/caret mapping (slatePath↔layoutPoint) + headers/footers.
 - P6: migrate template/demo, delete node-wrapping + reflowEngine, redeploy + browser verify.
 
