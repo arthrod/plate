@@ -11,7 +11,7 @@ import type {
   TSuggestionData,
   TSuggestionText,
 } from 'platejs';
-import { KEYS, TextApi, TrailingBlockPlugin } from 'platejs';
+import { KEYS, TextApi } from 'platejs';
 import { toTPlatePlugin } from 'platejs/react';
 
 import {
@@ -127,12 +127,6 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
   },
 });
 
-const trailingBlockPlugin = TrailingBlockPlugin.configure({
-  options: {
-    insert: (editor, { insert }) => {
-      editor.getApi(suggestionPlugin).suggestion.withoutSuggestions(insert);
-    },
-  },
-});
-
-export const SuggestionKit = [suggestionPlugin, trailingBlockPlugin];
+// TrailingBlockPlugin omitted: it enforces a trailing block at the editor root,
+// which conflicts with PaginationKit wrapping root content into pages.
+export const SuggestionKit = [suggestionPlugin];
