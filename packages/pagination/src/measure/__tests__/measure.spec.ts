@@ -61,6 +61,20 @@ describe('measureSnapshot', () => {
     expect(calls).toBe(2);
   });
 
+  it('keeps each (id, width) cached when widths alternate (no thrash)', () => {
+    const cache = new Map();
+    let calls = 0;
+    const measure = () => {
+      calls += 1;
+      return { heightPx: 100, lineHeightPx: 20 };
+    };
+    measureSnapshot(snap(ub('a')), measure, { cache, widthPx: 600 });
+    measureSnapshot(snap(ub('a')), measure, { cache, widthPx: 500 });
+    // width 600 was already measured — must be a cache hit, not a re-measure.
+    measureSnapshot(snap(ub('a')), measure, { cache, widthPx: 600 });
+    expect(calls).toBe(2);
+  });
+
   it('carries over pagination hints from the unmeasured block', () => {
     const measure = () => ({ heightPx: 100, lineHeightPx: 20 });
     const out = measureSnapshot(
