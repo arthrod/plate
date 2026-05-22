@@ -81,6 +81,8 @@ export type UnmeasuredBlock = {
   id: string;
   path: number[];
   type: string;
+  /** Concatenated text of the block, used for line measurement. */
+  text: string;
   keepWithNext?: boolean;
   breakBefore?: boolean;
   splittable?: boolean;
