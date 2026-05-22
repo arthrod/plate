@@ -61,11 +61,10 @@ export function blockLinePosition(
   layout: LayoutOutput,
   geometry: PageGeometry,
   blockIndex: number,
-  lineIndex: number,
-  lineHeightPx: number
+  line: { lineIndex: number; lineHeightPx: number }
 ): LinePosition | null {
   const mapping = buildMappingIndex(layout);
-  const ref = mapping.fragmentOfBlockLine(blockIndex, lineIndex);
+  const ref = mapping.fragmentOfBlockLine(blockIndex, line.lineIndex);
   if (!ref) return null;
 
   const placement = geometry.placements[ref.pageIndex];
@@ -79,6 +78,6 @@ export function blockLinePosition(
       placement.top +
       frame.bounds.y +
       ref.fragment.y +
-      (lineIndex - ref.fragment.lineStart) * lineHeightPx,
+      (line.lineIndex - ref.fragment.lineStart) * line.lineHeightPx,
   };
 }
