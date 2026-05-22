@@ -3,13 +3,15 @@
 import * as React from 'react';
 
 import {
-  alignContentToLayout,
   buildSnapshot,
   composeLayout,
-  createDomMeasure,
-  getPageGeometry,
   type LayoutOutput,
   measureSnapshot,
+} from '@platejs/pagination';
+import {
+  alignContentToLayout,
+  createDomMeasure,
+  getPageGeometry,
   PAGE_STACK_GAP_PX,
 } from '@platejs/pagination/react';
 import { type Value } from 'platejs';

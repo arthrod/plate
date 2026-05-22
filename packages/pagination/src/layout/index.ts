@@ -3,5 +3,7 @@
  */
 
 export * from './compose';
+export * from './mapping';
+export * from './projection';
 export * from './snapshot';
 export * from './types';

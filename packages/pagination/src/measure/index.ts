@@ -3,3 +3,4 @@
  */
 
 export * from './measure';
+export * from './pretext';

@@ -44,6 +44,7 @@
     "typecheck": "plate-pkg p:typecheck"
   },
   "dependencies": {
+    "@chenglou/pretext": "^0.0.6",
     "@udecode/react-utils": "workspace:*",
     "react-compiler-runtime": "^1.0.0"
   },
