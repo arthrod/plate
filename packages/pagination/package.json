@@ -24,6 +24,7 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
+    "./react": "./dist/react/index.js",
     "./yjs": "./dist/yjs/index.js",
     "./package.json": "./package.json"
   },
