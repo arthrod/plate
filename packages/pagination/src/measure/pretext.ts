@@ -47,3 +47,23 @@ export function measureTextLines(
     widthPx: line.width,
   }));
 }
+
+/**
+ * Block height = wrapped line count × line height. This is the canonical,
+ * pretext-driven block measurement: the layout no longer trusts the DOM box
+ * height, it counts the lines pretext wraps `text` to at `widthPx`. Empty text
+ * is one line tall.
+ */
+export function measureBlockHeight(
+  text: string,
+  font: string,
+  widthPx: number,
+  lineHeightPx: number
+): number {
+  const lineCount = Math.max(
+    1,
+    measureTextLines(text, font, widthPx, lineHeightPx).length
+  );
+
+  return lineCount * lineHeightPx;
+}
