@@ -10,4 +10,3 @@ export * from '../measure/measure';
 export * from './alignContent';
 export * from './domMeasure';
 export * from './geometry';
-export * from './splitClones';

@@ -11,7 +11,6 @@ import {
   type LayoutOutput,
   measureSnapshot,
   PAGE_STACK_GAP_PX,
-  renderSplitClones,
 } from '@platejs/pagination/react';
 import { type Value } from 'platejs';
 import { Plate, PlateContent, usePlateEditor } from 'platejs/react';
@@ -26,7 +25,6 @@ const INPUT = {
   policies: { keepWithNextEnabled: true, orphanLinesMin: 2, widowLinesMin: 2 },
 };
 const CONTENT_W = PAGE.widthPx - MARGINS.leftPx - MARGINS.rightPx;
-const CONTENT_H = PAGE.heightPx - MARGINS.topPx - MARGINS.bottomPx;
 
 function makeValue(): Value {
   const out: Value = [];
@@ -92,14 +90,9 @@ export function PaginationView() {
     });
     const out = composeLayout(measured, INPUT);
 
+    // Option C: oversized blocks are placed whole and overflow visually — no
+    // clone machinery. Page-start alignment is the only render-time side effect.
     alignContentToLayout(editable, out, INPUT);
-    const geometry = getPageGeometry(out, PAGE_STACK_GAP_PX);
-    renderSplitClones(editable, overlay, out, geometry, {
-      contentHeightPx: CONTENT_H,
-      contentWidthPx: CONTENT_W,
-      marginLeftPx: MARGINS.leftPx,
-      marginTopPx: MARGINS.topPx,
-    });
     setLayout(out);
   }, [editor]);
 
