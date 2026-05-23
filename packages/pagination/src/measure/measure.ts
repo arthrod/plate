@@ -25,7 +25,7 @@ export type BlockMetrics = {
 
 export type MeasureFn = (block: UnmeasuredBlock) => BlockMetrics | null;
 
-export type MeasureCache = Map<string, { key: string; metrics: BlockMetrics }>;
+export type MeasureCache = Map<string, BlockMetrics>;
 
 export type MeasureOptions = {
   /** Content width the blocks are measured at (part of the cache key). */
@@ -50,15 +50,14 @@ export function measureSnapshot(
   const { cache, fallbackLineHeightPx = 20, widthPx } = options;
 
   const blocks: MeasuredBlock[] = snapshot.blocks.map((block) => {
+    // Cache slot is per (block, width): a single id measured at two widths must
+    // keep both, or alternating widths thrash one slot and defeat the cache.
     const cacheKey = `${block.id}@${widthPx}`;
-    let metrics: BlockMetrics | null = null;
+    let metrics: BlockMetrics | null = cache?.get(cacheKey) ?? null;
 
-    const cached = cache?.get(block.id);
-    if (cached && cached.key === cacheKey) {
-      metrics = cached.metrics;
-    } else {
+    if (!metrics) {
       metrics = measure(block);
-      if (metrics && cache) cache.set(block.id, { key: cacheKey, metrics });
+      if (metrics && cache) cache.set(cacheKey, metrics);
     }
 
     const heightPx = metrics?.heightPx ?? fallbackLineHeightPx;
