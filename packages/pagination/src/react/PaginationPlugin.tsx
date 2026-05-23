@@ -7,12 +7,13 @@
 // paints thin advisory break-lines at each page boundary. The document model is
 // never mutated — pages are a derived overlay.
 //
-// ⚠️ SCAFFOLD — NOT dev-browser verified yet. Overlay DOM positioning
-// (contentTop/left/width) and the recompute cadence are the things to verify and
-// iterate in dev-browser before this is wired into a demo / shipped.
+// pretext owns the break decision (which block begins each page). The overlay
+// anchors each advisory rule to that boundary block's live DOM top, so the line
+// always lands on a real block edge — never mid-paragraph — regardless of the
+// margins the DOM flow adds between blocks.
 // ============================================================
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   type EditableSiblingComponent,
   toPlatePlugin,
@@ -21,73 +22,104 @@ import {
 } from 'platejs/react';
 
 import { composeLayout } from '../layout/compose';
-import { getContinuousBreakYs } from '../layout/continuous';
+import {
+  type ContinuousBreak,
+  getContinuousBreaks,
+} from '../layout/continuous';
 import { buildSnapshot } from '../layout/snapshot';
 import { measureSnapshot } from '../measure/measure';
 import { BasePaginationPlugin } from '../lib/BasePaginationPlugin';
-import { getLayoutRegistry } from '../lib/registry';
-import { createDomMeasure } from './domMeasure';
+import { getLayoutRegistry, invalidateLayoutRegistry } from '../lib/registry';
+import { createDomMeasure, topLevelBlockElements } from './domMeasure';
 
 /**
  * Continuous-view overlay: a thin dashed advisory rule + "Page N" tick at each
  * page boundary. `pointer-events: none`, so editing/selection stay fully native.
- * Positioned relative to the editable's content top.
+ * Each rule is anchored to the live DOM top of the block pretext chose to begin
+ * the next page; the label sits in the right margin gutter, clear of body text.
  */
 const PaginationBreakLines: EditableSiblingComponent = () => {
   const editor = useEditorRef();
-  const breakYs = usePluginOption(PaginationPlugin, 'breakYs');
+  const breaks = usePluginOption(PaginationPlugin, 'breaks');
 
   const editable = editor.api.toDOMNode(editor);
-  if (!editable || breakYs.length === 0) return null;
+  if (!editable || breaks.length === 0) return null;
 
   const style = getComputedStyle(editable);
-  const contentTop =
-    editable.offsetTop + (Number.parseFloat(style.paddingTop) || 0);
-  const left =
-    editable.offsetLeft + (Number.parseFloat(style.paddingLeft) || 0);
-  const width = editable.clientWidth;
+  const padLeft = Number.parseFloat(style.paddingLeft) || 0;
+  const padRight = Number.parseFloat(style.paddingRight) || 0;
+  const left = editable.offsetLeft + padLeft;
+  const width = Math.max(0, editable.clientWidth - padLeft - padRight);
+
+  // The overlay shares the editable's positioned-ancestor coordinate space, so a
+  // block's top there is `editable.offsetTop + (blockTop − editableTop)`. Using
+  // rects (not the offsetParent chain) keeps this correct through any wrappers
+  // Plate renders between the editable and its blocks.
+  const editableTop = editable.getBoundingClientRect().top;
+  const blocks = topLevelBlockElements(editable);
 
   return (
     <div data-slot="pagination-break-lines" style={{ pointerEvents: 'none' }}>
-      {breakYs.map((y, i) => (
-        <div
-          data-slot="pagination-break-line"
-          key={i}
-          style={{
-            borderTop: '1px dashed rgb(148 163 184 / 60%)',
-            left,
-            position: 'absolute',
-            top: contentTop + y,
-            width,
-          }}
-        >
-          <span
+      {breaks.map((brk, i) => {
+        const el = blocks[brk.blockIndex];
+        if (!el) return null;
+
+        // lineStart > 0 (future line-split mode) offsets within the block by the
+        // pretext line count; 0 is a clean whole-block top.
+        const lineHeight =
+          Number.parseFloat(getComputedStyle(el).lineHeight) || 0;
+        const top =
+          editable.offsetTop +
+          (el.getBoundingClientRect().top - editableTop) +
+          brk.lineStart * lineHeight;
+
+        return (
+          <div
+            data-slot="pagination-break-line"
+            key={`${brk.blockIndex}:${brk.lineStart}`}
             style={{
-              background: 'rgb(148 163 184 / 15%)',
-              color: 'rgb(100 116 139)',
-              fontSize: 10,
-              padding: '0 4px',
+              borderTop: '1px dashed rgb(100 116 139)',
+              left,
               position: 'absolute',
-              right: 0,
-              top: -14,
+              top,
+              width,
             }}
           >
-            {`Page ${i + 2}`}
-          </span>
-        </div>
-      ))}
+            <span
+              data-slot="pagination-break-label"
+              style={{
+                background: 'rgb(241 245 249)',
+                border: '1px solid rgb(203 213 225)',
+                borderRadius: 4,
+                color: 'rgb(71 85 105)',
+                fontSize: 10,
+                left: '100%',
+                lineHeight: '14px',
+                marginLeft: 8,
+                padding: '0 5px',
+                position: 'absolute',
+                top: -7,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {`Page ${i + 2}`}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 };
 
 export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
-  options: { breakYs: [] as number[] },
+  options: { breaks: [] as ContinuousBreak[] },
   render: { afterEditable: PaginationBreakLines },
-}).extend(({ editor, setOption }) => ({
-  useHooks: () => {
+  useHooks: ({ editor, setOption }) => {
+    const [, forceRecompute] = useState(0);
+
     // Recompute after paint when the layout registry is dirty (content edits via
     // the base plugin's apply override). Selection-only changes leave it clean.
-    // setOption('breakYs', …) re-renders the overlay via usePluginOption.
+    // setOption('breaks', …) re-renders the overlay via usePluginOption.
     useEffect(() => {
       const registry = getLayoutRegistry(editor);
       if (!registry.dirty && registry.output) return;
@@ -112,10 +144,26 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
 
         registry.output = layout;
         registry.dirty = false;
-        setOption('breakYs', getContinuousBreakYs(layout));
+        setOption('breaks', getContinuousBreaks(layout));
       });
 
       return () => cancelAnimationFrame(raf);
     });
+
+    // A width change re-wraps text and changes pagination. Invalidate the layout
+    // and force a re-render so the dirty-recompute effect re-measures at the new
+    // width and the overlay re-anchors to the new block tops.
+    useEffect(() => {
+      const editable = editor.api.toDOMNode(editor);
+      if (!editable || typeof ResizeObserver === 'undefined') return;
+
+      const observer = new ResizeObserver(() => {
+        invalidateLayoutRegistry(editor);
+        forceRecompute((n) => n + 1);
+      });
+      observer.observe(editable);
+
+      return () => observer.disconnect();
+    }, [editor]);
   },
-}));
+});
