@@ -13,7 +13,7 @@ class StubOffscreenCanvas {
 // @ts-expect-error - test-only canvas stub
 globalThis.OffscreenCanvas = StubOffscreenCanvas;
 
-import { measureTextLines } from '../pretext';
+import { measureBlockHeight, measureTextLines } from '../pretext';
 
 describe('measureTextLines', () => {
   it('keeps text that fits within the width on a single line', () => {
@@ -52,5 +52,18 @@ describe('measureTextLines', () => {
         lines[i - 1].start.segmentIndex
       );
     }
+  });
+});
+
+describe('measureBlockHeight', () => {
+  it('is the wrapped line count times the line height', () => {
+    // "alpha beta gamma delta" wraps to 3 lines at 100px → 3 * 20 = 60.
+    expect(
+      measureBlockHeight('alpha beta gamma delta', '16px monospace', 100, 20)
+    ).toBe(60);
+  });
+
+  it('treats empty text as a single line tall', () => {
+    expect(measureBlockHeight('', '16px monospace', 100, 20)).toBe(20);
   });
 });
