@@ -54,6 +54,14 @@ export type MeasuredBlock = {
   path: number[];
   /** Measured rendered height at the content width, in CSS px. */
   heightPx: number;
+  /**
+   * Rendered flow height = text height + the block's own vertical box spacing
+   * (margins/padding/border) the DOM adds around it. Used for page *packing*
+   * (which block fits per page) so the engine matches real DOM flow. Falls back
+   * to {@link heightPx} when absent. `heightPx`/`lineCount` stay text-only so
+   * line-level mapping is unaffected.
+   */
+  flowHeightPx?: number;
   /** Measured line height, in CSS px (>= 1). */
   lineHeightPx: number;
   /** Number of text lines (>= 1), derived from height / lineHeight. */

@@ -13,7 +13,7 @@
 // margins the DOM flow adds between blocks.
 // ============================================================
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   type EditableSiblingComponent,
   toPlatePlugin,
@@ -32,11 +32,37 @@ import { BasePaginationPlugin } from '../lib/BasePaginationPlugin';
 import { getLayoutRegistry, invalidateLayoutRegistry } from '../lib/registry';
 import { createDomMeasure, topLevelBlockElements } from './domMeasure';
 
+// Layout effect on the client (run before paint so lines appear with content),
+// plain effect on the server (useLayoutEffect is a no-op + warns during SSR).
+const useIsomorphicLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+/** Shared "Page N of M" chip, in the LEFT margin gutter (left of the content). */
+const labelStyle: React.CSSProperties = {
+  background: 'rgb(241 245 249)',
+  border: '1px solid rgb(203 213 225)',
+  borderRadius: 4,
+  color: 'rgb(71 85 105)',
+  fontSize: 10,
+  lineHeight: '14px',
+  marginRight: 8,
+  padding: '0 5px',
+  position: 'absolute',
+  // Right edge pinned to the content's left edge → the chip sits in the left
+  // margin. The left gutter stays on-screen when a narrow viewport overflows the
+  // page width (unlike the right gutter, which scrolls off).
+  right: '100%',
+  top: -7,
+  whiteSpace: 'nowrap',
+};
+
 /**
- * Continuous-view overlay: a thin dashed advisory rule + "Page N" tick at each
- * page boundary. `pointer-events: none`, so editing/selection stay fully native.
- * Each rule is anchored to the live DOM top of the block pretext chose to begin
- * the next page; the label sits in the right margin gutter, clear of body text.
+ * Continuous-view overlay: a thin dashed advisory rule at each page boundary,
+ * plus a "Page N of M" chip in the left margin (including a "Page 1 of M" marker
+ * at the top so the first page and the total are always shown). `pointer-events:
+ * none`, so editing/selection stay fully native. Each rule is anchored to the
+ * live DOM top of the block pretext chose to begin the next page. Renders nothing
+ * for a single-page document.
  */
 const PaginationBreakLines: EditableSiblingComponent = () => {
   const editor = useEditorRef();
@@ -57,9 +83,22 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   // Plate renders between the editable and its blocks.
   const editableTop = editable.getBoundingClientRect().top;
   const blocks = topLevelBlockElements(editable);
+  const total = breaks.length + 1;
+  const topOf = (el: HTMLElement) =>
+    editable.offsetTop + (el.getBoundingClientRect().top - editableTop);
 
   return (
     <div data-slot="pagination-break-lines" style={{ pointerEvents: 'none' }}>
+      {blocks[0] && (
+        <div
+          data-slot="pagination-page-marker"
+          style={{ left, position: 'absolute', top: topOf(blocks[0]), width }}
+        >
+          <span data-slot="pagination-break-label" style={labelStyle}>
+            {`Page 1 of ${total}`}
+          </span>
+        </div>
+      )}
       {breaks.map((brk, i) => {
         const el = blocks[brk.blockIndex];
         if (!el) return null;
@@ -68,10 +107,7 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
         // pretext line count; 0 is a clean whole-block top.
         const lineHeight =
           Number.parseFloat(getComputedStyle(el).lineHeight) || 0;
-        const top =
-          editable.offsetTop +
-          (el.getBoundingClientRect().top - editableTop) +
-          brk.lineStart * lineHeight;
+        const top = topOf(el) + brk.lineStart * lineHeight;
 
         return (
           <div
@@ -85,24 +121,8 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
               width,
             }}
           >
-            <span
-              data-slot="pagination-break-label"
-              style={{
-                background: 'rgb(241 245 249)',
-                border: '1px solid rgb(203 213 225)',
-                borderRadius: 4,
-                color: 'rgb(71 85 105)',
-                fontSize: 10,
-                left: '100%',
-                lineHeight: '14px',
-                marginLeft: 8,
-                padding: '0 5px',
-                position: 'absolute',
-                top: -7,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {`Page ${i + 2}`}
+            <span data-slot="pagination-break-label" style={labelStyle}>
+              {`Page ${i + 2} of ${total}`}
             </span>
           </div>
         );
@@ -117,37 +137,37 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
   useHooks: ({ editor, setOption }) => {
     const [, forceRecompute] = useState(0);
 
-    // Recompute after paint when the layout registry is dirty (content edits via
-    // the base plugin's apply override). Selection-only changes leave it clean.
-    // setOption('breaks', …) re-renders the overlay via usePluginOption.
-    useEffect(() => {
+    // Recompute when the layout registry is dirty (content edits via the base
+    // plugin's apply override; selection-only changes leave it clean). Runs in a
+    // layout effect — after the DOM commits, before paint — so the advisory lines
+    // paint together with the content the moment the editor hydrates, rather than
+    // an extra frame later. setOption re-renders the overlay via usePluginOption.
+    // (The residual delay on first load is the editor's hydration time: the SSR
+    // content is on screen before the client can measure the DOM to place lines.)
+    useIsomorphicLayoutEffect(() => {
       const registry = getLayoutRegistry(editor);
       if (!registry.dirty && registry.output) return;
 
-      const raf = requestAnimationFrame(() => {
-        const editable = editor.api.toDOMNode(editor);
-        if (!editable) return;
+      const editable = editor.api.toDOMNode(editor);
+      if (!editable) return;
 
-        const { atomicTypes, keepWithNextTypes, margins, page, policies } =
-          editor.getOptions(BasePaginationPlugin);
-        const widthPx = page.widthPx - margins.leftPx - margins.rightPx;
+      const { atomicTypes, keepWithNextTypes, margins, page, policies } =
+        editor.getOptions(BasePaginationPlugin);
+      const widthPx = page.widthPx - margins.leftPx - margins.rightPx;
 
-        const snapshot = buildSnapshot(editor.children, {
-          atomicTypes,
-          keepWithNextTypes,
-        });
-        const measured = measureSnapshot(snapshot, createDomMeasure(editable), {
-          cache: registry.measureCache,
-          widthPx,
-        });
-        const layout = composeLayout(measured, { margins, page, policies });
-
-        registry.output = layout;
-        registry.dirty = false;
-        setOption('breaks', getContinuousBreaks(layout));
+      const snapshot = buildSnapshot(editor.children, {
+        atomicTypes,
+        keepWithNextTypes,
       });
+      const measured = measureSnapshot(snapshot, createDomMeasure(editable), {
+        cache: registry.measureCache,
+        widthPx,
+      });
+      const layout = composeLayout(measured, { margins, page, policies });
 
-      return () => cancelAnimationFrame(raf);
+      registry.output = layout;
+      registry.dirty = false;
+      setOption('breaks', getContinuousBreaks(layout));
     });
 
     // A width change re-wraps text and changes pagination. Invalidate the layout
