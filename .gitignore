@@ -32,6 +32,11 @@ jspm_packages/
 /out-tsc
 **/build
 
+# OpenNext / Cloudflare build output + local runtime state (regenerated, never committed)
+**/.open-next
+**/.wrangler
+**/.dev.vars
+
 # Runtime data
 pids
 *.pid
