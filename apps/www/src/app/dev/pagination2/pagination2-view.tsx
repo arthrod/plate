@@ -2,30 +2,14 @@
 
 import * as React from 'react';
 
-import {
-  alignContentToLayout,
-  buildSnapshot,
-  composeLayout,
-  createDomMeasure,
-  getPageGeometry,
-  type LayoutOutput,
-  measureSnapshot,
-  PAGE_STACK_GAP_PX,
-} from '@platejs/pagination/react';
-import { type Value } from 'platejs';
+import { PaginationPlugin } from '@platejs/pagination/react';
+import type { Value } from 'platejs';
 import { Plate, PlateContent, usePlateEditor } from 'platejs/react';
 
 import { BasicNodesKit } from '@/registry/components/editor/plugins/basic-nodes-kit';
 
-const PAGE = { widthPx: 794, heightPx: 1123, preset: 'a4' as const };
-const MARGINS = { topPx: 96, rightPx: 96, bottomPx: 96, leftPx: 96 };
-const INPUT = {
-  margins: MARGINS,
-  page: PAGE,
-  policies: { keepWithNextEnabled: true, orphanLinesMin: 2, widowLinesMin: 2 },
-};
-const CONTENT_W = PAGE.widthPx - MARGINS.leftPx - MARGINS.rightPx;
-const CONTENT_H = PAGE.heightPx - MARGINS.topPx - MARGINS.bottomPx;
+const PAGE_W = 794; // A4 @ 96dpi
+const MARGIN = 96; // 1in
 
 function makeValue(): Value {
   const out: Value = [];
@@ -36,7 +20,7 @@ function makeValue(): Value {
       out.push({
         children: [
           {
-            text: `Paragraph ${i}. This is a reasonably long paragraph of placeholder text so that the content reliably wraps onto multiple lines and flows across several A4 pages, exercising the deterministic pagination engine end to end.`,
+            text: `Paragraph ${i}. This is a reasonably long paragraph of placeholder text so that the content reliably wraps onto multiple lines and flows across several A4 pages, exercising the pagination plugin end to end.`,
           },
         ],
         type: 'p',
@@ -47,39 +31,15 @@ function makeValue(): Value {
   return out;
 }
 
+/**
+ * Continuous-view demo for the pagination plugin: a single A4-width editable in
+ * normal flow; the plugin paints advisory page-break lines at each boundary.
+ */
 export function PaginationView() {
-  const editor = usePlateEditor({ plugins: BasicNodesKit, value: makeValue() });
-  const [layout, setLayout] = React.useState<LayoutOutput | null>(null);
-  const cacheRef = React.useRef(new Map());
-
-  const recompute = React.useCallback(() => {
-    const editable = document.querySelector(
-      '[data-slate-editor]'
-    ) as HTMLElement | null;
-    if (!editable) return;
-
-    const snapshot = buildSnapshot(editor.children as any[], {
-      keepWithNextTypes: ['h1', 'h2', 'h3'],
-    });
-    const measured = measureSnapshot(snapshot, createDomMeasure(editable), {
-      cache: cacheRef.current,
-      widthPx: CONTENT_W,
-    });
-    const out = composeLayout(measured, INPUT);
-
-    // Align content to page frames via CSS spacers (no model change).
-    alignContentToLayout(editable, out, INPUT);
-
-    setLayout(out);
-  }, [editor]);
-
-  React.useLayoutEffect(() => {
-    const id = requestAnimationFrame(recompute);
-
-    return () => cancelAnimationFrame(id);
-  }, [recompute]);
-
-  const geometry = layout ? getPageGeometry(layout, PAGE_STACK_GAP_PX) : null;
+  const editor = usePlateEditor({
+    plugins: [...BasicNodesKit, PaginationPlugin],
+    value: makeValue(),
+  });
 
   return (
     <div
@@ -94,59 +54,17 @@ export function PaginationView() {
       <div
         data-testid="pagination-stack"
         style={{
-          height: geometry?.height ?? PAGE.heightPx,
+          background: '#fff',
+          boxShadow: '0 2px 12px rgba(15,23,42,0.12)',
           margin: '0 auto',
+          padding: MARGIN,
           position: 'relative',
-          width: geometry?.width ?? PAGE.widthPx,
+          width: PAGE_W,
         }}
       >
-        {geometry?.placements.map((p) => (
-          <div
-            data-page-number={p.index + 1}
-            data-testid="pagination-page"
-            key={p.index}
-            style={{
-              background: '#fff',
-              border: '1px solid #e5e7eb',
-              boxShadow: '0 2px 12px rgba(15,23,42,0.12)',
-              height: p.height,
-              left: p.left,
-              position: 'absolute',
-              top: p.top,
-              width: p.width,
-            }}
-          >
-            <div
-              style={{
-                bottom: MARGINS.bottomPx / 3,
-                color: '#9ca3af',
-                fontSize: 12,
-                left: 0,
-                position: 'absolute',
-                right: 0,
-                textAlign: 'center',
-              }}
-            >
-              {p.index + 1}
-            </div>
-          </div>
-        ))}
-
-        <div
-          style={{
-            left: MARGINS.leftPx,
-            position: 'absolute',
-            top: MARGINS.topPx,
-            width: CONTENT_W,
-          }}
-        >
-          <Plate
-            editor={editor}
-            onValueChange={() => requestAnimationFrame(recompute)}
-          >
-            <PlateContent style={{ outline: 'none' }} />
-          </Plate>
-        </div>
+        <Plate editor={editor}>
+          <PlateContent style={{ outline: 'none' }} />
+        </Plate>
       </div>
     </div>
   );
