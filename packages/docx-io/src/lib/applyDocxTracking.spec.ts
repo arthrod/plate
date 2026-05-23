@@ -1005,6 +1005,83 @@ describe('applyDocxTracking', () => {
   });
 
   describe('applyTrackedCommentsLocal', () => {
+    it('strips tracking tokens from local comment body and fallback document content', () => {
+      const editor = createMockEditor();
+      editor.api.string = mock(() => '');
+
+      const startToken = `[[DOCX_CMT_START:${encodeURIComponent(
+        JSON.stringify({ id: 'cmt-1' })
+      )}]]`;
+      const endToken = '[[DOCX_CMT_END:cmt-1]]';
+
+      const comments: DocxImportComment[] = [
+        {
+          id: 'cmt-1',
+          text: `${startToken}Comment body${endToken}`,
+          startToken,
+          endToken,
+          hasStartToken: true,
+          hasEndToken: true,
+        },
+      ];
+
+      const result = applyTrackedCommentsLocal({
+        editor,
+        comments,
+        searchRange: createMockSearchRange(),
+        commentKey: 'comment',
+        getCommentKey: (id) => `comment_${id}`,
+        isText: () => true,
+        generateId: () => 'discussion-1',
+        documentDate: new Date(),
+      });
+
+      expect(result.discussions[0]?.documentContent).toBe('Comment body');
+      expect(result.discussions[0]?.comments?.[0]?.contentRich).toEqual([
+        { type: 'p', children: [{ text: 'Comment body' }] },
+      ]);
+    });
+
+    it('strips tracking tokens from local rich comment body text', () => {
+      const editor = createMockEditor();
+
+      const startToken = `[[DOCX_CMT_START:${encodeURIComponent(
+        JSON.stringify({ id: 'cmt-1' })
+      )}]]`;
+      const endToken = '[[DOCX_CMT_END:cmt-1]]';
+
+      const comments: DocxImportComment[] = [
+        {
+          id: 'cmt-1',
+          body: [
+            {
+              type: 'p',
+              children: [{ text: `${startToken}Rich body${endToken}` }],
+            },
+          ],
+          startToken,
+          endToken,
+          hasStartToken: true,
+          hasEndToken: true,
+        },
+      ];
+
+      const result = applyTrackedCommentsLocal({
+        editor,
+        comments,
+        searchRange: createMockSearchRange(),
+        commentKey: 'comment',
+        getCommentKey: (id) => `comment_${id}`,
+        isText: () => true,
+        generateId: () => 'discussion-1',
+        documentDate: new Date(),
+      });
+
+      expect(result.discussions[0]?.comments?.[0]?.contentRich).toEqual([
+        { type: 'p', children: [{ text: 'Rich body' }] },
+      ]);
+    });
+
     it('removes reply tokens without creating discussions', () => {
       const editor = createMockEditor();
 
