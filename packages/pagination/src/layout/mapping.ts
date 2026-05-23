@@ -7,7 +7,7 @@
 // selection onto pages.
 // ============================================================
 
-import type { BlockFragment, LayoutOutput } from './types';
+import type { BlockFragment, PageLayout } from './types';
 
 export type FragmentRef = {
   pageIndex: number;
@@ -31,10 +31,10 @@ export type MappingIndex = {
   isSplit: (blockIndex: number) => boolean;
 };
 
-export function buildMappingIndex(layout: LayoutOutput): MappingIndex {
+export function buildMappingIndex(pages: PageLayout[]): MappingIndex {
   const byBlock = new Map<number, FragmentRef[]>();
 
-  layout.pages.forEach((page) => {
+  pages.forEach((page) => {
     page.frames.forEach((frame, frameIndex) => {
       for (const fragment of frame.fragments) {
         const blockIndex = fragment.path[0];

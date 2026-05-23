@@ -8,6 +8,8 @@
 // The document model never changes — pages are a derived projection.
 // ============================================================
 
+import type { MappingIndex } from './mapping';
+
 export type PagePreset = 'a4' | 'letter';
 
 export type PageSpec = {
@@ -140,4 +142,9 @@ export type ComposeMetrics = {
 export type LayoutOutput = {
   pages: PageLayout[];
   metrics: ComposeMetrics;
+  /**
+   * Position index over {@link pages}, built once during composition. Consumers
+   * (projection, selection) read this instead of rebuilding it per call.
+   */
+  mapping: MappingIndex;
 };

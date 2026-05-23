@@ -1,3 +1,4 @@
+import { buildMappingIndex } from '../../layout/mapping';
 import type { LayoutOutput, PageLayout } from '../../layout/types';
 import { getBlockPlacements, getPageGeometry } from '../geometry';
 
@@ -8,7 +9,11 @@ function page(index: number, fragments: any[]): PageLayout {
   return { frames: [{ bounds, fragments }], index, spec };
 }
 function out(pages: PageLayout[]): LayoutOutput {
-  return { metrics: { blocks: 0, pages: pages.length }, pages };
+  return {
+    mapping: buildMappingIndex(pages),
+    metrics: { blocks: 0, pages: pages.length },
+    pages,
+  };
 }
 
 describe('getPageGeometry', () => {

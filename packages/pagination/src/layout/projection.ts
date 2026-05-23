@@ -7,7 +7,6 @@
 // ============================================================
 
 import type { PageGeometry } from '../react/geometry';
-import { buildMappingIndex } from './mapping';
 import type { LayoutOutput } from './types';
 
 export type FragmentRect = {
@@ -33,10 +32,9 @@ export function fragmentRects(
   geometry: PageGeometry,
   blockIndex: number
 ): FragmentRect[] {
-  const mapping = buildMappingIndex(layout);
   const rects: FragmentRect[] = [];
 
-  for (const ref of mapping.fragmentsOfBlock(blockIndex)) {
+  for (const ref of layout.mapping.fragmentsOfBlock(blockIndex)) {
     const placement = geometry.placements[ref.pageIndex];
     const frame = layout.pages[ref.pageIndex]?.frames[ref.frameIndex];
     if (!placement || !frame) continue;
@@ -63,8 +61,7 @@ export function blockLinePosition(
   blockIndex: number,
   line: { lineIndex: number; lineHeightPx: number }
 ): LinePosition | null {
-  const mapping = buildMappingIndex(layout);
-  const ref = mapping.fragmentOfBlockLine(blockIndex, line.lineIndex);
+  const ref = layout.mapping.fragmentOfBlockLine(blockIndex, line.lineIndex);
   if (!ref) return null;
 
   const placement = geometry.placements[ref.pageIndex];
