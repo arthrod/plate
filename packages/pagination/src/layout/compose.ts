@@ -61,24 +61,30 @@ export function composeLayout(
     pendingReason = undefined;
   };
 
+  // Packing uses the rendered flow height (text + DOM box spacing) so the engine
+  // fills a page like the real DOM does. Falls back to text height when the
+  // measurer didn't supply margins. lineCount stays text-only for line mapping.
+  const flowOf = (b: MeasuredBlock) => b.flowHeightPx ?? b.heightPx;
+
   const placeBlock = (b: MeasuredBlock) => {
     // Place the block whole. If it doesn't fit the remaining space and we're not
     // already at the top of a fresh page, move it whole to the next page. A
     // block taller than a full frame is placed at the top and overflows.
-    if (b.heightPx > frameHeight - currentY && fragments.length > 0) {
+    const flow = flowOf(b);
+    if (flow > frameHeight - currentY && fragments.length > 0) {
       breakToNewPage('block_overflow');
     }
 
     push({
       blockId: b.id,
       fragmentIndex: 0,
-      heightPx: b.heightPx,
+      heightPx: flow,
       lineCount: b.lineCount,
       lineStart: 0,
       path: b.path,
       y: currentY,
     });
-    currentY += b.heightPx;
+    currentY += flow;
   };
 
   const blocks = snapshot.blocks;
@@ -93,7 +99,7 @@ export function composeLayout(
       i + 1 < blocks.length &&
       fragments.length > 0
     ) {
-      const combined = b.heightPx + blocks[i + 1].heightPx;
+      const combined = flowOf(b) + flowOf(blocks[i + 1]);
       const remaining = frameHeight - currentY;
       if (combined > remaining && combined <= frameHeight) {
         breakToNewPage('keep_with_next');

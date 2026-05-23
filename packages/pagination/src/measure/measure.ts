@@ -21,6 +21,12 @@ import type {
 export type BlockMetrics = {
   heightPx: number;
   lineHeightPx: number;
+  /**
+   * The block's own vertical box spacing (margins + padding + borders) the DOM
+   * adds around its text, in CSS px. Added to text height to form the block's
+   * flow height for page packing. Optional; defaults to 0 (no spacing).
+   */
+  boxSpacingPx?: number;
 };
 
 export type MeasureFn = (block: UnmeasuredBlock) => BlockMetrics | null;
@@ -70,6 +76,10 @@ export function measureSnapshot(
       lineHeightPx,
       path: block.path,
     };
+    // Flow height (for packing) = text height + the block's box spacing. Only set
+    // when the measurer supplied spacing, so the composer falls back cleanly.
+    const boxSpacingPx = metrics?.boxSpacingPx ?? 0;
+    if (boxSpacingPx > 0) measured.flowHeightPx = heightPx + boxSpacingPx;
     if (block.keepWithNext) measured.keepWithNext = true;
     if (block.breakBefore) measured.breakBefore = true;
     if (block.splittable === false) measured.splittable = false;

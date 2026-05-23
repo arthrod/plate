@@ -102,6 +102,27 @@ describe('composeLayout (place-whole / option C)', () => {
     expect(JSON.stringify(a)).toBe(JSON.stringify(b));
   });
 
+  it('packs by flowHeightPx (margin-aware) when present, not just text height', () => {
+    // Text height 400 each → 800 ≤ 931 would fit one page. Flow height 600 each
+    // (DOM margins) → 1200 > 931, so the second block must overflow to page 2.
+    nextId = 0;
+    const out = composeLayout(
+      snap(
+        block(400, { flowHeightPx: 600, path: [0] }),
+        block(400, { flowHeightPx: 600, path: [1] })
+      ),
+      INPUT
+    );
+    expect(out.pages).toHaveLength(2);
+    expect(out.mapping.pageOfBlock(1)).toBe(1); // block 1 begins page 2
+  });
+
+  it('falls back to heightPx for packing when flowHeightPx is absent', () => {
+    nextId = 0;
+    const out = composeLayout(snap(block(400), block(400)), INPUT);
+    expect(out.pages).toHaveLength(1);
+  });
+
   it('emits a single empty page for empty input', () => {
     const out = composeLayout(snap(), INPUT);
     expect(out.pages).toHaveLength(1);

@@ -51,6 +51,27 @@ function contentWidth(dom: HTMLElement, style: CSSStyleDeclaration): number {
 }
 
 /**
+ * The block's own vertical box spacing (margins + padding + borders), in px.
+ * pretext measures only the text height; this is the non-text spacing the DOM
+ * flow adds around the block, which the composer adds to form the flow height
+ * used for page packing. Summing top+bottom margins slightly over-counts where
+ * adjacent margins collapse (gap = max, not sum) — conservative and within
+ * advisory tolerance; exact collapse modeling is a later refinement.
+ */
+function verticalBoxSpacing(style: CSSStyleDeclaration): number {
+  const px = (v: string) => Number.parseFloat(v) || 0;
+
+  return (
+    px(style.marginTop) +
+    px(style.marginBottom) +
+    px(style.paddingTop) +
+    px(style.paddingBottom) +
+    px(style.borderTopWidth) +
+    px(style.borderBottomWidth)
+  );
+}
+
+/**
  * Build a {@link MeasureFn} that resolves the block's font + content width from
  * the live editable, then derives height from the number of lines pretext wraps
  * the block text to. Pretext — not the DOM box — owns the line count, so the
@@ -66,6 +87,7 @@ export function createDomMeasure(editable: HTMLElement): MeasureFn {
     const lineHeightPx = resolveLineHeight(style);
 
     return {
+      boxSpacingPx: verticalBoxSpacing(style),
       heightPx: measureBlockHeight(
         block.text,
         resolveFont(style),
