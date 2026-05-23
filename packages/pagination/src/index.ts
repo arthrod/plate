@@ -9,3 +9,6 @@ export * from './PaginationPlugin';
 export * from './leaderElection';
 export * from './registry';
 export * from './types';
+export * from './layout/index';
+export * from './measure/index';
+export * from './react/index';

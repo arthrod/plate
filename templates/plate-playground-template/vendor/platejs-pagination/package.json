@@ -8,7 +8,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./yjs": "./dist/yjs/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./react": "./dist/react/index.js"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
