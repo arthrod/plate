@@ -13,6 +13,18 @@ describe('buildSnapshot', () => {
     expect(snap.blocks.map((b) => b.type)).toEqual(['p', 'p', 'p']);
   });
 
+  it('carries the concatenated text of each block (for line measurement)', () => {
+    const snap = buildSnapshot(
+      [
+        { children: [{ text: 'Hello ' }, { text: 'world' }], type: 'p' },
+        p('second'),
+      ],
+      {}
+    );
+    expect(snap.blocks[0].text).toBe('Hello world');
+    expect(snap.blocks[1].text).toBe('second');
+  });
+
   it('uses node.id as the stable id when present', () => {
     const snap = buildSnapshot([p('a', { id: 'fixed-1' })], {});
     expect(snap.blocks[0].id).toBe('fixed-1');

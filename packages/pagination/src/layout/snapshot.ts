@@ -61,6 +61,7 @@ export function buildSnapshot(
     const block: UnmeasuredBlock = {
       id: stableId(node),
       path: [index],
+      text: nodeText(node),
       type,
     };
 

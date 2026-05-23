@@ -7,6 +7,7 @@ const ub = (
 ): UnmeasuredBlock => ({
   id,
   path: [0],
+  text: '',
   type: 'p',
   ...extra,
 });
