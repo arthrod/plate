@@ -3,6 +3,7 @@
  */
 
 export * from './compose';
+export * from './continuous';
 export * from './mapping';
 export * from './projection';
 export * from './snapshot';
