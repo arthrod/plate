@@ -1,4 +1,5 @@
 import { getPageGeometry } from '../../react/geometry';
+import { buildMappingIndex } from '../mapping';
 import { blockLinePosition, fragmentRects } from '../projection';
 import type { BlockFragment, LayoutOutput, PageLayout } from '../types';
 
@@ -29,17 +30,17 @@ function frag(
 function page(index: number, fragments: BlockFragment[]): PageLayout {
   return { frames: [{ bounds, fragments }], index, spec };
 }
+const layoutPages: PageLayout[] = [
+  page(0, [
+    frag([0], { fragmentIndex: 0, lineStart: 0, lineCount: 5, y: 0 }),
+    frag([1], { fragmentIndex: 0, lineStart: 0, lineCount: 40, y: 100 }),
+  ]),
+  page(1, [frag([1], { fragmentIndex: 1, lineStart: 40, lineCount: 6, y: 0 })]),
+];
 const layout: LayoutOutput = {
+  mapping: buildMappingIndex(layoutPages),
   metrics: { blocks: 2, pages: 2 },
-  pages: [
-    page(0, [
-      frag([0], { fragmentIndex: 0, lineStart: 0, lineCount: 5, y: 0 }),
-      frag([1], { fragmentIndex: 0, lineStart: 0, lineCount: 40, y: 100 }),
-    ]),
-    page(1, [
-      frag([1], { fragmentIndex: 1, lineStart: 40, lineCount: 6, y: 0 }),
-    ]),
-  ],
+  pages: layoutPages,
 };
 const geo = getPageGeometry(layout, 24);
 

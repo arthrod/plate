@@ -107,4 +107,14 @@ describe('composeLayout (place-whole / option C)', () => {
     expect(out.pages).toHaveLength(1);
     expect(out.pages[0].frames[0].fragments).toHaveLength(0);
   });
+
+  it('includes a MappingIndex in LayoutOutput, built during composition', () => {
+    const out = composeLayout(
+      snap(block(700, { path: [0] }), block(400, { path: [1] })),
+      INPUT
+    );
+    // 700 fits page 0; 400 overflows to page 1.
+    expect(out.mapping.pageOfBlock(0)).toBe(0);
+    expect(out.mapping.pageOfBlock(1)).toBe(1);
+  });
 });

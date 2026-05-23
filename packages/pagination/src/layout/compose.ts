@@ -12,6 +12,7 @@
 // and overflows its page (no mid-block splitting, no clones).
 // ============================================================
 
+import { buildMappingIndex } from './mapping';
 import type {
   BlockFragment,
   BreakReason,
@@ -105,5 +106,9 @@ export function composeLayout(
   // Emit the final (or only/empty) page.
   flushPage();
 
-  return { metrics: { blocks: blocks.length, pages: pages.length }, pages };
+  return {
+    mapping: buildMappingIndex(pages),
+    metrics: { blocks: blocks.length, pages: pages.length },
+    pages,
+  };
 }
