@@ -92,6 +92,32 @@ describe('measureSnapshot', () => {
     });
   });
 
+  it('packs by pretext heightPx + box spacing when no rendered footprint', () => {
+    const measure = () => ({ heightPx: 100, lineHeightPx: 20, boxSpacingPx: 24 });
+    const out = measureSnapshot(snap(ub('a')), measure, { widthPx: 600 });
+    expect(out.blocks[0].flowHeightPx).toBe(124); // 100 + 24
+  });
+
+  it('packs atomic blocks by renderedHeightPx, keeping line mapping on pretext height', () => {
+    // An image/table: pretext sees ~2 lines of caption text (40px) but the block
+    // renders 300px tall. Packing must use the rendered footprint; line mapping
+    // (heightPx/lineCount) stays pretext-derived.
+    const measure = () => ({
+      boxSpacingPx: 16,
+      heightPx: 40,
+      lineHeightPx: 20,
+      renderedHeightPx: 300,
+    });
+    const out = measureSnapshot(snap(ub('img', { splittable: false })), measure, {
+      widthPx: 600,
+    });
+    expect(out.blocks[0]).toMatchObject({
+      flowHeightPx: 316, // renderedHeightPx (300) + boxSpacing (16)
+      heightPx: 40, // pretext text height — unchanged
+      lineCount: 2, // derived from pretext height, not the rendered footprint
+    });
+  });
+
   it('falls back to a default line when measurement returns null', () => {
     const measure = (): BlockMetrics | null => null;
     const out = measureSnapshot(snap(ub('a')), measure, {
