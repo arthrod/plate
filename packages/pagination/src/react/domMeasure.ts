@@ -99,8 +99,12 @@ function verticalMargins(style: CSSStyleDeclaration): number {
  * Re-queries on each call so it reflects edits.
  */
 export function createDomMeasure(editable: HTMLElement): MeasureFn {
+  // Cache once per recompute — topLevelBlockElements queries the DOM and filters
+  // all descendants; calling it per-block would be O(N²) for an N-block document.
+  const blocks = topLevelBlockElements(editable);
+
   return (block) => {
-    const dom = topLevelBlockElements(editable)[block.path[0]];
+    const dom = blocks[block.path[0]];
     if (!dom) return null;
 
     const style = getComputedStyle(dom);
