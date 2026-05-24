@@ -78,6 +78,9 @@ export function composeLayout(
     push({
       blockId: b.id,
       fragmentIndex: 0,
+      // Store the flow height so y-coordinate accounting is consistent with
+      // the real DOM flow (margins included). lineCount stays text-only for
+      // accurate line-level mapping (widows/orphans, caret projection).
       heightPx: flow,
       lineCount: b.lineCount,
       lineStart: 0,

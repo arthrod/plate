@@ -29,6 +29,10 @@ function snap(...blocks: MeasuredBlock[]): MeasuredSnapshot {
 }
 
 describe('composeLayout (place-whole / option C)', () => {
+  beforeEach(() => {
+    nextId = 0;
+  });
+
   it('places blocks that fit on a single page, stacked by height', () => {
     const out = composeLayout(snap(block(100), block(100), block(100)), INPUT);
     expect(out.pages).toHaveLength(1);
