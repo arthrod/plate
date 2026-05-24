@@ -1,0 +1,99 @@
+name: Auto Merge
+
+on:
+  # Trigger when a PR is approved
+  pull_request_review:
+    types: [submitted]
+  # Trigger when CI completes on a PR
+  check_suite:
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Auto merge approved bot PRs
+    runs-on: ubuntu-latest
+    # Only run on approval events from trusted reviewers or on CI completion
+    if: >-
+      (
+        github.event_name == 'pull_request_review' &&
+        github.event.review.state == 'approved'
+      ) || github.event_name == 'check_suite'
+
+    steps:
+      - name: Enable auto-merge for CodeRabbit PRs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.API_TOKEN_GITHUB || secrets.GITHUB_TOKEN }}
+          script: |
+            const botLogins = ['coderabbitai[bot]', 'dependabot[bot]', 'github-actions[bot]'];
+
+            // For review events, check the PR that was reviewed
+            if (context.eventName === 'pull_request_review') {
+              const pr = context.payload.pull_request;
+              if (!pr) return;
+
+              const prAuthor = pr.user.login;
+              if (!botLogins.includes(prAuthor)) {
+                console.log(`PR author ${prAuthor} is not a bot, skipping auto-merge.`);
+                return;
+              }
+
+              console.log(`Enabling auto-merge for bot PR #${pr.number} by ${prAuthor}`);
+              try {
+                await github.rest.pulls.merge({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  merge_method: 'squash',
+                });
+                console.log(`Successfully merged PR #${pr.number}`);
+              } catch (err) {
+                // May fail if CI hasn't passed yet; that's expected
+                console.log(`Could not merge PR #${pr.number}: ${err.message}`);
+              }
+            }
+
+            // For check_suite completion, find any bot PRs that are approved and now green
+            if (context.eventName === 'check_suite') {
+              const suite = context.payload.check_suite;
+              if (suite.conclusion !== 'success') return;
+
+              const headSha = suite.head_sha;
+              const { data: prs } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                head: `${context.repo.owner}:${suite.head_branch || ''}`,
+              });
+
+              for (const pr of prs) {
+                if (pr.head.sha !== headSha) continue;
+                const prAuthor = pr.user.login;
+                if (!botLogins.includes(prAuthor)) continue;
+
+                // Check if approved
+                const { data: reviews } = await github.rest.pulls.listReviews({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                });
+                const isApproved = reviews.some(r => r.state === 'APPROVED');
+                if (!isApproved) continue;
+
+                console.log(`Merging approved bot PR #${pr.number}`);
+                try {
+                  await github.rest.pulls.merge({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                    merge_method: 'squash',
+                  });
+                } catch (err) {
+                  console.log(`Could not merge PR #${pr.number}: ${err.message}`);
+                }
+              }
+            }
