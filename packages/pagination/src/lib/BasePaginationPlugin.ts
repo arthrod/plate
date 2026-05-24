@@ -20,6 +20,15 @@ import { invalidateLayoutRegistry, shouldInvalidateLayout } from './registry';
 export type PaginationViewMode = 'continuous' | 'paged';
 
 export type PaginationOptions = {
+  /**
+   * Whether pagination is active. When `false`, the React layer skips layout
+   * recompute and renders no page-break overlay, leaving the editor untouched;
+   * the document is never mutated either way. Toggle at runtime with
+   * `editor.setOption(BasePaginationPlugin, 'enabled', next)`.
+   *
+   * @default true
+   */
+  enabled: boolean;
   page: PageSpec;
   margins: PageMargins;
   policies: LayoutPolicies;
@@ -36,6 +45,7 @@ export type PaginationConfig = PluginConfig<'pagination', PaginationOptions>;
 // (cheapest, fully native edit surface — paged is the high-fidelity opt-in).
 const DEFAULT_OPTIONS: PaginationOptions = {
   atomicTypes: [],
+  enabled: true,
   keepWithNextTypes: [],
   margins: { bottomPx: 96, leftPx: 96, rightPx: 96, topPx: 96 },
   page: { heightPx: 1123, preset: 'a4', widthPx: 794 },
