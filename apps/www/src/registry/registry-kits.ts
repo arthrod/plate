@@ -662,12 +662,24 @@ export const registryKits: Registry['items'] = [
       'math-kit',
       'media-kit',
       'mention-kit',
+      'pagination-kit',
       'slash-kit',
       'suggestion-kit',
       'table-kit',
       'toc-kit',
       'toggle-kit',
     ],
+    type: 'registry:component',
+  },
+  {
+    dependencies: ['@platejs/pagination'],
+    files: [
+      {
+        path: 'components/editor/plugins/pagination-kit.tsx',
+        type: 'registry:component',
+      },
+    ],
+    name: 'pagination-kit',
     type: 'registry:component',
   },
   {

@@ -13,9 +13,17 @@ import { measureBlockHeight } from '../measure/pretext';
 
 /** Direct top-level block elements of an editable, in document order. */
 export function topLevelBlockElements(editable: HTMLElement): HTMLElement[] {
-  return Array.from(
-    editable.querySelectorAll(':scope > [data-slate-node="element"]')
-  ) as HTMLElement[];
+  const selector = '[data-slate-node="element"]';
+
+  return Array.from(editable.children).flatMap((child) => {
+    if (child instanceof HTMLElement && child.matches(selector)) {
+      return [child];
+    }
+
+    const nested = child.querySelector(selector);
+
+    return nested instanceof HTMLElement ? [nested] : [];
+  });
 }
 
 function resolveLineHeight(style: CSSStyleDeclaration): number {
