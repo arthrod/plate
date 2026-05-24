@@ -42,11 +42,10 @@ test.describe('pagination continuous-view overlay', () => {
     // The overlay computes in a layout effect after hydration; the lines must
     // actually appear (the regression was content with no lines).
     await expect(page.locator(BREAK_LINE).first()).toBeVisible();
-    expect(await page.locator(BREAK_LINE).count()).toBeGreaterThan(0);
   });
 
   test('ISSUE-003: a "Page 1 of N" marker and consistent "Page K of N" labels', async ({
-    page,
+
   }) => {
     await page.goto(ROUTE);
     await expect(page.locator(BREAK_LINE).first()).toBeVisible();
