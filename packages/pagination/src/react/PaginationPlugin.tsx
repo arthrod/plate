@@ -176,20 +176,22 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       setOption('breaks', getContinuousBreaks(layout));
     });
 
-    // A width change re-wraps text and changes pagination. Invalidate the layout
-    // and force a re-render so the dirty-recompute effect re-measures at the new
-    // width and the overlay re-anchors to the new block tops.
+    // A width change re-wraps text and changes pagination. Always invalidate the
+    // cached layout, but only re-render immediately while the overlay is visible.
     useEffect(() => {
       const editable = editor.api.toDOMNode(editor);
       if (!editable || typeof ResizeObserver === 'undefined') return;
 
       const observer = new ResizeObserver(() => {
         invalidateLayoutRegistry(editor);
-        forceRecompute((n) => n + 1);
+
+        if (enabled) {
+          forceRecompute((n) => n + 1);
+        }
       });
       observer.observe(editable);
 
       return () => observer.disconnect();
-    }, [editor]);
+    }, [editor, enabled]);
   },
 });
