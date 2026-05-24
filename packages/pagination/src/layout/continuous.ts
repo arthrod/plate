@@ -19,19 +19,23 @@ function pageHeight(page: LayoutOutput['pages'][number]): number {
 }
 
 /**
- * The continuous-flow Y (px, relative to content top) at each interior page
- * boundary — i.e. the cumulative content height at the end of every page except
- * the last. N pages produce N-1 break Ys; the document end is not a break.
+ * The cumulative flow Y (px, relative to content top) at each interior page
+ * boundary — i.e. the sum of `fragment.heightPx` values for all pages up to
+ * (but not including) the last page. N pages produce N-1 break Ys; the
+ * document end is not a break.
  *
- * This is the pure pretext-flow position. The continuous overlay does not
- * position against it — DOM box spacing (margins) makes pretext's text-only
- * cumulative Y drift from the real rendered boundary. Prefer
- * {@link getContinuousBreaks}, which names the boundary block so the overlay can
- * anchor to that block's live DOM top.
+ * Note: `fragment.heightPx` stores the block's *flow* height (text height +
+ * DOM box spacing when `flowHeightPx` was supplied by the measurer). So these
+ * Y values include any per-block margin/padding/border accumulated across
+ * earlier pages. They are closer to the real DOM boundary than pure
+ * pretext-text heights, but still drift because adjacent-block margin
+ * collapse is not modelled. Prefer {@link getContinuousBreaks}, which names
+ * the boundary block so the overlay can anchor to that block's live DOM top —
+ * the only way to land exactly on a real block edge.
  */
 export function getContinuousBreakYs(layout: LayoutOutput): number[] {
   const breakYs: number[] = [];
-  let cumulative = 0;
+
 
   for (let i = 0; i < layout.pages.length - 1; i++) {
     cumulative += pageHeight(layout.pages[i]);
