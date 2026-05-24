@@ -1,7 +1,5 @@
 'use client';
 
-import * as React from 'react';
-
 import { PaginationPlugin } from '@platejs/pagination/react';
 import type { Value } from 'platejs';
 import { Plate, PlateContent, usePlateEditor } from 'platejs/react';
