@@ -178,8 +178,11 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
 
     // A width change re-wraps text and changes pagination. Invalidate the layout
     // and force a re-render so the dirty-recompute effect re-measures at the new
-    // width and the overlay re-anchors to the new block tops.
+    // width and the overlay re-anchors to the new block tops. Skip entirely while
+    // disabled — no point observing when the overlay isn't rendered.
     useEffect(() => {
+      if (!enabled) return;
+
       const editable = editor.api.toDOMNode(editor);
       if (!editable || typeof ResizeObserver === 'undefined') return;
 
@@ -190,6 +193,6 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       observer.observe(editable);
 
       return () => observer.disconnect();
-    }, [editor]);
+    }, [editor, enabled]);
   },
 });
