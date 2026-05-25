@@ -11,6 +11,23 @@ function editorWithPagination() {
 }
 
 describe('BasePaginationPlugin', () => {
+  it('enables pagination by default', () => {
+    const editor = editorWithPagination();
+
+    expect(editor.getOptions(BasePaginationPlugin).enabled).toBe(true);
+  });
+
+  it('can be disabled via options', () => {
+    const editor = createSlateEditor({
+      plugins: [
+        BasePaginationPlugin.configure({ options: { enabled: false } }),
+      ],
+      value: [{ children: [{ text: 'hello' }], type: 'p' }],
+    });
+
+    expect(editor.getOptions(BasePaginationPlugin).enabled).toBe(false);
+  });
+
   it('invalidates the layout registry on a content edit', () => {
     const editor = editorWithPagination();
     getLayoutRegistry(editor).dirty = false; // simulate a fresh build

@@ -66,10 +66,11 @@ const labelStyle: React.CSSProperties = {
  */
 const PaginationBreakLines: EditableSiblingComponent = () => {
   const editor = useEditorRef();
+  const enabled = usePluginOption(PaginationPlugin, 'enabled');
   const breaks = usePluginOption(PaginationPlugin, 'breaks');
 
   const editable = editor.api.toDOMNode(editor);
-  if (!editable || breaks.length === 0) return null;
+  if (!enabled || !editable || breaks.length === 0) return null;
 
   const style = getComputedStyle(editable);
   const padLeft = Number.parseFloat(style.paddingLeft) || 0;
@@ -136,6 +137,7 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
   render: { afterEditable: PaginationBreakLines },
   useHooks: ({ editor, setOption }) => {
     const [, forceRecompute] = useState(0);
+    const enabled = usePluginOption(PaginationPlugin, 'enabled');
 
     // Recompute when the layout registry is dirty (content edits via the base
     // plugin's apply override; selection-only changes leave it clean). Runs in a
@@ -144,7 +146,11 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
     // an extra frame later. setOption re-renders the overlay via usePluginOption.
     // (The residual delay on first load is the editor's hydration time: the SSR
     // content is on screen before the client can measure the DOM to place lines.)
+    // Skipped entirely while disabled; toggling `enabled` re-renders here (the
+    // subscribed option above), so re-enabling recomputes from the dirty registry.
     useIsomorphicLayoutEffect(() => {
+      if (!enabled) return;
+
       const registry = getLayoutRegistry(editor);
       if (!registry.dirty && registry.output) return;
 
@@ -172,8 +178,11 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
 
     // A width change re-wraps text and changes pagination. Invalidate the layout
     // and force a re-render so the dirty-recompute effect re-measures at the new
-    // width and the overlay re-anchors to the new block tops.
+    // width and the overlay re-anchors to the new block tops. Skip entirely while
+    // disabled — no point observing when the overlay isn't rendered.
     useEffect(() => {
+      if (!enabled) return;
+
       const editable = editor.api.toDOMNode(editor);
       if (!editable || typeof ResizeObserver === 'undefined') return;
 
@@ -184,6 +193,6 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       observer.observe(editable);
 
       return () => observer.disconnect();
-    }, [editor]);
+    }, [editor, enabled]);
   },
 });
