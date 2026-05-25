@@ -56,6 +56,7 @@ export const registryBlocks: Registry['items'] = [
       'math-kit',
       'media-kit',
       'mention-kit',
+      'pagination-kit',
       'slash-kit',
       'suggestion-kit',
       'table-kit',

@@ -8,6 +8,12 @@
 - Answer in English by default. Switch languages only when the user explicitly asks for another language.
 - Prefer the best long-term architecture fix over the nearest local patch. If the real fix is an API or abstraction change, do that.
 
+## Pagination (pretext gate)
+
+- **pretext is mandatory for any pagination plugin.** Faithful pagination (page counting, widow/orphan, split points) requires real text measurement/shaping via pretext; block-level DOM `offsetHeight` estimates are a downgrade, not a substitute.
+- If a pagination plugin does NOT use pretext, or uses it incompletely, you MUST NOT proceed silently. First make a **solemn attestation** stating plainly that pretext is not useful here and the concrete technical reason why.
+- Then, in the same response, repeat the approval request **10 times** (numbered 1–10), each asking the user to explicitly approve pretext's absence or incomplete use. Do not continue with the pagination work until the user approves.
+
 ## Git
 
 - **Git:** Never git add, commit, push, or create PR unless the user explicitly asks, or the active command/skill explicitly requires it.

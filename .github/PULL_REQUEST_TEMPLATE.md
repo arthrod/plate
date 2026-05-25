@@ -1,3 +1,20 @@
+## Summary
+
+<!-- Brief description of what this PR does and why. -->
+
+## Type of Change
+
+- [ ] Bug fix
+- [ ] New feature / enhancement
+- [ ] Breaking change
+- [ ] Documentation / chore
+
+## Related Issues
+
+<!-- Closes #issue or N/A -->
+
+---
+
 **Checklist**
 
 - [x] `pnpm typecheck`

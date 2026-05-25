@@ -37,6 +37,15 @@ const STATIC_INPUT_FILE_PATH = fs.existsSync(STATIC_TS_INPUT_FILE_PATH)
   ? STATIC_TS_INPUT_FILE_PATH
   : STATIC_TSX_INPUT_FILE_PATH;
 
+const YJS_TS_INPUT_FILE_PATH = path.join(PACKAGE_ROOT_PATH, 'src/yjs/index.ts');
+const YJS_TSX_INPUT_FILE_PATH = path.join(
+  PACKAGE_ROOT_PATH,
+  'src/yjs/index.tsx'
+);
+const YJS_INPUT_FILE_PATH = fs.existsSync(YJS_TS_INPUT_FILE_PATH)
+  ? YJS_TS_INPUT_FILE_PATH
+  : YJS_TSX_INPUT_FILE_PATH;
+
 const entry = [convertPathToPattern(INPUT_FILE)];
 
 if (fs.existsSync(REACT_INPUT_FILE_PATH)) {
@@ -45,6 +54,10 @@ if (fs.existsSync(REACT_INPUT_FILE_PATH)) {
 
 if (fs.existsSync(STATIC_INPUT_FILE_PATH)) {
   entry.push(convertPathToPattern(STATIC_INPUT_FILE_PATH));
+}
+
+if (fs.existsSync(YJS_INPUT_FILE_PATH)) {
+  entry.push(convertPathToPattern(YJS_INPUT_FILE_PATH));
 }
 
 // Disable sourcemaps in CI to speed up builds
