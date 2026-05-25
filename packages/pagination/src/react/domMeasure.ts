@@ -11,11 +11,24 @@
 import type { MeasureFn } from '../measure/measure';
 import { measureBlockHeight } from '../measure/pretext';
 
-/** Direct top-level block elements of an editable, in document order. */
+/**
+ * Top-level block elements of an editable, in document order. A block is
+ * top-level when no other block element is its ancestor within the editable —
+ * so this holds even when plugins (DnD, block selection) wrap each block in
+ * non-slate container divs, where a `:scope >` direct-child match would find
+ * nothing. Nested blocks (list items, table cells, column children) are
+ * excluded by the ancestor check.
+ */
 export function topLevelBlockElements(editable: HTMLElement): HTMLElement[] {
-  return Array.from(
-    editable.querySelectorAll(':scope > [data-slate-node="element"]')
+  const all = Array.from(
+    editable.querySelectorAll('[data-slate-node="element"]')
   ) as HTMLElement[];
+
+  return all.filter((el) => {
+    const parentBlock = el.parentElement?.closest('[data-slate-node="element"]');
+
+    return !parentBlock || !editable.contains(parentBlock);
+  });
 }
 
 function resolveLineHeight(style: CSSStyleDeclaration): number {
@@ -71,6 +84,13 @@ function verticalBoxSpacing(style: CSSStyleDeclaration): number {
   );
 }
 
+/** Top + bottom margins only — the flow spacing around a measured box. */
+function verticalMargins(style: CSSStyleDeclaration): number {
+  const px = (v: string) => Number.parseFloat(v) || 0;
+
+  return px(style.marginTop) + px(style.marginBottom);
+}
+
 /**
  * Build a {@link MeasureFn} that resolves the block's font + content width from
  * the live editable, then derives height from the number of lines pretext wraps
@@ -85,15 +105,30 @@ export function createDomMeasure(editable: HTMLElement): MeasureFn {
 
     const style = getComputedStyle(dom);
     const lineHeightPx = resolveLineHeight(style);
+    const heightPx = measureBlockHeight(
+      block.text,
+      resolveFont(style),
+      contentWidth(dom, style),
+      lineHeightPx
+    );
+
+    // Atomic/non-text blocks (images, tables, embeds) are placed whole and have
+    // no text flow for pretext to shape — their footprint is the rendered box,
+    // not a text-line count. Pack by that rendered height; spacing is margins
+    // only (the rect already includes padding + border). Pretext still owns
+    // text-flow blocks below (line-accurate height + full box spacing).
+    if (block.splittable === false) {
+      return {
+        boxSpacingPx: verticalMargins(style),
+        heightPx,
+        lineHeightPx,
+        renderedHeightPx: dom.getBoundingClientRect().height,
+      };
+    }
 
     return {
       boxSpacingPx: verticalBoxSpacing(style),
-      heightPx: measureBlockHeight(
-        block.text,
-        resolveFont(style),
-        contentWidth(dom, style),
-        lineHeightPx
-      ),
+      heightPx,
       lineHeightPx,
     };
   };

@@ -27,6 +27,15 @@ export type BlockMetrics = {
    * flow height for page packing. Optional; defaults to 0 (no spacing).
    */
   boxSpacingPx?: number;
+  /**
+   * Rendered content footprint, in CSS px, for blocks pretext cannot represent
+   * — atomic/non-text blocks (images, tables, embeds) whose height is not their
+   * text-line count. When supplied, it (not {@link heightPx}) is the flow-height
+   * base for page packing. {@link heightPx}/lineCount stay pretext-derived so
+   * line-level mapping is unaffected. Omit for text-flow blocks (pretext owns
+   * their height).
+   */
+  renderedHeightPx?: number;
 };
 
 export type MeasureFn = (block: UnmeasuredBlock) => BlockMetrics | null;
@@ -76,10 +85,15 @@ export function measureSnapshot(
       lineHeightPx,
       path: block.path,
     };
-    // Flow height (for packing) = text height + the block's box spacing. Only set
-    // when the measurer supplied spacing, so the composer falls back cleanly.
+    // Flow height (for packing) = base height + the block's box spacing. The base
+    // is the rendered footprint when the measurer supplied one (atomic/non-text
+    // blocks pretext can't represent), else the pretext text height. heightPx /
+    // lineCount stay pretext-derived so line-level mapping is unaffected.
     const boxSpacingPx = metrics?.boxSpacingPx ?? 0;
-    if (boxSpacingPx > 0) measured.flowHeightPx = heightPx + boxSpacingPx;
+    const flowBase = metrics?.renderedHeightPx ?? heightPx;
+    if (metrics?.renderedHeightPx != null || boxSpacingPx > 0) {
+      measured.flowHeightPx = flowBase + boxSpacingPx;
+    }
     if (block.keepWithNext) measured.keepWithNext = true;
     if (block.breakBefore) measured.breakBefore = true;
     if (block.splittable === false) measured.splittable = false;
