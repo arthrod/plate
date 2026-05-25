@@ -66,4 +66,53 @@ describe('measureBlockHeight', () => {
   it('treats empty text as a single line tall', () => {
     expect(measureBlockHeight('', '16px monospace', 100, 20)).toBe(20);
   });
+
+  it('returns a single line height when text fits on one line', () => {
+    // "hi" = 2 chars * 10px = 20px < 100px width → 1 line * 24px = 24.
+    expect(measureBlockHeight('hi', '16px monospace', 100, 24)).toBe(24);
+  });
+
+  it('scales with lineHeightPx (different line height)', () => {
+    // "alpha beta gamma delta" wraps to 3 lines; at lineHeightPx=30 → 90.
+    expect(
+      measureBlockHeight('alpha beta gamma delta', '16px monospace', 100, 30)
+    ).toBe(90);
+  });
+});
+
+describe('measureTextLines — structural guarantees', () => {
+  it('returns at least one line for any non-empty text', () => {
+    const lines = measureTextLines('x', '16px monospace', 1000, 20);
+    expect(lines.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('each line has a non-negative widthPx', () => {
+    const lines = measureTextLines('hello world', '16px monospace', 200, 20);
+    for (const line of lines) {
+      expect(line.widthPx).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('each line carries a text property', () => {
+    const lines = measureTextLines('hello world', '16px monospace', 200, 20);
+    for (const line of lines) {
+      expect(typeof line.text).toBe('string');
+    }
+  });
+
+  it('more lines are produced when the width is narrower', () => {
+    const wideLines = measureTextLines(
+      'alpha beta gamma delta',
+      '16px monospace',
+      1000,
+      20
+    );
+    const narrowLines = measureTextLines(
+      'alpha beta gamma delta',
+      '16px monospace',
+      100,
+      20
+    );
+    expect(narrowLines.length).toBeGreaterThan(wideLines.length);
+  });
 });

@@ -49,4 +49,40 @@ describe('getContinuousBreaks', () => {
     const layout = composeLayout(snap(block(100, [0])), INPUT);
     expect(getContinuousBreaks(layout)).toEqual([]);
   });
+
+  it('produces 2 breaks for 3 pages', () => {
+    // Each 900px block exceeds 931/2=465 remaining after the previous, so they
+    // each go to their own page.
+    const layout = composeLayout(
+      snap(block(900, [0]), block(900, [1]), block(900, [2])),
+      INPUT
+    );
+    const breaks = getContinuousBreaks(layout);
+    expect(breaks).toHaveLength(2);
+    expect(breaks[0]).toEqual({ blockIndex: 1, lineStart: 0 });
+    expect(breaks[1]).toEqual({ blockIndex: 2, lineStart: 0 });
+  });
+
+  it('lineStart is 0 for whole-block boundaries (place-whole mode)', () => {
+    // In place-whole mode, every fragment starts at lineStart=0 (no mid-block
+    // split), so every break's lineStart must be 0.
+    const layout = composeLayout(
+      snap(block(700, [0]), block(700, [1])),
+      INPUT
+    );
+    const breaks = getContinuousBreaks(layout);
+    expect(breaks.every((b) => b.lineStart === 0)).toBe(true);
+  });
+
+  it('getContinuousBreakYs sums fragment heights across frames correctly', () => {
+    // Page 0 contains a 700px block; page 1 contains two 200px blocks.
+    // Total page-0 contribution = 700.
+    const layout = composeLayout(
+      snap(block(700, [0]), block(200, [1]), block(200, [2])),
+      INPUT
+    );
+    const ys = getContinuousBreakYs(layout);
+    // Only one interior boundary; cumulative after page 0 = 700.
+    expect(ys).toEqual([700]);
+  });
 });

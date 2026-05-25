@@ -138,4 +138,80 @@ describe('composeLayout (place-whole / option C)', () => {
     expect(out.mapping.pageOfBlock(0)).toBe(0);
     expect(out.mapping.pageOfBlock(1)).toBe(1);
   });
+
+  it('accumulates currentY using flowHeightPx so y offsets are flow-based', () => {
+    // Three blocks each with flowHeightPx=200 (text 100, spacing 100).
+    // All fit on one page (3×200=600 < 931). y offsets should advance by 200.
+    nextId = 0;
+    const out = composeLayout(
+      snap(
+        block(100, { flowHeightPx: 200, path: [0] }),
+        block(100, { flowHeightPx: 200, path: [1] }),
+        block(100, { flowHeightPx: 200, path: [2] })
+      ),
+      INPUT
+    );
+    expect(out.pages).toHaveLength(1);
+    const frags = out.pages[0].frames[0].fragments;
+    expect(frags.map((f) => f.y)).toEqual([0, 200, 400]);
+  });
+
+  it('produces consecutive page indices on a 3-page layout', () => {
+    // Three large blocks, each needing its own page.
+    nextId = 0;
+    const out = composeLayout(
+      snap(
+        block(900, { path: [0] }),
+        block(900, { path: [1] }),
+        block(900, { path: [2] })
+      ),
+      INPUT
+    );
+    expect(out.pages).toHaveLength(3);
+    expect(out.pages.map((p) => p.index)).toEqual([0, 1, 2]);
+    expect(out.metrics).toEqual({ pages: 3, blocks: 3 });
+  });
+
+  it('does not set breakReason on blocks that are not the first on a new page', () => {
+    // Two blocks fit page 0. Third overflows to page 1.
+    nextId = 0;
+    const out = composeLayout(
+      snap(
+        block(400, { path: [0] }),
+        block(400, { path: [1] }),
+        block(400, { path: [2] })
+      ),
+      INPUT
+    );
+    // Second block on page 0 has no breakReason (same page continuation).
+    expect(out.pages[0].frames[0].fragments[1].breakReason).toBeUndefined();
+    // First block on page 1 has breakReason (moved to a new page).
+    expect(out.pages[1].frames[0].fragments[0].breakReason).toBe(
+      'block_overflow'
+    );
+  });
+
+  it('places a block at y=0 when it is the first on a fresh page after overflow', () => {
+    nextId = 0;
+    const out = composeLayout(
+      snap(block(900, { path: [0] }), block(100, { path: [1] })),
+      INPUT
+    );
+    expect(out.pages).toHaveLength(2);
+    const p2frag = out.pages[1].frames[0].fragments[0];
+    expect(p2frag.y).toBe(0);
+  });
+
+  it('places an oversized block at y=0 on the page it starts on', () => {
+    nextId = 0;
+    const out = composeLayout(snap(block(5000, { path: [0] })), INPUT);
+    expect(out.pages[0].frames[0].fragments[0].y).toBe(0);
+  });
+
+  it('a block exactly equal to frame height fits without triggering overflow', () => {
+    // frameHeight = 931. A 931px block must fit on the current page.
+    nextId = 0;
+    const out = composeLayout(snap(block(931, { path: [0] })), INPUT);
+    expect(out.pages).toHaveLength(1);
+  });
 });

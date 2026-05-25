@@ -53,4 +53,46 @@ describe('layout registry', () => {
     }
     expect(shouldInvalidateLayout({ type: 'set_selection' })).toBe(false);
   });
+
+  it('two editors have independent registry entries', () => {
+    const editorA = createSlateEditor();
+    const editorB = createSlateEditor();
+
+    const entryA = getLayoutRegistry(editorA);
+    const entryB = getLayoutRegistry(editorB);
+
+    // They must be different object references.
+    expect(entryA).not.toBe(entryB);
+
+    // Invalidating A does not affect B.
+    entryA.dirty = false;
+    entryB.dirty = false;
+    invalidateLayoutRegistry(editorA);
+    expect(getLayoutRegistry(editorA).dirty).toBe(true);
+    expect(getLayoutRegistry(editorB).dirty).toBe(false);
+  });
+
+  it('measureCache is a Map present in every fresh entry', () => {
+    const editor = createSlateEditor();
+    const entry = getLayoutRegistry(editor);
+    expect(entry.measureCache).toBeInstanceOf(Map);
+  });
+
+  it('measureCache survives invalidation (same Map reference)', () => {
+    const editor = createSlateEditor();
+    const cacheRef = getLayoutRegistry(editor).measureCache;
+    invalidateLayoutRegistry(editor);
+    // Invalidation marks dirty + clears output, but should not replace the Map.
+    expect(getLayoutRegistry(editor).measureCache).toBe(cacheRef);
+  });
+
+  it('ensureLayout returns null output before first build', () => {
+    const editor = createSlateEditor();
+    expect(getLayoutRegistry(editor).output).toBeNull();
+  });
+
+  it('shouldInvalidateLayout returns false for unknown operation type', () => {
+    // An unknown/future op type is not a content change and must not invalidate.
+    expect(shouldInvalidateLayout({ type: 'unknown_op' })).toBe(false);
+  });
 });
