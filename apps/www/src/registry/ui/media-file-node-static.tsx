@@ -5,6 +5,7 @@ import type { TSuggestionData } from 'platejs';
 import type { SlateElementProps } from 'platejs/static';
 
 import { FileUp } from 'lucide-react';
+import { sanitizeUrl } from 'platejs';
 import { SlateElement } from 'platejs/static';
 
 import { cn } from '@/lib/utils';
@@ -27,7 +28,7 @@ export function FileElementStatic(props: SlateElementProps<TFileElement>) {
         )}
         contentEditable={false}
         download={name}
-        href={url}
+        href={sanitizeUrl(url, {}) || ''}
         rel="noopener noreferrer"
         role="button"
         target="_blank"

@@ -29,6 +29,10 @@ mock.module('@platejs/resizable', () => ({
   useResizableValue: useResizableValueMock,
 }));
 
+mock.module('platejs', () => ({
+  sanitizeUrl: (url: string) => url,
+}));
+
 mock.module('platejs/react', () => ({
   ...actualPlatejsReact,
   PlateElement: ({ children }: any) => (

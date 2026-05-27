@@ -8,6 +8,7 @@ import type { PlateElementProps } from 'platejs/react';
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider } from '@platejs/resizable';
 import { FileUp } from 'lucide-react';
+import { sanitizeUrl } from 'platejs';
 import { PlateElement, useReadOnly, withHOC } from 'platejs/react';
 
 import { cn } from '@/lib/utils';
@@ -27,7 +28,7 @@ export const FileElement = withHOC(
           )}
           contentEditable={false}
           download={name}
-          href={unsafeUrl}
+          href={sanitizeUrl(unsafeUrl, {}) || ''}
           rel="noopener noreferrer"
           role="button"
           target="_blank"
