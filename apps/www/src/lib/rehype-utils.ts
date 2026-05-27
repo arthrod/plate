@@ -369,14 +369,14 @@ async function getFileContent(file: z.infer<typeof registryItemFileSchema>) {
     file.path,
     file.path.replace('src/registry/', ''),
     `src/registry/${file.path}`,
-  ].map((p) => path.join(process.cwd(), p));
+  ].map((p) => path.join(/*turbopackIgnore: true*/ process.cwd(), p));
 
   let raw: string | undefined;
 
   // Try each path until we find one that exists
   for (const filePath of possiblePaths) {
     try {
-      raw = await fs.readFile(filePath, 'utf8');
+      raw = await fs.readFile(/*turbopackIgnore: true*/ filePath, 'utf8');
       break;
     } catch (_error) {}
   }
