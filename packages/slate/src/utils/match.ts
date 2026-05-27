@@ -26,11 +26,18 @@ export const match = <T extends TNode>(
 ): boolean => {
   if (!predicate) return true;
   if (typeof predicate === 'object') {
-    return Object.entries(predicate).every(([key, value]) => {
+    // Replaced Object.entries(predicate).every() with a faster Object.keys()
+    // + for...of loop to avoid intermediate array allocations and closure overhead,
+    // which significantly improves speed on hot paths iterating over small objects.
+    for (const key of Object.keys(predicate)) {
+      const value = (predicate as any)[key];
       const values = castArray<any>(value);
 
-      return values.includes((obj as any)[key]);
-    });
+      if (!values.includes((obj as any)[key])) {
+        return false;
+      }
+    }
+    return true;
   }
 
   return predicate(obj, path);
