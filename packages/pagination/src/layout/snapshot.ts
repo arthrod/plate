@@ -54,6 +54,29 @@ function stableId(node: SlateNode): string {
   return `${node.type ?? 'node'}#${hash(nodeText(node))}`;
 }
 
+/**
+ * Build an `UnmeasuredSnapshot` from a Slate value — the first stage of the
+ * pretext pagination pipeline. Pure: no DOM, no editor instance, deterministic
+ * for a given (value, options).
+ *
+ * Each top-level node becomes one `UnmeasuredBlock` carrying:
+ *  - `id`: the consumer's `node.id` (coerced to string, accepts numeric ids),
+ *    or a content-derived fallback `${type}#${hash(text)}` if none is
+ *    supplied. Fallback ids that collide between siblings are disambiguated
+ *    by appending `@${positionalIndex}` (CodeRabbit PR #438) — but
+ *    consumer-supplied ids are NEVER rewritten even if duplicated, since
+ *    explicit ids are the consumer's stability contract (CodeRabbit PR #442).
+ *  - `path`: `[positionalIndex]` of the block in `value`.
+ *  - `text`: concatenated text of all leaf descendants (for the pretext line
+ *    breaker).
+ *  - `type`: the block type (or `'unknown'`).
+ *  - `keepWithNext` / `breakBefore` flags from `options` + per-node hints.
+ *  - `splittable: false` when the type is in `options.atomicTypes`.
+ *
+ * @param value      the Slate top-level value (one entry per block)
+ * @param options    type sets controlling atomic + keep-with-next behavior
+ * @returns          `{ blocks }` ready for the measurement pass
+ */
 export function buildSnapshot(
   value: SlateNode[],
   options: SnapshotOptions
@@ -61,15 +84,19 @@ export function buildSnapshot(
   const atomic = new Set(options.atomicTypes ?? []);
   const keepWithNext = new Set(options.keepWithNextTypes ?? []);
 
-  // CodeRabbit PR #438: fallback stableIds (`${type}#${hash(text)}`) can
-  // collide for sibling blocks with identical type AND text (e.g. two empty
-  // paragraphs). A duplicate id corrupts the (id, width) measure cache (two
-  // blocks share one cached height) and confuses fragment grouping
-  // downstream. Disambiguate any fallback id we've already emitted by
-  // appending the positional index; real author-supplied ids stay untouched
-  // since the original raw value is what we register in `seenIds`.
+  // CodeRabbit PR #438 + PR #442:
+  // - Fallback stableIds (`${type}#${hash(text)}`) can collide for sibling
+  //   blocks with identical type AND text (e.g. two empty paragraphs). A
+  //   duplicate id corrupts the (id, width) measure cache and confuses
+  //   fragment grouping downstream. Disambiguate fallback collisions by
+  //   appending the positional index.
+  // - Explicit consumer-supplied ids are the consumer's stability contract;
+  //   they are NEVER rewritten even when duplicated. We DO register them in
+  //   `seenIds` so a later fallback id doesn't accidentally collide with an
+  //   explicit one (e.g. an explicit `"p#abc"` poisoning a fallback's
+  //   namespace).
   const seenIds = new Set<string>();
-  const uniqueId = (raw: string, index: number): string => {
+  const dedupeFallback = (raw: string, index: number): string => {
     if (!seenIds.has(raw)) {
       seenIds.add(raw);
       return raw;
@@ -82,8 +109,16 @@ export function buildSnapshot(
 
   const blocks: UnmeasuredBlock[] = value.map((node, index) => {
     const type = node.type ?? 'unknown';
+    const rawId = stableId(node);
+    const hasExplicitId =
+      node.id != null && String(node.id).length > 0;
+    // Explicit ids: pass through verbatim, still register so fallbacks
+    // can't collide later. Fallback ids: dedupe on collision.
+    const id = hasExplicitId
+      ? (seenIds.add(rawId), rawId)
+      : dedupeFallback(rawId, index);
     const block: UnmeasuredBlock = {
-      id: uniqueId(stableId(node), index),
+      id,
       path: [index],
       text: nodeText(node),
       type,
