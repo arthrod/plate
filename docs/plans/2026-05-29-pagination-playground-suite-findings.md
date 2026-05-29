@@ -129,7 +129,14 @@ Each PR: red→green→refactor, `check` before PR, changeset, stacked over pred
   - Template: `MarginsMode` — editable header/footer in the page margin zones, floating toolbar (bold/italic inline via execCommand + font/size/color region-level), click-outside-to-exit, "Edit margins" toggle.
   - Evidence: 128 pkg tests, pkg+tpl typecheck clean, biome clean. Browser: enter → type header → mirrors to all 4 pages ("DRAFT — Confidential"); bold applies (`<b>` in overlay); click-outside exits.
   - KNOWN POLISH (pt 8): on page 1, the editable band (margin zone) and the overlay header (anchored to first block top) both show → minor double-header while editing. Acceptable; candidate to suppress page-1 overlay header during margins mode.
-- Remaining: PR-E footnotes (wire @platejs/footnote), PR-F print view (@page), PR-G toolbar buttons on /editor + redeploy.
+- 2026-05-29: **PR-E DONE** (`971ad1c47`, branch `work/pagination-suite-e-footnotes`). FootnoteKit (template, mirrors registry) + insert-footnote button gated by the modal footnote toggle; calls `@platejs/footnote` `insertFootnote`. Endnote-style definitions at doc end, paginated as content. Verified: gating off→hidden/endnote→shown; insert adds ref+definition (41→44 nodes); pagination intact. Template-only (no changeset).
+- 2026-05-29: **PR-F DONE** (`6e655f8ed`). `PrintStyles` injects `@page` size (preset/inches) + margins from page_setup + `@media print` UI hiding. Print-view button paginates to physical pages. Verified: `@page { size: letter; margin: 1in }` injected; headless PDF via print CSS = 4 pages. Template-only.
+- **Remaining: PR-G — point #4** (modal + margins-mode buttons on the MAIN `/editor` fixed toolbar). NOTE: the `/dev/pagination2` demo already exposes these buttons + the full feature set "for ease of testing" (the literal intent of #4). Main-editor integration needs PageSetupPlugin in EditorKit + modal/margins state in the toolbar context + page-width desk — a larger follow-up.
+
+## Final status (points)
+- #1 modal ✓ · #2 dotted continuous ✓ · #3 margins-mode edit ✓ · #5 click-out exit ✓ · #6 fonts/styles ✓ · #7 doc-JSON metadata ✓ · footnotes toggle+insert ✓ · print view ✓ · Cloudflare deploy ✓
+- #4 main-editor toolbar buttons: demo provides the testing surface; main-editor wiring = follow-up.
+- #8 UX issues found+fixed: chrome OPTION_UNDEFINED throw; React-Compiler stale read; geometry-recompute gating. Open polish: page-1 double-header in margins mode.
 
 ### Source-of-truth RESOLVED
 - The playground **deploys from the TEMPLATE directly**: `templates/plate-playground-template/src/{app/dev/pagination2,components/editor/{editor-kit,plugins/pagination-kit}}`. Commit `14686c6ac` edited the template directly with explicit user authorization ("Overrides the CI-controlled-templates rule"); deployed to `plate-playground.cicero-im.workers.dev/editor`. So UI wiring (modal, toolbar buttons, demo) goes in the TEMPLATE; package changes flow in via `vendor:pagination` (build pagination → copy dist into template).
