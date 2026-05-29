@@ -10,6 +10,8 @@
 import type { LayoutInput, LayoutPolicies } from '../layout/types';
 import type { PageNumberPosition, PageSetupConfig } from './pageSetup';
 
+import { hasChromeContent } from './pageSetup';
+
 /** Default reserved band height (px) for a header/footer chrome band. */
 const DEFAULT_BAND_PX = 48;
 
@@ -36,8 +38,8 @@ export function resolveChromeBands(config: PageSetupConfig):
     }
   | undefined {
   const band = pageNumberBand(config.pageNumber);
-  const headerActive = Boolean(config.header?.text) || band === 'header';
-  const footerActive = Boolean(config.footer?.text) || band === 'footer';
+  const headerActive = hasChromeContent(config.header) || band === 'header';
+  const footerActive = hasChromeContent(config.footer) || band === 'footer';
 
   if (!headerActive && !footerActive) return;
 

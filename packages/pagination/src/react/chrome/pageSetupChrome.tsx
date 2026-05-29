@@ -62,8 +62,20 @@ function bandNode(
     right: null,
   };
 
+  // Rich html wins over plain text. Content is author-authored (the document
+  // owner edits their own header/footer), so it is rendered as-is.
+  const html = content?.html?.trim();
   const text = content?.text?.trim();
-  if (text) {
+  if (html) {
+    // Author-trusted chrome content (the document owner edits their own
+    // header/footer), rendered as-is for inline bold/italic.
+    slots.left = (
+      <span
+        dangerouslySetInnerHTML={{ __html: html }}
+        style={styleToCss(content?.style)}
+      />
+    );
+  } else if (text) {
     slots.left = <span style={styleToCss(content?.style)}>{text}</span>;
   }
   if (align) {

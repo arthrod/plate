@@ -123,6 +123,13 @@ Each PR: red→green→refactor, `check` before PR, changeset, stacked over pred
   - Template: `PageSetupDialog` (margins/page-size/units/page-number/footnote toggle/print button) + `/dev/pagination2` rewritten to register `PageSetupPlugin`, seed a `page_setup` node, drive the desk width/padding from page setup, dotted breaks.
   - Evidence: 127 pkg tests pass, pkg+template typecheck clean, biome clean. Browser: modal reflows engine (3↔13 breaks on margin change), footer page numbers render ("Page 1 of 4" ×4), break style `dotted`, US Letter+inches default (816px), config persists on the `page_setup` node.
 - Architecture note: runtime source = page_setup NODE (persistence) → overlay/host read it reactively; the node is skipped in pagination. No app-level option-sync needed.
+- 2026-05-29: **DEPLOYED PR-A..C** to Cloudflare → https://plate-playground.cicero-im.workers.dev (/dev/pagination2 modal demo, /editor main). Production-verified via dev-browser (816px Letter, dotted breaks, modal reflow, footer page numbers).
+- 2026-05-29: **PR-D DONE** (branch `work/pagination-suite-d-margins-mode`). Margins mode (pts 3/5/6).
+  - Package: `ChromeContent.html` (rich inline) + `hasChromeContent`; chrome bands render rich html.
+  - Template: `MarginsMode` — editable header/footer in the page margin zones, floating toolbar (bold/italic inline via execCommand + font/size/color region-level), click-outside-to-exit, "Edit margins" toggle.
+  - Evidence: 128 pkg tests, pkg+tpl typecheck clean, biome clean. Browser: enter → type header → mirrors to all 4 pages ("DRAFT — Confidential"); bold applies (`<b>` in overlay); click-outside exits.
+  - KNOWN POLISH (pt 8): on page 1, the editable band (margin zone) and the overlay header (anchored to first block top) both show → minor double-header while editing. Acceptable; candidate to suppress page-1 overlay header during margins mode.
+- Remaining: PR-E footnotes (wire @platejs/footnote), PR-F print view (@page), PR-G toolbar buttons on /editor + redeploy.
 
 ### Source-of-truth RESOLVED
 - The playground **deploys from the TEMPLATE directly**: `templates/plate-playground-template/src/{app/dev/pagination2,components/editor/{editor-kit,plugins/pagination-kit}}`. Commit `14686c6ac` edited the template directly with explicit user authorization ("Overrides the CI-controlled-templates rule"); deployed to `plate-playground.cicero-im.workers.dev/editor`. So UI wiring (modal, toolbar buttons, demo) goes in the TEMPLATE; package changes flow in via `vendor:pagination` (build pagination → copy dist into template).

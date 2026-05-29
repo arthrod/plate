@@ -50,6 +50,15 @@ describe('resolveChromeBands', () => {
     expect(bands?.header?.heightPx).toBeGreaterThan(0);
   });
 
+  it('reserves a header band when the header has rich html', () => {
+    const bands = resolveChromeBands({
+      ...DEFAULT_PAGE_SETUP,
+      header: { html: '<b>Northwind</b> MSA' },
+    });
+
+    expect(bands?.header?.heightPx).toBeGreaterThan(0);
+  });
+
   it('reserves both bands when header text and a footer page number coexist', () => {
     const bands = resolveChromeBands({
       ...DEFAULT_PAGE_SETUP,

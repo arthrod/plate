@@ -11,6 +11,7 @@ import { PageSetupPlugin, PaginationPlugin } from '@platejs/pagination/react';
 import type { Value } from 'platejs';
 import { Plate, PlateContent, usePlateEditor } from 'platejs/react';
 import * as React from 'react';
+import { MarginsMode } from '@/components/editor/margins-mode';
 import { PageSetupDialog } from '@/components/editor/page-setup-dialog';
 import { BasicNodesKit } from '@/components/editor/plugins/basic-nodes-kit';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,7 @@ export function PaginationView() {
   });
 
   const [open, setOpen] = React.useState(false);
+  const [marginsMode, setMarginsMode] = React.useState(false);
   const [setup, setSetup] = React.useState<PageSetupConfig>(
     () => getPageSetup(editor) ?? DEFAULT_PAGE_SETUP
   );
@@ -95,6 +97,15 @@ export function PaginationView() {
         >
           Page setup
         </Button>
+        <Button
+          data-margins-ui=""
+          data-testid="margins-toggle"
+          onClick={() => setMarginsMode((m) => !m)}
+          type="button"
+          variant={marginsMode ? 'default' : 'secondary'}
+        >
+          {marginsMode ? 'Done editing margins' : 'Edit margins'}
+        </Button>
       </div>
 
       <div
@@ -114,6 +125,14 @@ export function PaginationView() {
         <Plate editor={editor}>
           <PlateContent style={{ outline: 'none' }} />
         </Plate>
+
+        {marginsMode && (
+          <MarginsMode
+            onChange={applySetup}
+            onExit={() => setMarginsMode(false)}
+            value={setup}
+          />
+        )}
       </div>
 
       <PageSetupDialog

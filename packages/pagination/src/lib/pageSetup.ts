@@ -42,11 +42,22 @@ export type ChromeTextStyle = {
   italic?: boolean;
 };
 
-/** Editable content of a chrome region. `text` is plain for now; PR-D adds marks. */
+/**
+ * Editable content of a chrome region. Provide `html` for rich content
+ * (inline bold/italic from a contentEditable; author-authored, rendered as-is)
+ * or `text` for plain content; `html` wins when both are set. `style` applies
+ * region-level typography (font family/size/color) on top.
+ */
 export type ChromeContent = {
+  html?: string;
   style?: ChromeTextStyle;
   text?: string;
 };
+
+/** Whether a chrome region has any authored content. */
+export function hasChromeContent(content: ChromeContent | undefined): boolean {
+  return Boolean(content?.text?.trim() || content?.html?.trim());
+}
 
 /**
  * The full page-setup record stored on the `page_setup` node. Geometry is
