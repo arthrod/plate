@@ -16,6 +16,7 @@ import { MarginsMode } from '@/components/editor/margins-mode';
 import { PageSetupDialog } from '@/components/editor/page-setup-dialog';
 import { BasicNodesKit } from '@/components/editor/plugins/basic-nodes-kit';
 import { FootnoteKit } from '@/components/editor/plugins/footnote-kit';
+import { PrintStyles } from '@/components/editor/print-styles';
 import { Button } from '@/components/ui/button';
 
 // Seed the document with a leading page_setup node so the engine and the desk
@@ -85,7 +86,9 @@ export function PaginationView() {
         padding: 24,
       }}
     >
+      <PrintStyles setup={setup} />
       <div
+        data-print-hide=""
         style={{
           display: 'flex',
           gap: 8,
