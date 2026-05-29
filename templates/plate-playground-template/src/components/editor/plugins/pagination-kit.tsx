@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  PageNumber,
+  PageNumberWithTitle,
   PaginationPlugin,
   TextHeader,
 } from '@platejs/pagination/react';
@@ -40,8 +40,21 @@ export const PaginationKit = [
         KEYS.equation,
       ],
       chrome: {
-        footer: { heightPx: 32, render: PageNumber },
-        header: { heightPx: 28, render: TextHeader('Plate Playground') },
+        // Cover-page convention: page 1 stays blank (no header, no footer).
+        // PageNumberWithTitle is configured with skipFirstPage=true by default
+        // and renders nothing on page 1; the matching first-page header skip
+        // is wired via a one-line wrapper around TextHeader.
+        footer: {
+          heightPx: 32,
+          render: PageNumberWithTitle('Plate Playground'),
+        },
+        header: {
+          heightPx: 28,
+          render: (ctx) =>
+            ctx.pageIndex === 0
+              ? null
+              : (TextHeader('Plate Playground')(ctx) as React.ReactNode),
+        },
       },
       enabled: false,
     },
