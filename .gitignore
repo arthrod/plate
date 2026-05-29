@@ -8,6 +8,7 @@ templates/my-app
 .cursor/local
 
 .pnpm-store/*
+bunx-*
 .repo_ignore
 
 **/traceDir
