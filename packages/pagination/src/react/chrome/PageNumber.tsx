@@ -29,19 +29,28 @@ import * as React from 'react';
 
 import type { ChromeRenderContext } from '../../layout/types';
 
+// Shared chrome typography. Aligned with the rest of the editor (Roboto / system
+// sans). Exported so consumers can extend without redefining the same constants.
+const CHROME_FONT =
+  'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+const CHROME_INK = 'rgb(71 85 105)';
+const CHROME_RULE = 'rgb(226 232 240)';
+
 /**
  * Centered "Page N of M" footer chip. Default for the most common pagination
- * convention.
+ * convention. A 1-px top border visually delineates the bottom-margin band
+ * from the content area above it, making the page's margins legible without
+ * a heavier paged-view treatment.
  */
 export const PageNumber = (ctx: ChromeRenderContext): React.ReactNode => (
   <div
     data-page-number={ctx.pageIndex + 1}
     style={{
       alignItems: 'center',
-      color: 'rgb(71 85 105)',
+      borderTop: `1px solid ${CHROME_RULE}`,
+      color: CHROME_INK,
       display: 'flex',
-      fontFamily:
-        'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+      fontFamily: CHROME_FONT,
       fontSize: 11,
       height: '100%',
       justifyContent: 'center',
@@ -54,8 +63,8 @@ export const PageNumber = (ctx: ChromeRenderContext): React.ReactNode => (
 );
 
 /**
- * "Title — Page N of M" footer (or header). Renders nothing on page 1 by
- * default (cover-page convention).
+ * Title-on-the-left, "Page N of M"-on-the-right footer.
+ * Renders nothing on page 1 by default (cover-page convention).
  */
 export const PageNumberWithTitle =
   (title: string, opts: { skipFirstPage?: boolean } = { skipFirstPage: true }) =>
@@ -66,10 +75,10 @@ export const PageNumberWithTitle =
         data-page-number={ctx.pageIndex + 1}
         style={{
           alignItems: 'center',
-          color: 'rgb(71 85 105)',
+          borderTop: `1px solid ${CHROME_RULE}`,
+          color: CHROME_INK,
           display: 'flex',
-          fontFamily:
-            'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+          fontFamily: CHROME_FONT,
           fontSize: 11,
           height: '100%',
           justifyContent: 'space-between',
@@ -83,18 +92,21 @@ export const PageNumberWithTitle =
     );
   };
 
-/** Constant uppercase text header (e.g. document title). */
+/**
+ * Constant uppercase text header (e.g. document title). Mirrors the footer's
+ * 1-px rule on its BOTTOM edge so the page reads as a chrome-margin-content-
+ * margin-chrome stack at a glance.
+ */
 export const TextHeader =
   (text: string) =>
   (_ctx: ChromeRenderContext): React.ReactNode => (
     <div
       style={{
         alignItems: 'center',
-        borderBottom: '1px solid rgb(226 232 240)',
-        color: 'rgb(71 85 105)',
+        borderBottom: `1px solid ${CHROME_RULE}`,
+        color: CHROME_INK,
         display: 'flex',
-        fontFamily:
-          'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+        fontFamily: CHROME_FONT,
         fontSize: 11,
         fontWeight: 600,
         height: '100%',
