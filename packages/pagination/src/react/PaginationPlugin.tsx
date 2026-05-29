@@ -13,7 +13,7 @@
 // margins the DOM flow adds between blocks.
 // ============================================================
 
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   type EditableSiblingComponent,
   toPlatePlugin,
@@ -138,6 +138,12 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
   useHooks: ({ editor, setOption }) => {
     const [, forceRecompute] = useState(0);
     const enabled = usePluginOption(PaginationPlugin, 'enabled');
+    // Re-enable invalidation: cache the previous `enabled` so a `false → true`
+    // transition can force the next layout pass to recompute. Without this,
+    // toggling off → on while the document is unchanged keeps `registry.dirty`
+    // false AND `registry.output` populated, and the effect below exits early —
+    // the user sees stale page breaks despite re-enabling. CodeRabbit #434.
+    const prevEnabledRef = useRef(enabled);
 
     // Recompute when the layout registry is dirty (content edits via the base
     // plugin's apply override; selection-only changes leave it clean). Runs in a
@@ -149,9 +155,20 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
     // Skipped entirely while disabled; toggling `enabled` re-renders here (the
     // subscribed option above), so re-enabling recomputes from the dirty registry.
     useIsomorphicLayoutEffect(() => {
-      if (!enabled) return;
+      if (!enabled) {
+        prevEnabledRef.current = false;
+        return;
+      }
 
       const registry = getLayoutRegistry(editor);
+      // `false → true` transition: force a recompute even if the registry
+      // thinks it's clean. The cached output reflects the pre-toggle DOM and
+      // may now be stale (e.g. the user resized while disabled).
+      if (!prevEnabledRef.current) {
+        registry.dirty = true;
+      }
+      prevEnabledRef.current = true;
+
       if (!registry.dirty && registry.output) return;
 
       const editable = editor.api.toDOMNode(editor);

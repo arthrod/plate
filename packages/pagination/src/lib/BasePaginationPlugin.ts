@@ -26,9 +26,13 @@ export type PaginationOptions = {
    * the document is never mutated either way. Toggle at runtime with
    * `editor.setOption(BasePaginationPlugin, 'enabled', next)`.
    *
+   * Optional — `DEFAULT_OPTIONS.enabled = true`, so callers of `.configure({…})`
+   * and `.setOption('enabled', …)` can supply any subset of options without
+   * being forced to repeat the default. CodeRabbit #434.
+   *
    * @default true
    */
-  enabled: boolean;
+  enabled?: boolean;
   page: PageSpec;
   margins: PageMargins;
   policies: LayoutPolicies;

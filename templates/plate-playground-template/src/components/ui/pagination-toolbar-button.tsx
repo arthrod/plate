@@ -12,11 +12,19 @@ export function PaginationToolbarButton(
 ) {
   const editor = useEditorRef();
   const enabled = usePluginOption(PaginationPlugin, 'enabled');
+  // Preserve any consumer-supplied onClick. Spreading `{...props}` first and
+  // then setting `onClick` would silently drop the consumer's handler; compose
+  // them instead. CodeRabbit #434.
+  const { onClick: consumerOnClick, ...rest } = props;
 
   return (
     <ToolbarButton
-      {...props}
-      onClick={() => editor.setOption(PaginationPlugin, 'enabled', !enabled)}
+      {...rest}
+      onClick={(event) => {
+        consumerOnClick?.(event);
+        if (event.defaultPrevented) return;
+        editor.setOption(PaginationPlugin, 'enabled', !enabled);
+      }}
       pressed={enabled}
       tooltip="Page breaks"
     >
