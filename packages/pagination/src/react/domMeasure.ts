@@ -32,13 +32,20 @@ export function topLevelBlockElements(editable: HTMLElement): HTMLElement[] {
 }
 
 function resolveLineHeight(style: CSSStyleDeclaration): number {
-  const lh = Number.parseFloat(style.lineHeight);
-  if (Number.isFinite(lh) && lh > 0) return lh;
-
   const fontSize = Number.parseFloat(style.fontSize);
-  if (Number.isFinite(fontSize) && fontSize > 0) return fontSize * 1.5;
+  const safeFontSize = Number.isFinite(fontSize) && fontSize > 0 ? fontSize : 16;
+  // Gemini PR #442 review (critical): when CSS `line-height` is a unitless
+  // multiplier (e.g. browser-computed value for `line-height: 1.5`),
+  // parseFloat returns `1.5` — using that as pixels would shrink every
+  // block to a single line and break pagination. Heuristic: values < 5 are
+  // multipliers (realistic max ~2.0), values >= 5 are already in pixels
+  // (realistic min ~10).
+  const lh = Number.parseFloat(style.lineHeight);
+  if (Number.isFinite(lh) && lh > 0) {
+    return lh < 5 ? lh * safeFontSize : lh;
+  }
 
-  return 20;
+  return safeFontSize * 1.5;
 }
 
 /** A canvas-compatible font string from computed style (the editor's font). */

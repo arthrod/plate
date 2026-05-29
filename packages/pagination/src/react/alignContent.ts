@@ -20,8 +20,15 @@ export function computePageStartSpacers(
   input: LayoutInput,
   gapPx: number = PAGE_STACK_GAP_PX
 ): Map<number, number> {
-  const contentHeight =
-    input.page.heightPx - input.margins.topPx - input.margins.bottomPx;
+  // Gemini PR #442 review (medium): the original formula was
+  //   (contentHeight - prevBottom) + margin.bottom + gap + margin.top
+  // where contentHeight = page.heightPx - margin.top - margin.bottom.
+  // Margins cancel, leaving just:
+  //   page.heightPx - prevBottom + gap
+  // which makes the geometry self-evident: skip the rest of the prior page
+  // (page.heightPx − how-far-the-prior-frame-actually-filled) plus the
+  // inter-page visual gap. Still clamped to non-negative for the case
+  // where `prevBottom` exceeds page.heightPx (oversized last fragment).
   const spacers = new Map<number, number>();
 
   for (const page of layout.pages) {
@@ -36,22 +43,9 @@ export function computePageStartSpacers(
       0
     );
 
-    // CodeRabbit PR #433: clamp to non-negative. If `prevBottom` exceeds
-    // the content height (an oversized last fragment on the prior page),
-    // the raw expression goes negative and the CSS `margin-top` would
-    // pull the next page-start block UPWARD across the page boundary.
-    // The spacer's job is additive whitespace; negative means "the
-    // previous page overflowed — no extra space needed".
     spacers.set(
       first.path[0],
-      Math.max(
-        0,
-        contentHeight -
-          prevBottom +
-          input.margins.bottomPx +
-          gapPx +
-          input.margins.topPx
-      )
+      Math.max(0, input.page.heightPx - prevBottom + gapPx)
     );
   }
 

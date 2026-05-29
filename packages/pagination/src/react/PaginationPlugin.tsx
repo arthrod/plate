@@ -113,12 +113,21 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
     if (!startBlock) return null;
     return topOf(startBlock);
   };
-  // Full per-page frame height including BOTH chrome bands. For the last page
-  // the footer anchors to this geometric height (rather than the last block's
-  // bottom), so a short last page still shows its footer at the conventional
-  // bottom-of-page position instead of overlapping its header. Dogfood iter-1.
+  // Distance from page-start-block top to the bottom margin. The page-start
+  // block lives at chrome.header.bottom, so its top already accounts for
+  // (margin.top + header.heightPx). The remaining vertical room is
+  // `page.heightPx - margin.top - margin.bottom - header.heightPx` —
+  // content area + footer band, exactly what the last-page footer anchor
+  // wants.
+  //
+  // Gemini PR #442 review (high): previously this didn't subtract the
+  // header height, pushing the last-page footer down past the page
+  // boundary by header.heightPx.
   const pageContentHeightPx =
-    page.heightPx - margins.topPx - margins.bottomPx;
+    page.heightPx -
+    margins.topPx -
+    margins.bottomPx -
+    (chrome?.header?.heightPx ?? 0);
   const footerY = (i: number): number | null => {
     const nextStart = pageStartBlock[i + 1];
     if (nextStart) {

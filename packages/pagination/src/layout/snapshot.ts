@@ -44,7 +44,12 @@ function hash(input: string): string {
 }
 
 function stableId(node: SlateNode): string {
-  if (typeof node.id === 'string' && node.id.length > 0) return node.id;
+  // Gemini PR #442 review (medium): accept any non-nullish `id`, not only
+  // strings. Plate/Slate consumers commonly use numeric or auto-incrementing
+  // ids; rejecting them forces every numerically-ided block to fall back to
+  // content hashing — the (id, width) measure cache thrashes on edits even
+  // though the consumer ALREADY has a stable identity for the block.
+  if (node.id != null && String(node.id).length > 0) return String(node.id);
 
   return `${node.type ?? 'node'}#${hash(nodeText(node))}`;
 }
