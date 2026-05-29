@@ -133,6 +133,15 @@ Each PR: red→green→refactor, `check` before PR, changeset, stacked over pred
 - 2026-05-29: **PR-F DONE** (`6e655f8ed`). `PrintStyles` injects `@page` size (preset/inches) + margins from page_setup + `@media print` UI hiding. Print-view button paginates to physical pages. Verified: `@page { size: letter; margin: 1in }` injected; headless PDF via print CSS = 4 pages. Template-only.
 - **Remaining: PR-G — point #4** (modal + margins-mode buttons on the MAIN `/editor` fixed toolbar). NOTE: the `/dev/pagination2` demo already exposes these buttons + the full feature set "for ease of testing" (the literal intent of #4). Main-editor integration needs PageSetupPlugin in EditorKit + modal/margins state in the toolbar context + page-width desk — a larger follow-up.
 
+## Correction round (PR-G, 2026-05-29) — user feedback + research
+Research (workflow w6xqqbzgu, 4 Opus agents, file-backed):
+- **#7 metadata:** current `page_setup` void-node+`config` blob = idiomatic (= `BaseExcalidrawPlugin` void-node+`data`+KEYS). `editor.meta` runtime-only; `Value=TElement[]`. docx-io treats page setup as EXPORT options, not value → our in-doc node is the correct upgrade. Refinement (register `KEYS.pageSetup`) NOTED but NOT applied to the vendored pkg (template uses published platejs → `KEYS.pageSetup` would be undefined; keep literal `'page_setup'`).
+- **#1 print:** use `PlateStatic` (`platejs/static`) + `createSlateEditor({plugins: BaseEditorKit, value})`; `EditorStatic` wrapper exists. Discrete pages = client-side slice of `LayoutOutput.pages` block paths → `<PlateStatic value={slice}/>` per page card (server discrete pages infeasible: pretext needs canvas). Build a print-PREVIEW, drop `window.print()`.
+- **#4 toolbar:** main editor = `plate-editor.tsx` `<Plate><EditorContainer><Editor/></EditorContainer><SettingsDialog/></Plate>`; `FixedToolbarKit` render.beforeEditable → `FixedToolbarButtons` (first = Undo/Redo group). Share state via plugin OPTION (pagination-toolbar-button pattern). Prepend a ToolbarGroup.
+- **#5/#6 margins:** crude (raw hex, bare buttons, blue box, single flex not 3-slot, only B/I). Redesign: dim body + hairline + corner label; 3-slot grid mirroring `bandNode`; reuse `FontSizeToolbarButton`/`FontColorToolbarButton`/mark buttons + tokens; add `pageNumberStyle`+`footnoteStyle` to `PageSetupConfig` (point 6: header/footer/footnote/page-number text). Keep data-testids + click-outside + onChange flow.
+
+PR-G plan: (pkg) add `pageNumberStyle`/`footnoteStyle` to PageSetupConfig + render → rebuild/vendor; (tpl) margins-mode redesign; PlateStatic print preview; main-editor toolbar buttons; redeploy.
+
 ## Final status (points)
 - #1 modal ✓ · #2 dotted continuous ✓ · #3 margins-mode edit ✓ · #5 click-out exit ✓ · #6 fonts/styles ✓ · #7 doc-JSON metadata ✓ · footnotes toggle+insert ✓ · print view ✓ · Cloudflare deploy ✓
 - #4 main-editor toolbar buttons: demo provides the testing surface; main-editor wiring = follow-up.
