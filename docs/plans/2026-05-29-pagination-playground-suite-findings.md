@@ -144,7 +144,8 @@ PR-G plan: (pkg) add `pageNumberStyle`/`footnoteStyle` to PageSetupConfig + rend
 
 ## Final status (points)
 - #1 modal ✓ · #2 dotted continuous ✓ · #3 margins-mode edit ✓ · #5 click-out exit ✓ · #6 fonts/styles ✓ · #7 doc-JSON metadata ✓ · footnotes toggle+insert ✓ · print view ✓ · Cloudflare deploy ✓
-- #4 main-editor toolbar buttons: demo provides the testing surface; main-editor wiring = follow-up.
+- #4 main-editor toolbar buttons: **DONE (PR-G)** — Page setup + Edit margins at the start of the `/editor` fixed toolbar; engaging them enables pagination + a page-width desk + the modal/margins/print. Verified at /editor (Page 1 of 3).
+- PR-G corrections (all browser-verified): #1 print = PlateStatic page cards (not window.print); #5/#6 margins-mode redesign (dimmed body, hairline+label, 3-slot grid, shadcn toolbar, per-region styles incl. pageNumberStyle/footnoteStyle); #7 confirmed idiomatic; content-growth recompute fix (debounced MutationObserver); #4 main toolbar.
 - #8 UX issues found+fixed: chrome OPTION_UNDEFINED throw; React-Compiler stale read; geometry-recompute gating. Open polish: page-1 double-header in margins mode.
 
 ### Source-of-truth RESOLVED
