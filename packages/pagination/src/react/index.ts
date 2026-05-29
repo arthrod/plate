@@ -4,5 +4,6 @@
 
 export * from './PaginationPlugin';
 export * from './alignContent';
+export * from './chrome/PageNumber';
 export * from './domMeasure';
 export * from './geometry';

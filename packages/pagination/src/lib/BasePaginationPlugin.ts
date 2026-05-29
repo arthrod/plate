@@ -13,8 +13,32 @@ import type { PluginConfig } from 'platejs';
 
 import { createTSlatePlugin } from 'platejs';
 
-import type { LayoutPolicies, PageMargins, PageSpec } from '../layout/types';
+import type {
+  ChromeRenderContext,
+  LayoutPolicies,
+  PageMargins,
+  PageSpec,
+} from '../layout/types';
 import { invalidateLayoutRegistry, shouldInvalidateLayout } from './registry';
+
+/**
+ * Page-chrome configuration for the React layer. A chrome band reserves
+ * `heightPx` of vertical space at the top (header) or bottom (footer) of each
+ * page — the composer subtracts that height from the content frame before
+ * packing — and renders the consumer-supplied content via the overlay as an
+ * absolute sibling of the editable.
+ *
+ * PRETEXT-safe: `render` MUST be a pure function that produces a ReactNode from
+ * the {@link ChromeRenderContext}. It MUST NOT call DOM APIs, mutate the editor,
+ * or read scroll state; the same `(pageIndex, pageCount)` always yields the
+ * same content.
+ *
+ * @public
+ */
+export type PageChromeOption = {
+  heightPx: number;
+  render: (ctx: ChromeRenderContext) => unknown;
+};
 
 /** How pages are presented while editing. Print authority is the static path. */
 export type PaginationViewMode = 'continuous' | 'paged';
@@ -41,6 +65,17 @@ export type PaginationOptions = {
   atomicTypes: string[];
   /** Block types kept on the same page as the next block (e.g. headings). */
   keepWithNextTypes: string[];
+  /**
+   * Page chrome (headers + footers + page numbers). Each band reserves
+   * vertical space in the page (composer-enforced) and is rendered inside that
+   * reserved rect by the overlay. The chrome rects come from `PageLayout.chrome`
+   * — pure composer output — so chrome content is anchored to page geometry,
+   * not the viewport. Optional; absent means no chrome.
+   */
+  chrome?: {
+    header?: PageChromeOption;
+    footer?: PageChromeOption;
+  };
 };
 
 export type PaginationConfig = PluginConfig<'pagination', PaginationOptions>;

@@ -68,6 +68,9 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   const editor = useEditorRef();
   const enabled = usePluginOption(PaginationPlugin, 'enabled');
   const breaks = usePluginOption(PaginationPlugin, 'breaks');
+  const chrome = usePluginOption(PaginationPlugin, 'chrome');
+  const page = usePluginOption(PaginationPlugin, 'page');
+  const margins = usePluginOption(PaginationPlugin, 'margins');
 
   const editable = editor.api.toDOMNode(editor);
   if (!enabled || !editable || breaks.length === 0) return null;
@@ -88,32 +91,147 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   const topOf = (el: HTMLElement) =>
     editable.offsetTop + (el.getBoundingClientRect().top - editableTop);
 
-  return (
-    <div data-slot="pagination-break-lines" style={{ pointerEvents: 'none' }}>
-      {blocks[0] && (
+  // Per-page anchor blocks. Page 1 starts at blocks[0]; subsequent pages start
+  // at the block named by each break in order. `pageStartBlock[i]` is the
+  // first top-level block of page i (0-indexed).
+  const pageStartBlock: Array<HTMLElement | undefined> = [blocks[0]];
+  for (const brk of breaks) pageStartBlock.push(blocks[brk.blockIndex]);
+
+  /**
+   * Map a page index + chrome.y (page-local) to a document-Y inside the
+   * editable's positioned-ancestor space. In continuous view we use the page's
+   * START BLOCK as the y=margins.topPx anchor, then offset by (chromeRect.y -
+   * margins.topPx). For header (y = margins.topPx) the offset is 0 → chrome
+   * sits exactly at the start block's top. For footer (y = page.heightPx -
+   * margins.bottomPx - heightPx) the offset is negative relative to the start
+   * block of the NEXT page (or end of document for the last page); we compute
+   * it by anchoring to the NEXT page's start block and subtracting the chrome
+   * band height + bottom margin.
+   */
+  const headerY = (i: number): number | null => {
+    const startBlock = pageStartBlock[i];
+    if (!startBlock) return null;
+    return topOf(startBlock);
+  };
+  const footerY = (i: number): number | null => {
+    const nextStart = pageStartBlock[i + 1];
+    if (nextStart) {
+      // Footer sits just ABOVE the next page's break, by chrome.footer.heightPx.
+      return topOf(nextStart) - (chrome?.footer?.heightPx ?? 0);
+    }
+    // Last page: anchor at the end of the last block.
+    const lastBlock = blocks[blocks.length - 1];
+    if (!lastBlock) return null;
+    const r = lastBlock.getBoundingClientRect();
+    const bottom =
+      editable.offsetTop + (r.bottom - editableTop);
+    return bottom - (chrome?.footer?.heightPx ?? 0);
+  };
+
+  const renderHeader =
+    chrome?.header && typeof chrome.header.render === 'function'
+      ? chrome.header.render
+      : null;
+  const renderFooter =
+    chrome?.footer && typeof chrome.footer.render === 'function'
+      ? chrome.footer.render
+      : null;
+
+  // Backwards-compatible "Page N of M" left-margin chips. When chrome is NOT
+  // configured, render the original chips. When chrome IS configured, the
+  // chrome bands take over the page-number role and the chips stay hidden.
+  const showLegacyChips = !chrome?.header && !chrome?.footer;
+
+  // Iterate pages once and emit:
+  //   - the dashed break-line at each interior boundary (existing behavior)
+  //   - the configured chrome header / footer per page (NEW)
+  //   - the legacy chip per page (only when chrome is absent)
+  const pages: React.ReactNode[] = [];
+  for (let i = 0; i < total; i++) {
+    const headerTop = headerY(i);
+    const footerTop = footerY(i);
+
+    if (renderHeader && headerTop !== null && chrome?.header) {
+      pages.push(
+        <div
+          data-slot="pagination-chrome"
+          data-pagination-chrome="header"
+          data-page-index={i}
+          key={`chrome-header-${i}`}
+          style={{
+            height: chrome.header.heightPx,
+            left,
+            position: 'absolute',
+            top: headerTop,
+            width,
+          }}
+        >
+          {renderHeader({
+            margins,
+            page,
+            pageCount: total,
+            pageIndex: i,
+          }) as React.ReactNode}
+        </div>
+      );
+    }
+    if (renderFooter && footerTop !== null && chrome?.footer) {
+      pages.push(
+        <div
+          data-slot="pagination-chrome"
+          data-pagination-chrome="footer"
+          data-page-index={i}
+          key={`chrome-footer-${i}`}
+          style={{
+            height: chrome.footer.heightPx,
+            left,
+            position: 'absolute',
+            top: footerTop,
+            width,
+          }}
+        >
+          {renderFooter({
+            margins,
+            page,
+            pageCount: total,
+            pageIndex: i,
+          }) as React.ReactNode}
+        </div>
+      );
+    }
+    if (showLegacyChips && headerTop !== null) {
+      // Legacy chip: left-margin "Page N of M" at the top of each page's first
+      // block. Preserved verbatim for backward compat.
+      pages.push(
         <div
           data-slot="pagination-page-marker"
-          style={{ left, position: 'absolute', top: topOf(blocks[0]), width }}
+          data-page-index={i}
+          key={`legacy-chip-${i}`}
+          style={{ left, position: 'absolute', top: headerTop, width }}
         >
           <span data-slot="pagination-break-label" style={labelStyle}>
-            {`Page 1 of ${total}`}
+            {`Page ${i + 1} of ${total}`}
           </span>
         </div>
-      )}
+      );
+    }
+  }
+
+  return (
+    <div data-slot="pagination-break-lines" style={{ pointerEvents: 'none' }}>
+      {pages}
       {breaks.map((brk, i) => {
         const el = blocks[brk.blockIndex];
         if (!el) return null;
-
         // lineStart > 0 (future line-split mode) offsets within the block by the
         // pretext line count; 0 is a clean whole-block top.
         const lineHeight =
           Number.parseFloat(getComputedStyle(el).lineHeight) || 0;
         const top = topOf(el) + brk.lineStart * lineHeight;
-
         return (
           <div
             data-slot="pagination-break-line"
-            key={`${brk.blockIndex}:${brk.lineStart}`}
+            key={`brk-${brk.blockIndex}:${brk.lineStart}`}
             style={{
               borderTop: '1px dashed rgb(100 116 139)',
               left,
@@ -121,11 +239,7 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
               top,
               width,
             }}
-          >
-            <span data-slot="pagination-break-label" style={labelStyle}>
-              {`Page ${i + 2} of ${total}`}
-            </span>
-          </div>
+          />
         );
       })}
     </div>
@@ -174,7 +288,7 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       const editable = editor.api.toDOMNode(editor);
       if (!editable) return;
 
-      const { atomicTypes, keepWithNextTypes, margins, page, policies } =
+      const { atomicTypes, chrome, keepWithNextTypes, margins, page, policies } =
         editor.getOptions(BasePaginationPlugin);
       const widthPx = page.widthPx - margins.leftPx - margins.rightPx;
 
@@ -186,7 +300,27 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
         cache: registry.measureCache,
         widthPx,
       });
-      const layout = composeLayout(measured, { margins, page, policies });
+      // Pass chrome heights through to the composer so it can shrink the content
+      // frame and emit the per-page chrome rects the overlay anchors to. The
+      // `render` functions live on the plugin options and stay out of the pure
+      // layout pipeline.
+      const layout = composeLayout(measured, {
+        margins,
+        page,
+        policies,
+        ...(chrome
+          ? {
+              chrome: {
+                ...(chrome.header
+                  ? { header: { heightPx: chrome.header.heightPx } }
+                  : {}),
+                ...(chrome.footer
+                  ? { footer: { heightPx: chrome.footer.heightPx } }
+                  : {}),
+              },
+            }
+          : {}),
+      });
 
       registry.output = layout;
       registry.dirty = false;
