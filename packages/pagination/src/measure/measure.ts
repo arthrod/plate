@@ -86,9 +86,25 @@ export function measureSnapshot(
   const { cache, fallbackLineHeightPx = 20, widthPx } = options;
 
   const blocks: MeasuredBlock[] = snapshot.blocks.map((block) => {
-    // Cache slot is per (block, width): a single id measured at two widths must
-    // keep both, or alternating widths thrash one slot and defeat the cache.
-    const cacheKey = `${block.id}@${widthPx}`;
+    // Cache slot is per (block, width, content-signature):
+    //
+    //  - `id + width` alone (CR PR #438) covered the resize/side-by-side
+    //    case where the same block is measured at multiple widths.
+    //
+    //  - CR PR #442 (major): an explicit consumer-supplied `id` is stable
+    //    ACROSS edits, but the block's measured height isn't — a stable id
+    //    re-measured after the text changed would return the OLD cached
+    //    height, producing wrong page breaks. The content signature
+    //    (`type | text | flags`) closes that gap; the same edit changes
+    //    the signature, which evicts the prior slot.
+    //
+    //  Fallback-id consumers already get this for free because the fallback
+    //  id hashes the text — but the signature is the explicit-id path's
+    //  invariant too.
+    const sig = `${block.type ?? 'unknown'}|${block.text ?? ''}|${
+      block.keepWithNext ? 1 : 0
+    }|${block.breakBefore ? 1 : 0}|${block.splittable === false ? 0 : 1}`;
+    const cacheKey = `${block.id}@${widthPx}@${sig}`;
     let metrics: BlockMetrics | null = cache?.get(cacheKey) ?? null;
 
     if (!metrics) {

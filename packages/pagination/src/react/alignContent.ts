@@ -52,10 +52,22 @@ export function computePageStartSpacers(
   for (const page of layout.pages) {
     if (page.index === 0) continue;
 
-    const first = page.frames[0].fragments[0];
+    const first = page.frames[0]?.fragments[0];
     if (!first) continue;
 
-    const prev = layout.pages[page.index - 1].frames[0];
+    // CodeRabbit PR #442 (major): only the FIRST fragment of a top-level
+    // block can receive a page-start spacer. A page that opens with a
+    // CONTINUATION fragment (the second/third/Nth slice of a block whose
+    // earlier fragments live on the prior page) shares its block's DOM
+    // element with those earlier fragments. Applying `margin-top` to that
+    // element would push the entire block — including the slice already
+    // rendered on the prior page — downward. The spacer here is a no-op
+    // anyway: continuations don't need to snap to the next page's content
+    // top because their parent block already occupies it.
+    if (first.fragmentIndex > 0) continue;
+
+    const prev = layout.pages[page.index - 1]?.frames[0];
+    if (!prev) continue;
     const prevBottom = prev.fragments.reduce(
       (max, f) => Math.max(max, f.y + f.heightPx),
       0

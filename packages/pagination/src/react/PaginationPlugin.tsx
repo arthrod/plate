@@ -352,14 +352,24 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       setOption('breaks', getContinuousBreaks(layout));
     });
 
-    // A width change re-wraps text and changes pagination. Invalidate the layout
-    // and force a re-render so the dirty-recompute effect re-measures at the new
-    // width and the overlay re-anchors to the new block tops.
+    // A WIDTH change re-wraps text and changes pagination. Height-only
+    // changes (the natural by-product of every edit) MUST NOT trigger
+    // recompute — the dirty-set already invalidates on content changes
+    // and re-running the whole pretext pipeline on every keystroke would
+    // be a 60Hz pipeline cycle. CodeRabbit PR #442 (major).
     useEffect(() => {
       const editable = editor.api.toDOMNode(editor);
       if (!editable || typeof ResizeObserver === 'undefined') return;
 
-      const observer = new ResizeObserver(() => {
+      let lastWidth = editable.clientWidth;
+      const observer = new ResizeObserver((entries) => {
+        // Prefer ResizeObserverEntry.contentBoxSize when available (more
+        // precise than reading clientWidth back), but fall back to it.
+        const entry = entries[0];
+        const nextWidth =
+          entry?.contentBoxSize?.[0]?.inlineSize ?? editable.clientWidth;
+        if (nextWidth === lastWidth) return;
+        lastWidth = nextWidth;
         invalidateLayoutRegistry(editor);
         forceRecompute((n) => n + 1);
       });
