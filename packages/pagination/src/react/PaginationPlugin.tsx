@@ -71,6 +71,8 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   const chrome = usePluginOption(PaginationPlugin, 'chrome');
   const page = usePluginOption(PaginationPlugin, 'page');
   const margins = usePluginOption(PaginationPlugin, 'margins');
+  const breakLineStyle =
+    usePluginOption(PaginationPlugin, 'breakLineStyle') ?? 'dashed';
 
   const editable = editor.api.toDOMNode(editor);
   if (!enabled || !editable || breaks.length === 0) return null;
@@ -143,7 +145,7 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
     const startBlock = pageStartBlock[i];
     if (!startBlock) return null;
     const startY = topOf(startBlock);
-    const lastBlock = blocks[blocks.length - 1];
+    const lastBlock = blocks.at(-1);
     const overflowEnd = lastBlock
       ? editable.offsetTop +
         (lastBlock.getBoundingClientRect().bottom - editableTop)
@@ -179,10 +181,12 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
     if (renderHeader && headerTop !== null && chrome?.header) {
       pages.push(
         <div
+          aria-hidden="true"
           data-slot="pagination-chrome"
           data-pagination-chrome="header"
           data-page-index={i}
           key={`chrome-header-${i}`}
+          role="presentation"
           style={{
             height: chrome.header.heightPx,
             left,
@@ -191,22 +195,26 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
             width,
           }}
         >
-          {renderHeader({
-            margins,
-            page,
-            pageCount: total,
-            pageIndex: i,
-          }) as React.ReactNode}
+          {
+            renderHeader({
+              margins,
+              page,
+              pageCount: total,
+              pageIndex: i,
+            }) as React.ReactNode
+          }
         </div>
       );
     }
     if (renderFooter && footerTop !== null && chrome?.footer) {
       pages.push(
         <div
+          aria-hidden="true"
           data-slot="pagination-chrome"
           data-pagination-chrome="footer"
           data-page-index={i}
           key={`chrome-footer-${i}`}
+          role="presentation"
           style={{
             height: chrome.footer.heightPx,
             left,
@@ -215,12 +223,14 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
             width,
           }}
         >
-          {renderFooter({
-            margins,
-            page,
-            pageCount: total,
-            pageIndex: i,
-          }) as React.ReactNode}
+          {
+            renderFooter({
+              margins,
+              page,
+              pageCount: total,
+              pageIndex: i,
+            }) as React.ReactNode
+          }
         </div>
       );
     }
@@ -245,7 +255,7 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   return (
     <div data-slot="pagination-break-lines" style={{ pointerEvents: 'none' }}>
       {pages}
-      {breaks.map((brk, i) => {
+      {breaks.map((brk) => {
         const el = blocks[brk.blockIndex];
         if (!el) return null;
         // lineStart > 0 (future line-split mode) offsets within the block by the
@@ -258,7 +268,7 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
             data-slot="pagination-break-line"
             key={`brk-${brk.blockIndex}:${brk.lineStart}`}
             style={{
-              borderTop: '1px dashed rgb(100 116 139)',
+              borderTop: `1px ${breakLineStyle} rgb(100 116 139)`,
               left,
               position: 'absolute',
               top,
@@ -313,8 +323,14 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       const editable = editor.api.toDOMNode(editor);
       if (!editable) return;
 
-      const { atomicTypes, chrome, keepWithNextTypes, margins, page, policies } =
-        editor.getOptions(BasePaginationPlugin);
+      const {
+        atomicTypes,
+        chrome,
+        keepWithNextTypes,
+        margins,
+        page,
+        policies,
+      } = editor.getOptions(BasePaginationPlugin);
       const widthPx = page.widthPx - margins.leftPx - margins.rightPx;
 
       const snapshot = buildSnapshot(editor.children, {

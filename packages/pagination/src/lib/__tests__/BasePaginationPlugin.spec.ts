@@ -28,6 +28,29 @@ describe('BasePaginationPlugin', () => {
     expect(editor.getOptions(BasePaginationPlugin).enabled).toBe(false);
   });
 
+  it('defaults the break-line style to dashed', () => {
+    const editor = editorWithPagination();
+
+    expect(editor.getOptions(BasePaginationPlugin).breakLineStyle).toBe(
+      'dashed'
+    );
+  });
+
+  it('accepts a configured break-line style', () => {
+    const editor = createSlateEditor({
+      plugins: [
+        BasePaginationPlugin.configure({
+          options: { breakLineStyle: 'dotted' },
+        }),
+      ],
+      value: [{ children: [{ text: 'hello' }], type: 'p' }],
+    });
+
+    expect(editor.getOptions(BasePaginationPlugin).breakLineStyle).toBe(
+      'dotted'
+    );
+  });
+
   it('invalidates the layout registry on a content edit', () => {
     const editor = editorWithPagination();
     getLayoutRegistry(editor).dirty = false; // simulate a fresh build

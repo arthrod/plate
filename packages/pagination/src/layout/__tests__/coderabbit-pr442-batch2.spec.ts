@@ -17,10 +17,10 @@ import { describe, expect, test } from 'bun:test';
 import { composeLayout } from '../compose';
 import { computePageStartSpacers } from '../../react/alignContent';
 import { measureSnapshot } from '../../measure/measure';
+import type { MeasureCache } from '../../measure/measure';
 import type {
   LayoutInput,
   LayoutOutput,
-  MeasureCache,
   PageLayout,
   UnmeasuredSnapshot,
 } from '../types';
@@ -50,14 +50,16 @@ describe('measureSnapshot — content-aware cache key (CR PR #442 batch 2)', () 
       ],
     };
 
-    measureSnapshot(v1, () => ({ heightPx: ((++calls), 20), lineHeightPx: 20 }), {
-      widthPx: 600,
-      cache,
-    });
-    measureSnapshot(v2, () => ({ heightPx: ((++calls), 100), lineHeightPx: 20 }), {
-      widthPx: 600,
-      cache,
-    });
+    const measureV1 = () => {
+      calls += 1;
+      return { heightPx: 20, lineHeightPx: 20 };
+    };
+    const measureV2 = () => {
+      calls += 1;
+      return { heightPx: 100, lineHeightPx: 20 };
+    };
+    measureSnapshot(v1, measureV1, { cache, widthPx: 600 });
+    measureSnapshot(v2, measureV2, { cache, widthPx: 600 });
 
     // Both calls must have hit the measurer — otherwise the second `id:
     // 'stable'` would have stale-cache-hit on v1's `20px`.
@@ -114,11 +116,7 @@ describe('measureSnapshot — content-aware cache key (CR PR #442 batch 2)', () 
       text: 'same',
       type: 'h1',
     };
-    measureSnapshot(
-      { blocks: [baseBlock] },
-      measure,
-      { widthPx: 600, cache }
-    );
+    measureSnapshot({ blocks: [baseBlock] }, measure, { widthPx: 600, cache });
     measureSnapshot(
       { blocks: [{ ...baseBlock, keepWithNext: true }] },
       measure,
@@ -186,7 +184,7 @@ describe('computePageStartSpacers — skip continuations (CR PR #442 batch 2)', 
         pageOfBlock: () => 0,
         pageOfBlockLine: () => 0,
       },
-      metrics: { totalPages: 2, totalLines: 40, overflows: 0 },
+      metrics: { blocks: 1, pages: 2 },
     };
     const spacers = computePageStartSpacers(layout, input);
     expect(spacers.has(0)).toBe(false); // NO spacer on the continued block
@@ -244,7 +242,7 @@ describe('computePageStartSpacers — skip continuations (CR PR #442 batch 2)', 
         pageOfBlock: () => 0,
         pageOfBlockLine: () => 0,
       },
-      metrics: { totalPages: 2, totalLines: 40, overflows: 0 },
+      metrics: { blocks: 2, pages: 2 },
     };
     const spacers = computePageStartSpacers(layout, input);
     expect(spacers.has(1)).toBe(true); // NEW block on page 2 DOES get its spacer

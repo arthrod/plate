@@ -43,6 +43,13 @@ export type PageChromeOption = {
 /** How pages are presented while editing. Print authority is the static path. */
 export type PaginationViewMode = 'continuous' | 'paged';
 
+/**
+ * CSS border style for the advisory page-break rule painted at each interior
+ * page boundary in continuous view. `dotted` reads as the lightest "page ends
+ * here" hint; `dashed` (default) preserves the original treatment.
+ */
+export type BreakLineStyle = 'dashed' | 'dotted' | 'solid';
+
 export type PaginationOptions = {
   /**
    * Whether pagination is active. When `false`, the React layer skips layout
@@ -61,6 +68,12 @@ export type PaginationOptions = {
   margins: PageMargins;
   policies: LayoutPolicies;
   viewMode: PaginationViewMode;
+  /**
+   * CSS border style of the advisory page-break rule in continuous view.
+   *
+   * @default 'dashed'
+   */
+  breakLineStyle?: BreakLineStyle;
   /** Block types placed whole, never split (tables, images, void). */
   atomicTypes: string[];
   /** Block types kept on the same page as the next block (e.g. headings). */
@@ -84,6 +97,7 @@ export type PaginationConfig = PluginConfig<'pagination', PaginationOptions>;
 // (cheapest, fully native edit surface — paged is the high-fidelity opt-in).
 const DEFAULT_OPTIONS: PaginationOptions = {
   atomicTypes: [],
+  breakLineStyle: 'dashed',
   enabled: true,
   keepWithNextTypes: [],
   margins: { bottomPx: 96, leftPx: 96, rightPx: 96, topPx: 96 },
