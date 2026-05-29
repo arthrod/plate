@@ -113,19 +113,35 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
     if (!startBlock) return null;
     return topOf(startBlock);
   };
+  // Full per-page frame height including BOTH chrome bands. For the last page
+  // the footer anchors to this geometric height (rather than the last block's
+  // bottom), so a short last page still shows its footer at the conventional
+  // bottom-of-page position instead of overlapping its header. Dogfood iter-1.
+  const pageContentHeightPx =
+    page.heightPx - margins.topPx - margins.bottomPx;
   const footerY = (i: number): number | null => {
     const nextStart = pageStartBlock[i + 1];
     if (nextStart) {
       // Footer sits just ABOVE the next page's break, by chrome.footer.heightPx.
       return topOf(nextStart) - (chrome?.footer?.heightPx ?? 0);
     }
-    // Last page: anchor at the end of the last block.
+    // Last page: anchor to the page's GEOMETRIC bottom (start block +
+    // full content frame height), so a sparse last page still gets a
+    // proper bottom-of-page footer instead of one stuck to the header.
+    // If the last page's content actually overflows that geometric end
+    // (very tall last block), fall back to the larger of the two so the
+    // footer never lands above content.
+    const startBlock = pageStartBlock[i];
+    if (!startBlock) return null;
+    const startY = topOf(startBlock);
     const lastBlock = blocks[blocks.length - 1];
-    if (!lastBlock) return null;
-    const r = lastBlock.getBoundingClientRect();
-    const bottom =
-      editable.offsetTop + (r.bottom - editableTop);
-    return bottom - (chrome?.footer?.heightPx ?? 0);
+    const overflowEnd = lastBlock
+      ? editable.offsetTop +
+        (lastBlock.getBoundingClientRect().bottom - editableTop)
+      : startY + pageContentHeightPx;
+    const geometricEnd = startY + pageContentHeightPx;
+    const end = Math.max(geometricEnd, overflowEnd);
+    return end - (chrome?.footer?.heightPx ?? 0);
   };
 
   const renderHeader =

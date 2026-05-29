@@ -20,7 +20,12 @@
 //
 // ============================================================
 
-import type * as React from 'react';
+// `React` (not just the types) is needed at runtime because the JSX below
+// compiles to `React.createElement(...)`. A type-only import elides at runtime
+// and the bundled module throws `React is not defined` the moment the consumer
+// invokes a render function. CodeRabbit-style note: avoid `import type * as
+// React` whenever the file emits JSX.
+import * as React from 'react';
 
 import type { ChromeRenderContext } from '../../layout/types';
 

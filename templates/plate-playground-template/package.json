@@ -8,7 +8,7 @@
     "depset": "bunx depset@latest @platejs --yes && bunx depset@latest platejs --yes",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "dev": "next dev",
-    "vendor:pagination": "rm -rf vendor/platejs-pagination/dist && cp -r ../../packages/pagination/dist vendor/platejs-pagination/dist",
+    "vendor:pagination": "rm -rf vendor/platejs-pagination/dist node_modules/@platejs/pagination/dist && cp -r ../../packages/pagination/dist vendor/platejs-pagination/dist && cp -r vendor/platejs-pagination/dist node_modules/@platejs/pagination/dist",
     "lint": "biome check src biome.jsonc components.json tsconfig.json eslint.config.mjs next.config.ts postcss.config.mjs && eslint .",
     "lint:fix": "biome check src biome.jsonc components.json tsconfig.json eslint.config.mjs next.config.ts postcss.config.mjs --fix --unsafe && eslint . --fix",
     "prepare": "bun x skiller@latest apply || true",
