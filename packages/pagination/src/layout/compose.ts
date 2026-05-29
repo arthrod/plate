@@ -30,13 +30,50 @@ export function composeLayout(
   input: LayoutInput
 ): LayoutOutput {
   const { margins, page, policies } = input;
+  // Chrome shrinks the content frame BEFORE packing. Header sits between top
+  // margin and content; footer sits between content and bottom margin. Both
+  // are optional — undefined === 0.
+  const headerHeightPx = input.chrome?.header?.heightPx ?? 0;
+  const footerHeightPx = input.chrome?.footer?.heightPx ?? 0;
+  const contentWidthPx = page.widthPx - margins.leftPx - margins.rightPx;
   const bounds: Rect = {
     x: margins.leftPx,
-    y: margins.topPx,
-    width: page.widthPx - margins.leftPx - margins.rightPx,
-    height: page.heightPx - margins.topPx - margins.bottomPx,
+    y: margins.topPx + headerHeightPx,
+    width: contentWidthPx,
+    height:
+      page.heightPx -
+      margins.topPx -
+      margins.bottomPx -
+      headerHeightPx -
+      footerHeightPx,
   };
   const frameHeight = bounds.height;
+
+  // Chrome rects are layout-wide constants (identical on every page), but we
+  // emit them per-page so the React overlay can resolve a page's chrome to
+  // document-Y via the page index without a second lookup. Undefined when no
+  // chrome was configured. Per the type contract: x/widthPx are content-aligned
+  // (inside left/right margins); y is page-local.
+  const chromeRectsForPage = input.chrome
+    ? {
+        header: input.chrome.header
+          ? {
+              x: margins.leftPx,
+              y: margins.topPx,
+              heightPx: headerHeightPx,
+              widthPx: contentWidthPx,
+            }
+          : undefined,
+        footer: input.chrome.footer
+          ? {
+              x: margins.leftPx,
+              y: page.heightPx - margins.bottomPx - footerHeightPx,
+              heightPx: footerHeightPx,
+              widthPx: contentWidthPx,
+            }
+          : undefined,
+      }
+    : undefined;
 
   const pages: PageLayout[] = [];
   let fragments: BlockFragment[] = [];
@@ -46,7 +83,12 @@ export function composeLayout(
 
   const flushPage = () => {
     const frame: FrameLayout = { bounds, fragments };
-    pages.push({ frames: [frame], index: pageIndex, spec: page });
+    pages.push({
+      frames: [frame],
+      index: pageIndex,
+      spec: page,
+      ...(chromeRectsForPage ? { chrome: chromeRectsForPage } : {}),
+    });
     pageIndex += 1;
     currentY = 0;
     fragments = [];

@@ -25,6 +25,54 @@ export type PageMargins = {
   leftPx: number;
 };
 
+/**
+ * Chrome render context — handed to a `PageChromeSpec.render` so the consumer
+ * can produce page-number-aware content. Pure: no DOM access expected.
+ */
+export type ChromeRenderContext = {
+  /** Zero-based page index. */
+  pageIndex: number;
+  /** Total page count in the current layout. */
+  pageCount: number;
+  /** Page spec for this page (width/height). */
+  page: PageSpec;
+  /** Page margins (the chrome sits INSIDE these, not outside). */
+  margins: PageMargins;
+};
+
+/**
+ * Page-chrome spec: a reserved horizontal band at the top (header) or bottom
+ * (footer) of each page. The band height SHRINKS the content frame the composer
+ * has available for block packing; the rendered content is supplied by `render`
+ * and painted by the overlay as an absolute sibling of the editable.
+ *
+ * PRETEXT-safe: `render` MUST NOT call DOM APIs, mutate the editor, or read
+ * scroll state. It receives a pure {@link ChromeRenderContext} and returns any
+ * ReactNode. Page-number content reads directly off `pageIndex` / `pageCount`.
+ */
+export type PageChromeSpec = {
+  /** Reserved band height, in CSS px. */
+  heightPx: number;
+  /** Pure-function render. Called once per page when the layout changes. */
+  render: (ctx: ChromeRenderContext) => unknown;
+};
+
+/**
+ * Frame-relative chrome rectangle for one page, emitted by composeLayout when
+ * chrome is configured. The overlay uses these rects to anchor chrome content —
+ * no DOM measurement of the chrome itself is needed.
+ */
+export type PageChromeRect = {
+  /** Page-local Y (relative to the page's top edge), in CSS px. */
+  y: number;
+  /** Band height (matches the configured `heightPx`). */
+  heightPx: number;
+  /** Page content width = page.widthPx - margins.leftPx - margins.rightPx. */
+  widthPx: number;
+  /** Page-local X (= margins.leftPx). */
+  x: number;
+};
+
 /** Pagination break policies (widow/orphan/keep-with-next). */
 export type LayoutPolicies = {
   /** Min lines kept at the top of a page for a split block. */
@@ -40,6 +88,17 @@ export type LayoutInput = {
   page: PageSpec;
   margins: PageMargins;
   policies: LayoutPolicies;
+  /**
+   * Optional page chrome. Header sits BELOW the top margin, footer sits ABOVE
+   * the bottom margin. Both reduce the content frame's available height; both
+   * are anchored using composer-computed geometry so they never drift with
+   * scroll. The render functions are stored OUTSIDE the layout output (they
+   * live on the plugin options); the composer only needs `heightPx` here.
+   */
+  chrome?: {
+    header?: { heightPx: number };
+    footer?: { heightPx: number };
+  };
 };
 
 /**
@@ -140,6 +199,16 @@ export type PageLayout = {
   index: number;
   spec: PageSpec;
   frames: FrameLayout[];
+  /**
+   * Reserved rects for header/footer chrome, in page-local coordinates.
+   * Absent when no chrome configured. Identical across every page in a single
+   * layout (chrome is layout-wide, not per-page); kept per-page so the overlay
+   * can map them to document-Y via the page's known top without extra plumbing.
+   */
+  chrome?: {
+    header?: PageChromeRect;
+    footer?: PageChromeRect;
+  };
 };
 
 export type ComposeMetrics = {
