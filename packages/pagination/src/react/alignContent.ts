@@ -36,13 +36,22 @@ export function computePageStartSpacers(
       0
     );
 
+    // CodeRabbit PR #433: clamp to non-negative. If `prevBottom` exceeds
+    // the content height (an oversized last fragment on the prior page),
+    // the raw expression goes negative and the CSS `margin-top` would
+    // pull the next page-start block UPWARD across the page boundary.
+    // The spacer's job is additive whitespace; negative means "the
+    // previous page overflowed — no extra space needed".
     spacers.set(
       first.path[0],
-      contentHeight -
-        prevBottom +
-        input.margins.bottomPx +
-        gapPx +
-        input.margins.topPx
+      Math.max(
+        0,
+        contentHeight -
+          prevBottom +
+          input.margins.bottomPx +
+          gapPx +
+          input.margins.topPx
+      )
     );
   }
 

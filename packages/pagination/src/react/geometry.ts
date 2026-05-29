@@ -75,15 +75,22 @@ export function getBlockPlacements(
     const placement = geometry.placements[page.index];
     if (!placement) continue;
 
+    // CodeRabbit PR #433: `startsPage` must be PAGE-local, not frame-local.
+    // Multi-frame pages previously marked the first fragment of EVERY frame
+    // as a page starter, which falsely promoted later-frame blocks as if
+    // they had crossed a page boundary. Track the per-page fragment counter.
+    let pageFragmentSeen = 0;
     for (const frame of page.frames) {
-      frame.fragments.forEach((fragment, fragmentPos) => {
+      frame.fragments.forEach((fragment) => {
         const blockIndex = fragment.path[0];
+        const isFirstOfPage = pageFragmentSeen === 0;
+        pageFragmentSeen += 1;
         if (byBlock.has(blockIndex)) return; // keep the first fragment only
 
         byBlock.set(blockIndex, {
           blockIndex,
           pageIndex: page.index,
-          startsPage: fragmentPos === 0,
+          startsPage: isFirstOfPage,
           targetTop: placement.top + frame.bounds.y + fragment.y,
         });
       });
