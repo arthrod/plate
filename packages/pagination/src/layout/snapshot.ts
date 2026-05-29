@@ -56,10 +56,29 @@ export function buildSnapshot(
   const atomic = new Set(options.atomicTypes ?? []);
   const keepWithNext = new Set(options.keepWithNextTypes ?? []);
 
+  // CodeRabbit PR #438: fallback stableIds (`${type}#${hash(text)}`) can
+  // collide for sibling blocks with identical type AND text (e.g. two empty
+  // paragraphs). A duplicate id corrupts the (id, width) measure cache (two
+  // blocks share one cached height) and confuses fragment grouping
+  // downstream. Disambiguate any fallback id we've already emitted by
+  // appending the positional index; real author-supplied ids stay untouched
+  // since the original raw value is what we register in `seenIds`.
+  const seenIds = new Set<string>();
+  const uniqueId = (raw: string, index: number): string => {
+    if (!seenIds.has(raw)) {
+      seenIds.add(raw);
+      return raw;
+    }
+    let candidate = `${raw}@${index}`;
+    while (seenIds.has(candidate)) candidate += '_';
+    seenIds.add(candidate);
+    return candidate;
+  };
+
   const blocks: UnmeasuredBlock[] = value.map((node, index) => {
     const type = node.type ?? 'unknown';
     const block: UnmeasuredBlock = {
-      id: stableId(node),
+      id: uniqueId(stableId(node), index),
       path: [index],
       text: nodeText(node),
       type,

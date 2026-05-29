@@ -34,7 +34,12 @@ export type MappingIndex = {
 export function buildMappingIndex(pages: PageLayout[]): MappingIndex {
   const byBlock = new Map<number, FragmentRef[]>();
 
-  pages.forEach((page) => {
+  // CodeRabbit PR #438: store the POSITIONAL pages-array index, not
+  // `page.index`. Consumers downstream dereference `layout.pages[ref.pageIndex]`
+  // and `geometry.placements[ref.pageIndex]` as array offsets. If a future
+  // composer ever emits non-contiguous `page.index` values (skipped covers,
+  // re-numbering), the two diverge and projections silently drop.
+  pages.forEach((page, positionalIndex) => {
     page.frames.forEach((frame, frameIndex) => {
       for (const fragment of frame.fragments) {
         const blockIndex = fragment.path[0];
@@ -42,7 +47,7 @@ export function buildMappingIndex(pages: PageLayout[]): MappingIndex {
         const ref: FragmentRef = {
           fragment,
           frameIndex,
-          pageIndex: page.index,
+          pageIndex: positionalIndex,
         };
         if (refs) refs.push(ref);
         else byBlock.set(blockIndex, [ref]);
