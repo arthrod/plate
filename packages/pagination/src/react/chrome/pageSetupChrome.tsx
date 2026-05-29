@@ -83,7 +83,7 @@ function bandNode(
       <span
         data-page-number={ctx.pageIndex + 1}
         style={{
-          ...styleToCss(content?.style),
+          ...styleToCss(config.pageNumberStyle ?? content?.style),
           fontVariantNumeric: 'tabular-nums',
         }}
       >

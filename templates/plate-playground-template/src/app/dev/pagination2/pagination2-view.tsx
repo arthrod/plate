@@ -3,6 +3,7 @@
 import { insertFootnote } from '@platejs/footnote';
 import {
   DEFAULT_PAGE_SETUP,
+  getLayoutRegistry,
   getPageSetup,
   PAGE_SETUP_KEY,
   type PageSetupConfig,
@@ -149,6 +150,7 @@ export function PaginationView() {
           <MarginsMode
             onChange={applySetup}
             onExit={() => setMarginsMode(false)}
+            pageCount={getLayoutRegistry(editor).output?.metrics.pages ?? 1}
             value={setup}
           />
         )}

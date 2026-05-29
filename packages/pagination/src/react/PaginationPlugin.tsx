@@ -449,5 +449,38 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
 
       return () => observer.disconnect();
     }, [editor]);
+
+    // A CONTENT change (typing, paste, block insert/remove) grows or shrinks
+    // the document, so pagination must recompute — otherwise the page count
+    // freezes at its mount-time value as the doc grows. The base plugin's apply
+    // override already marks the registry dirty on content ops; here we observe
+    // the editable's content mutations and trigger a DEBOUNCED recompute once
+    // edits settle, so we never re-run the pretext pipeline per keystroke
+    // (CodeRabbit PR #442). We watch childList + characterData only (NOT
+    // attributes): alignContent writes margin-top to page-start blocks, and
+    // observing attribute mutations would loop.
+    useEffect(() => {
+      const editable = editor.api.toDOMNode(editor);
+      if (!editable || typeof MutationObserver === 'undefined') return;
+
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const observer = new MutationObserver(() => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          invalidateLayoutRegistry(editor);
+          forceRecompute((n) => n + 1);
+        }, 250);
+      });
+      observer.observe(editable, {
+        characterData: true,
+        childList: true,
+        subtree: true,
+      });
+
+      return () => {
+        if (timer) clearTimeout(timer);
+        observer.disconnect();
+      };
+    }, [editor]);
   },
 });

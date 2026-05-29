@@ -66,11 +66,15 @@ export function hasChromeContent(content: ChromeContent | undefined): boolean {
  */
 export type PageSetupConfig = {
   footer?: ChromeContent;
+  /** Typography for footnote/endnote text. */
+  footnoteStyle?: ChromeTextStyle;
   footnotes: FootnoteMode;
   header?: ChromeContent;
   margins: PageMargins;
   page: PageSpec;
   pageNumber: PageNumberPosition;
+  /** Typography for the running page-number text (overrides the band's style). */
+  pageNumberStyle?: ChromeTextStyle;
   /** Author's working unit for the settings UI (geometry is always px). */
   unit: LengthUnit;
 };

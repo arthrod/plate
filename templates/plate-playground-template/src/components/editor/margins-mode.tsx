@@ -1,48 +1,100 @@
 'use client';
 
-import type { ChromeTextStyle, PageSetupConfig } from '@platejs/pagination';
+import type {
+  ChromeTextStyle,
+  PageNumberPosition,
+  PageSetupConfig,
+} from '@platejs/pagination';
+import {
+  BoldIcon,
+  ItalicIcon,
+  StrikethroughIcon,
+  UnderlineIcon,
+} from 'lucide-react';
 import * as React from 'react';
 
+import {
+  ColorDropdownMenuItems,
+  DEFAULT_COLORS,
+} from '@/components/ui/font-color-toolbar-button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarGroup,
+  ToolbarSeparator,
+} from '@/components/ui/toolbar';
+import { cn } from '@/lib/utils';
+
 type Band = 'footer' | 'header';
+/** Which region the typography controls target. */
+type StyleRegion = 'footer' | 'footnote' | 'header' | 'pageNumber';
 
 const FONTS = [
   { label: 'Sans', value: 'ui-sans-serif, system-ui, sans-serif' },
   { label: 'Serif', value: 'Georgia, "Times New Roman", serif' },
   { label: 'Mono', value: 'ui-monospace, "Courier New", monospace' },
 ];
+const SIZES = [9, 10, 11, 12, 14, 16, 18, 24];
+const REGIONS: { label: string; value: StyleRegion }[] = [
+  { label: 'Header text', value: 'header' },
+  { label: 'Footer text', value: 'footer' },
+  { label: 'Page number', value: 'pageNumber' },
+  { label: 'Footnote', value: 'footnote' },
+];
 
-function bandStyle(style: ChromeTextStyle | undefined): React.CSSProperties {
+function textCss(style: ChromeTextStyle | undefined): React.CSSProperties {
   return {
     color: style?.color,
     fontFamily: style?.fontFamily,
     fontSize: style?.fontSize,
+    fontStyle: style?.italic ? 'italic' : undefined,
+    fontWeight: style?.bold ? 600 : undefined,
   };
 }
 
+function pageNumberAlign(
+  pos: PageNumberPosition,
+  band: Band
+): 'center' | 'left' | 'right' | null {
+  if (!pos.startsWith(band)) return null;
+  if (pos.endsWith('left')) return 'left';
+  if (pos.endsWith('center')) return 'center';
+
+  return 'right';
+}
+
 /**
- * Google-Docs-style margins mode: the header and footer become editable regions
- * inside the page's top/bottom margins, with a floating toolbar. Inline bold /
- * italic apply to the selection; font / size / color apply to the whole region.
- * Edits persist to the page_setup node. Rendered INSIDE the relatively-positioned
- * page container. Exit by clicking outside any margins-mode surface (or the
- * toggle, handled by the parent).
+ * Google-Docs-style margins mode. The header and footer become editable regions
+ * inside the page's margins — a dimmed body, a hairline + corner label per band,
+ * and a 3-slot grid that mirrors the runtime renderer (text left, page number in
+ * its configured slot). A floating toolbar styles the selected region
+ * (header / footer / page number / footnote) with inline marks + font/size/color.
+ * Persists to the page_setup node. Click outside any margins surface to exit.
  */
 export function MarginsMode({
   onChange,
   onExit,
+  pageCount = 1,
   value,
 }: {
   onChange: (patch: Partial<PageSetupConfig>) => void;
   onExit: () => void;
+  pageCount?: number;
   value: PageSetupConfig;
 }) {
   const headerRef = React.useRef<HTMLDivElement>(null);
   const footerRef = React.useRef<HTMLDivElement>(null);
-  const [active, setActive] = React.useState<Band>('header');
+  const [activeBand, setActiveBand] = React.useState<Band>('header');
+  const [region, setRegion] = React.useState<StyleRegion>('header');
 
-  // Seed each region's html once on enter; onInput keeps the node in sync after.
-  // A ref guard runs the seed exactly once (re-seeding on every value change
-  // would fight the caret) while keeping `value` in the dependency list.
   const seededRef = React.useRef(false);
   React.useEffect(() => {
     if (seededRef.current) return;
@@ -57,8 +109,6 @@ export function MarginsMode({
     }
   }, [value]);
 
-  // Click-outside to exit (#5). Any margins-mode surface is tagged
-  // data-margins-ui; a pointerdown outside all of them leaves the mode.
   React.useEffect(() => {
     const onDown = (e: PointerEvent) => {
       const target = e.target as HTMLElement | null;
@@ -77,133 +127,237 @@ export function MarginsMode({
 
   const exec = (command: string) => {
     document.execCommand(command);
-    saveBand(active);
+    saveBand(activeBand);
   };
 
-  const setStyle = (patch: Partial<ChromeTextStyle>) =>
-    onChange({
-      [active]: {
-        ...value[active],
-        style: { ...value[active]?.style, ...patch },
-      },
-    } as Partial<PageSetupConfig>);
+  const regionStyle: ChromeTextStyle | undefined =
+    region === 'pageNumber'
+      ? value.pageNumberStyle
+      : region === 'footnote'
+        ? value.footnoteStyle
+        : value[region]?.style;
 
-  const activeStyle = value[active]?.style;
+  const setRegionStyle = (patch: Partial<ChromeTextStyle>) => {
+    const next = { ...regionStyle, ...patch };
+    if (region === 'pageNumber') onChange({ pageNumberStyle: next });
+    else if (region === 'footnote') onChange({ footnoteStyle: next });
+    else
+      onChange({
+        [region]: { ...value[region], style: next },
+      } as Partial<PageSetupConfig>);
+  };
+
+  const marksDisabled = region === 'footnote' || region === 'pageNumber';
+
+  const band = (which: Band) => {
+    const ref = which === 'header' ? headerRef : footerRef;
+    const heightPx =
+      which === 'header' ? value.margins.topPx : value.margins.bottomPx;
+    const numAlign = pageNumberAlign(value.pageNumber, which);
+    const ghost = (slot: 'center' | 'left' | 'right') =>
+      numAlign === slot ? (
+        <span
+          className="text-muted-foreground/70"
+          style={{
+            ...textCss(value.pageNumberStyle),
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          {`Page 1 of ${pageCount}`}
+        </span>
+      ) : null;
+
+    return (
+      <div
+        className={cn(
+          'absolute z-10 grid grid-cols-3 items-center gap-2 bg-background/95 px-1',
+          which === 'header' ? 'border-border border-b' : 'border-border border-t'
+        )}
+        data-margins-ui=""
+        style={{
+          height: heightPx,
+          left: value.margins.leftPx,
+          right: value.margins.rightPx,
+          ...(which === 'header' ? { top: 0 } : { bottom: 0 }),
+        }}
+      >
+        <span
+          className={cn(
+            'pointer-events-none absolute top-0.5 left-0 text-[10px] uppercase tracking-wider',
+            activeBand === which ? 'text-foreground/70' : 'text-muted-foreground/60'
+          )}
+        >
+          {which}
+        </span>
+        <div
+          className={cn(
+            'flex h-full items-center rounded-xs px-1 text-left outline-none ring-ring focus:ring-2',
+            activeBand === which && 'ring-1'
+          )}
+          contentEditable
+          data-testid={`margins-${which}`}
+          onFocus={() => {
+            setActiveBand(which);
+            setRegion(which);
+          }}
+          onInput={() => saveBand(which)}
+          ref={ref}
+          style={textCss(value[which]?.style)}
+          suppressContentEditableWarning
+        />
+        <div className="flex h-full items-center justify-center">
+          {ghost('center')}
+        </div>
+        <div className="flex h-full items-center justify-end">
+          {ghost('right')}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
+      {/* Dim the body so the page chrome reads as the active surface. */}
       <div
-        data-margins-ui
-        data-testid="margins-toolbar"
-        // Keep the editor selection when pressing toolbar controls.
-        onMouseDown={(e) => e.preventDefault()}
+        aria-hidden="true"
+        className="pointer-events-none absolute z-[5] bg-background/55"
+        data-print-hide=""
         style={{
-          alignItems: 'center',
-          background: '#fff',
-          border: '1px solid #e2e8f0',
-          borderRadius: 8,
-          boxShadow: '0 4px 14px rgba(15,23,42,0.14)',
-          display: 'flex',
-          gap: 6,
-          left: '50%',
-          padding: '6px 8px',
-          position: 'absolute',
-          top: -56,
-          transform: 'translateX(-50%)',
-          zIndex: 10,
+          bottom: value.margins.bottomPx,
+          left: 0,
+          right: 0,
+          top: value.margins.topPx,
         }}
+      />
+
+      <div
+        className="-translate-x-1/2 absolute left-1/2 z-20"
+        data-margins-ui=""
+        data-testid="margins-toolbar"
+        onMouseDown={(e) => e.preventDefault()}
+        style={{ top: -52 }}
       >
-        <button
-          className="rounded px-2 py-1 font-bold text-sm hover:bg-slate-100"
-          data-testid="mm-bold"
-          onClick={() => exec('bold')}
-          type="button"
-        >
-          B
-        </button>
-        <button
-          className="rounded px-2 py-1 text-sm italic hover:bg-slate-100"
-          data-testid="mm-italic"
-          onClick={() => exec('italic')}
-          type="button"
-        >
-          I
-        </button>
-        <select
-          className="rounded border px-1 py-1 text-sm"
-          data-testid="mm-font"
-          onChange={(e) => setStyle({ fontFamily: e.target.value })}
-          value={activeStyle?.fontFamily ?? FONTS[0].value}
-        >
-          {FONTS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-        <input
-          className="w-14 rounded border px-1 py-1 text-sm"
-          data-testid="mm-size"
-          min={6}
-          onChange={(e) =>
-            setStyle({ fontSize: Number(e.target.value) || undefined })
-          }
-          type="number"
-          value={activeStyle?.fontSize ?? 11}
-        />
-        <input
-          aria-label="Text color"
-          data-testid="mm-color"
-          onChange={(e) => setStyle({ color: e.target.value })}
-          type="color"
-          value={activeStyle?.color ?? '#475569'}
-        />
-        <span className="px-1 text-slate-400 text-xs">editing {active}</span>
+        <Toolbar className="rounded-lg border bg-popover px-1 shadow-md">
+          <ToolbarGroup>
+            <Select
+              onValueChange={(v) => setRegion(v as StyleRegion)}
+              value={region}
+            >
+              <SelectTrigger
+                className="h-8 w-[130px] border-0 text-sm"
+                data-testid="mm-region"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {REGIONS.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>
+                    {r.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </ToolbarGroup>
+          <ToolbarSeparator />
+          <ToolbarGroup>
+            <ToolbarButton
+              data-testid="mm-bold"
+              disabled={marksDisabled}
+              onClick={() => exec('bold')}
+              tooltip="Bold"
+            >
+              <BoldIcon />
+            </ToolbarButton>
+            <ToolbarButton
+              data-testid="mm-italic"
+              disabled={marksDisabled}
+              onClick={() => exec('italic')}
+              tooltip="Italic"
+            >
+              <ItalicIcon />
+            </ToolbarButton>
+            <ToolbarButton
+              data-testid="mm-underline"
+              disabled={marksDisabled}
+              onClick={() => exec('underline')}
+              tooltip="Underline"
+            >
+              <UnderlineIcon />
+            </ToolbarButton>
+            <ToolbarButton
+              data-testid="mm-strike"
+              disabled={marksDisabled}
+              onClick={() => exec('strikeThrough')}
+              tooltip="Strikethrough"
+            >
+              <StrikethroughIcon />
+            </ToolbarButton>
+          </ToolbarGroup>
+          <ToolbarSeparator />
+          <ToolbarGroup>
+            <Select
+              onValueChange={(v) => setRegionStyle({ fontFamily: v })}
+              value={regionStyle?.fontFamily ?? FONTS[0].value}
+            >
+              <SelectTrigger
+                className="h-8 w-[88px] border-0 text-sm"
+                data-testid="mm-font"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {FONTS.map((f) => (
+                  <SelectItem key={f.value} value={f.value}>
+                    {f.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              onValueChange={(v) => setRegionStyle({ fontSize: Number(v) })}
+              value={String(regionStyle?.fontSize ?? 11)}
+            >
+              <SelectTrigger
+                className="h-8 w-[64px] border-0 text-sm"
+                data-testid="mm-size"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SIZES.map((s) => (
+                  <SelectItem key={s} value={String(s)}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <ToolbarButton data-testid="mm-color" tooltip="Text color">
+                  <span
+                    className="size-4 rounded-full border"
+                    style={{ background: regionStyle?.color ?? 'currentColor' }}
+                  />
+                </ToolbarButton>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-2" data-margins-ui="">
+                <ColorDropdownMenuItems
+                  color={regionStyle?.color}
+                  colors={DEFAULT_COLORS}
+                  updateColor={(c: string) => setRegionStyle({ color: c })}
+                />
+              </PopoverContent>
+            </Popover>
+          </ToolbarGroup>
+          <ToolbarSeparator />
+          <span className="px-2 text-muted-foreground text-xs">
+            styling {region}
+          </span>
+        </Toolbar>
       </div>
 
-      <div
-        contentEditable
-        data-margins-ui
-        data-testid="margins-header"
-        onFocus={() => setActive('header')}
-        onInput={() => saveBand('header')}
-        ref={headerRef}
-        style={{
-          ...bandStyle(value.header?.style),
-          alignItems: 'center',
-          display: 'flex',
-          height: value.margins.topPx,
-          left: value.margins.leftPx,
-          outline:
-            active === 'header' ? '2px solid #3b82f6' : '1px dashed #93c5fd',
-          position: 'absolute',
-          right: value.margins.rightPx,
-          top: 0,
-        }}
-        suppressContentEditableWarning
-      />
-
-      <div
-        contentEditable
-        data-margins-ui
-        data-testid="margins-footer"
-        onFocus={() => setActive('footer')}
-        onInput={() => saveBand('footer')}
-        ref={footerRef}
-        style={{
-          ...bandStyle(value.footer?.style),
-          alignItems: 'center',
-          bottom: 0,
-          display: 'flex',
-          height: value.margins.bottomPx,
-          left: value.margins.leftPx,
-          outline:
-            active === 'footer' ? '2px solid #3b82f6' : '1px dashed #93c5fd',
-          position: 'absolute',
-          right: value.margins.rightPx,
-        }}
-        suppressContentEditableWarning
-      />
+      {band('header')}
+      {band('footer')}
     </>
   );
 }
