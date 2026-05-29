@@ -15,6 +15,7 @@ import { Plate, PlateContent, usePlateEditor } from 'platejs/react';
 import * as React from 'react';
 import { MarginsMode } from '@/components/editor/margins-mode';
 import { PageSetupDialog } from '@/components/editor/page-setup-dialog';
+import { PrintPreview } from '@/components/editor/print-preview';
 import { BasicNodesKit } from '@/components/editor/plugins/basic-nodes-kit';
 import { FootnoteKit } from '@/components/editor/plugins/footnote-kit';
 import { PrintStyles } from '@/components/editor/print-styles';
@@ -68,6 +69,7 @@ export function PaginationView() {
 
   const [open, setOpen] = React.useState(false);
   const [marginsMode, setMarginsMode] = React.useState(false);
+  const [printing, setPrinting] = React.useState(false);
   const [setup, setSetup] = React.useState<PageSetupConfig>(
     () => getPageSetup(editor) ?? DEFAULT_PAGE_SETUP
   );
@@ -159,10 +161,21 @@ export function PaginationView() {
       <PageSetupDialog
         onChange={applySetup}
         onOpenChange={setOpen}
-        onPrint={() => window.print()}
+        onPrint={() => {
+          setOpen(false);
+          setPrinting(true);
+        }}
         open={open}
         value={setup}
       />
+
+      {printing && (
+        <PrintPreview
+          editor={editor}
+          onClose={() => setPrinting(false)}
+          setup={setup}
+        />
+      )}
     </div>
   );
 }
