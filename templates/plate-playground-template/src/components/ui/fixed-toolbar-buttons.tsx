@@ -40,6 +40,10 @@ import { MarkToolbarButton } from './mark-toolbar-button';
 import { MediaToolbarButton } from './media-toolbar-button';
 import { ModeToolbarButton } from './mode-toolbar-button';
 import { MoreToolbarButton } from './more-toolbar-button';
+import {
+  MarginsToolbarButton,
+  PageSetupToolbarButton,
+} from './page-tools-toolbar-buttons';
 import { PaginationToolbarButton } from './pagination-toolbar-button';
 import { TableToolbarButton } from './table-toolbar-button';
 import { ToggleToolbarButton } from './toggle-toolbar-button';
@@ -53,6 +57,11 @@ export function FixedToolbarButtons() {
     <div className="flex w-full">
       {!readOnly && (
         <>
+          <ToolbarGroup>
+            <PageSetupToolbarButton />
+            <MarginsToolbarButton />
+          </ToolbarGroup>
+
           <ToolbarGroup>
             <UndoToolbarButton />
             <RedoToolbarButton />

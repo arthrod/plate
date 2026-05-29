@@ -2,6 +2,7 @@
 
 import {
   PageNumberWithTitle,
+  PageSetupPlugin,
   PaginationPlugin,
   TextHeader,
 } from '@platejs/pagination/react';
@@ -24,6 +25,10 @@ import { KEYS } from 'platejs';
 // {header,footer}` (composer-computed, scroll-invariant). No DOM mutation, no
 // document-tree mutation.
 export const PaginationKit = [
+  // Stores document-level page setup (margins/page size/page-number/footnote/
+  // header-footer chrome) on a void page_setup node; the modal + margins mode
+  // read/write it.
+  PageSetupPlugin,
   PaginationPlugin.configure({
     options: {
       atomicTypes: [
