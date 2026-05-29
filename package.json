@@ -53,7 +53,7 @@
     "reinstall": "bash tooling/scripts/reinstall.sh",
     "release": "pnpm build && pnpm changeset publish",
     "shadcn:build": "pnpm --filter www shadcn:build",
-    "deploy:playground": "pnpm turbo build --filter=./packages/pagination && cd templates/plate-playground-template && bun run vendor:pagination && bun install && npx opennextjs-cloudflare build && npx opennextjs-cloudflare deploy",
+    "deploy:playground": "pnpm turbo build --filter=./packages/pagination && cd templates/plate-playground-template && bun run vendor:pagination && bun install --frozen-lockfile && bun x --no-install opennextjs-cloudflare build && bun x --no-install opennextjs-cloudflare deploy",
     "templates:ai": "./tooling/scripts/update-template.sh ai",
     "templates:basic": "./tooling/scripts/update-template.sh basic",
     "templates:check": "cd templates/plate-template && pnpm lint && pnpm typecheck && cd ../plate-playground-template && pnpm lint && pnpm typecheck",
