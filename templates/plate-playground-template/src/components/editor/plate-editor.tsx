@@ -2,7 +2,6 @@
 
 import {
   DEFAULT_PAGE_SETUP,
-  getLayoutRegistry,
   type PageSetupConfig,
   pageSetupFromValue,
   setPageSetup,
@@ -25,6 +24,8 @@ import { PageToolsPlugin } from '@/components/editor/plugins/page-tools-kit';
 import { PrintPreview } from '@/components/editor/print-preview';
 import { SettingsDialog } from '@/components/editor/settings-dialog';
 import { Editor, EditorContainer } from '@/components/ui/editor';
+import { FixedToolbar } from '@/components/ui/fixed-toolbar';
+import { FixedToolbarButtons } from '@/components/ui/fixed-toolbar-buttons';
 
 /**
  * Inside `<Plate>`: the page-tools UI. The Page-setup and margins-mode toolbar
@@ -59,6 +60,13 @@ function PageToolsShell() {
   return (
     <>
       <EditorContainer>
+        {/* Rendered directly in the scroll container (not via beforeEditable)
+            so `sticky top-0` resolves against the scroller, not the page desk —
+            the toolbar stays fixed above the desk. */}
+        <FixedToolbar>
+          <FixedToolbarButtons />
+        </FixedToolbar>
+
         {paginated ? (
           <div
             className="relative mx-auto my-8 bg-background shadow-lg"
@@ -79,7 +87,6 @@ function PageToolsShell() {
                 onExit={() =>
                   editor.setOption(PageToolsPlugin, 'marginsMode', false)
                 }
-                pageCount={getLayoutRegistry(editor).output?.metrics.pages ?? 1}
                 value={setup}
               />
             )}

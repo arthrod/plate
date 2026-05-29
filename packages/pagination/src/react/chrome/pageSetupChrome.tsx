@@ -4,26 +4,31 @@
 // pagination/react/chrome/pageSetupChrome.tsx
 //
 // Build header/footer chrome render options from a document PageSetupConfig.
-// Each band is a 3-slot row (left | center | right): the band's text sits left,
-// the running page number sits in the slot matching its configured alignment.
-// Band heights come from `resolveChromeBands` so the composer (which reserves
-// the band) and the overlay (which paints it) always agree. PRETEXT-safe: the
-// render functions read only the ChromeRenderContext.
+// Each band is a VERTICAL STACK of content-sized lines that mirrors the page
+// order:
+//   top band    = [ page number (if top) , header ]
+//   bottom band  = [ footnote , footer , page number (if bottom) ]
+// Header/footer are full-width single lines. Band heights come from
+// `resolveChromeBands(config, lineHeightPx)` so the composer (reserve) and the
+// overlay (paint) agree — pass the SAME lineHeightPx to both. PRETEXT-safe.
 // ============================================================
 
 import * as React from 'react';
 
 import type { PageChromeOption } from '../../lib/BasePaginationPlugin';
 import type {
+  ChromeContent,
   ChromeTextStyle,
-  PageNumberPosition,
   PageSetupConfig,
 } from '../../lib/pageSetup';
 import type { ChromeRenderContext } from '../../layout/types';
 
-import { pageNumberBand, resolveChromeBands } from '../../lib/resolvePageSetup';
+import { formatPageNumber } from '../../lib/formatPageNumber';
+import {
+  pageNumberLocation,
+  resolveChromeBands,
+} from '../../lib/resolvePageSetup';
 
-/** CSS for a chrome region's typography. */
 function styleToCss(style: ChromeTextStyle | undefined): React.CSSProperties {
   return {
     color: style?.color,
@@ -34,99 +39,129 @@ function styleToCss(style: ChromeTextStyle | undefined): React.CSSProperties {
   };
 }
 
-/** Horizontal alignment a page-number position maps to, or `null` when omitted. */
-export function pageNumberAlign(
-  position: PageNumberPosition
-): 'center' | 'left' | 'right' | null {
-  if (position.endsWith('left')) return 'left';
-  if (position.endsWith('center')) return 'center';
-  if (position.endsWith('right')) return 'right';
+const rowStyle = (lineHeightPx: number): React.CSSProperties => ({
+  alignItems: 'center',
+  display: 'flex',
+  height: lineHeightPx,
+  width: '100%',
+});
 
-  return null;
-}
-
-function bandNode(
-  band: 'footer' | 'header',
-  config: PageSetupConfig,
-  ctx: ChromeRenderContext
+/** A full-width single line of header/footer content (rich html or plain text). */
+function contentRow(
+  content: ChromeContent | undefined,
+  lineHeightPx: number,
+  key: string
 ): React.ReactNode {
-  const content = config[band];
-  const align =
-    pageNumberBand(config.pageNumber) === band
-      ? pageNumberAlign(config.pageNumber)
-      : null;
-
-  const slots: Record<'center' | 'left' | 'right', React.ReactNode> = {
-    center: null,
-    left: null,
-    right: null,
-  };
-
-  // Rich html wins over plain text. Content is author-authored (the document
-  // owner edits their own header/footer), so it is rendered as-is.
   const html = content?.html?.trim();
   const text = content?.text?.trim();
-  if (html) {
-    // Author-trusted chrome content (the document owner edits their own
-    // header/footer), rendered as-is for inline bold/italic.
-    slots.left = (
-      <span
-        dangerouslySetInnerHTML={{ __html: html }}
-        style={styleToCss(content?.style)}
-      />
-    );
-  } else if (text) {
-    slots.left = <span style={styleToCss(content?.style)}>{text}</span>;
-  }
-  if (align) {
-    slots[align] = (
-      <span
-        data-page-number={ctx.pageIndex + 1}
-        style={{
-          ...styleToCss(config.pageNumberStyle ?? content?.style),
-          fontVariantNumeric: 'tabular-nums',
-        }}
-      >
-        {`Page ${ctx.pageIndex + 1} of ${ctx.pageCount}`}
-      </span>
-    );
-  }
+  if (!(html || text)) return null;
+  const css = { ...styleToCss(content?.style), width: '100%' };
 
   return (
-    <div
-      data-pagination-chrome-band={band}
-      style={{
-        alignItems: 'center',
-        display: 'flex',
-        height: '100%',
-        width: '100%',
-      }}
-    >
-      <div style={{ flex: 1, textAlign: 'left' }}>{slots.left}</div>
-      <div style={{ flex: 1, textAlign: 'center' }}>{slots.center}</div>
-      <div style={{ flex: 1, textAlign: 'right' }}>{slots.right}</div>
+    <div key={key} style={rowStyle(lineHeightPx)}>
+      {html ? (
+        // Author-trusted chrome content.
+        <span dangerouslySetInnerHTML={{ __html: html }} style={css} />
+      ) : (
+        <span style={css}>{text}</span>
+      )}
     </div>
   );
 }
 
+/** The running page-number line, aligned within its full-width band. */
+function pageNumberRow(
+  config: PageSetupConfig,
+  ctx: ChromeRenderContext,
+  lineHeightPx: number
+): React.ReactNode {
+  if (config.pageNumber.differentFirstPage && ctx.pageIndex === 0) return null;
+  const label = formatPageNumber(
+    config.pageNumber,
+    ctx.pageIndex + 1,
+    ctx.pageCount
+  );
+  if (!label) return null;
+
+  const justifyContent =
+    config.pageNumber.align === 'left'
+      ? 'flex-start'
+      : config.pageNumber.align === 'right'
+        ? 'flex-end'
+        : 'center';
+
+  return (
+    <div key="number" style={{ ...rowStyle(lineHeightPx), justifyContent }}>
+      <span
+        data-page-number={ctx.pageIndex + 1}
+        style={{
+          ...styleToCss(config.pageNumberStyle),
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
+/** The per-page footnote separator line (above the footer). */
+function footnoteRow(
+  config: PageSetupConfig,
+  lineHeightPx: number
+): React.ReactNode {
+  return (
+    <div
+      data-pagination-chrome-band="footnote"
+      key="footnote"
+      style={{
+        ...rowStyle(lineHeightPx),
+        borderTop: '1px solid rgb(203 213 225)',
+        opacity: 0.8,
+      }}
+    >
+      <span style={{ fontSize: 10, ...styleToCss(config.footnoteStyle) }}>
+        Footnotes
+      </span>
+    </div>
+  );
+}
+
+const stackStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  justifyContent: 'flex-start',
+  width: '100%',
+};
+
 /**
- * Header/footer {@link PageChromeOption}s for a page setup, or `undefined` when
- * no band is active. Heights mirror {@link resolveChromeBands} so reserve and
- * paint stay in sync.
+ * Header/footer {@link PageChromeOption}s for a page setup, each a vertical stack
+ * of content-sized lines. Pass the same `lineHeightPx` the composer reserved
+ * with (see {@link resolveChromeBands}). Returns `undefined` when no band is
+ * active.
  */
 export function resolvePageSetupChromeOptions(
-  config: PageSetupConfig
+  config: PageSetupConfig,
+  lineHeightPx = 20
 ): { footer?: PageChromeOption; header?: PageChromeOption } | undefined {
-  const bands = resolveChromeBands(config);
+  const bands = resolveChromeBands(config, lineHeightPx);
   if (!bands) return;
+
+  const numberLoc = pageNumberLocation(config);
 
   return {
     ...(bands.header
       ? {
           header: {
             heightPx: bands.header.heightPx,
-            render: (ctx: ChromeRenderContext) =>
-              bandNode('header', config, ctx),
+            render: (ctx: ChromeRenderContext) => (
+              <div data-pagination-chrome-band="header" style={stackStyle}>
+                {numberLoc === 'top' &&
+                  pageNumberRow(config, ctx, lineHeightPx)}
+                {contentRow(config.header, lineHeightPx, 'header')}
+              </div>
+            ),
           },
         }
       : {}),
@@ -134,8 +169,15 @@ export function resolvePageSetupChromeOptions(
       ? {
           footer: {
             heightPx: bands.footer.heightPx,
-            render: (ctx: ChromeRenderContext) =>
-              bandNode('footer', config, ctx),
+            render: (ctx: ChromeRenderContext) => (
+              <div data-pagination-chrome-band="footer" style={stackStyle}>
+                {config.footnotes === 'footnote' &&
+                  footnoteRow(config, lineHeightPx)}
+                {contentRow(config.footer, lineHeightPx, 'footer')}
+                {numberLoc === 'bottom' &&
+                  pageNumberRow(config, ctx, lineHeightPx)}
+              </div>
+            ),
           },
         }
       : {}),

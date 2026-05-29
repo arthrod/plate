@@ -2,63 +2,87 @@
 // pagination/lib/resolvePageSetup.ts
 //
 // Pure bridge from the document-level PageSetupConfig to the engine's
-// LayoutInput. Decides which chrome bands the composer must reserve (a band
-// exists when it carries text OR hosts the running page number) and at what
-// height. No DOM, no React — deterministic for a given (config, policies).
+// LayoutInput. The chrome is a two-band model (top + bottom) but each band is a
+// STACK of content-sized lines:
+//   top    = [ page number (if top) , header ]
+//   bottom = [ footnote , footer , page number (if bottom) ]
+// Each line is one text line tall (`lineHeightPx`), so the band hugs its content
+// instead of reserving a fixed slab. No DOM, no React.
 // ============================================================
 
 import type { LayoutInput, LayoutPolicies } from '../layout/types';
-import type { PageNumberPosition, PageSetupConfig } from './pageSetup';
+import type { PageSetupConfig } from './pageSetup';
 
 import { hasChromeContent } from './pageSetup';
 
-/** Default reserved band height (px) for a header/footer chrome band. */
-const DEFAULT_BAND_PX = 48;
+/** Fallback line height (px) when the React layer doesn't pass a measured one. */
+const DEFAULT_LINE_PX = 20;
 
-/** The band that hosts a running page number, or `null` when it is omitted. */
-export type ChromeBand = 'footer' | 'header' | null;
+/** Which band the page-number line sits in, or `null` when it is omitted. */
+export function pageNumberLocation(
+  config: PageSetupConfig
+): 'bottom' | 'top' | null {
+  const { format, location } = config.pageNumber;
+  if (format === 'none' || location === 'none') return null;
 
-/** Which band (if any) the configured page-number placement lives in. */
-export function pageNumberBand(position: PageNumberPosition): ChromeBand {
-  if (position.startsWith('header')) return 'header';
-  if (position.startsWith('footer')) return 'footer';
+  return location;
+}
 
-  return null;
+/** Number of stacked lines in the top and bottom chrome bands. */
+export function chromeBandLines(config: PageSetupConfig): {
+  bottom: number;
+  top: number;
+} {
+  const numberLoc = pageNumberLocation(config);
+  // A per-page footnote band only when footnotes are per-page (not endnotes).
+  const footnoteActive = config.footnotes === 'footnote';
+
+  return {
+    bottom:
+      (footnoteActive ? 1 : 0) +
+      (hasChromeContent(config.footer) ? 1 : 0) +
+      (numberLoc === 'bottom' ? 1 : 0),
+    top:
+      (numberLoc === 'top' ? 1 : 0) + (hasChromeContent(config.header) ? 1 : 0),
+  };
 }
 
 /**
- * Reserved chrome bands for a page setup. A band is active when it carries
- * header/footer text OR hosts the running page number. Returns `undefined`
- * when neither band is active (the composer then uses the full content frame).
+ * Reserved chrome bands for a page setup, each sized to its stacked line count ×
+ * `lineHeightPx`. Returns `undefined` when no band is active (full content
+ * frame). The same `lineHeightPx` MUST be passed to the overlay renderer so
+ * reserve and paint agree.
  */
-export function resolveChromeBands(config: PageSetupConfig):
+export function resolveChromeBands(
+  config: PageSetupConfig,
+  lineHeightPx: number = DEFAULT_LINE_PX
+):
   | {
       footer?: { heightPx: number };
       header?: { heightPx: number };
     }
   | undefined {
-  const band = pageNumberBand(config.pageNumber);
-  const headerActive = hasChromeContent(config.header) || band === 'header';
-  const footerActive = hasChromeContent(config.footer) || band === 'footer';
+  const { bottom, top } = chromeBandLines(config);
 
-  if (!headerActive && !footerActive) return;
+  if (top === 0 && bottom === 0) return;
 
   return {
-    ...(headerActive ? { header: { heightPx: DEFAULT_BAND_PX } } : {}),
-    ...(footerActive ? { footer: { heightPx: DEFAULT_BAND_PX } } : {}),
+    ...(top > 0 ? { header: { heightPx: top * lineHeightPx } } : {}),
+    ...(bottom > 0 ? { footer: { heightPx: bottom * lineHeightPx } } : {}),
   };
 }
 
 /**
  * Build the engine's pure {@link LayoutInput} from a page setup and the active
- * break policies. The page geometry + margins come straight from the setup;
- * chrome bands are reserved only when active.
+ * break policies. Page geometry + margins come straight from the setup; chrome
+ * bands are reserved at content-sized heights when active.
  */
 export function pageSetupToLayoutInput(
   config: PageSetupConfig,
-  policies: LayoutPolicies
+  policies: LayoutPolicies,
+  lineHeightPx: number = DEFAULT_LINE_PX
 ): LayoutInput {
-  const chrome = resolveChromeBands(config);
+  const chrome = resolveChromeBands(config, lineHeightPx);
 
   return {
     margins: config.margins,

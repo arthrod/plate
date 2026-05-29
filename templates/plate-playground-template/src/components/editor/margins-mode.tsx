@@ -1,10 +1,6 @@
 'use client';
 
-import type {
-  ChromeTextStyle,
-  PageNumberPosition,
-  PageSetupConfig,
-} from '@platejs/pagination';
+import type { ChromeTextStyle, PageSetupConfig } from '@platejs/pagination';
 import {
   BoldIcon,
   ItalicIcon,
@@ -60,34 +56,20 @@ function textCss(style: ChromeTextStyle | undefined): React.CSSProperties {
   };
 }
 
-function pageNumberAlign(
-  pos: PageNumberPosition,
-  band: Band
-): 'center' | 'left' | 'right' | null {
-  if (!pos.startsWith(band)) return null;
-  if (pos.endsWith('left')) return 'left';
-  if (pos.endsWith('center')) return 'center';
-
-  return 'right';
-}
-
 /**
  * Google-Docs-style margins mode. The header and footer become editable regions
  * inside the page's margins — a dimmed body, a hairline + corner label per band,
- * and a 3-slot grid that mirrors the runtime renderer (text left, page number in
- * its configured slot). A floating toolbar styles the selected region
- * (header / footer / page number / footnote) with inline marks + font/size/color.
- * Persists to the page_setup node. Click outside any margins surface to exit.
+ * full-width single-line editable header/footer. A floating toolbar styles the
+ * selected region (header / footer / page number / footnote) with inline marks +
+ * font/size/color. Persists to the page_setup node. Click outside to exit.
  */
 export function MarginsMode({
   onChange,
   onExit,
-  pageCount = 1,
   value,
 }: {
   onChange: (patch: Partial<PageSetupConfig>) => void;
   onExit: () => void;
-  pageCount?: number;
   value: PageSetupConfig;
 }) {
   const headerRef = React.useRef<HTMLDivElement>(null);
@@ -153,24 +135,11 @@ export function MarginsMode({
     const ref = which === 'header' ? headerRef : footerRef;
     const heightPx =
       which === 'header' ? value.margins.topPx : value.margins.bottomPx;
-    const numAlign = pageNumberAlign(value.pageNumber, which);
-    const ghost = (slot: 'center' | 'left' | 'right') =>
-      numAlign === slot ? (
-        <span
-          className="text-muted-foreground/70"
-          style={{
-            ...textCss(value.pageNumberStyle),
-            fontVariantNumeric: 'tabular-nums',
-          }}
-        >
-          {`Page 1 of ${pageCount}`}
-        </span>
-      ) : null;
 
     return (
       <div
         className={cn(
-          'absolute z-10 grid grid-cols-3 items-center gap-2 bg-background/95 px-1',
+          'absolute z-10 flex items-center bg-background/95 px-1',
           which === 'header' ? 'border-border border-b' : 'border-border border-t'
         )}
         data-margins-ui=""
@@ -189,9 +158,11 @@ export function MarginsMode({
         >
           {which}
         </span>
+        {/* Full-width single-line editable header/footer (the page number is its
+            own band, configured in Page setup). */}
         <div
           className={cn(
-            'flex h-full items-center rounded-xs px-1 text-left outline-none ring-ring focus:ring-2',
+            'flex h-full w-full items-center rounded-xs px-1 text-left outline-none ring-ring focus:ring-2',
             activeBand === which && 'ring-1'
           )}
           contentEditable
@@ -205,12 +176,6 @@ export function MarginsMode({
           style={textCss(value[which]?.style)}
           suppressContentEditableWarning
         />
-        <div className="flex h-full items-center justify-center">
-          {ghost('center')}
-        </div>
-        <div className="flex h-full items-center justify-end">
-          {ghost('right')}
-        </div>
       </div>
     );
   };
@@ -231,11 +196,11 @@ export function MarginsMode({
       />
 
       <div
-        className="-translate-x-1/2 absolute left-1/2 z-20"
+        className="-translate-x-1/2 fixed left-1/2 z-40"
         data-margins-ui=""
         data-testid="margins-toolbar"
         onMouseDown={(e) => e.preventDefault()}
-        style={{ top: -52 }}
+        style={{ top: 60 }}
       >
         <Toolbar className="rounded-lg border bg-popover px-1 shadow-md">
           <ToolbarGroup>

@@ -1,6 +1,7 @@
-import { DEFAULT_PAGE_SETUP } from '../pageSetup';
+import { DEFAULT_PAGE_SETUP, type PageSetupConfig } from '../pageSetup';
 import {
-  pageNumberBand,
+  chromeBandLines,
+  pageNumberLocation,
   pageSetupToLayoutInput,
   resolveChromeBands,
 } from '../resolvePageSetup';
@@ -10,88 +11,101 @@ const policies = {
   orphanLinesMin: 2,
   widowLinesMin: 2,
 };
+const LH = 20;
+const withCfg = (over: Partial<PageSetupConfig>): PageSetupConfig => ({
+  ...DEFAULT_PAGE_SETUP,
+  ...over,
+});
 
-describe('pageNumberBand', () => {
-  it('maps header positions to the header band', () => {
-    expect(pageNumberBand('header-center')).toBe('header');
-    expect(pageNumberBand('header-right')).toBe('header');
+describe('pageNumberLocation', () => {
+  it('is null when format or location is none', () => {
+    expect(pageNumberLocation(DEFAULT_PAGE_SETUP)).toBeNull();
+    expect(
+      pageNumberLocation(
+        withCfg({
+          pageNumber: { align: 'center', format: 'arabic', location: 'none' },
+        })
+      )
+    ).toBeNull();
   });
 
-  it('maps footer positions to the footer band', () => {
-    expect(pageNumberBand('footer-left')).toBe('footer');
+  it('returns the configured location when both are set', () => {
+    expect(
+      pageNumberLocation(
+        withCfg({
+          pageNumber: { align: 'center', format: 'arabic', location: 'bottom' },
+        })
+      )
+    ).toBe('bottom');
+  });
+});
+
+describe('chromeBandLines', () => {
+  it('counts no lines for the default (empty) setup', () => {
+    expect(chromeBandLines(DEFAULT_PAGE_SETUP)).toEqual({ bottom: 0, top: 0 });
   });
 
-  it('maps none to no band', () => {
-    expect(pageNumberBand('none')).toBeNull();
+  it('stacks the top band: page number (top) above the header', () => {
+    const lines = chromeBandLines(
+      withCfg({
+        header: { text: 'Title' },
+        pageNumber: { align: 'center', format: 'arabic', location: 'top' },
+      })
+    );
+    expect(lines.top).toBe(2);
+    expect(lines.bottom).toBe(0);
+  });
+
+  it('stacks the bottom band: footnote + footer + page number (bottom)', () => {
+    const lines = chromeBandLines(
+      withCfg({
+        footer: { text: 'Confidential' },
+        footnotes: 'footnote',
+        pageNumber: {
+          align: 'right',
+          format: 'roman-upper',
+          location: 'bottom',
+        },
+      })
+    );
+    expect(lines.bottom).toBe(3);
+    expect(lines.top).toBe(0);
+  });
+
+  it('does not reserve a footnote line for endnote mode', () => {
+    expect(chromeBandLines(withCfg({ footnotes: 'endnote' })).bottom).toBe(0);
   });
 });
 
 describe('resolveChromeBands', () => {
-  it('reserves no bands when there is no chrome content or page number', () => {
-    expect(resolveChromeBands(DEFAULT_PAGE_SETUP)).toBeUndefined();
+  it('returns undefined when no band is active', () => {
+    expect(resolveChromeBands(DEFAULT_PAGE_SETUP, LH)).toBeUndefined();
   });
 
-  it('reserves a footer band when the page number sits in the footer', () => {
-    const bands = resolveChromeBands({
-      ...DEFAULT_PAGE_SETUP,
-      pageNumber: 'footer-center',
-    });
-
-    expect(bands?.footer?.heightPx).toBeGreaterThan(0);
-    expect(bands?.header).toBeUndefined();
-  });
-
-  it('reserves a header band when the header has text', () => {
-    const bands = resolveChromeBands({
-      ...DEFAULT_PAGE_SETUP,
-      header: { text: 'Confidential' },
-    });
-
-    expect(bands?.header?.heightPx).toBeGreaterThan(0);
-  });
-
-  it('reserves a header band when the header has rich html', () => {
-    const bands = resolveChromeBands({
-      ...DEFAULT_PAGE_SETUP,
-      header: { html: '<b>Northwind</b> MSA' },
-    });
-
-    expect(bands?.header?.heightPx).toBeGreaterThan(0);
-  });
-
-  it('reserves both bands when header text and a footer page number coexist', () => {
-    const bands = resolveChromeBands({
-      ...DEFAULT_PAGE_SETUP,
-      header: { text: 'Title' },
-      pageNumber: 'footer-right',
-    });
-
-    expect(bands?.header?.heightPx).toBeGreaterThan(0);
-    expect(bands?.footer?.heightPx).toBeGreaterThan(0);
+  it('sizes bands to stacked line count × lineHeightPx', () => {
+    const bands = resolveChromeBands(
+      withCfg({
+        header: { text: 'Title' },
+        pageNumber: { align: 'center', format: 'arabic', location: 'top' },
+      }),
+      LH
+    );
+    expect(bands?.header?.heightPx).toBe(2 * LH);
+    expect(bands?.footer).toBeUndefined();
   });
 });
 
 describe('pageSetupToLayoutInput', () => {
-  it('carries page, margins, and policies through', () => {
-    const input = pageSetupToLayoutInput(DEFAULT_PAGE_SETUP, policies);
-
-    expect(input.page).toEqual(DEFAULT_PAGE_SETUP.page);
-    expect(input.margins).toEqual(DEFAULT_PAGE_SETUP.margins);
-    expect(input.policies).toBe(policies);
-  });
-
-  it('omits chrome when no bands are active', () => {
-    expect(
-      pageSetupToLayoutInput(DEFAULT_PAGE_SETUP, policies).chrome
-    ).toBeUndefined();
-  });
-
-  it('includes chrome bands when the page number is shown', () => {
+  it('carries geometry + content-sized chrome', () => {
     const input = pageSetupToLayoutInput(
-      { ...DEFAULT_PAGE_SETUP, pageNumber: 'footer-center' },
-      policies
+      withCfg({
+        pageNumber: { align: 'center', format: 'arabic', location: 'top' },
+      }),
+      policies,
+      LH
     );
-
-    expect(input.chrome?.footer?.heightPx).toBeGreaterThan(0);
+    expect(input.page).toEqual(DEFAULT_PAGE_SETUP.page);
+    expect(input.policies).toBe(policies);
+    expect(input.chrome?.header?.heightPx).toBe(LH);
   });
 });

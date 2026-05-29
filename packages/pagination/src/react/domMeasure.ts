@@ -25,15 +25,18 @@ export function topLevelBlockElements(editable: HTMLElement): HTMLElement[] {
   ) as HTMLElement[];
 
   return all.filter((el) => {
-    const parentBlock = el.parentElement?.closest('[data-slate-node="element"]');
+    const parentBlock = el.parentElement?.closest(
+      '[data-slate-node="element"]'
+    );
 
     return !parentBlock || !editable.contains(parentBlock);
   });
 }
 
-function resolveLineHeight(style: CSSStyleDeclaration): number {
+export function resolveLineHeight(style: CSSStyleDeclaration): number {
   const fontSize = Number.parseFloat(style.fontSize);
-  const safeFontSize = Number.isFinite(fontSize) && fontSize > 0 ? fontSize : 16;
+  const safeFontSize =
+    Number.isFinite(fontSize) && fontSize > 0 ? fontSize : 16;
   // Gemini PR #442 review (critical): when CSS `line-height` is a unitless
   // multiplier (e.g. browser-computed value for `line-height: 1.5`),
   // parseFloat returns `1.5` — using that as pixels would shrink every

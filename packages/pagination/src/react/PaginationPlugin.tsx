@@ -39,7 +39,11 @@ import {
 import { pageSetupToLayoutInput } from '../lib/resolvePageSetup';
 import { getLayoutRegistry, invalidateLayoutRegistry } from '../lib/registry';
 import { resolvePageSetupChromeOptions } from './chrome/pageSetupChrome';
-import { createDomMeasure, topLevelBlockElements } from './domMeasure';
+import {
+  createDomMeasure,
+  resolveLineHeight,
+  topLevelBlockElements,
+} from './domMeasure';
 
 // Layout effect on the client (run before paint so lines appear with content),
 // plain effect on the server (useLayoutEffect is a no-op + warns during SSR).
@@ -92,7 +96,6 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   const setup = pageSetupFromValue(value);
   const page = setup?.page ?? pageOption;
   const margins = setup?.margins ?? marginsOption;
-  const chrome = setup ? resolvePageSetupChromeOptions(setup) : chromeOption;
 
   const editable = editor.api.toDOMNode(editor);
   if (!enabled || !editable || breaks.length === 0) return null;
@@ -102,6 +105,13 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   const padRight = Number.parseFloat(style.paddingRight) || 0;
   const left = editable.offsetLeft + padLeft;
   const width = Math.max(0, editable.clientWidth - padLeft - padRight);
+  // Content-sized chrome bands: one stacked line == one body line box. Pass the
+  // SAME line height the composer reserved with (host effect below) so the
+  // reserved band height equals the painted stack height.
+  const chromeLineHeightPx = resolveLineHeight(style);
+  const chrome = setup
+    ? resolvePageSetupChromeOptions(setup, chromeLineHeightPx)
+    : chromeOption;
 
   // The overlay shares the editable's positioned-ancestor coordinate space, so a
   // block's top there is `editable.offsetTop + (blockTop − editableTop)`. Using
@@ -326,6 +336,7 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       return setup
         ? JSON.stringify({
             footer: setup.footer,
+            footnotes: setup.footnotes,
             header: setup.header,
             margins: setup.margins,
             page: setup.page,
@@ -382,6 +393,8 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       const effPage = setup?.page ?? page;
       const effMargins = setup?.margins ?? margins;
       const widthPx = effPage.widthPx - effMargins.leftPx - effMargins.rightPx;
+      // Same line height the overlay paints chrome with → reserve == paint.
+      const chromeLineHeightPx = resolveLineHeight(getComputedStyle(editable));
 
       const snapshot = buildSnapshot(editor.children, {
         atomicTypes,
@@ -399,7 +412,7 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       const layout = composeLayout(
         measured,
         setup
-          ? pageSetupToLayoutInput(setup, policies)
+          ? pageSetupToLayoutInput(setup, policies, chromeLineHeightPx)
           : {
               margins,
               page,

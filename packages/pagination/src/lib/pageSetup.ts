@@ -20,15 +20,51 @@ import { getPresetPageSpec } from '../layout/presets';
 /** Node type for the document-level page-setup metadata node. */
 export const PAGE_SETUP_KEY = 'page_setup';
 
-/** Where the running page number is painted (or `none` to omit it). */
-export type PageNumberPosition =
-  | 'footer-center'
-  | 'footer-left'
-  | 'footer-right'
-  | 'header-center'
-  | 'header-left'
-  | 'header-right'
-  | 'none';
+/** Running page-number rendering style. */
+export type PageNumberFormat =
+  | 'arabic' // 1, 2, 3
+  | 'custom' // customText with {n}/{total} placeholders
+  | 'none'
+  | 'roman-lower' // i, ii, iii
+  | 'roman-upper'; // I, II, III
+
+/** Which band the page-number line sits in (its own one-line band). */
+export type PageNumberLocation = 'bottom' | 'none' | 'top';
+
+/** Horizontal alignment of the page number within its full-width band. */
+export type PageNumberAlign = 'center' | 'left' | 'right';
+
+/** Max length of a custom page-number template. */
+export const PAGE_NUMBER_CUSTOM_MAX = 500;
+
+/**
+ * Page-number config: its own one-line band above the header (`top`) or below
+ * the footer (`bottom`). `format` and `location` are reciprocal — see
+ * {@link normalizePageNumber}.
+ */
+export type PageNumberConfig = {
+  align: PageNumberAlign;
+  /** Template with `{n}`/`{total}`; clamped to {@link PAGE_NUMBER_CUSTOM_MAX}. */
+  customText?: string;
+  /** Omit the number on page 1 (cover-page convention). */
+  differentFirstPage?: boolean;
+  format: PageNumberFormat;
+  location: PageNumberLocation;
+};
+
+/**
+ * Keep `format`/`location` from being half-set: if one is real while the other
+ * is `'none'`, auto-pick the first real option of the other (format→`arabic`,
+ * location→`top`).
+ */
+export function normalizePageNumber(c: PageNumberConfig): PageNumberConfig {
+  const hasFormat = c.format !== 'none';
+  const hasLocation = c.location !== 'none';
+  if (hasFormat && !hasLocation) return { ...c, location: 'top' };
+  if (hasLocation && !hasFormat) return { ...c, format: 'arabic' };
+
+  return c;
+}
 
 /** Footnote rendering mode for the document. */
 export type FootnoteMode = 'endnote' | 'footnote' | 'off';
@@ -72,7 +108,7 @@ export type PageSetupConfig = {
   header?: ChromeContent;
   margins: PageMargins;
   page: PageSpec;
-  pageNumber: PageNumberPosition;
+  pageNumber: PageNumberConfig;
   /** Typography for the running page-number text (overrides the band's style). */
   pageNumberStyle?: ChromeTextStyle;
   /** Author's working unit for the settings UI (geometry is always px). */
@@ -90,7 +126,7 @@ export const DEFAULT_PAGE_SETUP: PageSetupConfig = {
   footnotes: 'off',
   margins: { bottomPx: 96, leftPx: 96, rightPx: 96, topPx: 96 },
   page: getPresetPageSpec('letter'),
-  pageNumber: 'none',
+  pageNumber: { align: 'center', format: 'none', location: 'none' },
   unit: 'in',
 };
 

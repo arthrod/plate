@@ -5,7 +5,12 @@ import {
   getPresetPageSpec,
   type LengthUnit,
   lengthToPx,
-  type PageNumberPosition,
+  normalizePageNumber,
+  PAGE_NUMBER_CUSTOM_MAX,
+  type PageNumberAlign,
+  type PageNumberConfig,
+  type PageNumberFormat,
+  type PageNumberLocation,
   type PageSetupConfig,
   pxToLength,
 } from '@platejs/pagination';
@@ -41,14 +46,24 @@ const PRESETS = [
   { label: 'Custom', value: 'custom' },
 ] as const;
 
-const PAGE_NUMBER_POSITIONS: { label: string; value: PageNumberPosition }[] = [
+const PAGE_NUMBER_FORMATS: { label: string; value: PageNumberFormat }[] = [
   { label: 'None', value: 'none' },
-  { label: 'Header — left', value: 'header-left' },
-  { label: 'Header — center', value: 'header-center' },
-  { label: 'Header — right', value: 'header-right' },
-  { label: 'Footer — left', value: 'footer-left' },
-  { label: 'Footer — center', value: 'footer-center' },
-  { label: 'Footer — right', value: 'footer-right' },
+  { label: 'Arabic (1, 2, 3)', value: 'arabic' },
+  { label: 'Roman upper (I, II)', value: 'roman-upper' },
+  { label: 'Roman lower (i, ii)', value: 'roman-lower' },
+  { label: 'Custom text', value: 'custom' },
+];
+
+const PAGE_NUMBER_LOCATIONS: { label: string; value: PageNumberLocation }[] = [
+  { label: 'None', value: 'none' },
+  { label: 'Top (above header)', value: 'top' },
+  { label: 'Bottom (below footer)', value: 'bottom' },
+];
+
+const PAGE_NUMBER_ALIGNS: { label: string; value: PageNumberAlign }[] = [
+  { label: 'Left', value: 'left' },
+  { label: 'Center', value: 'center' },
+  { label: 'Right', value: 'right' },
 ];
 
 const FOOTNOTE_MODES: { label: string; value: FootnoteMode }[] = [
@@ -105,6 +120,12 @@ export function PageSetupDialog({
     onChange({
       // Editing a dimension switches the page to a custom size (no preset).
       page: { ...value.page, [key]: lengthToPx(n, unit), preset: undefined },
+    });
+
+  // Patch the page number, auto-filling format/location reciprocally.
+  const setPageNumber = (patch: Partial<PageNumberConfig>) =>
+    onChange({
+      pageNumber: normalizePageNumber({ ...value.pageNumber, ...patch }),
     });
 
   return (
@@ -214,18 +235,60 @@ export function PageSetupDialog({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Page numbers">
+            <Field label="Page number format">
               <Select
                 onValueChange={(v) =>
-                  onChange({ pageNumber: v as PageNumberPosition })
+                  setPageNumber({ format: v as PageNumberFormat })
                 }
-                value={value.pageNumber}
+                value={value.pageNumber.format}
               >
-                <SelectTrigger data-testid="page-number-pos">
+                <SelectTrigger data-testid="page-number-format">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {PAGE_NUMBER_POSITIONS.map((p) => (
+                  {PAGE_NUMBER_FORMATS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field label="Page number location">
+              <Select
+                onValueChange={(v) =>
+                  setPageNumber({ location: v as PageNumberLocation })
+                }
+                value={value.pageNumber.location}
+              >
+                <SelectTrigger data-testid="page-number-location">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_NUMBER_LOCATIONS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Page number align">
+              <Select
+                onValueChange={(v) =>
+                  setPageNumber({ align: v as PageNumberAlign })
+                }
+                value={value.pageNumber.align}
+              >
+                <SelectTrigger data-testid="page-number-align">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_NUMBER_ALIGNS.map((p) => (
                     <SelectItem key={p.value} value={p.value}>
                       {p.label}
                     </SelectItem>
@@ -236,9 +299,7 @@ export function PageSetupDialog({
 
             <Field label="Footnotes / endnotes">
               <Select
-                onValueChange={(v) =>
-                  onChange({ footnotes: v as FootnoteMode })
-                }
+                onValueChange={(v) => onChange({ footnotes: v as FootnoteMode })}
                 value={value.footnotes}
               >
                 <SelectTrigger data-testid="footnote-mode">
@@ -254,6 +315,33 @@ export function PageSetupDialog({
               </Select>
             </Field>
           </div>
+
+          {value.pageNumber.format === 'custom' && (
+            <Field label="Custom text — use {n} and {total}">
+              <Input
+                data-testid="page-number-custom"
+                maxLength={PAGE_NUMBER_CUSTOM_MAX}
+                onChange={(e) =>
+                  setPageNumber({
+                    customText: e.target.value.slice(0, PAGE_NUMBER_CUSTOM_MAX),
+                  })
+                }
+                value={value.pageNumber.customText ?? ''}
+              />
+            </Field>
+          )}
+
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              checked={Boolean(value.pageNumber.differentFirstPage)}
+              data-testid="page-number-first"
+              onChange={(e) =>
+                setPageNumber({ differentFirstPage: e.target.checked })
+              }
+              type="checkbox"
+            />
+            Different first page (no page number on page 1)
+          </label>
         </div>
 
         <DialogFooter>
