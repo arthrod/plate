@@ -3,3 +3,4 @@
  */
 
 export * from './PageNumber';
+export * from './pageSetupChrome';

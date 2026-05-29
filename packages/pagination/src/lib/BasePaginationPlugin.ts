@@ -98,6 +98,9 @@ export type PaginationConfig = PluginConfig<'pagination', PaginationOptions>;
 const DEFAULT_OPTIONS: PaginationOptions = {
   atomicTypes: [],
   breakLineStyle: 'dashed',
+  // Declared (not omitted) so `usePluginOption(plugin, 'chrome')` resolves a
+  // value instead of throwing OPTION_UNDEFINED when no chrome is configured.
+  chrome: undefined,
   enabled: true,
   keepWithNextTypes: [],
   margins: { bottomPx: 96, leftPx: 96, rightPx: 96, topPx: 96 },

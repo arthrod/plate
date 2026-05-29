@@ -18,6 +18,8 @@ import {
   type EditableSiblingComponent,
   toPlatePlugin,
   useEditorRef,
+  useEditorSelector,
+  useEditorValue,
   usePluginOption,
 } from 'platejs/react';
 
@@ -29,8 +31,14 @@ import {
 import { buildSnapshot } from '../layout/snapshot';
 import { measureSnapshot } from '../measure/measure';
 import { BasePaginationPlugin } from '../lib/BasePaginationPlugin';
-import { getPageSetup, PAGE_SETUP_KEY } from '../lib/pageSetup';
+import {
+  getPageSetup,
+  PAGE_SETUP_KEY,
+  pageSetupFromValue,
+} from '../lib/pageSetup';
+import { pageSetupToLayoutInput } from '../lib/resolvePageSetup';
 import { getLayoutRegistry, invalidateLayoutRegistry } from '../lib/registry';
+import { resolvePageSetupChromeOptions } from './chrome/pageSetupChrome';
 import { createDomMeasure, topLevelBlockElements } from './domMeasure';
 
 // Layout effect on the client (run before paint so lines appear with content),
@@ -69,17 +77,22 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   const editor = useEditorRef();
   const enabled = usePluginOption(PaginationPlugin, 'enabled');
   const breaks = usePluginOption(PaginationPlugin, 'breaks');
-  const chrome = usePluginOption(PaginationPlugin, 'chrome');
+  const chromeOption = usePluginOption(PaginationPlugin, 'chrome');
   const pageOption = usePluginOption(PaginationPlugin, 'page');
   const marginsOption = usePluginOption(PaginationPlugin, 'margins');
   const breakLineStyle =
     usePluginOption(PaginationPlugin, 'breakLineStyle') ?? 'dashed';
 
-  // Page setup (the document node) overrides plugin-option geometry when present
-  // so the overlay's footer/page anchoring matches the composer's page frame.
-  const setup = getPageSetup(editor);
+  // Page setup (the document node) overrides plugin-option geometry + chrome
+  // when present so the overlay matches the composer's page frame and renders
+  // the document's header/footer/page-number config. Read from the REACTIVE
+  // value (not getPageSetup(editor)) so React re-derives on document changes —
+  // a stable `editor` ref would let the compiler memoize a stale read.
+  const value = useEditorValue();
+  const setup = pageSetupFromValue(value);
   const page = setup?.page ?? pageOption;
   const margins = setup?.margins ?? marginsOption;
+  const chrome = setup ? resolvePageSetupChromeOptions(setup) : chromeOption;
 
   const editable = editor.api.toDOMNode(editor);
   if (!enabled || !editable || breaks.length === 0) return null;
@@ -301,6 +314,29 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
     // the user sees stale page breaks despite re-enabling. CodeRabbit #434.
     const prevEnabledRef = useRef(enabled);
 
+    // Page geometry (size / margins / chrome) lives on the page_setup node, not
+    // the editable width — so the width ResizeObserver below can't see it. Track
+    // a stable geometry signature via a selector; when it changes, invalidate so
+    // the layout pass below recomputes. Selecting only the signature means
+    // ordinary text edits (which don't change it) never re-render here, holding
+    // the no-recompute-per-keystroke contract (CodeRabbit #442).
+    const geometryKey = useEditorSelector((ed) => {
+      const setup = pageSetupFromValue(ed.children);
+
+      return setup
+        ? JSON.stringify({
+            footer: setup.footer,
+            header: setup.header,
+            margins: setup.margins,
+            page: setup.page,
+            pageNumber: setup.pageNumber,
+          })
+        : '';
+    }, []);
+    useIsomorphicLayoutEffect(() => {
+      invalidateLayoutRegistry(editor);
+    }, [editor, geometryKey]);
+
     // Recompute when the layout registry is dirty (content edits via the base
     // plugin's apply override; selection-only changes leave it clean). Runs in a
     // layout effect — after the DOM commits, before paint — so the advisory lines
@@ -357,26 +393,31 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
         widthPx,
       });
       // Pass chrome heights through to the composer so it can shrink the content
-      // frame and emit the per-page chrome rects the overlay anchors to. The
-      // `render` functions live on the plugin options and stay out of the pure
-      // layout pipeline.
-      const layout = composeLayout(measured, {
-        margins: effMargins,
-        page: effPage,
-        policies,
-        ...(chrome
-          ? {
-              chrome: {
-                ...(chrome.header
-                  ? { header: { heightPx: chrome.header.heightPx } }
-                  : {}),
-                ...(chrome.footer
-                  ? { footer: { heightPx: chrome.footer.heightPx } }
-                  : {}),
-              },
+      // frame and emit the per-page chrome rects the overlay anchors to. With a
+      // page_setup node the bands come from the document config; otherwise from
+      // the plugin options (whose `render` functions stay out of the pure pipeline).
+      const layout = composeLayout(
+        measured,
+        setup
+          ? pageSetupToLayoutInput(setup, policies)
+          : {
+              margins,
+              page,
+              policies,
+              ...(chrome
+                ? {
+                    chrome: {
+                      ...(chrome.header
+                        ? { header: { heightPx: chrome.header.heightPx } }
+                        : {}),
+                      ...(chrome.footer
+                        ? { footer: { heightPx: chrome.footer.heightPx } }
+                        : {}),
+                    },
+                  }
+                : {}),
             }
-          : {}),
-      });
+      );
 
       registry.output = layout;
       registry.dirty = false;

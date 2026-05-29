@@ -80,15 +80,27 @@ export const DEFAULT_PAGE_SETUP: PageSetupConfig = {
 };
 
 /**
+ * Read the page setup from a Slate value (the document's node array), or `null`
+ * when it has no leading `page_setup` node. Prefer this in React render paths:
+ * pair it with a reactive value (`useEditorValue()`) so the read re-runs when
+ * the document changes, instead of memoizing on a stable `editor` reference.
+ */
+export function pageSetupFromValue(
+  value: readonly { type?: string }[] | undefined
+): PageSetupConfig | null {
+  const first = value?.[0] as TPageSetupElement | undefined;
+  if (!first || first.type !== PAGE_SETUP_KEY) return null;
+
+  return first.config;
+}
+
+/**
  * Read the document's page setup, or `null` when the document has no
  * `page_setup` node. Reads the leading node only — the normalizer guarantees a
  * single `page_setup` node lives at `children[0]`.
  */
 export function getPageSetup(editor: SlateEditor): PageSetupConfig | null {
-  const first = editor.children[0] as TPageSetupElement | undefined;
-  if (!first || first.type !== PAGE_SETUP_KEY) return null;
-
-  return first.config;
+  return pageSetupFromValue(editor.children);
 }
 
 /**
