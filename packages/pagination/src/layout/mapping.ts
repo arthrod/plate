@@ -31,6 +31,22 @@ export type MappingIndex = {
   isSplit: (blockIndex: number) => boolean;
 };
 
+/**
+ * Build a {@link MappingIndex} over a composed page list — a once-per-layout
+ * scan that lets consumers ask "which page is block N on?" and "which fragment
+ * holds line L of block N?" in O(refs-of-block) without re-scanning every page.
+ *
+ * The returned index is the only safe way to project block + line locations
+ * onto pages, because it stores the POSITIONAL index of each page in the
+ * `pages` array (see CodeRabbit PR #438). Consumers downstream dereference
+ * `layout.pages[ref.pageIndex]` and `geometry.placements[ref.pageIndex]` as
+ * array offsets, so deriving the index from `page.index` (which the composer
+ * is free to renumber for skipped covers etc.) would silently drop projections
+ * the moment those two diverge.
+ *
+ * @param pages  the ordered page list from `composeLayout`
+ * @returns      lookup interface; see {@link MappingIndex}
+ */
 export function buildMappingIndex(pages: PageLayout[]): MappingIndex {
   const byBlock = new Map<number, FragmentRef[]>();
 

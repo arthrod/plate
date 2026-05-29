@@ -26,7 +26,19 @@ export type PageGeometry = {
   height: number;
 };
 
-/** Vertically stack pages with a fixed gap (single-column mode). */
+/**
+ * Vertically stack pages with a fixed inter-page gap (single-column mode) —
+ * the geometry projection used by the continuous-view overlay to position
+ * each page's chrome (header / footer) and break-line in stack coordinates.
+ *
+ * Each placement is `{ left: 0, top, width: spec.widthPx, height: spec.heightPx }`
+ * where `top` advances by `spec.heightPx + gapPx` per page. The container's
+ * total width is the max page width; total height excludes the trailing gap.
+ *
+ * @param layout  output of `composeLayout`
+ * @param gapPx   inter-page visual gap (defaults to {@link PAGE_STACK_GAP_PX})
+ * @returns       `{ placements, width, height }` in stack coordinates
+ */
 export function getPageGeometry(
   layout: LayoutOutput,
   gapPx: number = PAGE_STACK_GAP_PX

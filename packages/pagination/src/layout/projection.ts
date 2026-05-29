@@ -26,7 +26,20 @@ export type LinePosition = {
   top: number;
 };
 
-/** Absolute stack rects for every fragment of a (possibly split) block. */
+/**
+ * Absolute stack rects for every fragment of a (possibly split) block.
+ *
+ * Reads `layout.mapping` (the prebuilt {@link MappingIndex}) for the block's
+ * fragments and projects each one onto its page's placement frame. Returns
+ * one rect per fragment in document order; an unsplit block yields exactly
+ * one rect. Empty array when the block is missing from the layout or sits on
+ * a page that geometry hasn't placed.
+ *
+ * @param layout      output of `composeLayout` (carries the mapping index)
+ * @param geometry    output of `getPageGeometry` (carries page placements)
+ * @param blockIndex  top-level block index (`path[0]`)
+ * @returns           one absolute stack-coordinate rect per fragment
+ */
 export function fragmentRects(
   layout: LayoutOutput,
   geometry: PageGeometry,
@@ -54,7 +67,22 @@ export function fragmentRects(
   return rects;
 }
 
-/** Absolute stack position of a given (0-based) line within a block. */
+/**
+ * Absolute stack position of a given (0-based) visual line within a block.
+ *
+ * Finds which fragment holds the requested `lineIndex` (a block may span
+ * multiple page fragments), projects that fragment's origin into stack
+ * coordinates, then advances by `(lineIndex - fragment.lineStart) *
+ * lineHeightPx` to land on the line itself. Useful for caret + selection
+ * placement across page boundaries.
+ *
+ * @param layout      output of `composeLayout`
+ * @param geometry    output of `getPageGeometry`
+ * @param blockIndex  top-level block index (`path[0]`)
+ * @param line        `{ lineIndex, lineHeightPx }` for the target line
+ * @returns           `{ pageIndex, left, top }` in stack coords, or `null`
+ *                    if the line falls outside the laid-out range
+ */
 export function blockLinePosition(
   layout: LayoutOutput,
   geometry: PageGeometry,

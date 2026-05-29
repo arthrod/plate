@@ -15,6 +15,24 @@ import type { LayoutInput, LayoutOutput } from '../layout/types';
 import { topLevelBlockElements } from './domMeasure';
 import { PAGE_STACK_GAP_PX } from './geometry';
 
+/**
+ * Compute the page-start spacer map — for each block that begins a NEW page
+ * (page index > 0), how much CSS `margin-top` is needed so the block snaps
+ * to that page's content-frame top in continuous view.
+ *
+ * Pure: returns the map without touching the DOM. {@link alignContentToLayout}
+ * is the side-effecting wrapper.
+ *
+ * Formula: `page.heightPx - prevBottom + gapPx`, clamped non-negative.
+ * (See the inline note for the derivation; margins/chrome cancel exactly out
+ * of the original four-term expression — Gemini PR #442.)
+ *
+ * @param layout  output of `composeLayout`
+ * @param input   the same `LayoutInput` used to compose (for `page.heightPx`)
+ * @param gapPx   inter-page visual gap (defaults to {@link PAGE_STACK_GAP_PX})
+ * @returns       `Map<blockIndex, spacerPx>` — only contains entries for
+ *                blocks that start a non-first page
+ */
 export function computePageStartSpacers(
   layout: LayoutOutput,
   input: LayoutInput,
