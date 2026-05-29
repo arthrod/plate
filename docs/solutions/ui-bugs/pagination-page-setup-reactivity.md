@@ -84,6 +84,31 @@ literal** for its node type rather than `KEYS.pageSetup`, even though central-KE
 registration is the upstream-idiomatic choice. Register in `KEYS` for upstream
 consistency, but do not make a vendored package's runtime depend on it.
 
+## Sticky fixed-toolbar swallowed by a page-desk wrapper
+
+Plate's `FixedToolbarKit` renders the toolbar via `render.beforeEditable`, which
+welds it as PlateContent's first child — *inside* whatever element wraps
+`<Editor>`. Wrapping the editor in a `position: relative` page "desk" makes that
+desk the toolbar's containing block, so `position: sticky; top: 0` resolves
+against the **desk** (which scrolls away) instead of the `overflow-y-auto` scroll
+container — the toolbar gets dragged off-screen with the desk (and a `my-8` on the
+desk pushes its `top:0` anchor down). Fix: render `<FixedToolbar><FixedToolbarButtons/></FixedToolbar>`
+as a **direct child of the scroll container** (remove `FixedToolbarKit` from the
+kit; render it explicitly in the editor-container component), so sticky resolves
+against the scroller. A secondary floating toolbar (margins mode) should be
+`position: fixed` below the toolbar height, not `absolute` inside the desk.
+
+## Chrome bands: fold a stack into the two existing scalars
+
+To render a multi-row chrome stack (page-number line, header line / footnote,
+footer, page-number line) without changing the composer's two-band interface
+(`chrome.{header,footer}.heightPx`), fold each stack into ONE scalar = (line
+count × line height) and render a CSS column per band. The composer keeps
+reserving two scalars; the overlay paints the column. Band heights become
+content-sized by using the exported `resolveLineHeight(getComputedStyle(editable))`
+(the same one-line height the body uses) and passing the SAME value to both the
+compose-reserve and the overlay-paint so they never drift.
+
 ## Print view = PlateStatic, not window.print()
 
 A "view-only print view" should render the document read-only via `PlateStatic`
