@@ -1,5 +1,6 @@
 'use client';
 
+import { insertFootnote } from '@platejs/footnote';
 import {
   DEFAULT_PAGE_SETUP,
   getPageSetup,
@@ -14,6 +15,7 @@ import * as React from 'react';
 import { MarginsMode } from '@/components/editor/margins-mode';
 import { PageSetupDialog } from '@/components/editor/page-setup-dialog';
 import { BasicNodesKit } from '@/components/editor/plugins/basic-nodes-kit';
+import { FootnoteKit } from '@/components/editor/plugins/footnote-kit';
 import { Button } from '@/components/ui/button';
 
 // Seed the document with a leading page_setup node so the engine and the desk
@@ -55,6 +57,7 @@ export function PaginationView() {
   const editor = usePlateEditor({
     plugins: [
       ...BasicNodesKit,
+      ...FootnoteKit,
       PageSetupPlugin,
       PaginationPlugin.configure({ options: { breakLineStyle: 'dotted' } }),
     ],
@@ -106,6 +109,19 @@ export function PaginationView() {
         >
           {marginsMode ? 'Done editing margins' : 'Edit margins'}
         </Button>
+        {setup.footnotes !== 'off' && (
+          <Button
+            data-testid="insert-footnote"
+            onClick={() => {
+              editor.tf.focus();
+              insertFootnote(editor);
+            }}
+            type="button"
+            variant="secondary"
+          >
+            Insert footnote
+          </Button>
+        )}
       </div>
 
       <div
