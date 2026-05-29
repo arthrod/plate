@@ -115,7 +115,8 @@ Each PR: red→green→refactor, `check` before PR, changeset, stacked over pred
 ## Progress log
 - 2026-05-29: recon complete (8 areas mapped). Decisions locked.
 - 2026-05-29: **PR-A DONE** (branch `work/pagination-suite-a-foundation`, commit `9f6cfae1f`). units.ts (lengthToPx/pxToLength), presets.ts (getPresetPageSpec), breakLineStyle option+wiring, aria-hidden chrome. Fixed pre-existing typecheck (MeasureCache import, ComposeMetrics shape) + lint debt. Evidence: 102 pagination tests pass, pkg typecheck 8/8, biome clean. Changeset written.
-- 2026-05-29: Starting **PR-B** (pageSetup node) on `work/pagination-suite-b-pagesetup`.
+- 2026-05-29: **PR-B DONE** (branch `work/pagination-suite-b-pagesetup`, commit `51aadda5d`). `BasePageSetupPlugin` (void `page_setup` node + singleton normalizer), `getPageSetup`/`setPageSetup`/`DEFAULT_PAGE_SETUP`/`PageSetupConfig`, `buildSnapshot` `skipTypes`. Evidence: 112 pagination tests pass, pkg typecheck clean, biome clean. Changeset written. Node is inert until PR-C renders+creates it.
+- Next: **PR-C** (settings modal) — needs registry/shadcn UI + dev-browser; will also add the React `PageSetupPlugin` (invisible render + topLevelBlockElements exclusion + host `skipTypes`/LayoutInput resolution) so the node goes live.
 
 ### Open items needing user (non-blocking until reached)
 - **Cloudflare deploy (PR-G)** needs the user's `wrangler` auth / CF account — I cannot deploy without it.

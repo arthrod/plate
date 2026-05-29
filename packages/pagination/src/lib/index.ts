@@ -6,3 +6,4 @@ export * from './BasePageSetupPlugin';
 export * from './BasePaginationPlugin';
 export * from './pageSetup';
 export * from './registry';
+export * from './resolvePageSetup';

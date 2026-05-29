@@ -29,6 +29,7 @@ import {
 import { buildSnapshot } from '../layout/snapshot';
 import { measureSnapshot } from '../measure/measure';
 import { BasePaginationPlugin } from '../lib/BasePaginationPlugin';
+import { getPageSetup, PAGE_SETUP_KEY } from '../lib/pageSetup';
 import { getLayoutRegistry, invalidateLayoutRegistry } from '../lib/registry';
 import { createDomMeasure, topLevelBlockElements } from './domMeasure';
 
@@ -69,10 +70,16 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   const enabled = usePluginOption(PaginationPlugin, 'enabled');
   const breaks = usePluginOption(PaginationPlugin, 'breaks');
   const chrome = usePluginOption(PaginationPlugin, 'chrome');
-  const page = usePluginOption(PaginationPlugin, 'page');
-  const margins = usePluginOption(PaginationPlugin, 'margins');
+  const pageOption = usePluginOption(PaginationPlugin, 'page');
+  const marginsOption = usePluginOption(PaginationPlugin, 'margins');
   const breakLineStyle =
     usePluginOption(PaginationPlugin, 'breakLineStyle') ?? 'dashed';
+
+  // Page setup (the document node) overrides plugin-option geometry when present
+  // so the overlay's footer/page anchoring matches the composer's page frame.
+  const setup = getPageSetup(editor);
+  const page = setup?.page ?? pageOption;
+  const margins = setup?.margins ?? marginsOption;
 
   const editable = editor.api.toDOMNode(editor);
   if (!enabled || !editable || breaks.length === 0) return null;
@@ -331,11 +338,19 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
         page,
         policies,
       } = editor.getOptions(BasePaginationPlugin);
-      const widthPx = page.widthPx - margins.leftPx - margins.rightPx;
+
+      // The document-level page_setup node is authoritative for page geometry
+      // when present; otherwise fall back to the plugin options. The node is
+      // excluded from the snapshot so it never paginates.
+      const setup = getPageSetup(editor);
+      const effPage = setup?.page ?? page;
+      const effMargins = setup?.margins ?? margins;
+      const widthPx = effPage.widthPx - effMargins.leftPx - effMargins.rightPx;
 
       const snapshot = buildSnapshot(editor.children, {
         atomicTypes,
         keepWithNextTypes,
+        skipTypes: [PAGE_SETUP_KEY],
       });
       const measured = measureSnapshot(snapshot, createDomMeasure(editable), {
         cache: registry.measureCache,
@@ -346,8 +361,8 @@ export const PaginationPlugin = toPlatePlugin(BasePaginationPlugin, {
       // `render` functions live on the plugin options and stay out of the pure
       // layout pipeline.
       const layout = composeLayout(measured, {
-        margins,
-        page,
+        margins: effMargins,
+        page: effPage,
         policies,
         ...(chrome
           ? {
