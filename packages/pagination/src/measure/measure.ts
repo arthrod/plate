@@ -57,6 +57,27 @@ function lineCountFrom(heightPx: number, lineHeightPx: number): number {
   return Math.max(1, Math.round(heightPx / lineHeightPx));
 }
 
+/**
+ * Turn an `UnmeasuredSnapshot` into a `MeasuredSnapshot` by running `measure`
+ * over every block, with optional LRU-free `MeasureCache` reuse keyed by
+ * `(block.id, widthPx)`.
+ *
+ * The cache key includes the width so a single block measured at two widths
+ * (resize, side-by-side editors) keeps both entries instead of overwriting one
+ * slot. When measurement returns `null` or no measurer is supplied, the block
+ * falls back to `{ heightPx: fallbackLineHeightPx, lineHeightPx: fallbackLineHeightPx }`
+ * so composition still gets a valid (advisory) result.
+ *
+ * Flow height — the value the composer uses for page packing — equals
+ * `(renderedHeightPx ?? heightPx) + boxSpacingPx`, emitted on the measured
+ * block only when the measurer signals one of those terms. `heightPx` and
+ * `lineCount` remain pretext-derived so line-level mapping is unaffected.
+ *
+ * @param snapshot  output of `buildSnapshot`
+ * @param measure   the `MeasureFn` (DOM-backed in production, stub in tests)
+ * @param options   `{ widthPx, cache?, fallbackLineHeightPx? }`
+ * @returns         `MeasuredSnapshot` ready for `composeLayout`
+ */
 export function measureSnapshot(
   snapshot: UnmeasuredSnapshot,
   measure: MeasureFn,
