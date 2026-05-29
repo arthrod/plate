@@ -93,6 +93,41 @@ export const PageNumberWithTitle =
   };
 
 /**
+ * Bare page-number variant: just "N" (or "N / M"). Use when chrome real estate
+ * is tight or when the page-number role is contextually obvious (e.g. inside a
+ * book template that already has running headers).
+ *
+ *   { footer: { heightPx: 24, render: PageNumberMinimal() } }
+ *   { footer: { heightPx: 24, render: PageNumberMinimal({ showTotal: true }) } }
+ */
+export const PageNumberMinimal =
+  (opts: { showTotal?: boolean; skipFirstPage?: boolean } = {}) =>
+  (ctx: ChromeRenderContext): React.ReactNode => {
+    if (opts.skipFirstPage && ctx.pageIndex === 0) return null;
+    const label = opts.showTotal
+      ? `${ctx.pageIndex + 1} / ${ctx.pageCount}`
+      : `${ctx.pageIndex + 1}`;
+    return (
+      <div
+        data-page-number={ctx.pageIndex + 1}
+        style={{
+          alignItems: 'center',
+          color: CHROME_INK,
+          display: 'flex',
+          fontFamily: CHROME_FONT,
+          fontSize: 11,
+          fontVariantNumeric: 'tabular-nums',
+          height: '100%',
+          justifyContent: 'center',
+          width: '100%',
+        }}
+      >
+        {label}
+      </div>
+    );
+  };
+
+/**
  * Constant uppercase text header (e.g. document title). Mirrors the footer's
  * 1-px rule on its BOTTOM edge so the page reads as a chrome-margin-content-
  * margin-chrome stack at a glance.
