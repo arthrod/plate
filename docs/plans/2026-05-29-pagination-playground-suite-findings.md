@@ -113,4 +113,10 @@ Each PR: red→green→refactor, `check` before PR, changeset, stacked over pred
 - **PR-G `…suite-g-playground-deploy`**: prepend modal-open + margins-mode buttons to `FixedToolbarButtons` (registry/ui); wire plugins into playground editor; build pagination → vendor → opennext → CF deploy (`deploy:playground`).
 
 ## Progress log
-- 2026-05-29: recon complete (8 areas mapped). Decisions locked. Starting PR-A.
+- 2026-05-29: recon complete (8 areas mapped). Decisions locked.
+- 2026-05-29: **PR-A DONE** (branch `work/pagination-suite-a-foundation`, commit `9f6cfae1f`). units.ts (lengthToPx/pxToLength), presets.ts (getPresetPageSpec), breakLineStyle option+wiring, aria-hidden chrome. Fixed pre-existing typecheck (MeasureCache import, ComposeMetrics shape) + lint debt. Evidence: 102 pagination tests pass, pkg typecheck 8/8, biome clean. Changeset written.
+- 2026-05-29: Starting **PR-B** (pageSetup node) on `work/pagination-suite-b-pagesetup`.
+
+### Open items needing user (non-blocking until reached)
+- **Cloudflare deploy (PR-G)** needs the user's `wrangler` auth / CF account — I cannot deploy without it.
+- **PR/check cadence:** repo `check` = full `lint && typecheck && test:all && test:slowest` (OOM-prone here). Plan: verify each PR at package scope; run `check:push` / open GitHub PRs at checkpoints unless told otherwise.

@@ -1,0 +1,125 @@
+// ============================================================
+// pagination/lib/pageSetup.ts
+//
+// Document-level page configuration, persisted as a single void `page_setup`
+// node at the TOP of the Slate value (children[0]). This keeps page geometry,
+// page-number placement, footnote mode, and header/footer chrome content INSIDE
+// the document JSON — they travel with the document and round-trip through any
+// Slate serializer — while the pagination engine skips the node during layout
+// (see buildSnapshot `skipTypes`). The node is the source of truth; the React
+// host resolves it into the pure layout pipeline's inputs.
+// ============================================================
+
+import type { SlateEditor, TElement } from 'platejs';
+
+import type { PageMargins, PageSpec } from '../layout/types';
+import type { LengthUnit } from '../layout/units';
+
+import { getPresetPageSpec } from '../layout/presets';
+
+/** Node type for the document-level page-setup metadata node. */
+export const PAGE_SETUP_KEY = 'page_setup';
+
+/** Where the running page number is painted (or `none` to omit it). */
+export type PageNumberPosition =
+  | 'footer-center'
+  | 'footer-left'
+  | 'footer-right'
+  | 'header-center'
+  | 'header-left'
+  | 'header-right'
+  | 'none';
+
+/** Footnote rendering mode for the document. */
+export type FootnoteMode = 'endnote' | 'footnote' | 'off';
+
+/** Typography for a chrome region (header/footer/footnote/page-number text). */
+export type ChromeTextStyle = {
+  bold?: boolean;
+  color?: string;
+  fontFamily?: string;
+  fontSize?: number;
+  italic?: boolean;
+};
+
+/** Editable content of a chrome region. `text` is plain for now; PR-D adds marks. */
+export type ChromeContent = {
+  style?: ChromeTextStyle;
+  text?: string;
+};
+
+/**
+ * The full page-setup record stored on the `page_setup` node. Geometry is
+ * canonical CSS px @ 96dpi; `unit` is the author's working unit, kept only so
+ * the settings UI can round-trip the displayed numbers without drift.
+ */
+export type PageSetupConfig = {
+  footer?: ChromeContent;
+  footnotes: FootnoteMode;
+  header?: ChromeContent;
+  margins: PageMargins;
+  page: PageSpec;
+  pageNumber: PageNumberPosition;
+  /** Author's working unit for the settings UI (geometry is always px). */
+  unit: LengthUnit;
+};
+
+/** The Slate node carrying {@link PageSetupConfig}. Void, non-content. */
+export type TPageSetupElement = TElement & {
+  config: PageSetupConfig;
+  type: typeof PAGE_SETUP_KEY;
+};
+
+/** US Letter + 1in margins + inches working unit; chrome off by default. */
+export const DEFAULT_PAGE_SETUP: PageSetupConfig = {
+  footnotes: 'off',
+  margins: { bottomPx: 96, leftPx: 96, rightPx: 96, topPx: 96 },
+  page: getPresetPageSpec('letter'),
+  pageNumber: 'none',
+  unit: 'in',
+};
+
+/**
+ * Read the document's page setup, or `null` when the document has no
+ * `page_setup` node. Reads the leading node only — the normalizer guarantees a
+ * single `page_setup` node lives at `children[0]`.
+ */
+export function getPageSetup(editor: SlateEditor): PageSetupConfig | null {
+  const first = editor.children[0] as TPageSetupElement | undefined;
+  if (!first || first.type !== PAGE_SETUP_KEY) return null;
+
+  return first.config;
+}
+
+/**
+ * Upsert the document's page setup. When no `page_setup` node exists, inserts
+ * one at `children[0]` seeded with {@link DEFAULT_PAGE_SETUP}; otherwise merges
+ * `patch` into the existing config. Always leaves exactly one leading node.
+ *
+ * @example
+ * setPageSetup(editor, { page: getPresetPageSpec('a4'), unit: 'cm' });
+ */
+export function setPageSetup(
+  editor: SlateEditor,
+  patch: Partial<PageSetupConfig>
+): void {
+  const current = getPageSetup(editor);
+
+  if (current) {
+    editor.tf.setNodes<TPageSetupElement>(
+      { config: { ...current, ...patch } },
+      { at: [0] }
+    );
+
+    return;
+  }
+
+  editor.tf.insertNodes<TPageSetupElement>(
+    {
+      children: [{ text: '' }],
+      config: { ...DEFAULT_PAGE_SETUP, ...patch },
+      type: PAGE_SETUP_KEY,
+    },
+    { at: [0] }
+  );
+}

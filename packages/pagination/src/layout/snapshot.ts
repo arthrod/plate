@@ -13,6 +13,12 @@ export type SnapshotOptions = {
   atomicTypes?: string[];
   /** Block types kept on the same page as the following block (e.g. headings). */
   keepWithNextTypes?: string[];
+  /**
+   * Block types excluded from pagination entirely (e.g. a document-level
+   * `page_setup` metadata node). Skipped nodes never become blocks; the
+   * surviving blocks keep their real Slate paths.
+   */
+  skipTypes?: string[];
 };
 
 type SlateNode = {
@@ -107,16 +113,27 @@ export function buildSnapshot(
     return candidate;
   };
 
-  const blocks: UnmeasuredBlock[] = value.map((node, index) => {
+  const skip = new Set(options.skipTypes ?? []);
+  const blocks: UnmeasuredBlock[] = [];
+  value.forEach((node, index) => {
     const type = node.type ?? 'unknown';
+    // Excluded node types (e.g. the page_setup metadata node) never paginate.
+    // The surviving blocks keep their real Slate `path` (`[index]`), so a
+    // leading page_setup node leaves content blocks at indices [1], [2], …
+    if (skip.has(type)) return;
+
     const rawId = stableId(node);
-    const hasExplicitId =
-      node.id != null && String(node.id).length > 0;
+    const hasExplicitId = node.id != null && String(node.id).length > 0;
     // Explicit ids: pass through verbatim, still register so fallbacks
     // can't collide later. Fallback ids: dedupe on collision.
-    const id = hasExplicitId
-      ? (seenIds.add(rawId), rawId)
-      : dedupeFallback(rawId, index);
+    let id: string;
+    if (hasExplicitId) {
+      seenIds.add(rawId);
+      id = rawId;
+    } else {
+      id = dedupeFallback(rawId, index);
+    }
+
     const block: UnmeasuredBlock = {
       id,
       path: [index],
@@ -130,7 +147,7 @@ export function buildSnapshot(
     if (node.breakBefore === true) block.breakBefore = true;
     if (atomic.has(type)) block.splittable = false;
 
-    return block;
+    blocks.push(block);
   });
 
   return { blocks };
