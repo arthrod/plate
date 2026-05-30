@@ -8,7 +8,7 @@ import {
 import { resolvePageSetupChromeOptions } from '@platejs/pagination/react';
 import { createSlateEditor, type SlateEditor, type Value } from 'platejs';
 import { PlateStatic } from 'platejs/static';
-import * as React from 'react';
+import type * as React from 'react';
 
 import { BaseEditorKit } from '@/components/editor/editor-base-kit';
 import { Button } from '@/components/ui/button';
@@ -52,23 +52,41 @@ export function PrintPreview({
           .map((i) => children[i])
           .filter(Boolean)
       )
-    : [children.filter((n) => (n as { type?: string }).type !== PAGE_SETUP_KEY)];
+    : [
+        children.filter(
+          (n) => (n as { type?: string }).type !== PAGE_SETUP_KEY
+        ),
+      ];
 
   const pageCount = slices.length;
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-auto bg-neutral-700/90"
+      className="fixed inset-0 z-50 overflow-auto overscroll-contain bg-neutral-900/80 backdrop-blur-sm"
       data-testid="print-preview"
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between bg-neutral-900 px-4 py-2 text-sm text-white">
-        <span>Print view — {pageCount} page(s) · view only</span>
-        <Button onClick={onClose} size="sm" variant="secondary">
+      <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-white/10 border-b bg-neutral-900/80 px-4 text-sm text-white backdrop-blur-md">
+        <span className="flex items-center gap-2 font-medium">
+          <span>Print view</span>
+          <span className="text-white/40">·</span>
+          <span className="text-white/60">
+            {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+          </span>
+          <span className="ml-1 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/70">
+            View only
+          </span>
+        </span>
+        <Button
+          className="text-white/80 hover:bg-white/10 hover:text-white"
+          onClick={onClose}
+          size="sm"
+          variant="ghost"
+        >
           Close
         </Button>
       </div>
 
-      <div className="flex flex-col items-center gap-6 py-8">
+      <div className="flex flex-col items-center gap-8 px-4 py-10 sm:py-12">
         {slices.map((value, i) => {
           const staticEditor = createSlateEditor({
             plugins: BaseEditorKit,
@@ -83,7 +101,7 @@ export function PrintPreview({
 
           return (
             <div
-              className="relative bg-white text-black shadow-xl"
+              className="relative bg-white text-neutral-900 shadow-2xl ring-1 ring-black/5"
               data-testid="print-page"
               // biome-ignore lint/suspicious/noArrayIndexKey: page order is stable
               key={i}

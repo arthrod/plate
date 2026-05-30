@@ -13,7 +13,11 @@ import {
   ColorDropdownMenuItems,
   DEFAULT_COLORS,
 } from '@/components/ui/font-color-toolbar-button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -139,8 +143,11 @@ export function MarginsMode({
     return (
       <div
         className={cn(
-          'absolute z-10 flex items-center bg-background/95 px-1',
-          which === 'header' ? 'border-border border-b' : 'border-border border-t'
+          'absolute z-10 flex items-center px-1 transition-colors',
+          which === 'header'
+            ? 'border-border border-b'
+            : 'border-border border-t',
+          activeBand === which ? 'bg-background' : 'bg-background/90'
         )}
         data-margins-ui=""
         style={{
@@ -152,8 +159,10 @@ export function MarginsMode({
       >
         <span
           className={cn(
-            'pointer-events-none absolute top-0.5 left-0 text-[10px] uppercase tracking-wider',
-            activeBand === which ? 'text-foreground/70' : 'text-muted-foreground/60'
+            'pointer-events-none absolute top-1 left-1 select-none text-[10px] uppercase leading-none tracking-[0.08em] transition-colors',
+            activeBand === which
+              ? 'text-foreground/65'
+              : 'text-muted-foreground/55'
           )}
         >
           {which}
@@ -162,8 +171,8 @@ export function MarginsMode({
             own band, configured in Page setup). */}
         <div
           className={cn(
-            'flex h-full w-full items-center rounded-xs px-1 text-left outline-none ring-ring focus:ring-2',
-            activeBand === which && 'ring-1'
+            'flex h-full w-full items-center rounded-sm px-1.5 text-left outline-none transition-[box-shadow] focus:ring-2 focus:ring-ring/60',
+            activeBand === which && 'ring-1 ring-ring/35'
           )}
           contentEditable
           data-testid={`margins-${which}`}
@@ -185,7 +194,7 @@ export function MarginsMode({
       {/* Dim the body so the page chrome reads as the active surface. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute z-[5] bg-background/55"
+        className="pointer-events-none absolute z-[5] bg-background/60 backdrop-blur-[0.5px]"
         data-print-hide=""
         style={{
           bottom: value.margins.bottomPx,
@@ -196,13 +205,13 @@ export function MarginsMode({
       />
 
       <div
-        className="-translate-x-1/2 fixed left-1/2 z-40"
+        className="fixed left-1/2 z-40 -translate-x-1/2"
         data-margins-ui=""
         data-testid="margins-toolbar"
         onMouseDown={(e) => e.preventDefault()}
         style={{ top: 60 }}
       >
-        <Toolbar className="rounded-lg border bg-popover px-1 shadow-md">
+        <Toolbar className="gap-0.5 rounded-lg border bg-popover px-1 py-1 text-popover-foreground shadow-lg ring-1 ring-black/[0.02]">
           <ToolbarGroup>
             <Select
               onValueChange={(v) => setRegion(v as StyleRegion)}
@@ -315,8 +324,12 @@ export function MarginsMode({
             </Popover>
           </ToolbarGroup>
           <ToolbarSeparator />
-          <span className="px-2 text-muted-foreground text-xs">
-            styling {region}
+          <span className="flex select-none items-center gap-1.5 pr-2 pl-1 text-muted-foreground text-xs">
+            <span
+              aria-hidden="true"
+              className="size-1.5 rounded-full bg-foreground/40"
+            />
+            {REGIONS.find((r) => r.value === region)?.label ?? region}
           </span>
         </Toolbar>
       </div>

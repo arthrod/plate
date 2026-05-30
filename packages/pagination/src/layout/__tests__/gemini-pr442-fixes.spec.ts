@@ -23,14 +23,20 @@ describe('snapshot.stableId — accept non-string ids (Gemini PR #442)', () => {
       { id: 42, type: 'p', children: [{ text: 'a' }] },
       { id: 99, type: 'p', children: [{ text: 'b' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).toBe('42');
     expect(out.blocks[1]!.id).toBe('99');
   });
 
   test('numeric zero is treated as a valid id (not falsy fallback)', () => {
     const value = [{ id: 0, type: 'p', children: [{ text: 'x' }] }];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).toBe('0');
   });
 
@@ -40,7 +46,10 @@ describe('snapshot.stableId — accept non-string ids (Gemini PR #442)', () => {
       { id: undefined, type: 'p', children: [{ text: 'b' }] },
       { type: 'p', children: [{ text: 'c' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     for (const b of out.blocks) {
       // Fallback shape is "${type}#${hash}", possibly suffixed by the
       // dedupe step. No raw "null"/"undefined" should leak through.
@@ -50,7 +59,10 @@ describe('snapshot.stableId — accept non-string ids (Gemini PR #442)', () => {
 
   test('empty string id falls back (length-zero guard)', () => {
     const value = [{ id: '', type: 'p', children: [{ text: 'x' }] }];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).not.toBe('');
     expect(out.blocks[0]!.id).toMatch(/^p#/);
   });
@@ -61,7 +73,10 @@ describe('snapshot.stableId — accept non-string ids (Gemini PR #442)', () => {
       { id: 'two', type: 'p', children: [{ text: 'b' }] },
       { id: 3, type: 'p', children: [{ text: 'c' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks.map((b) => b.id)).toEqual(['1', 'two', '3']);
   });
 });

@@ -17,6 +17,7 @@ import {
 import type * as React from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 
 const UNITS: { label: string; value: LengthUnit }[] = [
   { label: 'inches', value: 'in' },
@@ -87,9 +89,29 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="font-medium text-muted-foreground text-xs">{label}</span>
+      <span className="font-medium text-muted-foreground text-xs tracking-wide">
+        {label}
+      </span>
       {children}
     </div>
+  );
+}
+
+/** A titled group of fields — tier 1 of the dialog's two-tier label hierarchy. */
+function Section({
+  children,
+  title,
+}: {
+  children: React.ReactNode;
+  title: React.ReactNode;
+}) {
+  return (
+    <section className="grid gap-3">
+      <h3 className="font-medium text-foreground text-sm leading-none">
+        {title}
+      </h3>
+      {children}
+    </section>
   );
 }
 
@@ -139,78 +161,88 @@ export function PageSetupDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-5 py-2">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Page size">
-              <Select
-                onValueChange={(v) => {
-                  if (v === 'custom') return;
-                  onChange({ page: getPresetPageSpec(v as 'a4' | 'letter') });
-                }}
-                value={preset}
-              >
-                <SelectTrigger data-testid="page-preset">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PRESETS.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
+        <div className="grid gap-6 py-1">
+          <Section title="Page">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Size">
+                <Select
+                  onValueChange={(v) => {
+                    if (v === 'custom') return;
+                    onChange({ page: getPresetPageSpec(v as 'a4' | 'letter') });
+                  }}
+                  value={preset}
+                >
+                  <SelectTrigger data-testid="page-preset">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRESETS.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
 
-            <Field label="Unit">
-              <Select
-                onValueChange={(v) => onChange({ unit: v as LengthUnit })}
-                value={unit}
-              >
-                <SelectTrigger data-testid="page-unit">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {UNITS.map((u) => (
-                    <SelectItem key={u.value} value={u.value}>
-                      {u.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
+              <Field label="Unit">
+                <Select
+                  onValueChange={(v) => onChange({ unit: v as LengthUnit })}
+                  value={unit}
+                >
+                  <SelectTrigger data-testid="page-unit">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {UNITS.map((u) => (
+                      <SelectItem key={u.value} value={u.value}>
+                        {u.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label={`Width (${unit})`}>
-              <Input
-                data-testid="page-width"
-                onChange={(e) =>
-                  setPageDim('widthPx', Number(e.target.value) || 0)
-                }
-                step="any"
-                type="number"
-                value={display(value.page.widthPx, unit)}
-              />
-            </Field>
-            <Field label={`Height (${unit})`}>
-              <Input
-                data-testid="page-height"
-                onChange={(e) =>
-                  setPageDim('heightPx', Number(e.target.value) || 0)
-                }
-                step="any"
-                type="number"
-                value={display(value.page.heightPx, unit)}
-              />
-            </Field>
-          </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label={`Width (${unit})`}>
+                <Input
+                  data-testid="page-width"
+                  onChange={(e) =>
+                    setPageDim('widthPx', Number(e.target.value) || 0)
+                  }
+                  step="any"
+                  type="number"
+                  value={display(value.page.widthPx, unit)}
+                />
+              </Field>
+              <Field label={`Height (${unit})`}>
+                <Input
+                  data-testid="page-height"
+                  onChange={(e) =>
+                    setPageDim('heightPx', Number(e.target.value) || 0)
+                  }
+                  step="any"
+                  type="number"
+                  value={display(value.page.heightPx, unit)}
+                />
+              </Field>
+            </div>
+          </Section>
 
-          <div>
-            <span className="font-medium text-muted-foreground text-xs">
-              {`Margins (${unit})`}
-            </span>
-            <div className="mt-1 grid grid-cols-4 gap-2">
+          <Separator className="bg-border/60" />
+
+          <Section
+            title={
+              <>
+                Margins
+                <span className="ml-1.5 font-normal text-muted-foreground text-xs">
+                  ({unit})
+                </span>
+              </>
+            }
+          >
+            <div className="grid grid-cols-4 gap-2">
               {(
                 [
                   ['Top', 'topPx'],
@@ -222,9 +254,7 @@ export function PageSetupDialog({
                 <Field key={key} label={label}>
                   <Input
                     data-testid={`margin-${key}`}
-                    onChange={(e) =>
-                      setMargin(key, Number(e.target.value) || 0)
-                    }
+                    onChange={(e) => setMargin(key, Number(e.target.value) || 0)}
                     step="any"
                     type="number"
                     value={display(value.margins[key], unit)}
@@ -232,72 +262,112 @@ export function PageSetupDialog({
                 </Field>
               ))}
             </div>
-          </div>
+          </Section>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Page number format">
-              <Select
-                onValueChange={(v) =>
-                  setPageNumber({ format: v as PageNumberFormat })
+          <Separator className="bg-border/60" />
+
+          <Section title="Page numbers">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Format">
+                <Select
+                  onValueChange={(v) =>
+                    setPageNumber({ format: v as PageNumberFormat })
+                  }
+                  value={value.pageNumber.format}
+                >
+                  <SelectTrigger data-testid="page-number-format">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAGE_NUMBER_FORMATS.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Location">
+                <Select
+                  onValueChange={(v) =>
+                    setPageNumber({ location: v as PageNumberLocation })
+                  }
+                  value={value.pageNumber.location}
+                >
+                  <SelectTrigger data-testid="page-number-location">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAGE_NUMBER_LOCATIONS.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Align">
+                <Select
+                  onValueChange={(v) =>
+                    setPageNumber({ align: v as PageNumberAlign })
+                  }
+                  value={value.pageNumber.align}
+                >
+                  <SelectTrigger data-testid="page-number-align">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAGE_NUMBER_ALIGNS.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+
+            {value.pageNumber.format === 'custom' && (
+              <Field label="Custom text — use {n} and {total}">
+                <Input
+                  data-testid="page-number-custom"
+                  maxLength={PAGE_NUMBER_CUSTOM_MAX}
+                  onChange={(e) =>
+                    setPageNumber({
+                      customText: e.target.value.slice(
+                        0,
+                        PAGE_NUMBER_CUSTOM_MAX
+                      ),
+                    })
+                  }
+                  value={value.pageNumber.customText ?? ''}
+                />
+              </Field>
+            )}
+
+            <label className="flex items-center gap-2.5 text-foreground text-sm">
+              <Checkbox
+                checked={Boolean(value.pageNumber.differentFirstPage)}
+                data-testid="page-number-first"
+                onCheckedChange={(c) =>
+                  setPageNumber({ differentFirstPage: c === true })
                 }
-                value={value.pageNumber.format}
-              >
-                <SelectTrigger data-testid="page-number-format">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAGE_NUMBER_FORMATS.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
+              />
+              Different first page
+              <span className="text-muted-foreground">
+                (no page number on page 1)
+              </span>
+            </label>
+          </Section>
 
-            <Field label="Page number location">
-              <Select
-                onValueChange={(v) =>
-                  setPageNumber({ location: v as PageNumberLocation })
-                }
-                value={value.pageNumber.location}
-              >
-                <SelectTrigger data-testid="page-number-location">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAGE_NUMBER_LOCATIONS.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
+          <Separator className="bg-border/60" />
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Page number align">
-              <Select
-                onValueChange={(v) =>
-                  setPageNumber({ align: v as PageNumberAlign })
-                }
-                value={value.pageNumber.align}
-              >
-                <SelectTrigger data-testid="page-number-align">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAGE_NUMBER_ALIGNS.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field label="Footnotes / endnotes">
+          <Section title="Footnotes">
+            <Field label="Mode">
               <Select
                 onValueChange={(v) => onChange({ footnotes: v as FootnoteMode })}
                 value={value.footnotes}
@@ -314,34 +384,7 @@ export function PageSetupDialog({
                 </SelectContent>
               </Select>
             </Field>
-          </div>
-
-          {value.pageNumber.format === 'custom' && (
-            <Field label="Custom text — use {n} and {total}">
-              <Input
-                data-testid="page-number-custom"
-                maxLength={PAGE_NUMBER_CUSTOM_MAX}
-                onChange={(e) =>
-                  setPageNumber({
-                    customText: e.target.value.slice(0, PAGE_NUMBER_CUSTOM_MAX),
-                  })
-                }
-                value={value.pageNumber.customText ?? ''}
-              />
-            </Field>
-          )}
-
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              checked={Boolean(value.pageNumber.differentFirstPage)}
-              data-testid="page-number-first"
-              onChange={(e) =>
-                setPageNumber({ differentFirstPage: e.target.checked })
-              }
-              type="checkbox"
-            />
-            Different first page (no page number on page 1)
-          </label>
+          </Section>
         </div>
 
         <DialogFooter>

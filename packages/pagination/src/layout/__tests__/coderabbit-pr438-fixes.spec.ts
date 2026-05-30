@@ -40,7 +40,11 @@ describe('buildMappingIndex — positional page index (PR #438)', () => {
     const out = composeLayout(snapshot, baseInput());
     expect(out.pages.length).toBeGreaterThanOrEqual(2);
 
-    for (let blockIndex = 0; blockIndex < snapshot.blocks.length; blockIndex++) {
+    for (
+      let blockIndex = 0;
+      blockIndex < snapshot.blocks.length;
+      blockIndex++
+    ) {
       const refs = out.mapping.fragmentsOfBlock(blockIndex);
       for (const ref of refs) {
         const pageAtPosition = out.pages[ref.pageIndex];
@@ -110,7 +114,10 @@ describe('buildSnapshot — fallback stableId collision-safe (PR #438)', () => {
       { type: 'p', children: [{ text: '' }] },
       { type: 'p', children: [{ text: '' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks).toHaveLength(2);
     expect(out.blocks[0]!.id).not.toBe(out.blocks[1]!.id);
   });
@@ -121,7 +128,10 @@ describe('buildSnapshot — fallback stableId collision-safe (PR #438)', () => {
       { type: 'p', children: [{ text: 'same text' }] },
       { type: 'p', children: [{ text: 'same text' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(new Set(out.blocks.map((b) => b.id)).size).toBe(3);
   });
 
@@ -130,7 +140,10 @@ describe('buildSnapshot — fallback stableId collision-safe (PR #438)', () => {
       { id: 'my-explicit-id', type: 'p', children: [{ text: 'x' }] },
       { id: 'other-explicit-id', type: 'p', children: [{ text: 'x' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).toBe('my-explicit-id');
     expect(out.blocks[1]!.id).toBe('other-explicit-id');
   });
@@ -141,7 +154,10 @@ describe('buildSnapshot — fallback stableId collision-safe (PR #438)', () => {
       { type: 'p', children: [{ text: 'b' }] },
       { type: 'p', children: [{ text: 'b' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).toBe('fixed');
     expect(out.blocks[1]!.id).not.toBe(out.blocks[2]!.id);
   });

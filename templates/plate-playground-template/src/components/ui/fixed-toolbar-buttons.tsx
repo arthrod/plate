@@ -60,6 +60,7 @@ export function FixedToolbarButtons() {
           <ToolbarGroup>
             <PageSetupToolbarButton />
             <MarginsToolbarButton />
+            <PaginationToolbarButton />
           </ToolbarGroup>
 
           <ToolbarGroup>
@@ -133,7 +134,6 @@ export function FixedToolbarButtons() {
             <BulletedListToolbarButton />
             <TodoListToolbarButton />
             <ToggleToolbarButton />
-            <PaginationToolbarButton />
           </ToolbarGroup>
 
           <ToolbarGroup>

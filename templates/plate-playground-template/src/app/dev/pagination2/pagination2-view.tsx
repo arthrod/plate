@@ -14,9 +14,9 @@ import { Plate, PlateContent, usePlateEditor } from 'platejs/react';
 import * as React from 'react';
 import { MarginsMode } from '@/components/editor/margins-mode';
 import { PageSetupDialog } from '@/components/editor/page-setup-dialog';
-import { PrintPreview } from '@/components/editor/print-preview';
 import { BasicNodesKit } from '@/components/editor/plugins/basic-nodes-kit';
 import { FootnoteKit } from '@/components/editor/plugins/footnote-kit';
+import { PrintPreview } from '@/components/editor/print-preview';
 import { PrintStyles } from '@/components/editor/print-styles';
 import { Button } from '@/components/ui/button';
 

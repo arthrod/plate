@@ -59,17 +59,20 @@ function PageToolsShell() {
 
   return (
     <>
-      <EditorContainer>
+      <EditorContainer
+        className={paginated ? 'bg-muted/60 dark:bg-muted/40' : undefined}
+      >
         {/* Rendered directly in the scroll container (not via beforeEditable)
             so `sticky top-0` resolves against the scroller, not the page desk —
-            the toolbar stays fixed above the desk. */}
+            the toolbar stays fixed above the desk. When paginated, the scroller
+            becomes a recessed muted "desk" so the white page reads as a sheet. */}
         <FixedToolbar>
           <FixedToolbarButtons />
         </FixedToolbar>
 
         {paginated ? (
           <div
-            className="relative mx-auto my-8 bg-background shadow-lg"
+            className="relative mx-auto my-12 rounded-lg border bg-card shadow-md ring-1 ring-black/[0.04] dark:shadow-none dark:ring-white/[0.06]"
             data-testid="page-desk"
             style={{
               minHeight: setup.page.heightPx,

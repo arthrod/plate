@@ -105,6 +105,13 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
   const padRight = Number.parseFloat(style.paddingRight) || 0;
   const left = editable.offsetLeft + padLeft;
   const width = Math.max(0, editable.clientWidth - padLeft - padRight);
+  // The dashed break line spans the FULL page edge-to-edge: it extends into the
+  // left/right margins so it crosses the whole desk, while chrome bands stay in
+  // the content box. The break-line overlay is positioned in the page desk's
+  // space, so widening `left`/`width` by the margins reaches the page edges
+  // (no DOM/doc mutation — pure overlay geometry).
+  const pageLineLeft = left - margins.leftPx;
+  const pageLineWidth = width + margins.leftPx + margins.rightPx;
   // Content-sized chrome bands: one stacked line == one body line box. Pass the
   // SAME line height the composer reserved with (host effect below) so the
   // reserved band height equals the painted stack height.
@@ -298,11 +305,17 @@ const PaginationBreakLines: EditableSiblingComponent = () => {
             data-slot="pagination-break-line"
             key={`brk-${brk.blockIndex}:${brk.lineStart}`}
             style={{
-              borderTop: `1px ${breakLineStyle} rgb(100 116 139)`,
-              left,
+              // slate-300 — the same faint neutral the chrome/chip rules use
+              // (see CHROME_RULE / labelStyle). A page boundary is peripheral
+              // chrome: a hairline that recedes, not a ruled divider. slate-500
+              // read heavy edge-to-edge; slate-200 reads too faint across the
+              // full desk width, so slate-300 is the calibrated "page ends here"
+              // whisper. Framework-generic rgb (no template CSS vars).
+              borderTop: `1px ${breakLineStyle} rgb(203 213 225)`,
+              left: pageLineLeft,
               position: 'absolute',
               top,
-              width,
+              width: pageLineWidth,
             }}
           />
         );

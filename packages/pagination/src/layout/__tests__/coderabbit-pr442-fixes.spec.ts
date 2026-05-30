@@ -22,7 +22,10 @@ describe('buildSnapshot — explicit ids pass through (CodeRabbit PR #442)', () 
       { id: 'foo', type: 'p', children: [{ text: 'a' }] },
       { id: 'foo', type: 'p', children: [{ text: 'b' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).toBe('foo');
     expect(out.blocks[1]!.id).toBe('foo'); // NOT 'foo@1'
   });
@@ -32,7 +35,10 @@ describe('buildSnapshot — explicit ids pass through (CodeRabbit PR #442)', () 
       { id: 7, type: 'p', children: [{ text: 'a' }] },
       { id: 7, type: 'p', children: [{ text: 'b' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).toBe('7');
     expect(out.blocks[1]!.id).toBe('7');
   });
@@ -58,7 +64,10 @@ describe('buildSnapshot — explicit ids pass through (CodeRabbit PR #442)', () 
       { id: fallbackId, type: 'p', children: [{ text: 'explicit-first' }] },
       emptyP,
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).toBe(fallbackId);
     expect(out.blocks[1]!.id).not.toBe(fallbackId);
   });
@@ -69,7 +78,10 @@ describe('buildSnapshot — explicit ids pass through (CodeRabbit PR #442)', () 
       { type: 'p', children: [{ text: 'same' }] },
       { type: 'p', children: [{ text: 'same' }] },
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(new Set(out.blocks.map((b) => b.id)).size).toBe(3);
   });
 
@@ -80,7 +92,10 @@ describe('buildSnapshot — explicit ids pass through (CodeRabbit PR #442)', () 
       { type: 'p', children: [{ text: 'fallback' }] }, // fallback
       { type: 'p', children: [{ text: 'fallback' }] }, // fallback dup
     ];
-    const out = buildSnapshot(value, { atomicTypes: [], keepWithNextTypes: [] });
+    const out = buildSnapshot(value, {
+      atomicTypes: [],
+      keepWithNextTypes: [],
+    });
     expect(out.blocks[0]!.id).toBe('shared');
     expect(out.blocks[1]!.id).toBe('shared'); // explicit dup preserved
     expect(out.blocks[2]!.id).not.toBe(out.blocks[3]!.id); // fallback deduped

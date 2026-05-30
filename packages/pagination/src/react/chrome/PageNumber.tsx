@@ -31,10 +31,12 @@ import type { ChromeRenderContext } from '../../layout/types';
 
 // Shared chrome typography. Aligned with the rest of the editor (Roboto / system
 // sans). Exported so consumers can extend without redefining the same constants.
-const CHROME_FONT =
+export const CHROME_FONT =
   'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const CHROME_INK = 'rgb(71 85 105)';
-const CHROME_RULE = 'rgb(226 232 240)';
+/** Chrome ink — slate-600. The single ink every header/footer/page-number uses. */
+export const CHROME_INK = 'rgb(71 85 105)';
+/** Chrome hairline — slate-200. The single gray every band's rule uses. */
+export const CHROME_RULE = 'rgb(226 232 240)';
 
 /**
  * Centered "Page N of M" footer chip. Default for the most common pagination
@@ -52,6 +54,7 @@ export const PageNumber = (ctx: ChromeRenderContext): React.ReactNode => (
       display: 'flex',
       fontFamily: CHROME_FONT,
       fontSize: 11,
+      fontVariantNumeric: 'tabular-nums',
       height: '100%',
       justifyContent: 'center',
       letterSpacing: '0.04em',
@@ -67,7 +70,10 @@ export const PageNumber = (ctx: ChromeRenderContext): React.ReactNode => (
  * Renders nothing on page 1 by default (cover-page convention).
  */
 export const PageNumberWithTitle =
-  (title: string, opts: { skipFirstPage?: boolean } = { skipFirstPage: true }) =>
+  (
+    title: string,
+    opts: { skipFirstPage?: boolean } = { skipFirstPage: true }
+  ) =>
   (ctx: ChromeRenderContext): React.ReactNode => {
     if (opts.skipFirstPage && ctx.pageIndex === 0) return null;
     return (
@@ -87,7 +93,9 @@ export const PageNumberWithTitle =
         }}
       >
         <span>{title}</span>
-        <span>{`Page ${ctx.pageIndex + 1} of ${ctx.pageCount}`}</span>
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {`Page ${ctx.pageIndex + 1} of ${ctx.pageCount}`}
+        </span>
       </div>
     );
   };

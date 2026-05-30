@@ -93,7 +93,11 @@ describe('measureSnapshot', () => {
   });
 
   it('packs by pretext heightPx + box spacing when no rendered footprint', () => {
-    const measure = () => ({ heightPx: 100, lineHeightPx: 20, boxSpacingPx: 24 });
+    const measure = () => ({
+      heightPx: 100,
+      lineHeightPx: 20,
+      boxSpacingPx: 24,
+    });
     const out = measureSnapshot(snap(ub('a')), measure, { widthPx: 600 });
     expect(out.blocks[0].flowHeightPx).toBe(124); // 100 + 24
   });
@@ -108,9 +112,13 @@ describe('measureSnapshot', () => {
       lineHeightPx: 20,
       renderedHeightPx: 300,
     });
-    const out = measureSnapshot(snap(ub('img', { splittable: false })), measure, {
-      widthPx: 600,
-    });
+    const out = measureSnapshot(
+      snap(ub('img', { splittable: false })),
+      measure,
+      {
+        widthPx: 600,
+      }
+    );
     expect(out.blocks[0]).toMatchObject({
       flowHeightPx: 316, // renderedHeightPx (300) + boxSpacing (16)
       heightPx: 40, // pretext text height — unchanged

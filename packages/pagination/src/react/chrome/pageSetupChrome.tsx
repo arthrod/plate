@@ -28,6 +28,7 @@ import {
   pageNumberLocation,
   resolveChromeBands,
 } from '../../lib/resolvePageSetup';
+import { CHROME_FONT, CHROME_INK, CHROME_RULE } from './PageNumber';
 
 function styleToCss(style: ChromeTextStyle | undefined): React.CSSProperties {
   return {
@@ -55,7 +56,17 @@ function contentRow(
   const html = content?.html?.trim();
   const text = content?.text?.trim();
   if (!(html || text)) return null;
-  const css = { ...styleToCss(content?.style), width: '100%' };
+  // Seed the shared chrome defaults so an author who sets no style still gets
+  // restrained 11px slate-600 running text (not browser-default 16px black);
+  // any authored style overrides via the trailing spread.
+  const css = {
+    color: CHROME_INK,
+    fontFamily: CHROME_FONT,
+    fontSize: 11,
+    lineHeight: 1,
+    ...styleToCss(content?.style),
+    width: '100%',
+  };
 
   return (
     <div key={key} style={rowStyle(lineHeightPx)}>
@@ -95,6 +106,10 @@ function pageNumberRow(
       <span
         data-page-number={ctx.pageIndex + 1}
         style={{
+          color: CHROME_INK,
+          fontFamily: CHROME_FONT,
+          fontSize: 11,
+          letterSpacing: '0.04em',
           ...styleToCss(config.pageNumberStyle),
           fontVariantNumeric: 'tabular-nums',
         }}
@@ -116,12 +131,34 @@ function footnoteRow(
       key="footnote"
       style={{
         ...rowStyle(lineHeightPx),
-        borderTop: '1px solid rgb(203 213 225)',
-        opacity: 0.8,
+        alignItems: 'flex-start',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        rowGap: 3,
       }}
     >
-      <span style={{ fontSize: 10, ...styleToCss(config.footnoteStyle) }}>
-        Footnotes
+      {/* Academic footnote separator: a 1/3-width hairline above a small-caps
+          caption, reusing the shared chrome rule + ink. Stays within the single
+          reserved lineHeightPx so the composer reserve and overlay paint agree. */}
+      <span
+        style={{
+          borderTop: `1px solid ${CHROME_RULE}`,
+          height: 0,
+          width: '33%',
+        }}
+      />
+      <span
+        style={{
+          color: CHROME_INK,
+          fontFamily: CHROME_FONT,
+          fontSize: 10,
+          fontVariant: 'small-caps',
+          letterSpacing: '0.08em',
+          lineHeight: 1,
+          ...styleToCss(config.footnoteStyle),
+        }}
+      >
+        footnote
       </span>
     </div>
   );

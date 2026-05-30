@@ -44,6 +44,10 @@ export const PaginationKit = [
         KEYS.columnGroup,
         KEYS.equation,
       ],
+      // dotted reads as a finer, quieter cadence than dashed across the full
+      // desk width — the cleaner "page ends here" hint for this demo. The
+      // package default stays 'dashed' (broadest generic fallback).
+      breakLineStyle: 'dotted',
       chrome: {
         // Cover-page convention: page 1 stays blank (no header, no footer).
         // PageNumberWithTitle is configured with skipFirstPage=true by default

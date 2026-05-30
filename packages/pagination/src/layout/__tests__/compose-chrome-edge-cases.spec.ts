@@ -11,7 +11,9 @@ import { describe, expect, test } from 'bun:test';
 import { composeLayout } from '../compose';
 import type { LayoutInput, MeasuredSnapshot } from '../types';
 
-function snapshot(blocks: Array<{ id: string; heightPx: number }>): MeasuredSnapshot {
+function snapshot(
+  blocks: Array<{ id: string; heightPx: number }>
+): MeasuredSnapshot {
   return {
     blocks: blocks.map((b, i) => ({
       id: b.id,

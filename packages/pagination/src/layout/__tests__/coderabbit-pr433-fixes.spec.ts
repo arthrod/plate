@@ -26,7 +26,9 @@ const baseInput = (overrides: Partial<LayoutInput> = {}): LayoutInput => ({
   ...overrides,
 });
 
-function snap(blocks: Array<{ id: string; heightPx: number }>): MeasuredSnapshot {
+function snap(
+  blocks: Array<{ id: string; heightPx: number }>
+): MeasuredSnapshot {
   return {
     blocks: blocks.map((b, i) => ({
       id: b.id,
@@ -80,10 +82,7 @@ describe('composeLayout — frame-bounds guard (PR #433)', () => {
   });
 
   test('happy path unchanged: positive bounds with valid margins', () => {
-    const out = composeLayout(
-      snap([{ id: 'a', heightPx: 100 }]),
-      baseInput()
-    );
+    const out = composeLayout(snap([{ id: 'a', heightPx: 100 }]), baseInput());
     expect(out.pages[0]!.frames[0]!.bounds.height).toBe(1000 - 96 - 96);
     expect(out.pages[0]!.frames[0]!.bounds.width).toBe(800 - 96 - 96);
   });
