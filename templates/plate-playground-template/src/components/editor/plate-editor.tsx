@@ -1,11 +1,127 @@
 'use client';
 
+import {
+  DEFAULT_PAGE_SETUP,
+  type PageSetupConfig,
+  pageSetupFromValue,
+  setPageSetup,
+} from '@platejs/pagination';
+import { PaginationPlugin } from '@platejs/pagination/react';
 import { normalizeStaticValue } from 'platejs';
-import { Plate, usePlateEditor } from 'platejs/react';
+import {
+  Plate,
+  useEditorRef,
+  useEditorValue,
+  usePlateEditor,
+  usePluginOption,
+} from 'platejs/react';
+import * as React from 'react';
 
 import { EditorKit } from '@/components/editor/editor-kit';
+import { MarginsMode } from '@/components/editor/margins-mode';
+import { PageSetupDialog } from '@/components/editor/page-setup-dialog';
+import { PageToolsPlugin } from '@/components/editor/plugins/page-tools-kit';
+import { PrintPreview } from '@/components/editor/print-preview';
 import { SettingsDialog } from '@/components/editor/settings-dialog';
 import { Editor, EditorContainer } from '@/components/ui/editor';
+import { FixedToolbar } from '@/components/ui/fixed-toolbar';
+import { FixedToolbarButtons } from '@/components/ui/fixed-toolbar-buttons';
+
+/**
+ * Inside `<Plate>`: the page-tools UI. The Page-setup and margins-mode toolbar
+ * buttons flip `PageToolsPlugin` options; engaging either turns pagination on
+ * and seeds a page_setup node, and the editor renders inside a page-width desk
+ * (margins as padding) so pagination + margins mode are faithful. Until then
+ * the normal full-width showcase editor renders unchanged.
+ */
+function PageToolsShell() {
+  const editor = useEditorRef();
+  const value = useEditorValue();
+  const setup = pageSetupFromValue(value) ?? DEFAULT_PAGE_SETUP;
+
+  const pageSetupOpen = usePluginOption(PageToolsPlugin, 'pageSetupOpen');
+  const marginsMode = usePluginOption(PageToolsPlugin, 'marginsMode');
+  const paginated = usePluginOption(PaginationPlugin, 'enabled');
+  const [printing, setPrinting] = React.useState(false);
+
+  // Engaging page tools turns pagination on and ensures a page_setup node so the
+  // desk + modal have geometry to work with.
+  React.useEffect(() => {
+    if (!(pageSetupOpen || marginsMode)) return;
+    if (!editor.getOption(PaginationPlugin, 'enabled')) {
+      editor.setOption(PaginationPlugin, 'enabled', true);
+    }
+    if (!pageSetupFromValue(editor.children)) setPageSetup(editor, {});
+  }, [editor, marginsMode, pageSetupOpen]);
+
+  const applySetup = (patch: Partial<PageSetupConfig>) =>
+    setPageSetup(editor, patch);
+
+  return (
+    <>
+      <EditorContainer
+        className={paginated ? 'bg-muted/60 dark:bg-muted/40' : undefined}
+      >
+        {/* Rendered directly in the scroll container (not via beforeEditable)
+            so `sticky top-0` resolves against the scroller, not the page desk —
+            the toolbar stays fixed above the desk. When paginated, the scroller
+            becomes a recessed muted "desk" so the white page reads as a sheet. */}
+        <FixedToolbar>
+          <FixedToolbarButtons />
+        </FixedToolbar>
+
+        {paginated ? (
+          <div
+            className="relative mx-auto my-12 rounded-lg border bg-card shadow-md ring-1 ring-black/[0.04] dark:shadow-none dark:ring-white/[0.06]"
+            data-testid="page-desk"
+            style={{
+              minHeight: setup.page.heightPx,
+              paddingBottom: setup.margins.bottomPx,
+              paddingLeft: setup.margins.leftPx,
+              paddingRight: setup.margins.rightPx,
+              paddingTop: setup.margins.topPx,
+              width: setup.page.widthPx,
+            }}
+          >
+            <Editor className="px-0! pt-0! pb-0! sm:px-0!" variant="default" />
+            {marginsMode && (
+              <MarginsMode
+                onChange={applySetup}
+                onExit={() =>
+                  editor.setOption(PageToolsPlugin, 'marginsMode', false)
+                }
+                value={setup}
+              />
+            )}
+          </div>
+        ) : (
+          <Editor variant="demo" />
+        )}
+      </EditorContainer>
+
+      <PageSetupDialog
+        onChange={applySetup}
+        onOpenChange={(v) =>
+          editor.setOption(PageToolsPlugin, 'pageSetupOpen', v)
+        }
+        onPrint={() => {
+          editor.setOption(PageToolsPlugin, 'pageSetupOpen', false);
+          setPrinting(true);
+        }}
+        open={pageSetupOpen}
+        value={setup}
+      />
+
+      {printing && (
+        <PrintPreview
+          editor={editor}
+          onClose={() => setPrinting(false)}
+          setup={setup}
+        />
+      )}
+    </>
+  );
+}
 
 export function PlateEditor() {
   const editor = usePlateEditor({
@@ -15,9 +131,7 @@ export function PlateEditor() {
 
   return (
     <Plate editor={editor}>
-      <EditorContainer>
-        <Editor variant="demo" />
-      </EditorContainer>
+      <PageToolsShell />
 
       <SettingsDialog />
     </Plate>
