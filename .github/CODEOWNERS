@@ -1,0 +1,11 @@
+# Global owners — review required from at least one
+* @arthrod
+
+# Core packages
+packages/ @arthrod @pcmoraesmenezes
+
+# CI / GitHub config
+.github/ @arthrod
+
+# Apps
+apps/ @arthrod @pcmoraesmenezes
