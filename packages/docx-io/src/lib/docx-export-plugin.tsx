@@ -207,6 +207,21 @@ export type DocxExportOperationOptions = {
    * Document title (for metadata purposes).
    */
   title?: string;
+
+  /**
+   * Tracked-changes export configuration. When provided, the exporter wraps
+   * `@platejs/suggestion`-marked ranges with `[[DOCX_INS_*]]` /
+   * `[[DOCX_DEL_*]]` tokens before serialization so the (forked)
+   * `html-to-docx` translates them into native `<w:ins>` / `<w:del>` runs.
+   * See #342.
+   */
+  tracking?: {
+    /** Identity of the user performing the export. */
+    currentUserId?: string;
+    currentUserName?: string;
+    /** Whether transient / uncommitted suggestion marks are exported too. */
+    includeTransientSuggestions?: boolean;
+  };
 };
 
 /**
@@ -423,8 +438,21 @@ async function exportToDocxInternal(
     fontFamily,
     margins = DEFAULT_DOCX_MARGINS,
     orientation = 'portrait',
+    tracking,
     value,
   } = options;
+
+  if (tracking) {
+    // TODO(#342): run `injectDocxTrackingTokens` on `value` here so
+    // suggestion-marked ranges become `[[DOCX_INS_*]]` / `[[DOCX_DEL_*]]`
+    // token text before serialization, and the (forked) `html-to-docx`
+    // translates them back into native `<w:ins>` / `<w:del>` runs. Throw
+    // until then so callers can't mistake "tracking ignored" for
+    // "tracked changes exported".
+    throw new Error(
+      'Docx tracked-changes export is not implemented yet (tracked in #342). Leave `tracking` undefined.'
+    );
+  }
 
   // Serialize editor content to HTML
   const bodyHtml = await serializeToHtml({

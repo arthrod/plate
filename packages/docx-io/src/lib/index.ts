@@ -3,7 +3,10 @@
  */
 
 export * from './docx-export-plugin';
+export * from './exportTrackChanges';
 export * from './html-to-docx';
 export * from './importDocx';
+export * from './importTrackChanges';
 export * from './preprocessMammothHtml';
+export * from './searchRange';
 export * from './types';
