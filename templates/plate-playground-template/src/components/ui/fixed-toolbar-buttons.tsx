@@ -124,6 +124,7 @@ export function FixedToolbarButtons() {
             <BulletedListToolbarButton />
             <TodoListToolbarButton />
             <ToggleToolbarButton />
+            <PaginationToolbarButton />
           </ToolbarGroup>
 
           <ToolbarGroup>
@@ -158,7 +159,6 @@ export function FixedToolbarButtons() {
           <HighlighterIcon />
         </MarkToolbarButton>
         <CommentToolbarButton />
-        <PaginationToolbarButton />
       </ToolbarGroup>
 
       <ToolbarGroup>

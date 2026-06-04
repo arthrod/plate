@@ -1,29 +1,34 @@
 'use client';
 
-import { PageOverlay, PaginationPlugin } from '@platejs/pagination/react';
+import { PaginationPlugin } from '@platejs/pagination/react';
+import { KEYS } from 'platejs';
 
-/**
- * Pagination kit — variant A (render-time overlay).
- *
- * Painted as an absolute overlay on top of the editor; pages are derived
- * per render and the document model never changes. See `@platejs/pagination`.
- *
- * Render is bound at the kit level (not the package) so the JSX boundary
- * lives inside this `'use client'` file — mirrors the `CursorOverlayKit`
- * pattern used by other Plate plugins.
- */
+// Advisory continuous-view page-break overlay. Starts disabled; the
+// PaginationToolbarButton flips `enabled` at runtime via editor.setOption.
+// The overlay is pointer-events:none and never mutates the document.
+//
+// atomicTypes: non-text blocks placed whole. Pretext measures text-flow blocks
+// (paragraphs, headings) line-accurately; these blocks have no text flow to
+// shape, so the engine packs them by their rendered footprint instead. Without
+// this, images/tables/etc. measure as ~one line and the document collapses to a
+// single page (no break lines).
 export const PaginationKit = [
   PaginationPlugin.configure({
     options: {
-      footerHeight: 48,
-      footnoteWell: 96,
-      headerHeight: 48,
-      includeFootnoteSubPlugins: false,
-      margins: { bottom: 96, left: 72, right: 72, top: 96 },
-      pageSize: 'A4',
-    },
-    render: {
-      afterEditable: () => <PageOverlay />,
+      atomicTypes: [
+        KEYS.table,
+        KEYS.img,
+        KEYS.video,
+        KEYS.audio,
+        KEYS.file,
+        KEYS.codeBlock,
+        KEYS.toc,
+        KEYS.hr,
+        KEYS.mediaEmbed,
+        KEYS.columnGroup,
+        KEYS.equation,
+      ],
+      enabled: false,
     },
   }),
 ];

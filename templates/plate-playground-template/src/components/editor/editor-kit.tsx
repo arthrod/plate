@@ -66,13 +66,13 @@ export const EditorKit = [
   ...AlignKit,
   ...LineHeightKit,
 
+  // Layout
+  ...PaginationKit,
+
   // Collaboration
   ...DiscussionKit,
   ...CommentKit,
   ...SuggestionKit,
-
-  // Pagination (placeholder until @platejs/pagination ships — PRs #357/#358)
-  ...PaginationKit,
 
   // Editing
   ...SlashKit,
