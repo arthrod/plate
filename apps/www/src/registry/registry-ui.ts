@@ -384,6 +384,7 @@ export const uiComponents: Registry['items'] = [
       'media-toolbar-button',
       'mode-toolbar-button',
       'more-toolbar-button',
+      'pagination-toolbar-button',
       'table-toolbar-button',
       'toggle-toolbar-button',
       'turn-into-toolbar-button',
@@ -794,6 +795,15 @@ export const uiComponents: Registry['items'] = [
     name: 'more-toolbar-button',
     registryDependencies: ['@shadcn/dropdown-menu', 'toolbar'],
     title: 'More Toolbar Button',
+    type: 'registry:ui',
+  },
+  {
+    dependencies: ['@platejs/pagination'],
+    description: 'A toolbar button for page break markers.',
+    files: [{ path: 'ui/pagination-toolbar-button.tsx', type: 'registry:ui' }],
+    name: 'pagination-toolbar-button',
+    registryDependencies: ['toolbar'],
+    title: 'Pagination Toolbar Button',
     type: 'registry:ui',
   },
   {

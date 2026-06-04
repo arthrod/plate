@@ -1,12 +1,15 @@
 {
   "name": "@platejs/pagination",
-  "version": "0.0.0",
-  "description": "Plate plugin for paginated editing (variant A: render-time overlay, derived pages, pretext height oracle)",
+  "version": "52.2.0",
+  "description": "Pagination plugin for Plate - page-based document layout",
   "keywords": [
+    "pagination",
+    "pages",
+    "layout",
     "plate",
     "plugin",
     "slate",
-    "pagination"
+    "editor"
   ],
   "homepage": "https://platejs.org",
   "bugs": {
@@ -22,7 +25,6 @@
   "exports": {
     ".": "./dist/index.js",
     "./react": "./dist/react/index.js",
-    "./static": "./dist/static/index.js",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -42,17 +44,23 @@
     "typecheck": "plate-pkg p:typecheck"
   },
   "dependencies": {
-    "@platejs/footnote": "workspace:^",
+    "@chenglou/pretext": "^0.0.6",
+    "@udecode/react-utils": "workspace:*",
     "react-compiler-runtime": "^1.0.0"
   },
   "devDependencies": {
     "@plate/scripts": "workspace:*",
-    "platejs": "workspace:^"
+    "@platejs/core": "workspace:^",
+    "platejs": "workspace:^",
+    "slate": ">=0.112.0",
+    "slate-react": ">=0.112.0"
   },
   "peerDependencies": {
-    "platejs": ">=53.0.0",
+    "platejs": ">=52.0.0",
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react-dom": ">=18.0.0",
+    "slate": ">=0.112.0",
+    "slate-react": ">=0.112.0"
   },
   "publishConfig": {
     "access": "public"
