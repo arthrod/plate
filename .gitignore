@@ -136,3 +136,5 @@ packages/plate/docs/
 # Autoresearch session state
 /autoresearch.*
 /autoresearch.research/
+templates/plate-playground-template/.open-next/
+templates/plate-playground-template/.wrangler/
