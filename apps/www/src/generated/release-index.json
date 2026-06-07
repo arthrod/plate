@@ -1,5 +1,22 @@
 [
   {
+    "changelogUrl": "https://github.com/udecode/plate/blob/79578fd8ef53237edfc78389594df3ed5c722277/packages/ai/CHANGELOG.md",
+    "content": "`@platejs/ai`\n\n### Bug Fixes\n\n- Updated `@platejs/table`.\n\n`@platejs/table`\n\n### Bug Fixes\n\n- Remove the table when deleting its final column. ([#4994](https://github.com/udecode/plate/pull/4994))\n\n[`v53.0.8...v53.0.9`](https://github.com/udecode/plate/compare/v53.0.8...v53.0.9) · By [@puneetdixit200](https://github.com/puneetdixit200)",
+    "contributors": [
+      {
+        "url": "https://github.com/puneetdixit200",
+        "username": "@puneetdixit200"
+      }
+    ],
+    "date": "2026-06-04",
+    "packageTag": "@platejs/ai@53.0.9",
+    "tag": "v53.0.9",
+    "title": "v53.0.9",
+    "type": "patch",
+    "versionPackagePrUrl": "https://github.com/udecode/plate/pull/4995",
+    "url": "https://github.com/udecode/plate/releases/tag/v53.0.9"
+  },
+  {
     "changelogUrl": "https://github.com/udecode/plate/blob/f4514ed943145a9dd812e34b5f0caed8862b4d61/packages/docx-io/CHANGELOG.md",
     "content": "`@platejs/docx-io`\n\n### Bug Fixes\n\n- Fix `exportToDocx` adding blank paragraphs at the top of the document. `wrapHtmlForDocx` emitted a `<!DOCTYPE html>` and indented the template; html-to-docx (html-to-vdom) keeps the DOCTYPE and the whitespace-only text nodes between tags and renders each as a blank paragraph. The wrapper now emits tight markup with no DOCTYPE. ([#4991](https://github.com/udecode/plate/pull/4991))\n\n[`v53.0.7...v53.0.8`](https://github.com/udecode/plate/compare/v53.0.7...v53.0.8) · By [@WilliamPeralta](https://github.com/WilliamPeralta)",
     "contributors": [
