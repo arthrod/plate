@@ -20,4 +20,20 @@ export type ImportDocxResult = {
 export type ImportDocxOptions = {
   /** RTF data for image extraction (optional) */
   rtf?: string;
+  /**
+   * Enable the tracking import branch — extract `[[DOCX_(INS|DEL|CMT)_*]]`
+   * tokens from the raw HTML before `cleanDocx` runs, then re-anchor them on
+   * the deserialized tree (variant C — see #349).
+   */
+  tracking?: boolean;
+};
+
+/**
+ * Result returned when `ImportDocxOptions.tracking` is enabled. Intersects
+ * `ImportDocxResult` so any future field added to the base result type flows
+ * through automatically.
+ */
+export type ImportDocxWithTrackingResult = ImportDocxResult & {
+  /** Anchor-resolution and pairing failures, surfaced to the caller. */
+  errors?: string[];
 };

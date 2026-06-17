@@ -3,7 +3,9 @@
  */
 
 export * from './docx-export-plugin';
+export * from './extractTokensForCleaning';
 export * from './html-to-docx';
 export * from './importDocx';
 export * from './preprocessMammothHtml';
+export * from './reapplyTokens';
 export * from './types';

@@ -2,11 +2,17 @@ import { cleanDocx } from '@platejs/docx';
 import mammoth from 'mammoth';
 import type { SlateEditor } from 'platejs';
 
+import { extractTokens } from './extractTokensForCleaning';
 import {
   extractComments,
   preprocessMammothHtml,
 } from './preprocessMammothHtml';
-import type { ImportDocxOptions, ImportDocxResult } from './types';
+import { reapplyTokens } from './reapplyTokens';
+import type {
+  ImportDocxOptions,
+  ImportDocxResult,
+  ImportDocxWithTrackingResult,
+} from './types';
 
 /**
  * Parse HTML string to DOM element for deserialization.
@@ -44,8 +50,8 @@ export async function importDocx(
   editor: SlateEditor,
   arrayBuffer: ArrayBuffer,
   options: ImportDocxOptions = {}
-): Promise<ImportDocxResult> {
-  const { rtf = '' } = options;
+): Promise<ImportDocxResult | ImportDocxWithTrackingResult> {
+  const { rtf = '', tracking = false } = options;
 
   // Convert DOCX to HTML using mammoth
   const mammothResult = await mammoth.convertToHtml(
@@ -63,8 +69,14 @@ export async function importDocx(
     html: preprocessedHtml,
   } = preprocessMammothHtml(mammothHtml);
 
+  // Variant C (#349): when tracking is enabled, extract tracking tokens
+  // BEFORE cleanDocx so the cleaner stays token-blind.
+  const { stripped: htmlForCleanup, tokens: stashedTokens } = tracking
+    ? extractTokens(preprocessedHtml)
+    : { stripped: preprocessedHtml, tokens: [] };
+
   // Clean DOCX-specific HTML
-  const cleanedHtml = cleanDocx(preprocessedHtml, rtf);
+  const cleanedHtml = cleanDocx(htmlForCleanup, rtf);
 
   // Parse HTML to DOM element
   const element = parseHtmlElement(cleanedHtml);
@@ -78,10 +90,26 @@ export async function importDocx(
   }
 
   // Deserialize HTML to Plate nodes
-  const nodes = editor.api.html.deserialize({ element }) as any[];
+  let nodes = editor.api.html.deserialize({ element }) as any[];
 
   // Extract comments
   const comments = extractComments(commentById, commentIds);
+
+  // Variant C (#349): re-anchor stashed tokens onto the deserialized tree.
+  // Anchor misses are aggregated and surfaced via the result's `errors[]`.
+  if (tracking && stashedTokens.length > 0) {
+    const reapplied = reapplyTokens(editor, nodes, stashedTokens);
+    nodes = reapplied.nodes as any[];
+    const errors = reapplied.errors.map(
+      (err) => `${err.reason}: ${err.token.kind}#${err.token.index}`
+    );
+    return {
+      comments,
+      errors,
+      nodes,
+      warnings,
+    };
+  }
 
   return {
     comments,
