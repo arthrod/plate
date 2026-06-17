@@ -57,10 +57,12 @@ export async function htmlToDocxBlob(
   const safeHtml = html.trim() === '' ? '<p></p>' : html;
   const zip = new JSZip();
   const resultZip = await addFilesToContainer(zip, safeHtml, options, null);
-  const buffer = await resultZip.generateAsync({ type: 'uint8array' });
-  const blobBuffer = new Uint8Array(buffer);
 
-  return new Blob([blobBuffer], {
-    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  // Use JSZip's native blob output to avoid the redundant Uint8Array copy
+  // and the manual Blob construction (no intermediate buffer, no type cast).
+  return resultZip.generateAsync({
+    mimeType:
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    type: 'blob',
   });
 }

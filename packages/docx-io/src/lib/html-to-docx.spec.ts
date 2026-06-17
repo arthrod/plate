@@ -29,7 +29,10 @@ describe('htmlToDocxBlob', () => {
   it('normalizes empty html before delegating to the container builder', async () => {
     const { htmlToDocxBlob } = await loadModule();
 
-    generateAsyncMock.mockImplementation(async () => new Uint8Array([1, 2, 3]));
+    const docxMime =
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    const fakeBlob = new Blob([new Uint8Array([1, 2, 3])], { type: docxMime });
+    generateAsyncMock.mockImplementation(async () => fakeBlob);
     addFilesToContainerMock.mockImplementation(async () => ({
       generateAsync: generateAsyncMock,
     }));
@@ -44,9 +47,11 @@ describe('htmlToDocxBlob', () => {
       { orientation: 'landscape' },
       null
     );
-    expect(generateAsyncMock).toHaveBeenCalledWith({ type: 'uint8array' });
-    expect(blob.type).toBe(
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    );
+    expect(generateAsyncMock).toHaveBeenCalledWith({
+      mimeType: docxMime,
+      type: 'blob',
+    });
+    expect(blob).toBe(fakeBlob);
+    expect(blob.type).toBe(docxMime);
   });
 });
