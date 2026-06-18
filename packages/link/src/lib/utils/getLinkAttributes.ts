@@ -26,11 +26,18 @@ export const getLinkAttributes = (editor: SlateEditor, link: TLinkElement) => {
   }
   if ('target' in link && link.target !== undefined) {
     attributes.target = link.target;
+
+    if (link.target === '_blank') {
+      const rels = (attributes.rel || '').split(' ').filter(Boolean);
+      if (!rels.includes('noopener')) rels.push('noopener');
+      if (!rels.includes('noreferrer')) rels.push('noreferrer');
+      attributes.rel = rels.join(' ');
+    }
   }
 
   return attributes as Pick<
     React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    'href' | 'target'
+    'href' | 'target' | 'rel'
   > &
     UnknownObject;
 };
