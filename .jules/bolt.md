@@ -1,0 +1,3 @@
+## 2026-04-25 - Object iteration performance for small objects
+**Learning:** In the Bun/V8 environment, using `Object.entries()` for iterating over small, frequently accessed objects like Slate text nodes incurs a significant overhead due to array-of-arrays allocation.
+**Action:** Use a `for...of` loop combined with `Object.keys()` instead of `Object.entries()` or `for...in` to optimize iteration over text nodes and similar small objects.
