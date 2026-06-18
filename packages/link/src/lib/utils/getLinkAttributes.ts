@@ -28,9 +28,19 @@ export const getLinkAttributes = (editor: SlateEditor, link: TLinkElement) => {
     attributes.target = link.target;
   }
 
+  // Security: Prevent reverse tabnabbing for blank targets
+  if (attributes.target === '_blank') {
+    const relTokens = new Set(
+      typeof attributes.rel === 'string' ? attributes.rel.split(' ') : []
+    );
+    relTokens.add('noopener');
+    relTokens.add('noreferrer');
+    attributes.rel = Array.from(relTokens).join(' ');
+  }
+
   return attributes as Pick<
     React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    'href' | 'target'
+    'href' | 'target' | 'rel'
   > &
     UnknownObject;
 };
