@@ -1,0 +1,3 @@
+## 2024-05-18 - Generator iteration over eagerly resolving to arrays
+**Learning:** The `editor.api.levels()` returns a generator that should be iterated directly with `for...of`. Resolving it fully into arrays using `Array.from(...)` is an expensive O(N) allocation that loses the performance benefits of generators, like early `return` short-circuiting.
+**Action:** When querying or processing generators (like `editor.api.levels()`), do not eagerly resolve them into arrays using `Array.from()` to run `.some()`, `.every()`, or `.filter()`. Iterate the generator directly with a `for...of` loop to enable early O(1) short-circuit returns and avoid allocating the entire tree into memory.
