@@ -1,0 +1,4 @@
+## 2024-05-24 - Reverse Tabnabbing Protection on Dynamic Links
+**Vulnerability:** Links created dynamically by users in the rich text editor (e.g., via `@platejs/link`) that have `target="_blank"` did not include `rel="noopener noreferrer"`.
+**Learning:** In a rich text editor framework like Plate, user-generated content often involves links. If users can set `target="_blank"` on these links, it exposes readers to a "reverse tabnabbing" attack where the newly opened tab can gain a reference to the `window.opener` object and maliciously navigate the original tab (e.g., to a phishing site). Centralized attribute generation (like `getLinkAttributes`) must handle this globally.
+**Prevention:** Unconditionally inject `rel="noopener noreferrer"` whenever `target="_blank"` is applied to a link, particularly for dynamically generated elements in component systems and rich text editors.
