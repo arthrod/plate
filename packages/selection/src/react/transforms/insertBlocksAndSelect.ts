@@ -25,10 +25,12 @@ export const insertBlocksAndSelect = (
   }
 
   setTimeout(() => {
-    editor.setOption(
-      BlockSelectionPlugin,
-      'selectedIds',
-      new Set(insertedNodes.map((n) => n.id as string))
-    );
+    const selectedIds = new Set<string>();
+    for (const n of insertedNodes) {
+      if (n.id) {
+        selectedIds.add(n.id as string);
+      }
+    }
+    editor.setOption(BlockSelectionPlugin, 'selectedIds', selectedIds);
   }, 0);
 };
