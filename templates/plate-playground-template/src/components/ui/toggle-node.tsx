@@ -28,6 +28,7 @@ export function ToggleElement(props: PlateElementProps) {
               : 'rotate-0 transition-transform duration-75'
           }
         />
+        <span className="sr-only">Toggle</span>
       </Button>
       {props.children}
     </PlateElement>
