@@ -1,0 +1,3 @@
+## 2025-02-27 - Eager Resolution of Generators with Array.from() in Hot Paths
+**Learning:** In highly recursive or frequently called utility functions like `queryEditor` (which traverses Slate ancestor nodes), eagerly resolving generators using `Array.from()` to use array methods like `.some()` causes unnecessary O(n) memory allocations and prevents early short-circuiting.
+**Action:** When evaluating conditions against generators (like `editor.api.levels()`), avoid `Array.from()`. Iterate directly with a `for...of` loop. This enables O(1) early returns and drastically reduces memory overhead, especially critical during rapid editor keystrokes.
