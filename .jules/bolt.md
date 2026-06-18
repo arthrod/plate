@@ -1,0 +1,3 @@
+## 2024-04-18 - Avoid Generator Array Allocation in Slate queryEditor
+**Learning:** Using `Array.from()` on recursive generators like `editor.api.levels()` eagerly allocates the entire block tree path into memory. In hot paths like `queryEditor` which is called frequently during selection changes and filtering, this causes unnecessary garbage collection pressure and CPU overhead when a simple loop could short-circuit.
+**Action:** Always iterate generators (like those from Plate or Slate APIs) with a `for...of` loop directly to enable early O(1) short-circuit returns and eliminate intermediate array allocations.
