@@ -1,0 +1,4 @@
+## 2024-04-06 - Appending rel="noopener noreferrer" to User-Generated Links
+**Vulnerability:** User-generated links rendered by the rich text editor (e.g., PlateJS) that use `target="_blank"` are vulnerable to reverse tabnabbing attacks if they do not include `rel="noopener noreferrer"`.
+**Learning:** `getLinkAttributes.ts` centrally controls the HTML attributes for all links. Adding `target="_blank"` was supported but omitted the necessary `rel` attributes, relying on users to implement safety measures. By hooking into `getLinkAttributes.ts` directly, we can enforce `rel="noopener noreferrer"` globally for rendered links.
+**Prevention:** Implement `rel="noopener noreferrer"` as a defense-in-depth measure dynamically whenever a user sets a link's target to `_blank`. Update explicit type declarations (like `Pick`) to accommodate any newly generated string attributes like `rel`.
