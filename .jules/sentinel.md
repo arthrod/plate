@@ -1,0 +1,4 @@
+## 2024-05-18 - Prevent Reverse Tabnabbing via Link Targets
+**Vulnerability:** External links (`target="_blank"`) without `rel="noopener noreferrer"` expose the site to reverse tabnabbing attacks, allowing the newly opened page to potentially gain partial access to the original page's `window.opener` object and redirect it to a malicious site.
+**Learning:** This vulnerability can easily proliferate across a large codebase containing user-generated content or multiple templates if developers manually omit the `rel` attributes, or if an external link plugin lacks centralized enforcement.
+**Prevention:** In `@platejs/link`, enforce the addition of `noopener` and `noreferrer` globally in `getLinkAttributes.ts` whenever `target === '_blank'`. This centralized processing automatically secures all user-rendered and internally generated Plate editor links without relying on individual component implementation.
