@@ -58,19 +58,23 @@ export const getActiveSuggestionDescriptions = (
 
   return suggestionDataList.map(({ id: activeSuggestionId, userId }) => {
     const suggestionKey = getSuggestionKey(activeSuggestionId);
-    const nodes = Array.from(
-      getSuggestionNodeEntries(editor, activeSuggestionId)
-    ).map(([node]) => node);
-    const insertions = nodes.filter(
-      (node: any) => node[suggestionKey]?.type === 'insert'
-    );
-    const deletions = nodes.filter(
-      (node: any) => node[suggestionKey]?.type === 'remove'
-    );
-    const insertedText = insertions.map((node) => node.text).join('');
-    const deletedText = deletions.map((node) => node.text).join('');
+    let insertedText = '';
+    let deletedText = '';
+    let hasInsertions = false;
+    let hasDeletions = false;
 
-    if (insertions.length > 0 && deletions.length > 0) {
+    for (const [node] of getSuggestionNodeEntries(editor, activeSuggestionId)) {
+      const type = (node as any)[suggestionKey]?.type;
+      if (type === 'insert') {
+        insertedText += node.text;
+        hasInsertions = true;
+      } else if (type === 'remove') {
+        deletedText += node.text;
+        hasDeletions = true;
+      }
+    }
+
+    if (hasInsertions && hasDeletions) {
       return {
         deletedText,
         insertedText,
@@ -79,7 +83,7 @@ export const getActiveSuggestionDescriptions = (
         userId,
       };
     }
-    if (deletions.length > 0) {
+    if (hasDeletions) {
       return {
         deletedText,
         suggestionId: activeSuggestionId,
