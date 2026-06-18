@@ -133,6 +133,12 @@ export const turnIntoItems = [
   },
 ];
 
+// ⚡ Bolt Optimization: O(1) Map lookup for static menu items
+// Replaces O(N) Array.find inside the useMemo hook to avoid re-calculating on every cursor movement/render
+const turnIntoItemsMap = new Map(
+  turnIntoItems.map((item) => [item.value, item])
+);
+
 export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -143,7 +149,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   });
   const selectedItem = React.useMemo(
     () =>
-      turnIntoItems.find((item) => item.value === (value ?? KEYS.p)) ??
+      turnIntoItemsMap.get(value ?? KEYS.p) ??
       turnIntoItems[0],
     [value]
   );

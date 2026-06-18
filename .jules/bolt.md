@@ -1,0 +1,3 @@
+## 2025-03-01 - O(1) Map.get optimizations in `useMemo` hooks
+**Learning:** Replaced O(N) `Array.find` lookups within `useMemo` hooks with O(1) module-level `Map` tables for static arrays (`turnIntoItems`). Creating new `Map` inside the render function can cause unnecessary recalculations and GC overhead, so placing the `Map` instance outside the component body enables efficient element lookups during rendering without performance penalties.
+**Action:** Always scan for static arrays accessed via `Array.find` in render loops or hooks, and precalculate a global `Map` instance to facilitate an O(1) lookup when keys are unique.
