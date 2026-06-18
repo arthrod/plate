@@ -50,6 +50,10 @@ const turnIntoItems = baseTurnIntoItems.map((item) =>
   item.value in listItemsMap ? listItemsMap[item.value] : item
 );
 
+const turnIntoItemsMap = new Map(
+  turnIntoItems.map((item) => [item.value, item])
+);
+
 export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -59,9 +63,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
     getProp: (node) => getBlockType(node as TElement),
   });
   const selectedItem = React.useMemo(
-    () =>
-      turnIntoItems.find((item) => item.value === (value ?? KEYS.p)) ??
-      turnIntoItems[0],
+    () => turnIntoItemsMap.get(value ?? KEYS.p) ?? turnIntoItems[0],
     [value]
   );
 
