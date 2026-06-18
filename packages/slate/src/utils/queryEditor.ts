@@ -40,27 +40,31 @@ export const queryEditor = <E extends Editor>(
   }
 
   const allows = allow == null ? [] : castArray(allow);
-  const levels = Array.from(editor.api.levels({ at, reverse: true }));
-
-  if (
-    allows.length > 0 &&
-    !levels.some(
-      ([node]) => ElementApi.isElement(node) && allows.includes(node.type)
-    )
-  ) {
-    return false;
-  }
-
   const excludes = exclude == null ? [] : castArray(exclude);
 
-  if (
-    excludes.length > 0 &&
-    levels.some(
-      ([node]) => ElementApi.isElement(node) && excludes.includes(node.type)
-    )
-  ) {
-    return false;
+  if (allows.length === 0 && excludes.length === 0) {
+    return true;
   }
 
-  return true;
+  let isAllowed = allows.length === 0;
+
+  for (const [node] of editor.api.levels({ at, reverse: true })) {
+    if (!ElementApi.isElement(node)) continue;
+
+    if (excludes.length > 0 && excludes.includes(node.type)) {
+      return false;
+    }
+
+    if (!isAllowed && allows.includes(node.type)) {
+      isAllowed = true;
+    }
+
+    // If we've found an allowed node and there are no excludes to check,
+    // we can short-circuit and return true.
+    if (isAllowed && excludes.length === 0) {
+      return true;
+    }
+  }
+
+  return isAllowed;
 };
