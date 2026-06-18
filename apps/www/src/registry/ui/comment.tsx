@@ -211,6 +211,7 @@ export function Comment(props: {
                 onClick={onResolveComment}
                 type="button"
               >
+                <span className="sr-only">Resolve comment</span>
                 <CheckIcon className="size-4" />
               </Button>
             )}
@@ -269,6 +270,7 @@ export function Comment(props: {
                     void onCancel();
                   }}
                 >
+                  <span className="sr-only">Cancel</span>
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-primary/40">
                     <XIcon className="size-3 stroke-[3px] text-background" />
                   </div>
@@ -282,6 +284,7 @@ export function Comment(props: {
                     void onSave();
                   }}
                 >
+                  <span className="sr-only">Save comment</span>
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
                     <CheckIcon className="size-3 stroke-[3px] text-background" />
                   </div>
@@ -366,6 +369,7 @@ function CommentMoreDropdown(props: {
     >
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
         <Button variant="ghost" className={cn('h-6 p-1 text-muted-foreground')}>
+          <span className="sr-only">More options</span>
           <MoreHorizontalIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -596,6 +600,7 @@ export function CommentCreateForm({
                 onAddComment();
               }}
             >
+              <span className="sr-only">Add comment</span>
               <div className="flex size-6 items-center justify-center rounded-full">
                 <ArrowUpIcon />
               </div>
