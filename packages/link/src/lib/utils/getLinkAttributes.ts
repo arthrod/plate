@@ -28,9 +28,20 @@ export const getLinkAttributes = (editor: SlateEditor, link: TLinkElement) => {
     attributes.target = link.target;
   }
 
+  if (attributes.target === '_blank') {
+    if (attributes.rel) {
+      const rels = new Set(attributes.rel.split(' '));
+      rels.add('noopener');
+      rels.add('noreferrer');
+      attributes.rel = Array.from(rels).join(' ');
+    } else {
+      attributes.rel = 'noopener noreferrer';
+    }
+  }
+
   return attributes as Pick<
     React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    'href' | 'target'
+    'href' | 'target' | 'rel'
   > &
     UnknownObject;
 };
