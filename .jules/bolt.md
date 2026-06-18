@@ -1,0 +1,3 @@
+## 2024-05-24 - Static Lookup Table Optimization
+**Learning:** React components (e.g., toolbar buttons) often use `Array.find` inside `useMemo` hooks or render loops to lookup active items from static arrays (like `turnIntoItems`). This results in O(N) lookup complexity, which can be inefficient when called frequently during rapid state updates (e.g. selection changes).
+**Action:** Always replace O(N) `Array.find` lookups on static arrays with O(1) `Map.get` lookups. Define a module-level `Map` derived from the source array outside the component to ensure it's only initialized once, and use `map.get(value)` inside the component's `useMemo` or render logic.
